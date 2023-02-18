@@ -4,3 +4,4 @@
 .Ruserdata
 .DS_Store
 *.Rproj
+covidestim_estimates_legacy.RDS
