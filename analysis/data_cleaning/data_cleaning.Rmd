@@ -51,6 +51,22 @@ library(lubridate)
 
 
 
+### State-level
+
+
+### County-level
+* MA:
+  * `ma/archived_webpage_mass_cases.html` is the webpage [here](https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts) downloaded February 18, 2023. This page contains links to access the county-level data in Massachusetts.
+  * `ma_county_original.RDS` contains the original county-level data in Massachusetts downloaded from a link on this page
+  * `ma_county_biweekly` contains data aggregated by two-week interval by county
+* MI:
+  * `mi_county_original.RDS` contains the original county-level data in Michigan downloaded from the government website [here](https://www.michigan.gov/coronavirus/stats)
+  * `mi_county_daily.RDS` contains daily data with small cleaning modifications from the original for clarity
+  * `mi_county_biweekly.RDS.RDS` contains data aggregated by two-week interval by county
+
+
+### Hospitalizations
+* `hosp_biweekly_all_states.RDS` is biweekly hospitalization by state, accessible [here](https://dev.socrata.com/foundry/healthdata.gov/g62h-syeh)
 
 
 ```{r demographic info, eval=TRUE}
@@ -426,24 +442,6 @@ counts_raw %>%
   "/data/county_level/mi/mi_county_daily.RDS"))
 
 
-# county <- counts_raw %>%
-#   dplyr::rename_with(.cols =everything(), tolower) %>%
-#   mutate(
-#     date = ymd(messagedate),
-#     week = week(date),
-#     year = year(date)) %>%
-#   filter(year > 2020 & date <= end_date) %>%
-#   mutate( week = case_when(
-#     year == 2021 ~ week,
-#     year == 2022 ~ week + 52)) %>%
-#   select(fips, county, positive, date, total, week, negative) %>%
-#   mutate(state = "MI") %>%
-#   left_join(county_fips, by = c("state" ="state",
-#                                 "county" = "name")) %>%
-#   filter(!is.na(fips)) %>%
-#   select(-county)
-
-
 county <- counts_raw %>% 
   mutate(
     week = week(date),
@@ -509,294 +507,50 @@ readRDS(paste0(
 ```
 
 
-# All States Hospitalizations
+
+## Massachusetts
+
+Obtain data from the webpage [here](https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts). A downloaded version of this webpage and data downloaded from a link it contains (downloaded Feb 18, 2023) is included in this repository.
+
+```{r,eval=TRUE}
 
 
-```{r}
-
-############### MICHIGAN HOSPITALIZATIONS ######################
-
-##### WEEKLY
-# https://dev.socrata.com/foundry/healthdata.gov/g62h-syeh
-hosp <- httr::GET(URLencode("https://healthdata.gov/resource/g62h-syeh.json?$where=date between '2020-12-31T12:00:00' and '2022-02-25T14:00:00'&$select=deaths_covid,date,percent_of_inpatients_with_covid,inpatient_beds_used_covid,inpatient_beds_used,state&$limit=50000"))
-
-hosp <-jsonlite::fromJSON(
-  httr::content(hosp,
-                as="text",
-                encoding = "UTF-8")) %>%
-  as_tibble()
-
-
-hosp <- hosp %>%
-  mutate(date = gsub("T.*", "",date),
-         date = as.Date(date, format = "%Y-%m-%d"),
-         week = week(date)) %>%
-  mutate(across(-c(date,state), as.numeric))
-
-hosp_weekly <- hosp %>%
-  mutate(
-    year = year(date)) %>%
-  mutate(across(-c(date,state), as.numeric)) %>%
-  mutate(week = case_when(
-    year == 2021 ~ week,
-    year == 2022 ~ week + 52
-  ))
-
-
-num_weeks <- unique(hosp_weekly$week) %>%
-  length()
-
-num_biweeks <- num_weeks/2
-
-biweek <- tibble(biweek = c(rep(1:num_biweeks, 2))) %>%
-  arrange(biweek)
-
-biweek_to_week <- hosp_weekly %>%
-  select(week) %>%
-  distinct() %>%
-  arrange(week) %>%
-  cbind(biweek =biweek)
-
-###### WEEKLY
-hosp_weekly %>%
-  group_by(week,state) %>%
-  mutate(across(c(deaths_covid, 
-                  inpatient_beds_used_covid,
-                  inpatient_beds_used),
-                sum))  %>%
-  saveRDS(paste0(here::here(), "/data/all_states/hosp_weekly_allstates.RDS"))
-  
-###### BIWEEKLY
-hosp_weekly %>%
-  left_join(biweek_to_week) %>%
-  group_by(biweek, state) %>%
-  mutate(across(c(deaths_covid, 
-                  inpatient_beds_used_covid,
-                  inpatient_beds_used),
-                sum)) %>%
-  saveRDS(paste0(here::here(), "/data/all_states/hosp_biweekly_allstates.RDS"))
-  
-
-```
-
-
-
-
-# Michigan Hospitalizations
-
-```{r}
-
-############### MICHIGAN HOSPITALIZATIONS ######################
-
-##### WEEKLY
-# https://dev.socrata.com/foundry/healthdata.gov/g62h-syeh
-hosp <- httr::GET(URLencode("https://healthdata.gov/resource/g62h-syeh.json?state=MI&$where=date between '2020-12-31T12:00:00' and '2022-02-25T14:00:00'&$select=deaths_covid,date,percent_of_inpatients_with_covid,inpatient_beds_used_covid,inpatient_beds_used,state"))
-
-mi_hosp <-jsonlite::fromJSON(
-  httr::content(hosp,
-                as="text",
-                encoding = "UTF-8")) %>%
-  as_tibble()
-
-
-mi_hosp <- mi_hosp %>%
-  mutate(date = gsub("T.*", "",date),
-         date = as.Date(date, format = "%Y-%m-%d"),
-         week = week(date)) %>%
-  mutate(across(-c(date,state), as.numeric))
-
-mi_hosp_weekly <- mi_hosp %>%
-  mutate(
-    year = year(date)) %>%
-  mutate(across(-c(date,state), as.numeric)) %>%
-  mutate(week = case_when(
-    year == 2021 ~ week,
-    year == 2022 ~ week + 52
-  ))
-
-
-num_weeks <- unique(mi_hosp_weekly$week) %>%
-  length()
-
-num_biweeks <- num_weeks/2
-
-biweek <- tibble(biweek = c(rep(1:num_biweeks, 2))) %>%
-  arrange(biweek)
-
-biweek_to_week <- mi_hosp_weekly %>%
-  select(week) %>%
-  distinct() %>%
-  arrange(week) %>%
-  cbind(biweek =biweek)
-
-###### WEEKLY
-mi_hosp_weekly %>%
-  group_by(week) %>%
-  mutate(across(c(deaths_covid, 
-                  inpatient_beds_used_covid,
-                  inpatient_beds_used),
-                sum))  %>%
-  saveRDS(paste0(here::here(), "/data/michigan/mi_hosp_weekly.RDS"))
-  
-###### BIWEEKLY
-mi_hosp_weekly %>%
-  left_join(biweek_to_week) %>%
-  group_by(biweek) %>%
-  mutate(across(c(deaths_covid, 
-                  inpatient_beds_used_covid,
-                  inpatient_beds_used),
-                sum)) %>%
-  saveRDS(paste0(here::here(), "/data/michigan/mi_hosp_biweekly.RDS"))
-  
-
-```
-
-```{r, eval = FALSE}
-
-##################################
-# OLD VERSION 
-##################################
-
-
-#### BIWEEKLY
-# up until 13th
-hosp <- httr::GET(
-  URLencode(paste0(
-    "https://healthdata.gov/resource/g62h-syeh.json?state=MI&$where=date between '2021-01-01T12:00:00'",
-    "and '2022-01-13T14:00:00'&$select=deaths_covid,date,percent_of_inpatients_with_covid,inpatient_beds_used_covid,inpatient_beds_used,state")))
-
-mi_hosp <-jsonlite::fromJSON(
-  httr::content(hosp,
-                as="text",
-                encoding = "UTF-8")) %>%
-  as_tibble()
-
-mi_hosp_weekly <- mi_hosp %>%
-  mutate(
-    year = year(date)) %>%
-  mutate(across(-c(date,state), as.numeric)) %>%
-  mutate(date = ymd(substr(date, 1,10)),
-         year = year(date),
-         week = week(date))
-
-
-##### ADD BIWEEK #######
-
-num_weeks <- unique(county$week) %>%
-  length()
-
-num_biweeks <- num_weeks/2
-
-biweek <- tibble(biweek = c(rep(1:num_biweeks, 2))) %>%
-  arrange(biweek)
-
-biweek_to_week <- county %>%
-  select(week) %>%
-  distinct() %>%
-  arrange(week) %>%
-  cbind(biweek =biweek)
-
-county_biweekly <- county %>%
-  left_join(biweek_to_week) %>%
-  group_by(biweek, fips)  %>%
-  mutate(across(c(total,positive, negative),
-                sum)) %>%
-  ungroup() %>%
-  mutate(posrate = positive/ total) %>%
-  select(-week)
-
-
-biweek <- map(1:26, ~rep(.x,2)) %>% unlist()
-biweek <- c(biweek, 27,27, 27)
-
-
-week_to_biweek <- mi_hosp_weekly %>%
-  mutate(year = year(date),
-         week = week(date)) %>%
-  select(week, year ) %>%
-  distinct() %>%
-  arrange(year,week) %>%
-  cbind(biweek = biweek)
-
-
-hosp_biweekly <- mi_hosp_weekly %>%
-  arrange(date) %>%
-  left_join(week_to_biweek,
-            by = c("year" = "year",
-                   "week" = "week")) %>%
-  group_by(biweek) %>%
-  summarize(across(c(inpatient_beds_used,
-                     inpatient_beds_used_covid,
-                     deaths_covid), sum),
-            date = min(date))
-
-saveRDS(hosp_biweekly, "./data/hosp_mi_biweekly.RDS")
-
-```
-
-
-
-# Massachusetts
-
-```{r}
-
-
-county_fips <- read_tsv("./data/county_fips.tsv") %>%
+county_fips <- read_tsv(paste0(
+  here::here(),
+  "/data/demographic/county_fips.tsv")) %>%
   dplyr::rename_with(.cols =everything(), tolower)
 
 
 url_2019 <- "https://www2.census.gov/programs-surveys/popest/datasets/2010-2019/counties/totals/co-est2019-alldata.csv"
-
-
 population_2019 <- read_csv(url_2019) %>%
   mutate(fips_code = paste0(STATE, COUNTY)) %>%
-  select(fips_code, population =POPESTIMATE2019, county_name = CTYNAME)
+  select(fips_code, 
+         population = POPESTIMATE2019,
+         county_name = CTYNAME)
 
 
 ```
 
-```{r,eval=FALSE}
+```{r,eval=TRUE}
 
-########## TESTING ###########
-# link <- "https://www.mass.gov/doc/covid-19-raw-data-june-30-2022/download"
-# 
-# tf <- httr::GET(link, httr::write_disk(tf <- tempfile(fileext = ".xlsx")))
-# df <- readxl::read_excel(tf, sheet = "County_Weekly")
-# 
-# df <- df %>% 
-#   select(contains("date"), 
-#          total = `Total Tests (Last 14 days)`,
-#          positive = `Total Positive Tests (Last 14 days)`,
-#          county_name =County) %>%
-#   mutate(state = "MA")
-# 
-# 
-# df <- df %>%
-#   mutate(county_name = gsub(" County", "", county_name),
-#          county_name = trimws(county_name)) %>%
-# 
-#   
-#   
-# df_fips <- df %>%
-#   left_join(county_fips,
-#             by = c("county_name" = "name", 
-#                    "state" = "state")) %>%
-#   filter(!is.na(fips)) 
 
-```
-
-```{r,eval=FALSE}
+mass_html_page <- paste0(
+  here::here(),
+  "/data/county_level/ma/archived_webpage_mass_cases.html")
 
 # SCRAPE LINKS FROM HTML
-all_links <- tibble(lines = c(readLines("./data/ma/ma_2022.html"),
-                 readLines("./data/ma/ma_2021.html"))) %>%
+all_links <- tibble(lines = c(readLines(mass_html_page))) %>%
   filter(grepl("/doc/covid-19-raw-data-", lines)) %>%
+  # extract the part in quotes
   mutate(lines = str_extract(lines, '".*."'))%>%
+  # remove double quotes
   mutate(lines = gsub('"', "", lines)) %>%
-  mutate(lines = gsub(">.*", "", lines)) %>%
+  # remove any text before the www.mass.gov part of the link
+  mutate(lines = gsub(".*www.mass.gov", "", lines)) %>%
   mutate(link = paste0("https://www.mass.gov", lines)) %>% 
   pull(link)
-  
+
+
   
 read_data <- function(link) {
   httr::GET(link, httr::write_disk(tf <- tempfile(fileext = ".xlsx")))
@@ -811,31 +565,36 @@ read_data <- function(link) {
 
 }
 
-d <- read_data(all_links[1])
+# take the most recent; will filter to only include needed dates
+file_link <- all_links[1]
 
-data_ma <- map_df(all_links, ~ {
+if(!file.exists(paste0(
+    here::here(),
+    "/data/county_level/ma/ma_county_original.RDS"))) {
   
-  tryCatch(
-        {
-          read_data(link)
-        },
-        error=function(cond) {
-            message(paste("Issue with:", link))
-            message("Original error message:")
-            message(cond)
-            # Choose a return value in case of error
-            return(NULL)
-        })
-}
-)
+  ma_data <- read_data(file_link)
+  ma_data %>%
+  saveRDS(paste0(
+    here::here(),
+    "/data/county_level/ma/ma_county_original.RDS"))
 
-saveRDS(data_ma, "./data/ma/all.RDS")
+  
+}
+
+
 ```
 
-```{r}
 
-data_ma <- readRDS("./data/ma/all.RDS")
 
+```{r,eval=TRUE}
+
+data_ma <- readRDS(
+  paste0(
+    here::here(),
+    "/data/county_level/ma/ma_county_original.RDS"))
+
+# Dukes and Nantucket counties are combined
+data_ma$county_name %>% unique()
 
 # only NAs are from counties that were combined
 data_ma %>%
@@ -843,28 +602,35 @@ data_ma %>%
   pull(county_name) %>%
   unique()
 
+data_ma <- data_ma %>%
+  filter(!(is.na(total) | is.na(positive)))
 
 together <- county_fips %>% 
   filter(name == "Dukes" | name == "Nantucket") %>%
   pull(fips) %>%
   paste0(collapse = ",")
 
-#### fix population to add populations together
-grouped <- county_fips %>% 
+##################################################################
+# add Dukes and Nantucket county populations 
+# since their test numbers are combined
+##################################################################
+grouped_counties_fips <- county_fips %>% 
   filter(name == "Dukes" | name == "Nantucket") %>%
   pull(fips)
 
 county_fips <- county_fips %>%
-  filter(!(name == "Dukes" | name == "Nantucket")) %>%
+  filter(!(fips %in% grouped_counties_fips)) %>%
   bind_rows(tibble(name = "Dukes and Nantucket", 
-                   fips = together, 
-                   state = "MA"))
+                   fips = paste0(grouped_counties_fips, 
+                                 collapse=","))) %>%
+                   mutate(state = "MA")
 
  
-
+# sum populations for grouped counties
 population_2019 <- population_2019 %>%
-  mutate(fips_code = ifelse(fips_code %in% grouped,
-                            together, 
+  mutate(fips_code = ifelse(fips_code %in% grouped_counties_fips,
+                            paste0(grouped_counties_fips, 
+                                 collapse=","), 
                             fips_code)) %>%
   group_by(fips_code) %>%
   summarize(population = sum(population))
@@ -872,84 +638,164 @@ population_2019 <- population_2019 %>%
 
 ```
 
-```{r,eval =FALSE}
+```{r, eval =TRUE}
 
 
 data_ma <- data_ma %>%
-  filter(!(is.na(total) | is.na(positive))) %>%
-  filter(!county_name %in% c("All of Massachusetts", "Unknown County")) %>%
-  rename_with( ~tolower(gsub(" ", "_", .)), contains("date") ) %>%
-  mutate(across(contains("date"), ymd))
+  rename(report_date = `Report Date`,
+         start_period_date = `Start Date`,
+         end_period_date = `End Date`)%>%
+  filter(!county_name %in% c("All of Massachusetts", 
+                             "Unknown County")) %>%
+  mutate(year = year(start_period_date),
+         week = week(start_period_date)) %>%
+  filter(year> 2020 & start_period_date <= end_date) %>%
+  mutate( week = case_when(
+    year == 2021 ~ week,
+    year == 2022 ~ week + 52)) %>%
+  mutate(across(contains("date"),ymd))
 
-data_ma %>%
+
+# add fips 
+data_ma <- data_ma %>%
   mutate(county_name = gsub(" County", "", county_name),
          county_name = gsub(" Counties", "", county_name),
          county_name = trimws(county_name)) %>%
-  left_join(county_fips, by = c("state"="state", "county_name"="name")) %>%
-  saveRDS("./data/ma/ma_full_county.RDS")
+  left_join(county_fips, 
+            by = c("state"="state", "county_name"="name"))
 
+# note that dates are overlapping, so remove the duplicates
+# so that we have non-overlapping two-week intervals
+data_ma %>% 
+  select(start_period_date, end_period_date, week) %>% 
+  distinct() %>% 
+  head(n = 30)
 
-```
-
-```{r, eval = FALSE}
-
-# JHU data to compare if needed
-cases_all <- read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv")
-
-cases <- cases_all %>%
-  filter(Province_State == "Massachusetts") %>%
-  pivot_longer(12:ncol(.), names_to = "date", values_to = "confirmed") %>%
-  mutate(date = mdy(date)) %>%
-  filter(date >= ymd("2021-01-01") & date <=ymd("2021-02-25"))
-
-
-```
-
-
-```{r}
-
-data_ma <- readRDS("./data/ma/ma_full_county.RDS") %>% distinct()
-
-data_ma <- data_ma %>%
-  mutate(year = year(start_date),
-         week = week(start_date)) %>%
-  filter(year> 2020 & start_date <= end_date) %>%
-  mutate( week = case_when(
-    year == 2021 ~ week,
-    year == 2022 ~ week + 52)) 
 
 # note that dates are overlapping, so remove the duplicates
 startdate_to_biweek <- data_ma %>%
   filter(!week %% 2 ==0) %>%
   select(-week) %>%
-  select(start_date) %>%
+  select(start_period_date) %>%
   distinct() %>%
-  arrange(start_date) %>%
+  arrange(start_period_date) %>%
   mutate(biweek = row_number())
 
 
-data_ma %>%`
+data_ma  <- data_ma %>%
   filter(!week %% 2 ==0) %>%
   left_join(startdate_to_biweek) %>%
-  select(-c(week, end_date,report_date)) %>%
+  select(-c(week, end_period_date,report_date)) %>%
   left_join(population_2019, by = c("fips" = "fips_code")) %>%
-  rename(date = start_date) %>%
-  mutate(posrate = positive/total) %>%
-  saveRDS("./data/ma/ma_county_biweekly.RDS")
+  rename(date = start_period_date) %>%
+  mutate(posrate = positive/total) 
+  
+  
+data_ma %>%
+  saveRDS(
+    paste0(here::here(),
+           "/data/county_level/ma/ma_county_biweekly.RDS"))
   
   
 ```
 
 
-# County Level Hospitalizations
+# Hospitalizations 
+
+## State-level Hospitalizations
+
+Hospitalization data from the healthdata.gov endpoint [here](https://dev.socrata.com/foundry/healthdata.gov/g62h-syeh).
+
+```{r,eval=TRUE}
+
+
+##### WEEKLY
+# https://dev.socrata.com/foundry/healthdata.gov/g62h-syeh
+hosp <- httr::GET(URLencode(
+  paste0("https://healthdata.gov/resource/g62h-syeh.json?",
+  "$where=date between '2020-12-31T12:00:00' and '2022-02-25T14:00:00'&$",
+  "select=deaths_covid,date,percent_of_inpatients_with_covid,",
+  "inpatient_beds_used_covid,inpatient_beds_used,state&$limit=50000")))
+
+hosp <-jsonlite::fromJSON(
+  httr::content(hosp,
+                as="text",
+                encoding = "UTF-8")) %>%
+  as_tibble()
+
+hosp <- hosp %>%
+  # reformat dates from 2021-01-01T00:00:00.000 format
+  # to date foramt
+  mutate(date = gsub("T.*", "",date),
+         date = as.Date(date, format = "%Y-%m-%d"),
+         week = week(date)) %>%
+  mutate(across(-c(date,state), as.numeric))
+
+hosp <- hosp %>%
+  mutate(
+    year = year(date)) %>%
+  mutate(across(-c(date,state), as.numeric)) %>%
+  mutate(week = case_when(
+    year == 2021 ~ week,
+    year == 2022 ~ week + 52
+  ))
+
+
+num_weeks <- unique(hosp$week) %>%
+  length()
+
+num_biweeks <- num_weeks/2
+
+biweek <- tibble(biweek = c(rep(1:num_biweeks, 2))) %>%
+  arrange(biweek)
+
+biweek_to_week <- hosp %>%
+  select(week) %>%
+  distinct() %>%
+  arrange(week) %>%
+  cbind(biweek =biweek)
+  
+####################################
+#save biweekly hospitalizations
+####################################
+hosp_biweekly <- hosp %>%
+  left_join(biweek_to_week) %>%
+  group_by(biweek, state) %>%
+  mutate(across(c(deaths_covid, 
+                  inpatient_beds_used_covid,
+                  inpatient_beds_used),
+                sum)) 
+
+hosp_biweekly %>%
+  head(n= 30)
+
+hosp_biweekly %>%
+  saveRDS(paste0(here::here(),
+                 "/data/state_level/hosp_biweekly_all_states.RDS"))
+  
+
+```
+
+
+
+
+## County-level Hospitalizations
+
+Accessed from the CDC [here](https://data.cdc.gov/Public-Health-Surveillance/United-States-COVID-19-Community-Levels-by-County/3nnm-4jni).
 
 ```{r}
-dates <- readRDS("./data/date_to_biweek.RDS")
+
+dates <- readRDS(paste0(here::here(),"/data/date_to_biweek.RDS"))
 
 httr::GET("https://data.cdc.gov/resource/3nnm-4jni.json?state=Massachusetts")
 
-httr::GET(URLencode("https://healthdata.gov/resource/g62h-syeh.json?state=MA&$where=date between '2020-12-31T12:00:00' and '2022-02-25T14:00:00'&$select=deaths_covid,date,percent_of_inpatients_with_covid,inpatient_beds_used_covid,inpatient_beds_used,state"))
-
+test <- httr::GET(URLencode("https://healthdata.gov/resource/g62h-syeh.json?state=MA&$where=date between '2020-12-31T12:00:00' and '2022-02-25T14:00:00'&$select=deaths_covid,date,percent_of_inpatients_with_covid,inpatient_beds_used_covid,inpatient_beds_used,state"))
+test <-jsonlite::fromJSON(
+    httr::content(test,
+                  as="text",
+                  encoding = "UTF-8")) %>%
+  as_tibble()
+  
 
 # input full name
 get_county_hosp <- function(state) {
