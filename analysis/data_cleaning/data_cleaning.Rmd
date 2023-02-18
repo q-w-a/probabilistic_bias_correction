@@ -5,16 +5,26 @@ date: '`r Sys.Date()`'
 output:
   rmdformats::readthedown:
     df_print: paged
-    code_folding: hide
+    code_folding: show
+    css: ../../css/template.css
   html_document:
     df_print: paged
 ---
-change file to test 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
+knitr::opts_chunk$set(echo = TRUE, eval=FALSE, message=FALSE,warning=FALSE)
 
 ```
+
+
+
+```{css, echo = FALSE}
+#content{
+max-width:1920px;
+}
+  
+``` 
+
 
 ```{r,eval=TRUE}
 
@@ -41,7 +51,6 @@ library(lubridate)
 
 
 
-### Covidestim
 
 
 ```{r demographic info, eval=TRUE}
@@ -355,12 +364,14 @@ covidestim_biweekly_all_counties %>%
 
 
 
-# Michigan Cases
+# County-level Cases
+
+## Michigan 
 
 
 
 
-```{r}
+```{r, eval=TRUE}
 
 county_fips <- read_tsv(paste0(
   here::here(),
@@ -372,22 +383,33 @@ county_fips <- read_tsv(paste0(
 
 
 
-```{r}
+```{r michigan county, eval = TRUE}
 
 
 ###############################
 # MICHIGAN BIWEEKLY DATA
 ###############################
 
-## DATA SOURCE: https://www.michigan.gov/coronavirus/stats
-# link <- "https://www.michigan.gov/coronavirus/-/media/Project/Websites/coronavirus/Michigan-Data/09-27-2022/Datasets/Diagnostic-Tests-by-Result-and-County-2022-09-27.xlsx?rev=7ba61151dcff4b038e33ea9ead95137c&hash=6C1AA97E93A30A3C1F10171233FDF31A"
-# httr::GET(link, httr::write_disk(tf <- tempfile(fileext = ".xlsx")))
-# df <- readxl::read_excel(tf)
-# saveRDS(df, "./data/original_michigan.RDS")
-df <- readRDS("./data/original_michigan.RDS")
 
+if(!file.exists(paste0(here::here(),
+                     "/data/county_level/mi/mi_county_original.RDS"))) {
+  link <- paste0("https://www.michigan.gov/coronavirus/-/media/Project/Websites/coronavirus/",
+                 "Michigan-Data/09-27-2022/Datasets/Diagnostic-Tests-by-Result-and-County-2022-09-27.xlsx?",
+                 "rev=7ba61151dcff4b038e33ea9ead95137c&hash=6C1AA97E93A30A3C1F10171233FDF31A")
+  httr::GET(link, httr::write_disk(tf <- tempfile(fileext = ".xlsx")))
+  df <- readxl::read_excel(tf)
+  saveRDS(df, file = paste0(
+    here::here(),
+    "/data/county_level/mi/mi_county_original.RDS"))
+}
+  
+  
+counts_raw <- readRDS(paste0(
+  here::here(),
+  "/data/county_level/mi/mi_county_original.RDS"))
 
-df %>%
+# basic reformatting; join fips code and population
+counts_raw <- counts_raw %>%
   mutate(week = week(MessageDate),
          date = ymd(MessageDate)) %>%
   dplyr::rename_with(.cols =everything(), tolower) %>%
@@ -396,39 +418,50 @@ df %>%
             by = c("county"="name",
                    "state" = "state")) %>%
   select(-messagedate) %>%
-  left_join(population_2019, by = c("fips" = "fips_code")) %>%
-  saveRDS(., file = "./data/mi/michigan_full_county.RDS")
+  left_join(population_2019, by = c("fips" = "fips_code"))
+
+counts_raw %>%
+  saveRDS(., file =  paste0(
+    here::here(),
+  "/data/county_level/mi/mi_county_daily.RDS"))
 
 
-county <- df %>%
-  dplyr::rename_with(.cols =everything(), tolower) %>%
+# county <- counts_raw %>%
+#   dplyr::rename_with(.cols =everything(), tolower) %>%
+#   mutate(
+#     date = ymd(messagedate),
+#     week = week(date),
+#     year = year(date)) %>%
+#   filter(year > 2020 & date <= end_date) %>%
+#   mutate( week = case_when(
+#     year == 2021 ~ week,
+#     year == 2022 ~ week + 52)) %>%
+#   select(fips, county, positive, date, total, week, negative) %>%
+#   mutate(state = "MI") %>%
+#   left_join(county_fips, by = c("state" ="state",
+#                                 "county" = "name")) %>%
+#   filter(!is.na(fips)) %>%
+#   select(-county)
+
+
+county <- counts_raw %>% 
   mutate(
-    date = ymd(messagedate),
     week = week(date),
     year = year(date)) %>%
   filter(year > 2020 & date <= end_date) %>%
   mutate( week = case_when(
     year == 2021 ~ week,
     year == 2022 ~ week + 52)) %>%
-  select(county, positive, date, total, week, negative) %>%
-  mutate(state = "MI") %>%
-  left_join(county_fips, by = c("state" ="state",
-                                "county" = "name")) %>%
-  filter(!is.na(fips)) %>%
-  select(-county)
+  select(fips, county, positive, 
+         date, total, week, 
+         negative, population) %>%
+  mutate(state = "MI")
+  
 
 
-county %>%
-  left_join(population_2019,
-            by = c("fips" = "fips_code")) %>%
-  group_by(week, fips) %>%
-  mutate(across(c(total,positive, negative),
-                sum)) %>%
-  ungroup() %>%
-  mutate(posrate = positive/ total) %>%
-  saveRDS(paste0(here::here(), "/data/mi/mi_county_weekly.RDS"))
-
-
+######################
+# ADD BIWEEK
+######################
 num_weeks <- unique(county$week) %>%
   length()
 
@@ -453,27 +486,15 @@ county_biweekly <- county %>%
   select(-week)
 
 
-county_biweekly <- county_biweekly %>%
-  left_join(population_2019, by = c("fips" = "fips_code"))
+county_biweekly %>%
+  saveRDS(paste0(here::here(), 
+               "/data/county_level/mi/mi_county_biweekly.RDS"))
 
 
-
-saveRDS(county_biweekly, paste0(here::here(), "/data/mi/mi_county_biweekly.RDS"))
-
-readRDS(paste0(here::here(), "/data/mi/mi_county_biweekly.RDS")) %>%
-  mutate(week = week(date),year=year(date)) %>%
-  mutate(
-         week = case_when(
-           year == 2021 ~week,
-           year == 2022 ~ week + 52
-         )) %>%
-  select(week, biweek) %>%
-    distinct() %>%
-  saveRDS("./data/week_to_biweek.RDS")
-
-
-readRDS(paste0(here::here(), "/data/mi/mi_county_biweekly.RDS")) %>%
-  mutate(week = week(date),year=year(date)) %>%
+readRDS(paste0(
+  here::here(), 
+  "/data/county_level/mi/mi_county_biweekly.RDS")) %>%
+  mutate(week = week(date), year=year(date)) %>%
   mutate(
          week = case_when(
            year == 2021 ~week,
@@ -481,7 +502,8 @@ readRDS(paste0(here::here(), "/data/mi/mi_county_biweekly.RDS")) %>%
          )) %>%
   select(biweek,date) %>%
     distinct() %>%
-  saveRDS("./data/date_to_biweek.RDS")
+  saveRDS(paste0(here::here(),
+                 "/data/date_to_biweek.RDS"))
 
 
 ```
