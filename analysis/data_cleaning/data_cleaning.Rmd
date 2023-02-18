@@ -66,9 +66,11 @@ library(lubridate)
 
 
 ### Hospitalizations
-* `hosp_biweekly_all_states.RDS` is biweekly hospitalization by state, accessible [here](https://dev.socrata.com/foundry/healthdata.gov/g62h-syeh)
-
-
+* `hosp_biweekly_all_states.RDS` is biweekly hospitalizations by state, accessible [here](https://dev.socrata.com/foundry/healthdata.gov/g62h-syeh)
+* `hosp_biweekly_all_counties.RDS` is biweekly hospitalizations by county, aggregated using functionality provided by [Covidestim](https://github.com/covidestim/covidestim-sources#user-content-fn-1-6778941a67ce95d7bd5fda0b62f3b0d7)
+  * `hhs-hospitalizations-by-county.RDS` is the original file from Covidestim containing weekly counts of a collection of variables related to hospitalization 
+  
+  
 ```{r demographic info, eval=TRUE}
 
 # STRUCTURE: fips, state, week, negative, positive, total, posrate
@@ -781,65 +783,47 @@ hosp_biweekly %>%
 
 ## County-level Hospitalizations
 
-Accessed from the CDC [here](https://data.cdc.gov/Public-Health-Surveillance/United-States-COVID-19-Community-Levels-by-County/3nnm-4jni).
+Hospitalization data is from the Covidestim data sources repository [here](https://github.com/covidestim/covidestim-sources); details available under the *Hospitalization data pipeline section* of their Readme. Briefly, they use HHS facility-level hospitalization data and using geographic information to aggregate by county. 
 
-```{r}
+Values between 1 and 3 are censored, so the Covidestim developers included two estimates to bound the possible values:
 
-dates <- readRDS(paste0(here::here(),"/data/date_to_biweek.RDS"))
-
-httr::GET("https://data.cdc.gov/resource/3nnm-4jni.json?state=Massachusetts")
-
-test <- httr::GET(URLencode("https://healthdata.gov/resource/g62h-syeh.json?state=MA&$where=date between '2020-12-31T12:00:00' and '2022-02-25T14:00:00'&$select=deaths_covid,date,percent_of_inpatients_with_covid,inpatient_beds_used_covid,inpatient_beds_used,state"))
-test <-jsonlite::fromJSON(
-    httr::content(test,
-                  as="text",
-                  encoding = "UTF-8")) %>%
-  as_tibble()
-  
-
-# input full name
-get_county_hosp <- function(state) {
-  link <- paste0("https://data.cdc.gov/resource/3nnm-4jni.json?state=", 
-                 state, "&$where=date_updated between '2021-01-01T12:00:00' and ",
-                 "'2022-02-25T14:00:00'&$select=date_updated,",
-                 "covid_hospital_admissions_per_100k,",
-                 "state,county_population,county_fips")
-  hosp <- httr::GET(URLencode(link))
-  
-  
-  hosp <-jsonlite::fromJSON(
-    httr::content(hosp,
-                  as="text",
-                  encoding = "UTF-8")) %>%
-  as_tibble()
-  
-  hosp <- hosp %>%
-    rename(date = date_updated) %>% 
-    mutate(date = gsub("T.*", "",date),
-           date = as.Date(date, format = "%Y-%m-%d")) %>%
-    mutate(across(-c(date,state), as.numeric))
-
-  
-  hosp %>%
-    mutate(pop_100k = county_population/100000, 
-           hosp = covid_hospital_admissions_per_100k * pop_100k) %>%
-    inner_join(dates) %>%
-    group_by(biweek, state, county_fips) %>%
-    summarize(hosp = sum(hosp)) %>%
-    ungroup()
-
-}
-  
-
-data <- get_county_hosp("Massachusetts")
-saveRDS(data, "./data/hosp/county_hosp_ma.RDS")
+* `admissionsAdultsConfirmed_min`: The smallest the outcome could be - all censored values, which each represent a possible range of 1-3, will be resolved to 1.
+* `admissionsAdultsConfirmed_max:`  censored values taken to be 3
 
 
-data <- get_county_hosp("Michigan")
-saveRDS(data, "./data/hosp/county_hosp_mi.RDS")
+```{r, eval = TRUE}
+
+dates <- readRDS(paste0(here::here(),
+                 "/data/date_to_biweek.RDS"))
+
+county_hosp <- readRDS(paste0(
+    here::here(),
+    "/data/county_level/hosp/hhs-hospitalizations-by-county.RDS")) %>%
+  filter(year(weekstart) >= 2021 & weekstart <= end_date)
+
+county_hosp %>% head()
+
+# sum by biweek
+county_hosp <- county_hosp %>%
+  select(fips,
+         weekstart,
+         admissionsAdultsConfirmed_max,
+         admissionsAdultsConfirmed_min) %>%
+  left_join(dates, by = c("weekstart"="date")) %>%
+  rename(date=weekstart)%>%
+  group_by(fips,biweek) %>%
+  summarize(across(contains("admissions"), sum),
+            date = min(date)) %>%
+  ungroup()
+
+county_hosp %>% head()
+
+county_hosp %>%
+  saveRDS(paste0(
+    here::here(),
+    "/data/county_level/hosp/hosp_biweekly_all_counties.RDS"))
 
 
 
 ```
-
 

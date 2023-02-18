@@ -2666,7 +2666,7 @@ margin-left: 0 !important;
       <li><a href="#michigan" id="toc-michigan">Michigan</a></li>
       <li><a href="#massachusetts" id="toc-massachusetts">Massachusetts</a></li>
       </ul></li>
-      <li><a href="#hospitalizations" id="toc-hospitalizations">Hospitalizations</a>
+      <li><a href="#hospitalizations-1" id="toc-hospitalizations-1">Hospitalizations</a>
       <ul>
       <li><a href="#state-level-hospitalizations" id="toc-state-level-hospitalizations">State-level
       Hospitalizations</a></li>
@@ -2731,17 +2731,45 @@ aggregates for all counties, data again from link
 </div>
 <div id="state-level" class="section level3">
 <h3>State-level</h3>
-<ul>
-<li><code>hosp_biweekly_all_states.RDS</code> is biweekly
-hospitalization by state, accessible <a href="https://dev.socrata.com/foundry/healthdata.gov/g62h-syeh">here</a></li>
-</ul>
 </div>
 <div id="county-level" class="section level3">
 <h3>County-level</h3>
 <ul>
+<li>MA:
+<ul>
 <li><code>ma/archived_webpage_mass_cases.html</code> is the webpage <a href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts">here</a>
 downloaded February 18, 2023. This page contains links to access the
 county-level data in Massachusetts.</li>
+<li><code>ma_county_original.RDS</code> contains the original
+county-level data in Massachusetts downloaded from a link on this
+page</li>
+<li><code>ma_county_biweekly</code> contains data aggregated by two-week
+interval by county</li>
+</ul></li>
+<li>MI:
+<ul>
+<li><code>mi_county_original.RDS</code> contains the original
+county-level data in Michigan downloaded from the government website <a href="https://www.michigan.gov/coronavirus/stats">here</a></li>
+<li><code>mi_county_daily.RDS</code> contains daily data with small
+cleaning modifications from the original for clarity</li>
+<li><code>mi_county_biweekly.RDS.RDS</code> contains data aggregated by
+two-week interval by county</li>
+</ul></li>
+</ul>
+</div>
+<div id="hospitalizations" class="section level3">
+<h3>Hospitalizations</h3>
+<ul>
+<li><code>hosp_biweekly_all_states.RDS</code> is biweekly
+hospitalizations by state, accessible <a href="https://dev.socrata.com/foundry/healthdata.gov/g62h-syeh">here</a></li>
+<li><code>hosp_biweekly_all_counties.RDS</code> is biweekly
+hospitalizations by county, aggregated using functionality provided by
+<a href="https://github.com/covidestim/covidestim-sources#user-content-fn-1-6778941a67ce95d7bd5fda0b62f3b0d7">Covidestim</a>
+<ul>
+<li><code>hhs-hospitalizations-by-county.RDS</code> is the original file
+from Covidestim containing weekly counts of a collection of variables
+related to hospitalization</li>
+</ul></li>
 </ul>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># STRUCTURE: fips, state, week, negative, positive, total, posrate</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -3224,198 +3252,191 @@ contains (downloaded Feb 18, 2023) is included in this repository.</p>
 <span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(fips_code) <span class="sc">%&gt;%</span></span>
 <span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">population =</span> <span class="fu">sum</span>(population))</span></code></pre></div>
 <div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>data_ma <span class="ot">&lt;-</span> data_ma <span class="sc">%&gt;%</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>(<span class="fu">is.na</span>(total) <span class="sc">|</span> <span class="fu">is.na</span>(positive))) <span class="sc">%&gt;%</span></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>county_name <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;All of Massachusetts&quot;</span>, <span class="st">&quot;Unknown County&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>( <span class="sc">~</span><span class="fu">tolower</span>(<span class="fu">gsub</span>(<span class="st">&quot; &quot;</span>, <span class="st">&quot;_&quot;</span>, .)), <span class="fu">contains</span>(<span class="st">&quot;date&quot;</span>) ) <span class="sc">%&gt;%</span></span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">contains</span>(<span class="st">&quot;date&quot;</span>), ymd))</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>data_ma <span class="sc">%&gt;%</span></span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">county_name =</span> <span class="fu">gsub</span>(<span class="st">&quot; County&quot;</span>, <span class="st">&quot;&quot;</span>, county_name),</span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">county_name =</span> <span class="fu">gsub</span>(<span class="st">&quot; Counties&quot;</span>, <span class="st">&quot;&quot;</span>, county_name),</span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">county_name =</span> <span class="fu">trimws</span>(county_name)) <span class="sc">%&gt;%</span></span>
-<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(county_fips, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;state&quot;</span><span class="ot">=</span><span class="st">&quot;state&quot;</span>, <span class="st">&quot;county_name&quot;</span><span class="ot">=</span><span class="st">&quot;name&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">&quot;./data/ma/ma_full_county.RDS&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>data_ma <span class="ot">&lt;-</span> data_ma <span class="sc">%&gt;%</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">report_date =</span> <span class="st">`</span><span class="at">Report Date</span><span class="st">`</span>,</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">start_period_date =</span> <span class="st">`</span><span class="at">Start Date</span><span class="st">`</span>,</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">end_period_date =</span> <span class="st">`</span><span class="at">End Date</span><span class="st">`</span>)<span class="sc">%&gt;%</span></span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>county_name <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;All of Massachusetts&quot;</span>, </span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>                             <span class="st">&quot;Unknown County&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">year</span>(start_period_date),</span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">week =</span> <span class="fu">week</span>(start_period_date)) <span class="sc">%&gt;%</span></span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year<span class="sc">&gt;</span> <span class="dv">2020</span> <span class="sc">&amp;</span> start_period_date <span class="sc">&lt;=</span> end_date) <span class="sc">%&gt;%</span></span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>( <span class="at">week =</span> <span class="fu">case_when</span>(</span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    year <span class="sc">==</span> <span class="dv">2021</span> <span class="sc">~</span> week,</span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>    year <span class="sc">==</span> <span class="dv">2022</span> <span class="sc">~</span> week <span class="sc">+</span> <span class="dv">52</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">contains</span>(<span class="st">&quot;date&quot;</span>),ymd))</span>
-<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a><span class="co"># add fips </span></span>
-<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>data_ma <span class="ot">&lt;-</span> data_ma <span class="sc">%&gt;%</span></span>
-<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">county_name =</span> <span class="fu">gsub</span>(<span class="st">&quot; County&quot;</span>, <span class="st">&quot;&quot;</span>, county_name),</span>
-<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>         <span class="at">county_name =</span> <span class="fu">gsub</span>(<span class="st">&quot; Counties&quot;</span>, <span class="st">&quot;&quot;</span>, county_name),</span>
-<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>         <span class="at">county_name =</span> <span class="fu">trimws</span>(county_name)) <span class="sc">%&gt;%</span></span>
-<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(county_fips, </span>
-<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;state&quot;</span><span class="ot">=</span><span class="st">&quot;state&quot;</span>, <span class="st">&quot;county_name&quot;</span><span class="ot">=</span><span class="st">&quot;name&quot;</span>))</span>
-<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a><span class="co"># note that dates are overlapping, so remove the duplicates</span></span>
-<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a><span class="co"># so that we have non-overlapping two-week intervals</span></span>
-<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>data_ma <span class="sc">%&gt;%</span> </span>
-<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(start_period_date, end_period_date, week) <span class="sc">%&gt;%</span> </span>
-<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="at">n =</span> <span class="dv">30</span>)</span></code></pre></div>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">report_date =</span> <span class="st">`</span><span class="at">Report Date</span><span class="st">`</span>,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">start_period_date =</span> <span class="st">`</span><span class="at">Start Date</span><span class="st">`</span>,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">end_period_date =</span> <span class="st">`</span><span class="at">End Date</span><span class="st">`</span>)<span class="sc">%&gt;%</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>county_name <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;All of Massachusetts&quot;</span>, </span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>                             <span class="st">&quot;Unknown County&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">year</span>(start_period_date),</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">week =</span> <span class="fu">week</span>(start_period_date)) <span class="sc">%&gt;%</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year<span class="sc">&gt;</span> <span class="dv">2020</span> <span class="sc">&amp;</span> start_period_date <span class="sc">&lt;=</span> end_date) <span class="sc">%&gt;%</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>( <span class="at">week =</span> <span class="fu">case_when</span>(</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    year <span class="sc">==</span> <span class="dv">2021</span> <span class="sc">~</span> week,</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    year <span class="sc">==</span> <span class="dv">2022</span> <span class="sc">~</span> week <span class="sc">+</span> <span class="dv">52</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">contains</span>(<span class="st">&quot;date&quot;</span>),ymd))</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a><span class="co"># add fips </span></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>data_ma <span class="ot">&lt;-</span> data_ma <span class="sc">%&gt;%</span></span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">county_name =</span> <span class="fu">gsub</span>(<span class="st">&quot; County&quot;</span>, <span class="st">&quot;&quot;</span>, county_name),</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>         <span class="at">county_name =</span> <span class="fu">gsub</span>(<span class="st">&quot; Counties&quot;</span>, <span class="st">&quot;&quot;</span>, county_name),</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>         <span class="at">county_name =</span> <span class="fu">trimws</span>(county_name)) <span class="sc">%&gt;%</span></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(county_fips, </span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;state&quot;</span><span class="ot">=</span><span class="st">&quot;state&quot;</span>, <span class="st">&quot;county_name&quot;</span><span class="ot">=</span><span class="st">&quot;name&quot;</span>))</span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a><span class="co"># note that dates are overlapping, so remove the duplicates</span></span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a><span class="co"># so that we have non-overlapping two-week intervals</span></span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>data_ma <span class="sc">%&gt;%</span> </span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(start_period_date, end_period_date, week) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="at">n =</span> <span class="dv">30</span>)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["start_period_date"],"name":[1],"type":["date"],"align":["right"]},{"label":["end_period_date"],"name":[2],"type":["date"],"align":["right"]},{"label":["week"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"2021-01-03","2":"2021-01-16","3":"1"},{"1":"2021-01-10","2":"2021-01-23","3":"2"},{"1":"2021-01-17","2":"2021-01-30","3":"3"},{"1":"2021-01-24","2":"2021-02-06","3":"4"},{"1":"2021-01-31","2":"2021-02-13","3":"5"},{"1":"2021-02-07","2":"2021-02-20","3":"6"},{"1":"2021-02-14","2":"2021-02-27","3":"7"},{"1":"2021-02-21","2":"2021-03-06","3":"8"},{"1":"2021-02-28","2":"2021-03-13","3":"9"},{"1":"2021-03-07","2":"2021-03-20","3":"10"},{"1":"2021-03-14","2":"2021-03-27","3":"11"},{"1":"2021-03-21","2":"2021-04-03","3":"12"},{"1":"2021-03-28","2":"2021-04-10","3":"13"},{"1":"2021-04-04","2":"2021-04-17","3":"14"},{"1":"2021-04-11","2":"2021-04-24","3":"15"},{"1":"2021-04-18","2":"2021-05-01","3":"16"},{"1":"2021-04-25","2":"2021-05-08","3":"17"},{"1":"2021-05-02","2":"2021-05-15","3":"18"},{"1":"2021-05-09","2":"2021-05-22","3":"19"},{"1":"2021-05-16","2":"2021-05-29","3":"20"},{"1":"2021-05-23","2":"2021-06-05","3":"21"},{"1":"2021-05-30","2":"2021-06-12","3":"22"},{"1":"2021-06-06","2":"2021-06-19","3":"23"},{"1":"2021-06-13","2":"2021-06-26","3":"24"},{"1":"2021-06-20","2":"2021-07-03","3":"25"},{"1":"2021-06-27","2":"2021-07-10","3":"26"},{"1":"2021-07-04","2":"2021-07-17","3":"27"},{"1":"2021-07-11","2":"2021-07-24","3":"28"},{"1":"2021-07-18","2":"2021-07-31","3":"29"},{"1":"2021-07-25","2":"2021-08-07","3":"30"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># note that dates are overlapping, so remove the duplicates</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>startdate_to_biweek <span class="ot">&lt;-</span> data_ma <span class="sc">%&gt;%</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>week <span class="sc">%%</span> <span class="dv">2</span> <span class="sc">==</span><span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>week) <span class="sc">%&gt;%</span></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(start_period_date) <span class="sc">%&gt;%</span></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(start_period_date) <span class="sc">%&gt;%</span></span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">biweek =</span> <span class="fu">row_number</span>())</span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>data_ma  <span class="ot">&lt;-</span> data_ma <span class="sc">%&gt;%</span></span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>week <span class="sc">%%</span> <span class="dv">2</span> <span class="sc">==</span><span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(startdate_to_biweek) <span class="sc">%&gt;%</span></span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(week, end_period_date,report_date)) <span class="sc">%&gt;%</span></span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(population_2019, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;fips&quot;</span> <span class="ot">=</span> <span class="st">&quot;fips_code&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">date =</span> start_period_date) <span class="sc">%&gt;%</span></span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">posrate =</span> positive<span class="sc">/</span>total) </span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>data_ma <span class="sc">%&gt;%</span></span>
-<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(</span>
-<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(here<span class="sc">::</span><span class="fu">here</span>(),</span>
-<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;/data/county_level/ma/ma_county_biweekly.RDS&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># note that dates are overlapping, so remove the duplicates</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>startdate_to_biweek <span class="ot">&lt;-</span> data_ma <span class="sc">%&gt;%</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>week <span class="sc">%%</span> <span class="dv">2</span> <span class="sc">==</span><span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>week) <span class="sc">%&gt;%</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(start_period_date) <span class="sc">%&gt;%</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(start_period_date) <span class="sc">%&gt;%</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">biweek =</span> <span class="fu">row_number</span>())</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>data_ma  <span class="ot">&lt;-</span> data_ma <span class="sc">%&gt;%</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>week <span class="sc">%%</span> <span class="dv">2</span> <span class="sc">==</span><span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(startdate_to_biweek) <span class="sc">%&gt;%</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(week, end_period_date,report_date)) <span class="sc">%&gt;%</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(population_2019, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;fips&quot;</span> <span class="ot">=</span> <span class="st">&quot;fips_code&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">date =</span> start_period_date) <span class="sc">%&gt;%</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">posrate =</span> positive<span class="sc">/</span>total) </span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>data_ma <span class="sc">%&gt;%</span></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(</span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(here<span class="sc">::</span><span class="fu">here</span>(),</span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;/data/county_level/ma/ma_county_biweekly.RDS&quot;</span>))</span></code></pre></div>
 </div>
 </div>
-<div id="hospitalizations" class="section level1">
+<div id="hospitalizations-1" class="section level1">
 <h1>Hospitalizations</h1>
 <div id="state-level-hospitalizations" class="section level2">
 <h2>State-level Hospitalizations</h2>
 <p>Hospitalization data from the healthdata.gov endpoint <a href="https://dev.socrata.com/foundry/healthdata.gov/g62h-syeh">here</a>.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="do">##### WEEKLY</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="co"># https://dev.socrata.com/foundry/healthdata.gov/g62h-syeh</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>hosp <span class="ot">&lt;-</span> httr<span class="sc">::</span><span class="fu">GET</span>(<span class="fu">URLencode</span>(</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">&quot;https://healthdata.gov/resource/g62h-syeh.json?&quot;</span>,</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;$where=date between &#39;2020-12-31T12:00:00&#39; and &#39;2022-02-25T14:00:00&#39;&amp;$&quot;</span>,</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;select=deaths_covid,date,percent_of_inpatients_with_covid,&quot;</span>,</span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;inpatient_beds_used_covid,inpatient_beds_used,state&amp;$limit=50000&quot;</span>)))</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>hosp <span class="ot">&lt;-</span>jsonlite<span class="sc">::</span><span class="fu">fromJSON</span>(</span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  httr<span class="sc">::</span><span class="fu">content</span>(hosp,</span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>                <span class="at">as=</span><span class="st">&quot;text&quot;</span>,</span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">encoding =</span> <span class="st">&quot;UTF-8&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>()</span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>hosp <span class="ot">&lt;-</span> hosp <span class="sc">%&gt;%</span></span>
-<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># reformat dates from 2021-01-01T00:00:00.000 format</span></span>
-<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># to date foramt</span></span>
-<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">gsub</span>(<span class="st">&quot;T.*&quot;</span>, <span class="st">&quot;&quot;</span>,date),</span>
-<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>         <span class="at">date =</span> <span class="fu">as.Date</span>(date, <span class="at">format =</span> <span class="st">&quot;%Y-%m-%d&quot;</span>),</span>
-<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>         <span class="at">week =</span> <span class="fu">week</span>(date)) <span class="sc">%&gt;%</span></span>
-<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="sc">-</span><span class="fu">c</span>(date,state), as.numeric))</span>
-<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>hosp <span class="ot">&lt;-</span> hosp <span class="sc">%&gt;%</span></span>
-<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> <span class="fu">year</span>(date)) <span class="sc">%&gt;%</span></span>
-<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="sc">-</span><span class="fu">c</span>(date,state), as.numeric)) <span class="sc">%&gt;%</span></span>
-<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">week =</span> <span class="fu">case_when</span>(</span>
-<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>    year <span class="sc">==</span> <span class="dv">2021</span> <span class="sc">~</span> week,</span>
-<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a>    year <span class="sc">==</span> <span class="dv">2022</span> <span class="sc">~</span> week <span class="sc">+</span> <span class="dv">52</span></span>
-<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>  ))</span>
-<span id="cb27-31"><a href="#cb27-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-32"><a href="#cb27-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-33"><a href="#cb27-33" aria-hidden="true" tabindex="-1"></a>num_weeks <span class="ot">&lt;-</span> <span class="fu">unique</span>(hosp<span class="sc">$</span>week) <span class="sc">%&gt;%</span></span>
-<span id="cb27-34"><a href="#cb27-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">length</span>()</span>
-<span id="cb27-35"><a href="#cb27-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-36"><a href="#cb27-36" aria-hidden="true" tabindex="-1"></a>num_biweeks <span class="ot">&lt;-</span> num_weeks<span class="sc">/</span><span class="dv">2</span></span>
-<span id="cb27-37"><a href="#cb27-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-38"><a href="#cb27-38" aria-hidden="true" tabindex="-1"></a>biweek <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">biweek =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>num_biweeks, <span class="dv">2</span>))) <span class="sc">%&gt;%</span></span>
-<span id="cb27-39"><a href="#cb27-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(biweek)</span>
-<span id="cb27-40"><a href="#cb27-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-41"><a href="#cb27-41" aria-hidden="true" tabindex="-1"></a>biweek_to_week <span class="ot">&lt;-</span> hosp <span class="sc">%&gt;%</span></span>
-<span id="cb27-42"><a href="#cb27-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(week) <span class="sc">%&gt;%</span></span>
-<span id="cb27-43"><a href="#cb27-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb27-44"><a href="#cb27-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(week) <span class="sc">%&gt;%</span></span>
-<span id="cb27-45"><a href="#cb27-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(<span class="at">biweek =</span>biweek)</span>
-<span id="cb27-46"><a href="#cb27-46" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb27-47"><a href="#cb27-47" aria-hidden="true" tabindex="-1"></a><span class="do">####################################</span></span>
-<span id="cb27-48"><a href="#cb27-48" aria-hidden="true" tabindex="-1"></a><span class="co">#save biweekly hospitalizations</span></span>
-<span id="cb27-49"><a href="#cb27-49" aria-hidden="true" tabindex="-1"></a><span class="do">####################################</span></span>
-<span id="cb27-50"><a href="#cb27-50" aria-hidden="true" tabindex="-1"></a>hosp_biweekly <span class="ot">&lt;-</span> hosp <span class="sc">%&gt;%</span></span>
-<span id="cb27-51"><a href="#cb27-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(biweek_to_week) <span class="sc">%&gt;%</span></span>
-<span id="cb27-52"><a href="#cb27-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(biweek, state) <span class="sc">%&gt;%</span></span>
-<span id="cb27-53"><a href="#cb27-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(deaths_covid, </span>
-<span id="cb27-54"><a href="#cb27-54" aria-hidden="true" tabindex="-1"></a>                  inpatient_beds_used_covid,</span>
-<span id="cb27-55"><a href="#cb27-55" aria-hidden="true" tabindex="-1"></a>                  inpatient_beds_used),</span>
-<span id="cb27-56"><a href="#cb27-56" aria-hidden="true" tabindex="-1"></a>                sum)) </span>
-<span id="cb27-57"><a href="#cb27-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-58"><a href="#cb27-58" aria-hidden="true" tabindex="-1"></a>hosp_biweekly <span class="sc">%&gt;%</span></span>
-<span id="cb27-59"><a href="#cb27-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="at">n=</span> <span class="dv">30</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="do">##### WEEKLY</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="co"># https://dev.socrata.com/foundry/healthdata.gov/g62h-syeh</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>hosp <span class="ot">&lt;-</span> httr<span class="sc">::</span><span class="fu">GET</span>(<span class="fu">URLencode</span>(</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">&quot;https://healthdata.gov/resource/g62h-syeh.json?&quot;</span>,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;$where=date between &#39;2020-12-31T12:00:00&#39; and &#39;2022-02-25T14:00:00&#39;&amp;$&quot;</span>,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;select=deaths_covid,date,percent_of_inpatients_with_covid,&quot;</span>,</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;inpatient_beds_used_covid,inpatient_beds_used,state&amp;$limit=50000&quot;</span>)))</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>hosp <span class="ot">&lt;-</span>jsonlite<span class="sc">::</span><span class="fu">fromJSON</span>(</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>  httr<span class="sc">::</span><span class="fu">content</span>(hosp,</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>                <span class="at">as=</span><span class="st">&quot;text&quot;</span>,</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">encoding =</span> <span class="st">&quot;UTF-8&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>()</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>hosp <span class="ot">&lt;-</span> hosp <span class="sc">%&gt;%</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># reformat dates from 2021-01-01T00:00:00.000 format</span></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># to date foramt</span></span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">gsub</span>(<span class="st">&quot;T.*&quot;</span>, <span class="st">&quot;&quot;</span>,date),</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>         <span class="at">date =</span> <span class="fu">as.Date</span>(date, <span class="at">format =</span> <span class="st">&quot;%Y-%m-%d&quot;</span>),</span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>         <span class="at">week =</span> <span class="fu">week</span>(date)) <span class="sc">%&gt;%</span></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="sc">-</span><span class="fu">c</span>(date,state), as.numeric))</span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>hosp <span class="ot">&lt;-</span> hosp <span class="sc">%&gt;%</span></span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> <span class="fu">year</span>(date)) <span class="sc">%&gt;%</span></span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="sc">-</span><span class="fu">c</span>(date,state), as.numeric)) <span class="sc">%&gt;%</span></span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">week =</span> <span class="fu">case_when</span>(</span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>    year <span class="sc">==</span> <span class="dv">2021</span> <span class="sc">~</span> week,</span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>    year <span class="sc">==</span> <span class="dv">2022</span> <span class="sc">~</span> week <span class="sc">+</span> <span class="dv">52</span></span>
+<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a>  ))</span>
+<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a>num_weeks <span class="ot">&lt;-</span> <span class="fu">unique</span>(hosp<span class="sc">$</span>week) <span class="sc">%&gt;%</span></span>
+<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">length</span>()</span>
+<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a>num_biweeks <span class="ot">&lt;-</span> num_weeks<span class="sc">/</span><span class="dv">2</span></span>
+<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a>biweek <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">biweek =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>num_biweeks, <span class="dv">2</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(biweek)</span>
+<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a>biweek_to_week <span class="ot">&lt;-</span> hosp <span class="sc">%&gt;%</span></span>
+<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(week) <span class="sc">%&gt;%</span></span>
+<span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb26-44"><a href="#cb26-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(week) <span class="sc">%&gt;%</span></span>
+<span id="cb26-45"><a href="#cb26-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(<span class="at">biweek =</span>biweek)</span>
+<span id="cb26-46"><a href="#cb26-46" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb26-47"><a href="#cb26-47" aria-hidden="true" tabindex="-1"></a><span class="do">####################################</span></span>
+<span id="cb26-48"><a href="#cb26-48" aria-hidden="true" tabindex="-1"></a><span class="co">#save biweekly hospitalizations</span></span>
+<span id="cb26-49"><a href="#cb26-49" aria-hidden="true" tabindex="-1"></a><span class="do">####################################</span></span>
+<span id="cb26-50"><a href="#cb26-50" aria-hidden="true" tabindex="-1"></a>hosp_biweekly <span class="ot">&lt;-</span> hosp <span class="sc">%&gt;%</span></span>
+<span id="cb26-51"><a href="#cb26-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(biweek_to_week) <span class="sc">%&gt;%</span></span>
+<span id="cb26-52"><a href="#cb26-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(biweek, state) <span class="sc">%&gt;%</span></span>
+<span id="cb26-53"><a href="#cb26-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(deaths_covid, </span>
+<span id="cb26-54"><a href="#cb26-54" aria-hidden="true" tabindex="-1"></a>                  inpatient_beds_used_covid,</span>
+<span id="cb26-55"><a href="#cb26-55" aria-hidden="true" tabindex="-1"></a>                  inpatient_beds_used),</span>
+<span id="cb26-56"><a href="#cb26-56" aria-hidden="true" tabindex="-1"></a>                sum)) </span>
+<span id="cb26-57"><a href="#cb26-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-58"><a href="#cb26-58" aria-hidden="true" tabindex="-1"></a>hosp_biweekly <span class="sc">%&gt;%</span></span>
+<span id="cb26-59"><a href="#cb26-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="at">n=</span> <span class="dv">30</span>)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["deaths_covid"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["date"],"name":[2],"type":["date"],"align":["right"]},{"label":["percent_of_inpatients_with_covid"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["inpatient_beds_used_covid"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["inpatient_beds_used"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["state"],"name":[6],"type":["chr"],"align":["left"]},{"label":["week"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["year"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["biweek"],"name":[9],"type":["int"],"align":["right"]}],"data":[{"1":"126","2":"2021-01-01","3":"0.20654122","4":"6277","5":"32659","6":"RI","7":"1","8":"2021","9":"1"},{"1":"854","2":"2021-01-01","3":"0.24278394","4":"54119","5":"225707","6":"NJ","7":"1","8":"2021","9":"1"},{"1":"889","2":"2021-01-01","3":"0.20226973","4":"53847","5":"253285","6":"NC","7":"1","8":"2021","9":"1"},{"1":"1172","2":"2021-01-01","3":"0.28179318","4":"83403","5":"261464","6":"GA","7":"1","8":"2021","9":"1"},{"1":"241","2":"2021-01-01","3":"0.14098279","4":"16656","5":"119511","6":"WI","7":"1","8":"2021","9":"1"},{"1":"531","2":"2021-01-01","3":"0.16196525","4":"35014","5":"240045","6":"MI","7":"1","8":"2021","9":"1"},{"1":"42","2":"2021-01-01","3":"0.17696268","4":"3521","5":"22599","6":"SD","7":"1","8":"2021","9":"1"},{"1":"183","2":"2021-01-01","3":"0.24401753","4":"9999","5":"43625","6":"NM","7":"1","8":"2021","9":"1"},{"1":"13","2":"2021-01-01","3":"0.09219858","4":"1128","5":"12205","6":"AK","7":"1","8":"2021","9":"1"},{"1":"380","2":"2021-01-01","3":"0.20699052","4":"25449","5":"120329","6":"KY","7":"1","8":"2021","9":"1"},{"1":"84","2":"2021-01-01","3":"0.12292149","4":"7578","5":"69168","6":"OR","7":"1","8":"2021","9":"1"},{"1":"144","2":"2021-01-01","3":"0.15026045","4":"14080","5":"105419","6":"CO","7":"1","8":"2021","9":"1"},{"1":"171","2":"2021-01-01","3":"0.11600928","4":"15179","5":"133631","6":"WA","7":"1","8":"2021","9":"1"},{"1":"591","2":"2021-01-01","3":"0.20741252","4":"37621","5":"187019","6":"MO","7":"1","8":"2021","9":"1"},{"1":"376","2":"2021-01-01","3":"0.22062218","4":"29279","5":"128380","6":"MD","7":"1","8":"2021","9":"1"},{"1":"35","2":"2021-01-01","3":"0.16514523","4":"8224","5":"48458","6":"UT","7":"1","8":"2021","9":"1"},{"1":"27","2":"2021-01-01","3":"0.12152553","4":"2416","5":"21540","6":"ND","7":"1","8":"2021","9":"1"},{"1":"67","2":"2021-01-01","3":"0.16009975","4":"4901","5":"28990","6":"ID","7":"1","8":"2021","9":"1"},{"1":"14","2":"2021-01-01","3":"0.07276862","4":"1891","5":"25413","6":"HI","7":"1","8":"2021","9":"1"},{"1":"946","2":"2021-01-01","3":"0.27256213","4":"46147","5":"175943","6":"TN","7":"1","8":"2021","9":"1"},{"1":"528","2":"2021-01-01","3":"0.26447595","4":"28963","5":"109713","6":"OK","7":"1","8":"2021","9":"1"},{"1":"5","2":"2021-01-01","3":"0.04155496","4":"584","5":"11513","6":"VT","7":"1","8":"2021","9":"1"},{"1":"1030","2":"2021-01-01","3":"0.21061668","4":"64685","5":"316527","6":"OH","7":"1","8":"2021","9":"1"},{"1":"243","2":"2021-01-01","3":"0.19064535","4":"14136","5":"73406","6":"KS","7":"1","8":"2021","9":"1"},{"1":"6952","2":"2021-01-01","3":"0.40378818","4":"321381","5":"770918","6":"CA","7":"1","8":"2021","9":"1"},{"1":"34","2":"2021-01-01","3":"0.10521415","4":"3380","5":"31392","6":"ME","7":"1","8":"2021","9":"1"},{"1":"748","2":"2021-01-01","3":"0.18900689","4":"53203","5":"300560","6":"IL","7":"1","8":"2021","9":"1"},{"1":"1286","2":"2021-01-01","3":"0.37295538","4":"70117","5":"183417","6":"AZ","7":"1","8":"2021","9":"1"},{"1":"366","2":"2021-01-01","3":"0.25733676","4":"20226","5":"78630","6":"MS","7":"1","8":"2021","9":"1"},{"1":"579","2":"2021-01-01","3":"0.20904921","4":"41226","5":"188064","6":"VA","7":"1","8":"2021","9":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["deaths_covid"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["date"],"name":[2],"type":["date"],"align":["right"]},{"label":["percent_of_inpatients_with_covid"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["inpatient_beds_used_covid"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["inpatient_beds_used"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["state"],"name":[6],"type":["chr"],"align":["left"]},{"label":["week"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["year"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["biweek"],"name":[9],"type":["int"],"align":["right"]}],"data":[{"1":"126","2":"2021-01-01","3":"0.20654122","4":"6277","5":"32659","6":"RI","7":"1","8":"2021","9":"1"},{"1":"380","2":"2021-01-01","3":"0.20699052","4":"25449","5":"120329","6":"KY","7":"1","8":"2021","9":"1"},{"1":"222","2":"2021-01-01","3":"0.20867631","4":"12310","5":"64862","6":"WV","7":"1","8":"2021","9":"1"},{"1":"171","2":"2021-01-01","3":"0.11600928","4":"15179","5":"133631","6":"WA","7":"1","8":"2021","9":"1"},{"1":"67","2":"2021-01-01","3":"0.16009975","4":"4901","5":"28990","6":"ID","7":"1","8":"2021","9":"1"},{"1":"528","2":"2021-01-01","3":"0.26447595","4":"28963","5":"109713","6":"OK","7":"1","8":"2021","9":"1"},{"1":"50","2":"2021-01-01","3":"0.21403197","4":"7007","5":"31668","6":"DE","7":"1","8":"2021","9":"1"},{"1":"27","2":"2021-01-01","3":"0.12152553","4":"2416","5":"21540","6":"ND","7":"1","8":"2021","9":"1"},{"1":"379","2":"2021-01-01","3":"0.18029237","4":"25063","5":"136675","6":"LA","7":"1","8":"2021","9":"1"},{"1":"1286","2":"2021-01-01","3":"0.37295538","4":"70117","5":"183417","6":"AZ","7":"1","8":"2021","9":"1"},{"1":"241","2":"2021-01-01","3":"0.14098279","4":"16656","5":"119511","6":"WI","7":"1","8":"2021","9":"1"},{"1":"35","2":"2021-01-01","3":"0.16514523","4":"8224","5":"48458","6":"UT","7":"1","8":"2021","9":"1"},{"1":"153","2":"2021-01-01","3":"0.14222413","4":"12208","5":"100192","6":"MN","7":"1","8":"2021","9":"1"},{"1":"1030","2":"2021-01-01","3":"0.21061668","4":"64685","5":"316527","6":"OH","7":"1","8":"2021","9":"1"},{"1":"1172","2":"2021-01-01","3":"0.28179318","4":"83403","5":"261464","6":"GA","7":"1","8":"2021","9":"1"},{"1":"579","2":"2021-01-01","3":"0.20904921","4":"41226","5":"188064","6":"VA","7":"1","8":"2021","9":"1"},{"1":"312","2":"2021-01-01","3":"0.19739144","4":"18128","5":"90430","6":"CT","7":"1","8":"2021","9":"1"},{"1":"854","2":"2021-01-01","3":"0.24278394","4":"54119","5":"225707","6":"NJ","7":"1","8":"2021","9":"1"},{"1":"748","2":"2021-01-01","3":"0.18900689","4":"53203","5":"300560","6":"IL","7":"1","8":"2021","9":"1"},{"1":"42","2":"2021-01-01","3":"0.17696268","4":"3521","5":"22599","6":"SD","7":"1","8":"2021","9":"1"},{"1":"358","2":"2021-01-01","3":"0.09995498","4":"6066","5":"66161","6":"PR","7":"1","8":"2021","9":"1"},{"1":"122","2":"2021-01-01","3":"0.16651638","4":"7449","5":"45136","6":"NE","7":"1","8":"2021","9":"1"},{"1":"531","2":"2021-01-01","3":"0.16196525","4":"35014","5":"240045","6":"MI","7":"1","8":"2021","9":"1"},{"1":"1824","2":"2021-01-01","3":"0.23838362","4":"133818","5":"542314","6":"NY","7":"1","8":"2021","9":"1"},{"1":"34","2":"2021-01-01","3":"0.10521415","4":"3380","5":"31392","6":"ME","7":"1","8":"2021","9":"1"},{"1":"345","2":"2021-01-01","3":"0.19957915","4":"18268","5":"87445","6":"AR","7":"1","8":"2021","9":"1"},{"1":"54","2":"2021-01-01","3":"0.11867630","4":"4973","5":"40212","6":"DC","7":"1","8":"2021","9":"1"},{"1":"13","2":"2021-01-01","3":"0.09219858","4":"1128","5":"12205","6":"AK","7":"1","8":"2021","9":"1"},{"1":"14","2":"2021-01-01","3":"0.07276862","4":"1891","5":"25413","6":"HI","7":"1","8":"2021","9":"1"},{"1":"183","2":"2021-01-01","3":"0.24401753","4":"9999","5":"43625","6":"NM","7":"1","8":"2021","9":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>hosp_biweekly <span class="sc">%&gt;%</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="fu">paste0</span>(here<span class="sc">::</span><span class="fu">here</span>(),</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;/data/state_level/hosp_biweekly_all_states.RDS&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>hosp_biweekly <span class="sc">%&gt;%</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="fu">paste0</span>(here<span class="sc">::</span><span class="fu">here</span>(),</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;/data/state_level/hosp_biweekly_all_states.RDS&quot;</span>))</span></code></pre></div>
 </div>
 <div id="county-level-hospitalizations" class="section level2">
 <h2>County-level Hospitalizations</h2>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>dates <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;./data/date_to_biweek.RDS&quot;</span>)</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>httr<span class="sc">::</span><span class="fu">GET</span>(<span class="st">&quot;https://data.cdc.gov/resource/3nnm-4jni.json?state=Massachusetts&quot;</span>)</span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>httr<span class="sc">::</span><span class="fu">GET</span>(<span class="fu">URLencode</span>(<span class="st">&quot;https://healthdata.gov/resource/g62h-syeh.json?state=MA&amp;$where=date between &#39;2020-12-31T12:00:00&#39; and &#39;2022-02-25T14:00:00&#39;&amp;$select=deaths_covid,date,percent_of_inpatients_with_covid,inpatient_beds_used_covid,inpatient_beds_used,state&quot;</span>))</span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="co"># input full name</span></span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>get_county_hosp <span class="ot">&lt;-</span> <span class="cf">function</span>(state) {</span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  link <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;https://data.cdc.gov/resource/3nnm-4jni.json?state=&quot;</span>, </span>
-<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>                 state, <span class="st">&quot;&amp;$where=date_updated between &#39;2021-01-01T12:00:00&#39; and &quot;</span>,</span>
-<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;&#39;2022-02-25T14:00:00&#39;&amp;$select=date_updated,&quot;</span>,</span>
-<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;covid_hospital_admissions_per_100k,&quot;</span>,</span>
-<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;state,county_population,county_fips&quot;</span>)</span>
-<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>  hosp <span class="ot">&lt;-</span> httr<span class="sc">::</span><span class="fu">GET</span>(<span class="fu">URLencode</span>(link))</span>
-<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>  hosp <span class="ot">&lt;-</span>jsonlite<span class="sc">::</span><span class="fu">fromJSON</span>(</span>
-<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>    httr<span class="sc">::</span><span class="fu">content</span>(hosp,</span>
-<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>                  <span class="at">as=</span><span class="st">&quot;text&quot;</span>,</span>
-<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>                  <span class="at">encoding =</span> <span class="st">&quot;UTF-8&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>()</span>
-<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>  hosp <span class="ot">&lt;-</span> hosp <span class="sc">%&gt;%</span></span>
-<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">date =</span> date_updated) <span class="sc">%&gt;%</span> </span>
-<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">gsub</span>(<span class="st">&quot;T.*&quot;</span>, <span class="st">&quot;&quot;</span>,date),</span>
-<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>           <span class="at">date =</span> <span class="fu">as.Date</span>(date, <span class="at">format =</span> <span class="st">&quot;%Y-%m-%d&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="sc">-</span><span class="fu">c</span>(date,state), as.numeric))</span>
-<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>  hosp <span class="sc">%&gt;%</span></span>
-<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">pop_100k =</span> county_population<span class="sc">/</span><span class="dv">100000</span>, </span>
-<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>           <span class="at">hosp =</span> covid_hospital_admissions_per_100k <span class="sc">*</span> pop_100k) <span class="sc">%&gt;%</span></span>
-<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">inner_join</span>(dates) <span class="sc">%&gt;%</span></span>
-<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(biweek, state, county_fips) <span class="sc">%&gt;%</span></span>
-<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(<span class="at">hosp =</span> <span class="fu">sum</span>(hosp)) <span class="sc">%&gt;%</span></span>
-<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>()</span>
-<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb29-41"><a href="#cb29-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-42"><a href="#cb29-42" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">get_county_hosp</span>(<span class="st">&quot;Massachusetts&quot;</span>)</span>
-<span id="cb29-43"><a href="#cb29-43" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(data, <span class="st">&quot;./data/hosp/county_hosp_ma.RDS&quot;</span>)</span>
-<span id="cb29-44"><a href="#cb29-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-45"><a href="#cb29-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-46"><a href="#cb29-46" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">get_county_hosp</span>(<span class="st">&quot;Michigan&quot;</span>)</span>
-<span id="cb29-47"><a href="#cb29-47" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(data, <span class="st">&quot;./data/hosp/county_hosp_mi.RDS&quot;</span>)</span></code></pre></div>
+<p>Hospitalization data is from the Covidestim data sources repository
+<a href="https://github.com/covidestim/covidestim-sources">here</a>;
+details available under the <em>Hospitalization data pipeline
+section</em> of their readme. Briefly, they use HHS facility-level
+hospitalization data and using geographic information to aggregate by
+county.</p>
+<p>Values between 1 and 3 are censored, so the Covidestim developers
+included two estimates to bound the possible values:</p>
+<ul>
+<li><code>admissionsAdultsConfirmed_min</code>: The smallest the outcome
+could be - all censored values, which each represent a possible range of
+1-3, will be resolved to 1.</li>
+<li><code>admissionsAdultsConfirmed_max:</code> censored values taken to
+be 3</li>
+</ul>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>dates <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">paste0</span>(here<span class="sc">::</span><span class="fu">here</span>(),</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;/data/date_to_biweek.RDS&quot;</span>))</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>county_hosp <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">paste0</span>(</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    here<span class="sc">::</span><span class="fu">here</span>(),</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;/data/county_level/hosp/hhs-hospitalizations-by-county.RDS&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">year</span>(weekstart) <span class="sc">&gt;=</span> <span class="dv">2021</span> <span class="sc">&amp;</span> weekstart <span class="sc">&lt;=</span> end_date)</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>county_hosp <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["fips"],"name":[1],"type":["chr"],"align":["left"]},{"label":["weekstart"],"name":[2],"type":["date"],"align":["right"]},{"label":["admissionsAdultsConfirmed"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["admissionsAdultsSuspected"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["admissionsPedsConfirmed"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["admissionsPedsSuspected"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["averageAdultInpatientsConfirmed"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["averageAdultInpatientsConfirmedSuspected"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["averageAdultICUPatientsConfirmed"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["averageAdultICUPatientsConfirmedSuspected"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["covidRelatedEDVisits"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["admissionsAdultsConfirmed_min"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["admissionsAdultsSuspected_min"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["admissionsPedsConfirmed_min"],"name":[14],"type":["dbl"],"align":["right"]},{"label":["admissionsPedsSuspected_min"],"name":[15],"type":["dbl"],"align":["right"]},{"label":["averageAdultInpatientsConfirmed_min"],"name":[16],"type":["dbl"],"align":["right"]},{"label":["averageAdultInpatientsConfirmedSuspected_min"],"name":[17],"type":["dbl"],"align":["right"]},{"label":["averageAdultICUPatientsConfirmed_min"],"name":[18],"type":["dbl"],"align":["right"]},{"label":["averageAdultICUPatientsConfirmedSuspected_min"],"name":[19],"type":["dbl"],"align":["right"]},{"label":["covidRelatedEDVisits_min"],"name":[20],"type":["dbl"],"align":["right"]},{"label":["admissionsAdultsConfirmed_max"],"name":[21],"type":["dbl"],"align":["right"]},{"label":["admissionsAdultsSuspected_max"],"name":[22],"type":["dbl"],"align":["right"]},{"label":["admissionsPedsConfirmed_max"],"name":[23],"type":["dbl"],"align":["right"]},{"label":["admissionsPedsSuspected_max"],"name":[24],"type":["dbl"],"align":["right"]},{"label":["averageAdultInpatientsConfirmed_max"],"name":[25],"type":["dbl"],"align":["right"]},{"label":["averageAdultInpatientsConfirmedSuspected_max"],"name":[26],"type":["dbl"],"align":["right"]},{"label":["averageAdultICUPatientsConfirmed_max"],"name":[27],"type":["dbl"],"align":["right"]},{"label":["averageAdultICUPatientsConfirmedSuspected_max"],"name":[28],"type":["dbl"],"align":["right"]},{"label":["covidRelatedEDVisits_max"],"name":[29],"type":["dbl"],"align":["right"]},{"label":["admissionsAdultsConfirmed_max2"],"name":[30],"type":["dbl"],"align":["right"]},{"label":["admissionsAdultsSuspected_max2"],"name":[31],"type":["dbl"],"align":["right"]},{"label":["admissionsPedsConfirmed_max2"],"name":[32],"type":["dbl"],"align":["right"]},{"label":["admissionsPedsSuspected_max2"],"name":[33],"type":["dbl"],"align":["right"]},{"label":["averageAdultInpatientsConfirmed_max2"],"name":[34],"type":["dbl"],"align":["right"]},{"label":["averageAdultInpatientsConfirmedSuspected_max2"],"name":[35],"type":["dbl"],"align":["right"]},{"label":["averageAdultICUPatientsConfirmed_max2"],"name":[36],"type":["dbl"],"align":["right"]},{"label":["averageAdultICUPatientsConfirmedSuspected_max2"],"name":[37],"type":["dbl"],"align":["right"]}],"data":[{"1":"01001","2":"2021-01-01","3":"43","4":"-999999","5":"-999999","6":"-999999","7":"-999999","8":"-999999","9":"5","10":"5","11":"96","12":"43","13":"19","14":"0","15":"0","16":"40","17":"42","18":"5","19":"5","20":"96","21":"43","22":"19","23":"0","24":"0","25":"41","26":"42","27":"5","28":"5","29":"96","30":"43","31":"19","32":"0","33":"0","34":"41","35":"42","36":"5","37":"5"},{"1":"01001","2":"2021-01-08","3":"34","4":"-999999","5":"0","6":"-999999","7":"-999999","8":"-999999","9":"6","10":"6","11":"57","12":"34","13":"16","14":"0","15":"0","16":"42","17":"43","18":"6","19":"6","20":"57","21":"34","22":"17","23":"0","24":"0","25":"42","26":"43","27":"6","28":"6","29":"57","30":"34","31":"17","32":"0","33":"0","34":"42","35":"43","36":"6","37":"6"},{"1":"01001","2":"2021-01-15","3":"-999999","4":"-999999","5":"-999999","6":"-999999","7":"-999999","8":"-999999","9":"7","10":"7","11":"72","12":"31","13":"12","14":"0","15":"0","16":"37","17":"37","18":"7","19":"7","20":"72","21":"31","22":"12","23":"0","24":"0","25":"37","26":"37","27":"7","28":"7","29":"72","30":"31","31":"12","32":"0","33":"0","34":"37","35":"37","36":"7","37":"7"},{"1":"01001","2":"2021-01-22","3":"-999999","4":"-999999","5":"-999999","6":"-999999","7":"-999999","8":"-999999","9":"-999999","10":"-999999","11":"53","12":"28","13":"11","14":"0","15":"0","16":"24","17":"24","18":"6","19":"7","20":"53","21":"28","22":"11","23":"0","24":"0","25":"24","26":"25","27":"6","28":"7","29":"53","30":"28","31":"11","32":"0","33":"0","34":"24","35":"25","36":"6","37":"7"},{"1":"01001","2":"2021-01-29","3":"-999999","4":"-999999","5":"-999999","6":"-999999","7":"-999999","8":"-999999","9":"-999999","10":"-999999","11":"39","12":"22","13":"14","14":"1","15":"0","16":"23","17":"23","18":"5","19":"5","20":"39","21":"22","22":"14","23":"3","24":"0","25":"23","26":"23","27":"5","28":"5","29":"39","30":"22","31":"14","32":"3","33":"0","34":"23","35":"23","36":"5","37":"5"},{"1":"01001","2":"2021-02-05","3":"-999999","4":"-999999","5":"-999999","6":"-999999","7":"-999999","8":"-999999","9":"5","10":"5","11":"47","12":"27","13":"13","14":"0","15":"0","16":"21","17":"21","18":"5","19":"5","20":"47","21":"27","22":"13","23":"0","24":"0","25":"21","26":"21","27":"5","28":"5","29":"47","30":"27","31":"13","32":"0","33":"0","34":"21","35":"21","36":"5","37":"5"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sum by biweek</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>county_hosp <span class="ot">&lt;-</span> county_hosp <span class="sc">%&gt;%</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fips,</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>         weekstart,</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>         admissionsAdultsConfirmed_max,</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>         admissionsAdultsConfirmed_min) <span class="sc">%&gt;%</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(dates, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;weekstart&quot;</span><span class="ot">=</span><span class="st">&quot;date&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">date=</span>weekstart)<span class="sc">%&gt;%</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(fips,biweek) <span class="sc">%&gt;%</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="fu">across</span>(<span class="fu">contains</span>(<span class="st">&quot;admissions&quot;</span>), sum),</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">date =</span> <span class="fu">min</span>(date)) <span class="sc">%&gt;%</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>county_hosp <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["fips"],"name":[1],"type":["chr"],"align":["left"]},{"label":["biweek"],"name":[2],"type":["int"],"align":["right"]},{"label":["admissionsAdultsConfirmed_max"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["admissionsAdultsConfirmed_min"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["date"],"name":[5],"type":["date"],"align":["right"]}],"data":[{"1":"01001","2":"1","3":"77","4":"77","5":"2021-01-01"},{"1":"01001","2":"2","3":"59","4":"59","5":"2021-01-15"},{"1":"01001","2":"3","3":"49","4":"49","5":"2021-01-29"},{"1":"01001","2":"4","3":"25","4":"25","5":"2021-02-12"},{"1":"01001","2":"5","3":"24","4":"24","5":"2021-02-26"},{"1":"01001","2":"6","3":"13","4":"13","5":"2021-03-12"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>county_hosp <span class="sc">%&gt;%</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="fu">paste0</span>(</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    here<span class="sc">::</span><span class="fu">here</span>(),</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;/data/county_level/hosp/hosp_biweekly_all_counties.RDS&quot;</span>))</span></code></pre></div>
 </div>
 </div>
 </div>
