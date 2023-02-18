@@ -1,0 +1,116 @@
+---
+title: 'Estimating Unobserved COVID-19 Infections in the United States'
+author: 'Quinn White'
+date: 'May 2023'
+institution: 'Smith College'
+division: 'Mathematics and Natural Sciences'
+advisor: 'Ben Baumer'
+altadvisor: 'Nicholas Reich'
+department: 'Statistical and Data Sciences'
+degree: 'Bachelor of Arts'
+knit: bookdown::render_book
+site: bookdown::bookdown_site
+params:
+  'Install needed packages for {pioneerdown}': True
+output:
+  pioneerdown::thesis_pdf: default 
+  pioneerdown::thesis_gitbook: default 
+abstract: '`r if(knitr:::is_latex_output()) paste(readLines(here::here("thesis/prelims", "00-abstract.Rmd")), collapse = "\n  ")`'
+acknowledgements: |
+  Will add
+dedication: |
+  You can have a dedication here if you wish. 
+preface: |
+  I am unsure as to what goes here.
+bibliography: "bibliography.json"
+csl: csl/apa.csl
+lot: true
+lof: true
+---
+
+```{r,eval=FALSE,include=FALSE}
+
+bibliography: "`r rbbt::bbt_write_bib('./bibliography.json', keys = bbt_detect_citations('./index.Rmd'), overwrite = TRUE)`"
+
+ list.files(here::here(), pattern ="*.Rmd")
+rbbt::bbt_write_bib('bibliography.json', overwrite = TRUE)
+
+rbbt::bbt_write_bib('bibliography.json',
+                    keys = rbbt::bbt_detect_citations(
+                      list.files(here::here(), 
+                                 pattern ='*.Rmd',
+                                 full.names=TRUE)),
+                    overwrite = TRUE)
+
+```
+
+<!--
+Above is the YAML (YAML Ain't Markup Language) header that includes a lot of 
+metadata used to produce the document.  Be careful with spacing in this header!
+
+If you'd prefer to not include a Dedication, for example, simply delete the section entirely, or silence them (add # before each line). 
+
+If you have other LaTeX packages you would like to include, delete the # before header-includes and list the packages after hyphens on new lines.
+
+If you'd like to include a comment that won't be produced in your resulting file enclose it in a block like this.
+
+If you receive a duplicate label error after knitting, make sure to delete the index.Rmd file and then knit again.
+-->
+
+```{r include_packages, include=FALSE,eval=FALSE}
+options(tinytex.verbose = TRUE)
+
+# This chunk ensures that the pioneerdown package is
+# installed and loaded. This pioneerdown package includes
+# the template files for the thesis.
+if (!require(remotes)) {
+  if (params$`Install needed packages for {pioneerdown}`) {
+    install.packages("remotes", repos = "https://cran.rstudio.com")
+  } else {
+    stop(
+      paste('You need to run install.packages("remotes")",
+            "first in the Console.')
+    )
+  }
+}
+if (!require(pioneerdown)) {
+  if (params$`Install needed packages for {pioneerdown}`) {
+    remotes::install_github("SmithCollege-SDS/pioneerdown")
+  } else {
+    stop(
+      paste(
+        "You need to run",
+        'remotes::install_github("SmithCollege-SDS/pioneerdown")',
+        "first in the Console."
+      )
+    )
+  }
+}
+library(pioneerdown)
+# Set how wide the R output will go
+options(width = 70, echo = FALSE)
+```
+
+```{r}
+knitr::opts_chunk$set(fig.width = 10, echo = FALSE)
+```
+<!--
+The ackowledgements, preface, dedication, and abstract are added into the PDF
+version automatically by inputing them in the YAML at the top of this file.
+Alternatively, you can put that content in files like 00--prelim.Rmd and
+00-abstract.Rmd like done below.
+-->
+
+```{r eval==!knitr::is_latex_output(), child=here::here("thesis/prelims", "00--prelim.Rmd")}
+#eval =!knitr::is_latex_output(), changed because throwing an error upon knitting gitbook
+```
+
+```{r eval=!knitr::is_latex_output(), child=here::here("thesis/prelims", "00-abstract.Rmd")}
+
+```
+
+<!-- The {.unnumbered} option here means that the introduction will be 
+"Chapter 0." You can also use {-} for no numbers on chapters.
+-->
+<!-- note to self -- defined command-shift-a to be citation shortcut --> 
+

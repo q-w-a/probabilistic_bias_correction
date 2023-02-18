@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 2 Background | Estimating Unobserved COVID-19 Infections at the County Level</title>
+  <meta name="description" content="Chapter 2 Background | Estimating Unobserved COVID-19 Infections at the County Level" />
+  <meta name="generator" content="bookdown 0.29 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 2 Background | Estimating Unobserved COVID-19 Infections at the County Level" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 2 Background | Estimating Unobserved COVID-19 Infections at the County Level" />
+  
+  
+  
+
+<meta name="author" content="Quinn White" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="1-motivation.html"/>
+<link rel="next" href="3-analysis.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./"></a></li>
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="1-motivation.html"><a href="1-motivation.html"><i class="fa fa-check"></i><b>1</b> Motivation</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="1-motivation.html"><a href="1-motivation.html#subheading"><i class="fa fa-check"></i><b>1.1</b> subheading?</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="2-background.html"><a href="2-background.html"><i class="fa fa-check"></i><b>2</b> Background</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="2-background.html"><a href="2-background.html#probabalistic-bias-analysis"><i class="fa fa-check"></i><b>2.1</b> Probabalistic Bias Analysis</a></li>
+<li class="chapter" data-level="2.2" data-path="2-background.html"><a href="2-background.html#bayesian-melding"><i class="fa fa-check"></i><b>2.2</b> Bayesian Melding</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="2-background.html"><a href="2-background.html#theoretical-background-for-the-approach"><i class="fa fa-check"></i><b>2.2.1</b> Theoretical Background for the Approach</a></li>
+<li class="chapter" data-level="2.2.2" data-path="2-background.html"><a href="2-background.html#bayesian-melding-applied-to-covid-19-misclassification"><i class="fa fa-check"></i><b>2.2.2</b> Bayesian Melding Applied to COVID-19 Misclassification</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="3-analysis.html"><a href="3-analysis.html"><i class="fa fa-check"></i><b>3</b> Analysis</a></li>
+<li class="chapter" data-level="" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i>Conclusion</a></li>
+<li class="appendix"><span><b>Appendix</b></span></li>
+<li class="chapter" data-level="A" data-path="A-the-first-appendix.html"><a href="A-the-first-appendix.html"><i class="fa fa-check"></i><b>A</b> The First Appendix</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown target="blank">Published with bookdown</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Estimating Unobserved COVID-19 Infections at the County Level</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="background" class="section level1 hasAnchor" number="2">
+<h1><span class="header-section-number">Chapter 2</span> Background<a href="2-background.html#background" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="probabalistic-bias-analysis" class="section level2 hasAnchor" number="2.1">
+<h2><span class="header-section-number">2.1</span> Probabalistic Bias Analysis<a href="2-background.html#probabalistic-bias-analysis" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+</div>
+<div id="bayesian-melding" class="section level2 hasAnchor" number="2.2">
+<h2><span class="header-section-number">2.2</span> Bayesian Melding<a href="2-background.html#bayesian-melding" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="theoretical-background-for-the-approach" class="section level3 hasAnchor" number="2.2.1">
+<h3><span class="header-section-number">2.2.1</span> Theoretical Background for the Approach<a href="2-background.html#theoretical-background-for-the-approach" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The Bayesian melding approach was proposed by Poole et al. <span class="citation">(Poole &amp; Raftery, 2000)</span>.</p>
+<p>The Bayesian melding approach enables us to account for both uncertainty from inputs and outputs of a deterministic model. The initial motivation for the approach was to study the population dynamics of whales in the presence of substantial uncertainty around model inputs for population growth <span class="citation">(Poole &amp; Raftery, 2000)</span>. However, the framework provided by Poole et al. can applied in any circumstance where we have uncertainty around some quantities <span class="math inline">\(\theta\)</span> and <span class="math inline">\(\phi\)</span> where there is a deterministic function <span class="math inline">\(M:\theta \to\phi\)</span>. Due the utility of Bayesian melding in various contexts, since this deterministic model <span class="math inline">\(M\)</span> could take on a wide range of forms, the approach has since been applied in various fields, including urban simulations <span class="citation">(Ševčíková, Raftery, &amp; Waddell, 2007)</span>, ecology <span class="citation">(Robson, 2014)</span>, and infectious disease <span class="citation">(Powers et al., 2011)</span>.</p>
+<p>At this point, we can define how Bayesian melding works. Let <span class="math inline">\(M: \theta \to \phi\)</span> be the deterministic model defined by the function relating a vector of input parameters <span class="math inline">\(\theta\)</span> to an output vector <span class="math inline">\(\phi\)</span>, and suppose we have a prior on <span class="math inline">\(\theta\)</span> denoted <span class="math inline">\(q_1(\theta)\)</span> and a prior on <span class="math inline">\(\phi\)</span> denoted <span class="math inline">\(q_2(\phi)\)</span>.</p>
+<p>However, note that we actually have two distinct priors on <span class="math inline">\(\phi\)</span>. There is the prior formed by the distribution induced on <span class="math inline">\(\phi\)</span> by the prior for <span class="math inline">\(\theta\)</span> and the function <span class="math inline">\(M\)</span>, where we denote this induced prior <span class="math inline">\(q^*_1(\phi)\)</span> . However, we also have the existing prior <span class="math inline">\(q_2(\phi)\)</span>. These priors are informed by different sources of information, but often it is useful to incorporate these multiple sources of information into our estimates. To do so, we need to combine the distributions for <span class="math inline">\(q^*_1(\phi)\)</span> and <span class="math inline">\(q_2(\phi)\)</span> to create a pooled distribution.</p>
+<p>Multiple pooling strategies exist for distinct distributions, but one requirement for a Bayesian analysis is that the distribution should be independent of the order in which the prior is updated and the combining of the prior distributions. That is, updating the prior distributions using Bayes’ theorem and then combining distributions should yield the same result as combining distributions and then updating this combined distribution; pooling methods that have this property are deemed externally Bayesian. Logarithmic pooling has been shown to be externally Bayesian under some conditions, which are likely to hold in most settings. Furthermore, logarithmic pooling has actually been shown to be the only pooling method where this holds (Genest et al., 1986).</p>
+<p>If <span class="math inline">\(M^{-1}\)</span> exists, we can write this induced prior <span class="math inline">\(q_1^*(\phi) = q_1(M^{-1}(\phi)) |J(\phi)|\)</span>. This result follows from the fact <span class="math inline">\(M(\theta) = \phi\)</span>, so we apply a change of variables to obtain the distribution of <span class="math inline">\(\phi\)</span> from the distribution of <span class="math inline">\(\theta\)</span> </p>
+<p>In practice, <span class="math inline">\(M^{-1}\)</span> rarely exists exists since <span class="math inline">\(\theta\)</span> is often of higher dimensionality then <span class="math inline">\(\phi\)</span>, in which cases <span class="math inline">\(M\)</span> is not invertible. This means we generally sample from <span class="math inline">\(q^*_1(\phi)\)</span> without acquiring its analytical form.</p>
+</div>
+<div id="bayesian-melding-applied-to-covid-19-misclassification" class="section level3 hasAnchor" number="2.2.2">
+<h3><span class="header-section-number">2.2.2</span> Bayesian Melding Applied to COVID-19 Misclassification<a href="2-background.html#bayesian-melding-applied-to-covid-19-misclassification" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>For the deterministic model of interest in this work, we define $= $ and $= $.
+Then, <span class="math inline">\(M: \theta \to \phi\)</span> is
+where <span class="math inline">\(M=\)</span>. This model is deterministic because once we have values of <span class="math inline">\(\theta\)</span>, we can compute <span class="math inline">\(\phi\)</span> directly via the laws of probability (REFERENCE TO SECTION WHERE I SHOW THIS DERIVATION).</p>
+<p>With known inputs <span class="math inline">\(\theta = \{P(S_1|tested, \alpha, \beta)\)</span>, the distribution of <span class="math inline">\(P(S_0|test+)\)</span> is fully specified. There is uncertainty about each of these parameters, but there is a higher level of evidence for <span class="math inline">\(P(S_0|test +)\)</span>. Thus, constraining the prior distributions for <span class="math inline">\(\alpha,\beta,P(S_1|tested)\)</span> to be in accordance with <span class="math inline">\(P(S_0|test+)\)</span> incorporates this additional information.</p>
+<p>The probability <span class="math inline">\(P(S_0|test +,untested)\)</span> represents the asymptomatic rate of COVID-19, a value of substantial interest over the course of the pandemic. As a result, numerous studies have sought to estimate this value, and multiple meta-analyses have produced concordant estimates (LIST THESE META-ANALYSES HERE).</p>
+<p>Applying the original implementation to 2021, the framework is as follows.</p>
+<p><img src="figure/diagram.png" /></p>
+
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="1-motivation.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="3-analysis.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": [["thesis.pdf", "PDF"], ["thesis.epub", "EPUB"], ["thesis.docx", "Word"]],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "section"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

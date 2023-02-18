@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 5 Comparison to the Covidestim Model | Estimating Unobserved COVID-19 Infections in the United States</title>
+  <meta name="description" content="Chapter 5 Comparison to the Covidestim Model | Estimating Unobserved COVID-19 Infections in the United States" />
+  <meta name="generator" content="bookdown 0.29 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 5 Comparison to the Covidestim Model | Estimating Unobserved COVID-19 Infections in the United States" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 5 Comparison to the Covidestim Model | Estimating Unobserved COVID-19 Infections in the United States" />
+  
+  
+  
+
+<meta name="author" content="Quinn White" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="definition-of-prior-distributions-for-bias-parameters.html"/>
+<link rel="next" href="results.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preliminary Content</a>
+<ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#acknowledgements"><i class="fa fa-check"></i>Acknowledgements</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#preface"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#dedication"><i class="fa fa-check"></i>Dedication</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#abstract"><i class="fa fa-check"></i>Abstract</a></li>
+</ul></li>
+<li class="chapter" data-level="1" data-path="motivation.html"><a href="motivation.html"><i class="fa fa-check"></i><b>1</b> Motivation</a></li>
+<li class="chapter" data-level="2" data-path="overview-of-approach.html"><a href="overview-of-approach.html"><i class="fa fa-check"></i><b>2</b> Overview of Approach</a></li>
+<li class="chapter" data-level="3" data-path="background.html"><a href="background.html"><i class="fa fa-check"></i><b>3</b> Background</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="background.html"><a href="background.html#probabalistic-bias-analysis"><i class="fa fa-check"></i><b>3.1</b> Probabalistic Bias Analysis</a></li>
+<li class="chapter" data-level="3.2" data-path="background.html"><a href="background.html#bayesian-melding"><i class="fa fa-check"></i><b>3.2</b> Bayesian Melding</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="background.html"><a href="background.html#theoretical-background-for-the-approach"><i class="fa fa-check"></i><b>3.2.1</b> Theoretical Background for the Approach</a></li>
+<li class="chapter" data-level="3.2.2" data-path="background.html"><a href="background.html#implementation-through-the-sampling-importance-resampling-algorithm"><i class="fa fa-check"></i><b>3.2.2</b> Implementation through the Sampling-Importance-Resampling Algorithm</a></li>
+<li class="chapter" data-level="3.2.3" data-path="background.html"><a href="background.html#bayesian-melding-applied-to-covid-19-misclassification"><i class="fa fa-check"></i><b>3.2.3</b> Bayesian Melding Applied to COVID-19 Misclassification</a></li>
+<li class="chapter" data-level="3.2.4" data-path="background.html"><a href="background.html#derivation-of-m"><i class="fa fa-check"></i><b>3.2.4</b> Derivation of <span class="math inline">\(M\)</span></a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html"><i class="fa fa-check"></i><b>4</b> Definition of Prior Distributions for Bias Parameters</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#background-on-the-beta-distribution"><i class="fa fa-check"></i><b>4.1</b> Background on the Beta Distribution</a></li>
+<li class="chapter" data-level="4.2" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#background-on-the-gamma-distribution"><i class="fa fa-check"></i><b>4.2</b> Background on the Gamma Distribution</a></li>
+<li class="chapter" data-level="4.3" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#definition-of-prior-distributions-for-incomplete-testing-correction"><i class="fa fa-check"></i><b>4.3</b> Definition of Prior Distributions for Incomplete Testing Correction</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-ps_1untested"><i class="fa fa-check"></i><b>4.3.1</b> Defining <span class="math inline">\(P(S_1|Untested)\)</span></a></li>
+<li class="chapter" data-level="4.3.2" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-alpha"><i class="fa fa-check"></i><b>4.3.2</b> Defining <span class="math inline">\(\alpha\)</span></a></li>
+<li class="chapter" data-level="4.3.3" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-beta"><i class="fa fa-check"></i><b>4.3.3</b> Defining <span class="math inline">\(\beta\)</span></a></li>
+<li class="chapter" data-level="4.3.4" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-ps_0testuntested"><i class="fa fa-check"></i><b>4.3.4</b> Defining <span class="math inline">\(P(S_0|test+,untested)\)</span></a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#definition-of-priors-for-test-inaccuracy-correction"><i class="fa fa-check"></i><b>4.4</b> Definition of Priors for Test Inaccuracy Correction</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-test-sensitivity-s_e"><i class="fa fa-check"></i><b>4.4.1</b> Defining Test Sensitivity (<span class="math inline">\(S_e\)</span>)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-test-specificity-s_p"><i class="fa fa-check"></i><b>4.5</b> Defining Test Specificity (<span class="math inline">\(S_p\)</span>)</a></li>
+<li class="chapter" data-level="4.6" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#summary-table-of-bias-parameter-distributions"><i class="fa fa-check"></i><b>4.6</b> Summary Table of Bias Parameter Distributions</a></li>
+<li class="chapter" data-level="4.7" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#correction-for-incomplete-testing"><i class="fa fa-check"></i><b>4.7</b> Correction for Incomplete Testing</a></li>
+<li class="chapter" data-level="4.8" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#correction-for-diagnostic-test-inaccuracy"><i class="fa fa-check"></i><b>4.8</b> Correction for Diagnostic Test Inaccuracy</a>
+<ul>
+<li class="chapter" data-level="4.8.1" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#derivation-of-formula-for-correction-for-diagnostic-test-inaccuracy"><i class="fa fa-check"></i><b>4.8.1</b> Derivation of Formula for Correction for Diagnostic Test Inaccuracy</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html"><i class="fa fa-check"></i><b>5</b> Comparison to the Covidestim Model</a>
+<ul>
+<li class="chapter" data-level="5.0.1" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html#overview"><i class="fa fa-check"></i><b>5.0.1</b> Overview</a></li>
+<li class="chapter" data-level="5.0.2" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html#the-covidestim-model"><i class="fa fa-check"></i><b>5.0.2</b> The Covidestim Model</a></li>
+<li class="chapter" data-level="5.0.3" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html#assumptions"><i class="fa fa-check"></i><b>5.0.3</b> Assumptions</a></li>
+<li class="chapter" data-level="5.1" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html#comparison-to-other-indicators"><i class="fa fa-check"></i><b>5.1</b> Comparison to Other Indicators</a></li>
+<li class="chapter" data-level="5.2" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html#seropositivity-data"><i class="fa fa-check"></i><b>5.2</b> Seropositivity Data</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>6</b> Results</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="results.html"><a href="results.html#county-level"><i class="fa fa-check"></i><b>6.1</b> County-level</a></li>
+<li class="chapter" data-level="6.2" data-path="results.html"><a href="results.html#state-level"><i class="fa fa-check"></i><b>6.2</b> State-level</a></li>
+</ul></li>
+<li class="appendix"><span><b>Appendix</b></span></li>
+<li class="chapter" data-level="A" data-path="appendix.html"><a href="appendix.html"><i class="fa fa-check"></i><b>A</b> Appendix</a>
+<ul>
+<li class="chapter" data-level="A.1" data-path="appendix.html"><a href="appendix.html#derivation-of-the-mean-and-variance-of-the-beta-distribution"><i class="fa fa-check"></i><b>A.1</b> Derivation of the Mean and Variance of the Beta Distribution</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Estimating Unobserved COVID-19 Infections in the United States</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="comparison-to-the-covidestim-model" class="section level1 hasAnchor" number="5">
+<h1><span class="header-section-number">Chapter 5</span> Comparison to the Covidestim Model<a href="comparison-to-the-covidestim-model.html#comparison-to-the-covidestim-model" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="overview" class="section level3 hasAnchor" number="5.0.1">
+<h3><span class="header-section-number">5.0.1</span> Overview<a href="comparison-to-the-covidestim-model.html#overview" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>One challenge in correcting for biases in general is that although we may have some information about the influence of possible biases, we do not have a ground truth for comparison. However, one approach to handle the fact that the true cases are unobserved is comparing our estimates to those from other approaches seeking to estimate a similar quantity. In particular, if other approaches make different assumptions and come to a similar result, this can give us more confidence in our estimates.</p>
+<p>The most notable project seeking to estimate the true infection burden at the county-level over time is the COVIDestim project. In this work, Chitwood et al. proposed a mechanistic model that includes states for asymptomatic/pre-symptomatic infection, symptomatic but mild infection, severe COVID-19 presentations, and death. This approach also enables the estimation of <span class="math inline">\(R_t\)</span>, the number of secondary infections a single infected individual causes at time <span class="math inline">\(t\)</span>.<br />
+This is a useful quantity to estimate, but is sensitive to reporting delays and changes in testing practices (<a href="https://academic.oup.com/aje/article/190/9/1908/6217341" class="uri">https://academic.oup.com/aje/article/190/9/1908/6217341</a>).</p>
+</div>
+<div id="the-covidestim-model" class="section level3 hasAnchor" number="5.0.2">
+<h3><span class="header-section-number">5.0.2</span> The Covidestim Model<a href="comparison-to-the-covidestim-model.html#the-covidestim-model" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Chitwood <em>et al.</em> propose a Bayesian evidence synthesis model to correct for reporting delays and time varying case ascertainment testing rate in the estimation of incident infections and <span class="math inline">\(R_t\)</span>.</p>
+<p>To estimate the expected cases and deaths at a particular point in time, the model uses a convolution of the time series of observed cases and deaths and reporting delay distributions that are specific to the health state categories. This enables the model to account for the fact that reporting delay is different For any health state, for example, asymptomatic, the individual can either transition to the next health state (symptomatic) or recover. Thus, with each transition between a defined health state, for example, asymptomatic, there is a probability of transitioning to the next health state (in this case, asymptomatic → symptomatic); the complement of this probability is the probability of recovery.</p>
+<p>Each of these transitions is defined by a delay distribution. For example, the distribution for moving from asymptomatic to symptomatic represents the probability an individual moves to the symptomatic state at a point in time. The probabilities asymptomatic to symptomatic and symptomatic to severe are modeled as not varying with time. Meanwhile, the probability of transitioning from severe to death was defined to be higher in 2020 due to higher case fatalities early in the pandemic. The infection fatality rates, adjusted to be specific to a given state or county based on age distributions and the prevalence of risk factors for COVID-19, are used to inform the probability of moving from the severe category to the death category.</p>
+<p>The change in daily infections from the previous day (i.e., the new infections) is calculated as a function of the estimated effective reproductive number <span class="math inline">\(R_t\)</span> and the mean serial interval, where serial interval is the time from the onset of infection of a primary case to the time of onset of infection in the secondary case. <span class="math inline">\(R_t\)</span> is estimated using a log-transformed cubic spline, under the assumption individuals can only be infected once.</p>
+<p>They also defined a distribution for the delay to diagnosis, which was distinct by health state category to reflect differences in diagnosis delays that occur depending on the disease severity.
+The probability of diagnosis among different health states was allowed to vary by time to reflect changing testing rates throughout the pandemic.</p>
+<p>A separate distribution models the reporting delay to correct the total number of diagnoses on a given day for the fact that these diagnoses correspond to past infections.</p>
+<p>The observed cases and death data for each state to the model were fitted using negative binomial likelihood functions.</p>
+</div>
+<div id="assumptions" class="section level3 hasAnchor" number="5.0.3">
+<h3><span class="header-section-number">5.0.3</span> Assumptions<a href="comparison-to-the-covidestim-model.html#assumptions" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>This approach relies on infection fatality ratios and death counts to estimate the true case counts. Thus, it is sensitive to estimates of infection fatality rate, with higher infection fatality ratio estimates resulting in lower estimated infections. The infection fatality ratio is defined as the proportion of COVID-19 infections that lead to death, which means there is uncertainty in estimating both the numerator and the denominator of the ratio. The true cumulative incidence depends on the same uncertainties in estimating the true case burden at any point in time. Estimating the infection fatality ratio itself is a challenging task.</p>
+<p>The COVIDestim model uses age-specific estimates of IFR produced by O’Driscoll et al (<a href="https://www.nature.com/articles/s41586-020-2918-0" class="uri">https://www.nature.com/articles/s41586-020-2918-0</a>). This group used national-level age-stratified, and when possible sex-stratified, COVID-19 death counts and cumulative infection estimates from seroprevalence studies. Of note, the estimates of infection fatality ratio are assumed to be constant over time, which may not be the case due to improving treatments (FIND EXAMPLE) or different variants leading to less severe presentations (FIND PAPER ON OMICRON SEVERITY).</p>
+<p>One thing to consider is that infection fatality rate may vary over time, as treatments may vary, as well as the demographics of individuals being infected. For example, during the school year, more students may test positive but will be less likely to die on average than adults (PROVIDE SOURCE FOR THIS). However, these estimates are difficult to acquire; COVIDestim assumed a higher case fatality in 2020 given the novelty of the virus and consequent lack of available treatments.</p>
+</div>
+<div id="comparison-to-other-indicators" class="section level2 hasAnchor" number="5.1">
+<h2><span class="header-section-number">5.1</span> Comparison to Other Indicators<a href="comparison-to-the-covidestim-model.html#comparison-to-other-indicators" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>There are known issues with seroprevalence estimates. For one, these samples are drawn from a convenience (i.e. nonrandom) sample of individuals with blood specimens taken for purposes other than COVID-19 antibody detection (<a href="https://www.cdc.gov/coronavirus/2019-ncov/cases-updates/commercial-lab-surveys.html" class="uri">https://www.cdc.gov/coronavirus/2019-ncov/cases-updates/commercial-lab-surveys.html</a>). Secondly, while a positive serological test is evidence for infection, a negative serological test is less clear to interpret. The person may have been infected but not yet have developed antibodies, or their immune system may not have produced antibodies at a detectable level (<a href="https://www.cdc.gov/coronavirus/2019-ncov/covid-data/serology-surveillance/index.html" class="uri">https://www.cdc.gov/coronavirus/2019-ncov/covid-data/serology-surveillance/index.html</a>).</p>
+<p>Indeed, Chitwood et al. found limited concordance between their estimates and seroprevalence data. However, there was a stronger correlation between estimates of cumulative infection and cumulative hospitalizations and cumulative deaths \footnote{ The correlation employed here is the Spearman rank correlation, which measures the strength of the monotonic relationship rather than the strength of the linear relationship, in which case the Pearson correlation coefficient is the usual choice. The Spearman rank correlation is equivalent to the Pearson correlation of the rank values rather than the values themselves (<a href="https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient" class="uri">https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient</a>). This distinction is important here since we are interested in the strength of the monotonic relationship rather than the linear relationship between these values. }.</p>
+</div>
+<div id="seropositivity-data" class="section level2 hasAnchor" number="5.2">
+<h2><span class="header-section-number">5.2</span> Seropositivity Data<a href="comparison-to-the-covidestim-model.html#seropositivity-data" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>To add</p>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="definition-of-prior-distributions-for-bias-parameters.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="results.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": [["thesis.pdf", "PDF"], ["thesis.epub", "EPUB"], ["thesis.docx", "Word"]],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
