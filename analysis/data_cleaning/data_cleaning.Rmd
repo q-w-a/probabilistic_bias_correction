@@ -9,7 +9,7 @@ output:
   html_document:
     df_print: paged
 ---
-
+change file to test 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
@@ -23,6 +23,13 @@ library(lubridate)
 
 
 ```
+
+# File Descriptions
+
+* `population_2019.RDS` contains the population for each fips code
+* `covidestim_original_all.RDS` is an RDS file of the covidestim csv from the link `https://covidestim.s3.us-east-2.amazonaws.com/latest/state/estimates.csv`, unmodified; includes dates through 2021 earlier than 2021-12-02
+* `covidestim_last_weeks_all_states.RDS` contains estimates after 2021-12-02 from `https://api2.covidestim.org/latest_runs?geo_type=eq.state&select=*,timeseries(*)`
+* `covidestim_biweekly_allstates.RDS` is the cases summed for each 2-week interval, including data from `https://covidestim.s3.us-east-2.amazonaws.com/latest/state/estimates.csv` to obtain dates before 2021-12-02 (latest date available is 2021-11-30) and data from `https://api2.covidestim.org/latest_runs?geo_type=eq.state&select=*,timeseries(*)` to obtain dates after  2021-12-02
 
 ```{r demographic info, eval=TRUE}
 
@@ -40,6 +47,9 @@ population_2019 <- read_csv(url_2019) %>%
   mutate(fips_code = paste0(STATE, COUNTY)) %>%
   select(fips_code, population =POPESTIMATE2019)
 
+population_2019 %>%
+  head()
+
 saveRDS(population_2019,
         paste0(here::here(), 
         "/data/demographic/population_2019.RDS"))
@@ -49,131 +59,25 @@ saveRDS(population_2019,
 
 # Covidestim
 
-```{r,eval=FALSE}
+## Covidestim All States (State-level)
 
-########################################
-# COVIDESTIM BIWEEKLY DATA
-########################################
+Due to changes in the model to handle the Omicron wave, we have to obtain dates before 2021-12-02 from a different source than the latest runs endpoint of the API.
 
-covidestim <- httr::GET("https://api2.covidestim.org/historical_runs?geo_name=eq.Michigan&select=*,timeseries(*)")
-#
-# covidestim <- httr::GET(
-#   "https://api2.covidestim.org/latest_runs?geo_name=eq.Michigan&select=*,timeseries(*)")
+```{r, eval = TRUE}
 
-
-# only go to the 6th because these are already weekly counts
-# get the last couple weeks of 2021
-last_weeks <-jsonlite::fromJSON(
-  httr::content(covidestim,
-                as = "text",
-                encoding = "UTF-8"),
-  simplifyVector = TRUE,
-  flatten = TRUE)  %>%
-  unnest(timeseries, names_repair = "unique") %>%
-  mutate( date = strptime(date, format = "%Y-%m-%d"),
-          # we stop at the week before because this is for that whole week
-          week = lubridate::week( date)) %>%
-  filter(date <= as.Date("2022-02-17") & year(date) > 2020)
-
-
-last_weeks <- last_weeks %>%
-  select(date, infections.lo = infections_p2_5,
-         infections.hi =infections_p97_5,
-         infections, created_at) %>%
-  mutate(week = lubridate::week(date),
-         created = substr(created_at, 1, 10),
-         created = strptime(created, "%Y-%m-%d"))
-
-# remove duplicates from multiple model runs
-last_weeks <- last_weeks %>%
-  group_by(week) %>%
-  slice_max(order_by = created, n=1) %>%
-  select(-c(created,created_at)) %>%
-  mutate(year = lubridate::year(date)) %>%
-  mutate(week = case_when(
-    year == 2022 ~ week + 53,
-    year == 2021 ~ week + 1
-  ))
-
-#
-# covidestim <- read_csv(
-#   "https://covidestim.s3.us-east-2.amazonaws.com/latest/state/estimates.csv") %>%
-#   filter(state == "Michigan")
-#
-# saveRDS(covidestim, "./data/covidestim/covidestim_original.RDS")
-
-covidestim <- readRDS("./data/covidestim/covidestim_original.RDS")
-
-mi_covidestim <-  covidestim %>%
-  filter(state == "Michigan")
-
-mi_covidestim <- mi_covidestim %>%
-  select(date, contains("infections"), state) %>%
-  filter(date <= lubridate::ymd("2022-02-25") & lubridate::year(date) > 2020) %>%
-  mutate(week = lubridate::week(date)) %>%
-  group_by(week) %>%
-  summarize(across(contains("infections"), sum))
-
-
-# if we want to join last couple weeks of 2021 (somewhat discontinuous)
-mi_covidestim %>%
-  #  filter(week != 48) %>%
-  bind_rows(last_weeks) %>%
-  ggplot(aes(x = week, y = infections/7,
-             ymin = infections.lo/7, ymax = infections.hi/7)) +
-  geom_ribbon(alpha = .5) +
-  geom_line()
-
-mi_covidestim <- mi_covidestim %>%
-  bind_rows(last_weeks) %>%
-  select(-c(date))
-
-
-####### add biweek #########
-
-
-num_weeks <- mi_covidestim %>% nrow()
-num_biweeks <- num_weeks/2
-
-biweek <- tibble(biweek = c(rep(1:num_biweeks, 2))) %>%
-  arrange(biweek)
-
-biweek_to_week <- mi_covidestim %>%
-  select(week) %>%
-  arrange(week) %>%
-  cbind(biweek =biweek)
-
-covidestim_biweekly <- mi_covidestim %>%
-  left_join(biweek_to_week) %>%
-  group_by(biweek)  %>%
-  mutate(across(contains("infections"), sum)) %>%
-  ungroup()
-
-covidestim_biweekly %>%
-  ggplot(aes(x = biweek, y =infections, ymin = infections.lo, ymax = infections.hi)) +
-  geom_line() +
-  geom_point() +
-  geom_ribbon()
-
-
-saveRDS(covidestim_biweekly, "./data/covidestim/covidestim_biweekly.RDS")
-
-
-
+# set end date
+end_date <- ymd("2022-02-25")
 
 ```
 
-## Covidestim All States (State-level counts)
-
-
-
-```{r covidestim all states,eval = FALSE}
+```{r covidestim all states last weeks, eval = TRUE}
 
 ########################################
 # COVIDESTIM BIWEEKLY DATA ALL STATES
 ########################################
 
-covidestim <- httr::GET("https://api2.covidestim.org/historical_runs?geo_type=eq.state&select=*,timeseries(*)")
+covidestim_api_link <- "https://api2.covidestim.org/latest_runs?geo_type=eq.state&select=*,timeseries(*)"
+covidestim <- httr::GET(covidestim_api_link)
 
 
 # only go to the 6th because these are already weekly counts
@@ -186,39 +90,49 @@ last_weeks <-jsonlite::fromJSON(
   flatten = TRUE)  %>%
   unnest(timeseries, names_repair = "unique") %>%
   mutate( date = ymd(date),
-          week = lubridate::week( date)) %>%
-  filter(date <= as.Date("2022-02-24") & year(date) > 2020)
-
+          week = week( date)) %>%
+  filter(date <= end_date & year(date) > 2020)
 
 last_weeks <- last_weeks %>%
-  select(date, infections.lo = infections_p2_5,
+  select(date, 
+         infections.lo = infections_p2_5,
          infections.hi =infections_p97_5,
          infections, created_at,
          state = geo_name) %>%
-  mutate(week = lubridate::week(date),
+  mutate(week = week(date),
          created = substr(created_at, 1, 10),
          created = ymd(created))
 
-# remove duplicates from multiple model runs
+# remove duplicates from multiple model runs by taking most recent
 last_weeks <- last_weeks %>%
   group_by(week,date) %>%
   slice_max(order_by = created, n=1) %>%
   select(-c(created,created_at)) %>%
-  mutate(year = lubridate::year(date)) %>%
+  mutate(year = year(date)) %>%
   mutate(week = case_when(
     year == 2022 ~ week + 52,
     year == 2021 ~ week
   ))
 
+last_weeks %>%
+  head()
+
+saveRDS(last_weeks,
+         file = paste0(
+           here::here(), 
+           "/data/covidestim/covidestim_last_weeks_all_states.RDS"))
 
 ```
 
 ```{r,eval=TRUE}
 
-
+# access dates before 2021-12-02
 covidestim_link <- "https://covidestim.s3.us-east-2.amazonaws.com/latest/state/estimates.csv"
 
 covidestim_allstates <- read_csv(covidestim_link)
+
+covidestim_allstates %>%
+  head()
 
 saveRDS(covidestim_allstates,
         file = paste0(here::here(), 
@@ -226,35 +140,52 @@ saveRDS(covidestim_allstates,
 
 ```
 
-```{r}
+```{r, eval = TRUE}
 
-covidestim <- readRDS(paste0(here::here(),"/data/covidestim/all_states/covidestim_original_all.RDS"))
+covidestim <- readRDS(
+  paste0(
+    here::here(),
+    "/data/covidestim/covidestim_original_all.RDS"))
 
+# join data from each source to include dates before and after 2021-12-02
 covidestim <- covidestim %>%
   select(date, contains("infections"), state) %>%
-  filter(date <= lubridate::ymd("2022-02-25") & lubridate::year(date) > 2020) %>%
-  mutate(week = lubridate::week(date), year = year(date)) %>%
+  filter(date <= end_date & year(date) > 2020) %>%
+  mutate(week = week(date), year = year(date)) %>%
+  mutate(week = case_when(
+    year == 2022 ~ week + 52,
+    year == 2021 ~ week
+  )) %>%
   bind_rows(last_weeks) %>%
   group_by(week, state, year) %>%
   summarize(across(contains("infections"), sum), date = min(date)) %>%
   ungroup()
 
-
-
-
-# if we want to join last couple weeks of 2021 (somewhat discontinuous)
+# look at discontinuity for example
 covidestim %>%
   filter(state == "Colorado") %>%
-  ggplot(aes(x = week, y = infections/7,
-             ymin = infections.lo/7, ymax = infections.hi/7)) +
-  geom_ribbon(alpha = .5) +
-  geom_line()
+  mutate(source = ifelse(date <= ymd("2021-12-02"), "1", "2")) %>%
+  ggplot(aes(x = week, 
+             y = infections,
+             color = source,
+             ymin = infections.lo,
+             ymax = infections.hi)) +
+  geom_ribbon(alpha = .5, aes(fill = source)) +
+  geom_line() +
+  geom_point(alpha = .7) +
+  theme_bw() +
+  labs(title = "Change in Data Source, Colorado")
 
 
-####### add biweek #########
+###############
+# add biweek
+###############
 
+num_weeks <- covidestim %>% 
+  pull(week) %>% 
+  unique() %>% 
+  length()
 
-num_weeks <- covidestim %>% pull(week) %>% unique() %>% length()
 num_biweeks <- num_weeks/2
 
 biweek <- tibble(biweek = c(rep(1:num_biweeks, 2))) %>%
@@ -266,14 +197,20 @@ biweek_to_week <- covidestim %>%
   arrange(week) %>%
   cbind(biweek =biweek)
 
+# calculate biweekly sums
 covidestim_biweekly <- covidestim %>%
   left_join(biweek_to_week) %>%
   group_by(biweek, state)  %>%
-  mutate(across(contains("infections"), sum)) %>%
+  mutate(across(
+    contains("infections"), 
+    sum)) %>%
   ungroup()
 
 
-statecodes <- read_csv("./data/statecodes.csv") %>%
+# add state codes
+statecodes <- read_csv(paste0(
+  here::here(),
+  "/data/demographic/statecodes.csv")) %>%
   rename(state_name = state,
          state = code) %>%
   select(-abbrev)
@@ -281,20 +218,21 @@ statecodes <- read_csv("./data/statecodes.csv") %>%
 covidestim_biweekly %>%
   rename(state_name = state) %>%
   left_join(statecodes) %>%
-  saveRDS("./data/covidestim/all_states/covidestim_biweekly_allstates.RDS")
-
+  saveRDS(paste0(
+    here::here(),
+    "/data/covidestim/covidestim_biweekly_all_states.RDS")) 
 
 
 ```
 
 
-# Covidestim All States, County Level Counts
+## Covidestim All States (County Level)
 
 ```{r}
 
 covidestim_county <- readRDS("./data/covidestim/all_states/county_allstates.RDS") %>%
-  filter(date <= lubridate::ymd("2022-02-25") & lubridate::year(date) > 2020) %>%
-  mutate(week = lubridate::week(date),
+  filter(date <= end_date &  year(date) > 2020) %>%
+  mutate(week = week(date),
          year = year(date)) %>%
   mutate(week = case_when(
     year == 2022 ~ week + 52,
@@ -303,7 +241,11 @@ covidestim_county <- readRDS("./data/covidestim/all_states/county_allstates.RDS"
   
 
 
-num_weeks <- covidestim_county %>% pull(week) %>% unique() %>% length()
+num_weeks <- covidestim_county %>% 
+  pull(week) %>% 
+  unique() %>% 
+  length()
+
 num_biweeks <- num_weeks/2
 
 biweek <- tibble(biweek = c(rep(1:num_biweeks, 2))) %>%
@@ -407,10 +349,10 @@ df %>%
 county <- df %>%
   dplyr::rename_with(.cols =everything(), tolower) %>%
   mutate(
-    date = lubridate::ymd(messagedate),
-    week = lubridate::week(date),
-    year = lubridate::year(date)) %>%
-  filter(year > 2020 & date <= ymd("2022-02-25")) %>%
+    date = ymd(messagedate),
+    week = week(date),
+    year = year(date)) %>%
+  filter(year > 2020 & date <= end_date) %>%
   mutate( week = case_when(
     year == 2021 ~ week,
     year == 2022 ~ week + 52)) %>%
@@ -512,12 +454,12 @@ hosp <-jsonlite::fromJSON(
 hosp <- hosp %>%
   mutate(date = gsub("T.*", "",date),
          date = as.Date(date, format = "%Y-%m-%d"),
-         week = lubridate::week(date)) %>%
+         week = week(date)) %>%
   mutate(across(-c(date,state), as.numeric))
 
 hosp_weekly <- hosp %>%
   mutate(
-    year = lubridate::year(date)) %>%
+    year = year(date)) %>%
   mutate(across(-c(date,state), as.numeric)) %>%
   mutate(week = case_when(
     year == 2021 ~ week,
@@ -584,12 +526,12 @@ mi_hosp <-jsonlite::fromJSON(
 mi_hosp <- mi_hosp %>%
   mutate(date = gsub("T.*", "",date),
          date = as.Date(date, format = "%Y-%m-%d"),
-         week = lubridate::week(date)) %>%
+         week = week(date)) %>%
   mutate(across(-c(date,state), as.numeric))
 
 mi_hosp_weekly <- mi_hosp %>%
   mutate(
-    year = lubridate::year(date)) %>%
+    year = year(date)) %>%
   mutate(across(-c(date,state), as.numeric)) %>%
   mutate(week = case_when(
     year == 2021 ~ week,
@@ -655,10 +597,10 @@ mi_hosp <-jsonlite::fromJSON(
 
 mi_hosp_weekly <- mi_hosp %>%
   mutate(
-    year = lubridate::year(date)) %>%
+    year = year(date)) %>%
   mutate(across(-c(date,state), as.numeric)) %>%
   mutate(date = ymd(substr(date, 1,10)),
-         year = lubridate::year(date),
+         year = year(date),
          week = week(date))
 
 
@@ -693,7 +635,7 @@ biweek <- c(biweek, 27,27, 27)
 
 
 week_to_biweek <- mi_hosp_weekly %>%
-  mutate(year = lubridate::year(date),
+  mutate(year = year(date),
          week = week(date)) %>%
   select(week, year ) %>%
   distinct() %>%
@@ -861,7 +803,7 @@ data_ma <- data_ma %>%
   filter(!(is.na(total) | is.na(positive))) %>%
   filter(!county_name %in% c("All of Massachusetts", "Unknown County")) %>%
   rename_with( ~tolower(gsub(" ", "_", .)), contains("date") ) %>%
-  mutate(across(contains("date"), lubridate::ymd))
+  mutate(across(contains("date"), ymd))
 
 data_ma %>%
   mutate(county_name = gsub(" County", "", county_name),
@@ -895,7 +837,7 @@ data_ma <- readRDS("./data/ma/ma_full_county.RDS") %>% distinct()
 data_ma <- data_ma %>%
   mutate(year = year(start_date),
          week = week(start_date)) %>%
-  filter(year> 2020 & start_date <= ymd("2022-02-25")) %>%
+  filter(year> 2020 & start_date <= end_date) %>%
   mutate( week = case_when(
     year == 2021 ~ week,
     year == 2022 ~ week + 52)) 
