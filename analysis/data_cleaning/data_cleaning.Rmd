@@ -26,10 +26,23 @@ library(lubridate)
 
 # File Descriptions
 
+
+### Demographic 
 * `population_2019.RDS` contains the population for each fips code
+* `statecodes.csv` contains state names mapped to codes
+* `county_fips.tsv` contains fips code mapped to county name and state 
+
+### Covidestim
 * `covidestim_original_all.RDS` is an RDS file of the covidestim csv from the link `https://covidestim.s3.us-east-2.amazonaws.com/latest/state/estimates.csv`, unmodified; includes dates through 2021 earlier than 2021-12-02
 * `covidestim_last_weeks_all_states.RDS` contains estimates after 2021-12-02 from `https://api2.covidestim.org/latest_runs?geo_type=eq.state&select=*,timeseries(*)`
-* `covidestim_biweekly_allstates.RDS` is the cases summed for each 2-week interval, including data from `https://covidestim.s3.us-east-2.amazonaws.com/latest/state/estimates.csv` to obtain dates before 2021-12-02 (latest date available is 2021-11-30) and data from `https://api2.covidestim.org/latest_runs?geo_type=eq.state&select=*,timeseries(*)` to obtain dates after  2021-12-02
+* `covidestim_biweekly_all_states.RDS` is the cases summed for each 2-week interval, including data from `https://covidestim.s3.us-east-2.amazonaws.com/latest/state/estimates.csv` to obtain dates before 2021-12-02 (latest date available is 2021-11-30) and data from `https://api2.covidestim.org/latest_runs?geo_type=eq.state&select=*,timeseries(*)` to obtain dates after  2021-12-02
+* `covidestim_county_estimates.RDS` contains estimates of infections by date and fips from `https://covidestim.s3.us-east-2.amazonaws.com/latest/estimates.csv`, no modifications other than selecting variables of interest
+* `covidestim_biweekly_all_counties.RDS` contains biweekly aggregates for all counties, data again from link `https://covidestim.s3.us-east-2.amazonaws.com/latest/estimates.csv`
+
+
+
+### Covidestim
+
 
 ```{r demographic info, eval=TRUE}
 
@@ -228,9 +241,39 @@ covidestim_biweekly %>%
 
 ## Covidestim All States (County Level)
 
-```{r}
+```{r county level estimates, eval=TRUE}
 
-covidestim_county <- readRDS("./data/covidestim/all_states/county_allstates.RDS") %>%
+# if legacy file does not exist, acquire it from link
+if(!file.exists(
+  paste0(
+      here::here(), 
+      "/data/covidestim/covidestim_county_estimates.RDS"))) {
+  
+  legacy_link <- "https://covidestim.s3.us-east-2.amazonaws.com/latest/estimates.csv"
+  
+  estimates_legacy <- read_csv(legacy_link) %>%
+    select(fips, date, infections)
+  
+  saveRDS(
+    estimates_legacy,
+    paste0(
+      here::here(), 
+      "/data/covidestim/covidestim_county_estimates.RDS"))
+}
+
+
+
+
+```
+
+
+```{r,eval=TRUE}
+
+county_estimates_path <- paste0(
+  here::here(), 
+  "/data/covidestim/covidestim_county_estimates.RDS")
+
+covidestim_county <- readRDS(county_estimates_path) %>%
   filter(date <= end_date &  year(date) > 2020) %>%
   mutate(week = week(date),
          year = year(date)) %>%
@@ -239,7 +282,6 @@ covidestim_county <- readRDS("./data/covidestim/all_states/county_allstates.RDS"
     year == 2021 ~ week
   ))
   
-
 
 num_weeks <- covidestim_county %>% 
   pull(week) %>% 
@@ -257,11 +299,14 @@ biweek_to_week <- covidestim_county %>%
   arrange(week) %>%
   cbind(biweek =biweek)
 
+```
 
+```{r, include = FALSE, eval = FALSE}
 ########################################
 # HANDLE GROUPED COUNTIES IN MA
 ########################################
-
+# these counties are grouped in the data reported by MA, 
+# so grouping them here
 county_fips <- read_tsv("./data/county_fips.tsv") %>%
   dplyr::rename_with(.cols =everything(), tolower)
 
@@ -282,41 +327,50 @@ covidestim_county <- covidestim_county %>%
   mutate(fips = ifelse(fips %in% grouped, paste0(fips, sep = ","), fips))
 
 
+```
+
+```{r,eval=TRUE}
 ############################################
 # SUM FOR EACH BIWEEK IN EACH COUNTY
 ############################################
 
 
-covidestim_county %>%
+covidestim_biweekly_all_counties <- covidestim_county %>%
   left_join(biweek_to_week) %>%
   group_by(biweek, fips)  %>%
   mutate(across(contains("infections"), sum)) %>%
-  ungroup() %>%
-  saveRDS("./data/covidestim/all_states/covidestim_biweekly_allcounties.RDS")
+  ungroup() 
+  
+covidestim_biweekly_all_counties %>%
+  head()
+
+covidestim_biweekly_all_counties %>% 
+  saveRDS(file = paste0(
+    here::here(), 
+    "/data/covidestim/covidestim_biweekly_all_counties.RDS"))
 
 ```
 
+
+
+
+
+# Michigan Cases
 
 
 
 
 ```{r}
 
-url_2019 <- "https://www2.census.gov/programs-surveys/popest/datasets/2010-2019/counties/totals/co-est2019-alldata.csv"
-
-population_2019 <- read_csv(url_2019) %>%
-  mutate(fips_code = paste0(STATE, COUNTY)) %>%
-  select(fips_code, population =POPESTIMATE2019)
-
-
-county_fips <- read_tsv("./data/county_fips.tsv") %>%
+county_fips <- read_tsv(paste0(
+  here::here(),
+  "/data/demographic/county_fips.tsv")) %>%
   dplyr::rename_with(.cols =everything(), tolower)
 
 ```
 
 
 
-# Michigan Cases
 
 ```{r}
 
