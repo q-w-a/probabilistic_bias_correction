@@ -2,23 +2,598 @@
 title: "County Level Correction"
 author: "Quinn White"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  rmdformats::readthedown:
+    df_print: paged
+    code_folding: hide
+    css: ../../css/template.css
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE, message = FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
 ```
+
+```{r,include=FALSE}
+
+theme_c <- function(...){ 
+   # font <- "Helvetica"   #assign font family up front
+    font <- "Arial"
+    theme_bw() %+replace%    #replace elements we want to change
+  
+    theme(
+      
+      
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   size = 20,                #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = .5,
+                   vjust = 3),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   size = 18,
+                   hjust = .5,
+                   face = 'italic',
+                   vjust = 3),               #font size
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 30),               #font size
+      
+      axis.text.x = element_text(              #axis text
+                   family = font,           
+                   size = 18),
+      legend.text = element_text(size = 15),
+      # t, r, b, l
+      plot.margin = unit(c(1,.5,.5,.5), "cm"),
+      legend.position = "right",
+      strip.text.x = element_text(size = 25)
+      ) %+replace%
+      theme(...)
+   
+}
+
+```
+
+```{r}
+library(tidyverse)
+library(latex2exp)
+library(patchwork)
+```
+
+
+# Base Functions
+
+
+```{r load functions}
+
+source(paste0(here::here(), "/analysis/base_functions/base_functions.R"))
+
+```
+
+
+```{r get_melded}
+
+
+get_melded <- function(alpha_mean = 0.9,
+                       alpha_sd = 0.04,
+                       alpha_bounds = NA,
+                       beta_mean = .15,
+                       beta_sd =.09,
+                       beta_bounds = NA,
+                       s_untested_mean = .025,
+                       s_untested_sd = .0225,
+                       s_untested_bounds = NA,
+                       p_s0_pos_mean = .4,
+                       p_s0_pos_sd = .1225,
+                       p_s0_pos_bounds = NA,
+                       nsamp = 1e3) {
+
+  given_args <- as.list(environment())
+  # cat("Arguments to get_melded:\n")
+  # print(given_args)
+
+
+    theta <- tibble(alpha = sample_gamma_density(nsamp,
+                                                mean = alpha_mean,
+                                                sd = alpha_sd,
+                                                bounds = alpha_bounds),
+                    beta= sample_beta_density(nsamp,
+                                              mean = beta_mean,
+                                              sd = beta_sd,
+                                              bounds = beta_bounds),
+                    P_S_untested = sample_beta_density(nsamp,
+                                                       mean = s_untested_mean,
+                                                       sd = s_untested_sd,
+                                                       bounds = s_untested_bounds)) %>%
+        mutate(phi_induced = est_P_A_testpos(P_S_untested = P_S_untested,
+                                             alpha = alpha,
+                                             beta=beta))
+
+    # theta contains values sampled from alpha, beta, P_S_untested, and M(theta) = phi_induced
+    # induced phi
+    phi <- theta$phi_induced
+
+    # approximate induced distribution via a density approximation
+    phi_induced_density <- density(x = phi, n = nsamp, adjust = 2, kernel = "gaussian")
+
+
+    indexes <- findInterval(phi, phi_induced_density$x)
+
+
+    phi_sampled_density <- phi_induced_density$y[indexes]
+
+    dp_s0_pos <- function(x) {
+
+      beta_density(x,
+                   mean=p_s0_pos_mean,
+                   sd = p_s0_pos_sd,
+                   bounds=p_s0_pos_bounds)
+    }
+
+
+    weights <- (phi_sampled_density/ dp_s0_pos(phi))^(.5)
+
+
+    post_samp_ind <-sample.int(n=nsamp,
+                               size=nsamp,
+                               prob=1/weights,
+                               replace=TRUE)
+
+
+    post_melding <- bind_cols(theta[post_samp_ind,],
+                     P_A_testpos =  phi[post_samp_ind]) %>%
+        select(-phi_induced)
+
+
+     return(list(post_melding = post_melding, pre_melding = theta))
+  #  return(post_melding)
+}
+
+
+#' reformat for plot generation
+reformat_melded <- function(melded_df,
+                            theta_df,
+                            nsamp,
+                            p_s0_pos_mean,
+                            p_s0_pos_sd,
+                            p_s0_pos_bounds) {
+
+  melded_df_long <- melded_df %>%
+    pivot_longer(cols=everything()) %>%
+    mutate(type = "After Melding")
+
+
+  melded <- theta_df %>%
+    mutate(P_A_testpos = sample_beta_density(nsamp,
+                                             mean = p_s0_pos_mean,
+                                             sd = p_s0_pos_sd,
+                                             bounds = p_s0_pos_bounds)) %>%
+    pivot_longer(cols=everything()) %>%
+    mutate(type = ifelse(
+      name == "phi_induced",
+      "Induced", "Before Melding")) %>%
+    mutate(name = ifelse(name == "phi_induced",
+                         "P_A_testpos",
+                         name)) %>%
+    bind_rows(melded_df_long) %>%
+    mutate(name = case_when(
+      name == "alpha" ~"$\\alpha$",
+      name == "beta" ~"$\\beta$",
+      name == "P_A_testpos" ~ "$P(S_0|test+,untested)$",
+      name == "P_S_untested" ~ "$P(S_1|untested)$")
+    ) %>%
+    mutate(name = factor(name,
+                         levels = c(
+                           "$\\alpha$",
+                           "$\\beta$",
+                           "$P(S_1|untested)$",
+                           "$P(S_0|test+,untested)$")))
+
+}
+
+
+
+plot_melded <- function(melded, custom_title="", nsamp) {
+  
+  
+  p1 <- melded %>%
+    filter(name != "$P(S_0|test+,untested)$") %>%
+    ggplot(aes(x = value, fill = type)) +
+    geom_density(alpha = .5, show.legend=FALSE) +
+    facet_wrap(~name,
+               labeller = as_labeller(
+                 TeX,   default = label_parsed),
+               ncol = 3,
+               scales = "fixed") +
+    theme_bw() +
+    theme(
+          # axis.text.y = element_blank(),
+          # axis.ticks.y = element_blank(),
+          axis.title = element_text(size = 18),
+          axis.text.x = element_text(size = 10),
+          plot.title =element_text(size = 18,
+                                   margin =margin(0,0, .5,0, 'cm')),
+          strip.text = element_text(size = 16),
+          legend.text = element_text(size = 16)) +
+    labs(title = TeX(custom_title,bold=TRUE),
+         subtitle =paste0("Number of Samples: ", nsamp),
+         fill = "",
+         y = "Density") +
+    scale_fill_manual(values = c("#5670BF", "#418F6A","#B28542")) +
+    guides(fill = guide_legend(keyheight = 2,  keywidth = 2))
+  
+  p2 <- melded %>%
+    filter(name == "$P(S_0|test+,untested)$") %>%
+    ggplot(aes(x = value, fill = type)) +
+    geom_density(alpha = .5) +
+    facet_wrap(~name,
+               labeller = as_labeller(
+                 TeX,   default = label_parsed),
+               ncol = 3,
+               scales = "fixed") +
+    theme_bw() +
+    theme(
+          # axis.text.y = element_blank(),
+          # axis.ticks.y = element_blank(),
+          axis.title = element_text(size = 18),
+          axis.text.x = element_text(size = 10),
+          plot.title =element_text(size = 18,
+                                   margin =margin(0,0, .5,0, 'cm')),
+          strip.text = element_text(size = 16),
+          legend.text = element_text(size = 18)) +
+    labs(
+      #title = paste0("Number of Samples: ", nsamp),
+         fill = "",
+         y = "Density") +
+    scale_fill_manual(values = c("#5670BF", "#418F6A","#B28542")) +
+    guides(fill = guide_legend(keyheight = 2,  keywidth = 2)) +
+    xlim(0,1)
+  
+  
+  p1 / p2 +  plot_layout(nrow =2, widths = c(4,1))
+  
+}
+
+
+
+plot_melded <- function(melded, custom_title="", nsamp) {
+  
+  
+  p1 <- melded %>%
+    filter(name != "$P(S_0|test+,untested)$") %>%
+    ggplot(aes(x = value, fill = type)) +
+    geom_density(alpha = .5, show.legend=FALSE) +
+    facet_wrap(~name,
+               labeller = as_labeller(
+                 TeX,   default = label_parsed),
+               ncol = 3,
+               scales = "fixed") +
+    theme_bw() +
+    theme(
+          # axis.text.y = element_blank(),
+          # axis.ticks.y = element_blank(),
+          axis.title = element_text(size = 18),
+          axis.text.x = element_text(size = 10),
+          plot.title =element_text(size = 18,
+                                   margin =margin(0,0, .5,0, 'cm')),
+          strip.text = element_text(size = 16),
+          legend.text = element_text(size = 16)) +
+    labs(title = TeX(custom_title,bold=TRUE),
+         subtitle =paste0("Number of Samples: ", nsamp),
+         fill = "",
+         y = "Density") +
+    scale_fill_manual(values = c("#5670BF", "#418F6A","#B28542")) +
+    guides(fill = guide_legend(keyheight = 2,  keywidth = 2))
+  
+  p2 <- melded %>%
+    filter(name == "$P(S_0|test+,untested)$") %>%
+    ggplot(aes(x = value, fill = type)) +
+    geom_density(alpha = .5) +
+    facet_wrap(~name,
+               labeller = as_labeller(
+                 TeX,   default = label_parsed),
+               ncol = 3,
+               scales = "fixed") +
+    theme_bw() +
+    theme(
+          # axis.text.y = element_blank(),
+          # axis.ticks.y = element_blank(),
+          axis.title = element_text(size = 18),
+          axis.text.x = element_text(size = 10),
+          plot.title =element_text(size = 18,
+                                   margin =margin(0,0, .5,0, 'cm')),
+          strip.text = element_text(size = 16),
+          legend.text = element_text(size = 18)) +
+    labs(
+      #title = paste0("Number of Samples: ", nsamp),
+         fill = "",
+         y = "Density") +
+    scale_fill_manual(values = c("#5670BF", "#418F6A","#B28542")) +
+    guides(fill = guide_legend(keyheight = 2,  keywidth = 2)) +
+    xlim(0,1)
+  
+  
+  p1 / p2 +  plot_layout(nrow =2, widths = c(4,1))
+  
+}
+
+
+
+
+```
+
+# Initial Setup
 
 ## Read Data
 
-```{r}
+```{r read data}
 
 state_name <- "ma"
-state_data_path <- paste0(here::here(), "analysis/data/", state_name, "/", state_name, "_county_biweekly.RDS")
-results_path <-  paste0(here::here(), "analysis/data/adj_cases_output_biweekly/", state_name, "/")
+state_data_path <- paste0(here::here(), 
+                          "/data/county_level/",
+                          state_name, 
+                          "/",
+                          state_name, "_county_biweekly.RDS")
 
-tibble(x = "test") %>%
-  saveRDS(results_path)
+
+results_path <-  paste0(
+  here::here(), 
+  "/analysis/results/adj_biweekly_county/",
+  state_name, "/")
+
+
+covid_county <- readRDS(state_data_path)
+
+```
+
+## Set Prior Parameters
+
+```{r set params}
+
+set.seed(123)
+
+
+params <- list(
+  alpha_mean = .95,
+  alpha_sd = 0.08,
+  alpha_bounds = NA,
+ # alpha_bounds = c(.8,1),
+  beta_mean = .15,
+  beta_sd =.09,
+  beta_bounds = NA,
+#  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .03,
+  s_untested_sd = .0225,
+#  s_untested_bounds = c(0.0018, Inf),
+  s_untested_bounds = NA,
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+ p_s0_pos_bounds = NA,
+#  p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+corrected_sample_reps <- 1e3
+
+```
+
+```{r}
+
+versions <- tibble(
+  version = c("v1"),
+  vlabel = c("Priors Do Not Vary by County and Date")
+)
+```
+
+
+# Analysis
+
+## Version 1
+
+Priors do not vary by state or date; melding performed once.
+
+
+```{r correct counts version 1}
+
+priors_version <- "v1"
+
+
+melded <- do.call(get_melded, params)
+
+
+tictoc::tic()
+corrected <- pmap_df(
+#  covid_county[1:4,],
+  covid_county,
+  ~ {
+    process_priors_per_county(
+      priors = melded$post_melding,
+      county_df = list(...)) %>%
+      generate_corrected_sample(., num_reps = corrected_sample_reps) %>%
+      summarize_corrected_sample()
+    })
+tictoc::toc()
+
+
+saveRDS(corrected,
+        paste0(results_path,
+        "adj_",
+               priors_version, 
+               ".RDS"))
+
+```
+
+
+```{r plot melded, fig.width = 12, fig.height = 8}
+
+
+title <- paste0("Pre and Post Melding Distributions")
+       
+melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = params$p_s0_pos_mean,
+                                      p_s0_pos_sd = params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                      nsamp = params$nsamp)
+
+melded_long %>%
+         plot_melded(custom_title = title,
+                     nsamp = params$nsamp)
+
+
+
+```
+
+## Version 2
+
+Time varying estimate of beta using the state-level estimate.
+
+
+```{r}
+
+objects <- ls()
+rm(objects[!grepl("theme_c|dates|get_melded|plot_melded|reformat_melded|params|covid_county", objects)])
+source(paste0(here::here(), "/analysis/base_functions/base_functions.R"))
+
+
+fb_symptoms <- readRDS(
+  paste0(
+    here::here(), 
+    "/data/state_level/screeningpos_all_states.RDS")) %>%
+  filter(state == state_name)
+
+
+
+beta_prior <-  tibble(value = sample_beta_density(1e5,
+                          mean = params$beta_mean,
+                          sd = params$beta_sd,
+                          bounds = params$beta_bounds),
+                      type = "Prior on Beta")
+
+
+
+################################################################################################
+# compare empirical distribution across all dates to prior on beta 
+################################################################################################
+fb_symptoms %>% 
+  select(signal, date, value, stderr) %>% 
+  pivot_wider(names_from = signal,
+              values_from = c(value,stderr)) %>%
+  mutate(beta_est = value_smoothed_wscreening_tested_positive_14d/value_smoothed_wtested_positive_14d)%>%
+  select(value = beta_est) %>%
+  mutate(type = "Estimate for Beta\n(Screening Test Positivity/Test Positivity)") %>%
+  bind_rows(beta_prior) %>%
+  ggplot(aes(x=value, fill = type)) +
+  geom_density(alpha = .6) +
+  theme_bw() +
+  labs(title = "Comparing Prior for Beta to Empirical Distribution\n from COVID-19 Trends and Impact Survey Data Across All Dates",
+       subtitle = paste0("State: ", toupper(state_name)),
+       fill = "") +
+  theme_c()
+
+
+
+```
+
+```{r}
+
+dates <- readRDS(paste0(here::here(), "/data/date_to_biweek.RDS"))
+
+beta_est <- fb_symptoms %>% 
+  select(signal, date, value, stderr) %>% 
+  pivot_wider(names_from = signal,
+              values_from = c(value,stderr)) %>%
+  mutate(beta_estimate = value_smoothed_wscreening_tested_positive_14d
+         /value_smoothed_wtested_positive_14d) %>%
+  arrange(date) %>%
+  mutate(index = 1:nrow(.)) %>%
+  ungroup() %>%
+  # fill last weeks (missing from survey data) with rolling mean from previous
+  # 3 observations
+  mutate(rolled_mean = RcppRoll::roll_mean(beta_estimate, n = 3, na.rm = FALSE, fill = NA)) %>%
+  fill(rolled_mean, .direction = "down") %>%
+  mutate(beta_estimate = ifelse(is.na(beta_estimate), rolled_mean, beta_estimate))
+
+smoothed_beta <- loess(beta_estimate~index, data= beta_est, span = 0.2)
+
+beta_est <- beta_est %>%
+  mutate(beta_estimate_smoothed = predict(smoothed_beta)) 
+
+
+
+################################################################################################
+# look at empirical beta estimates across time 
+################################################################################################
+beta_est  %>%
+  ggplot(aes(x=date, y = beta_estimate)) +
+  geom_line() +
+  geom_point(alpha = .5) +
+  geom_line(aes(y=beta_estimate_smoothed), color = "darkred", size = 1.2) +
+  theme_c() +
+  labs(title = "Estimates of Beta across Time",
+       subtitle = paste0("State: ", toupper(state_name)),
+       y = "Estimate of Beta")
+
+
+
+################################################################################################
+# summarize to one observation per biweek and add beta parameters
+################################################################################################
+symptoms <- beta_est %>%
+  select(date, beta_estimate_smoothed) %>%
+  left_join(dates) %>%
+  group_by(biweek) %>%
+  # get last date since observation for date corresponds to value for previous
+  # 2 weeks
+  slice_max(n=1, order_by = date) %>%
+  # only need biweeks in dates data frame
+  filter(!is.na(biweek)) %>%
+  mutate(shape1_beta = get_shape1(mu = beta_estimate_smoothed, 
+                                  sd = params$beta_sd),
+         shape2_beta = get_shape2(mu = beta_estimate_smoothed, 
+                                  sd =  params$beta_sd)) 
+
+
+# IDEA -- COMPUTE MEAN PER WEEK AND JOIN BY WEEK RATHER THAN BY DATE 
+
+symptoms <- symptoms %>%
+  select(biweek, shape1_beta, shape1_beta) 
+  
+
+
+
+```
+
+
+```{r}
+
+covid_county <- covid_county %>% 
+  left_join(symptoms) %>%
+  filter(!is.na(shape1))
+
+
+
+
+```
+
+```{r}
+
+
+
+library(ggridges)
+
+# comparing (unmelded) distributions 
+
+
+symptoms %>%
+  pmap_df(~ sample_beta_density())
+
+
 
 ```
 

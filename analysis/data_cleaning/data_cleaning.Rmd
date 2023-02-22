@@ -52,7 +52,8 @@ library(lubridate)
 
 
 ### State-level
-
+* `tests_daily_all_states.RDS` contains daily test results by date and state from the healthdata.gov endpoint [here](https://healthdata.gov/dataset/COVID-19-Diagnostic-Laboratory-Testing-PCR-Testing/j8mb-icvb) 
+* `tests_biweekly_all_states.RDS` contains test results aggregated by two-week interval for each state
 
 ### County-level
 * MA:
@@ -380,7 +381,95 @@ covidestim_biweekly_all_counties %>%
 
 
 
+# State-level Cases
 
+PCR test results at the state-level from healthdata.gov endpoint [here](https://healthdata.gov/dataset/COVID-19-Diagnostic-Laboratory-Testing-PCR-Testing/j8mb-icvb).
+
+
+```{r, eval=TRUE}
+
+dates <- readRDS(paste0(here::here(),
+                 "/data/date_to_biweek.RDS"))
+
+
+# PAGE: https://www2.census.gov/programs-surveys/popest/datasets/2010-2019/state/detail/
+state_population_link <- "https://www2.census.gov/programs-surveys/popest/datasets/2010-2019/state/detail/SCPRC-EST2019-18+POP-RES.csv"
+state_pop <- read_csv(state_population_link)
+
+statecodes <- read_csv(paste0(
+  here::here(), 
+  "/data/demographic/statecodes.csv"))
+
+state_pop <- state_pop %>%
+  left_join(statecodes, by = c("NAME" = "state")) %>%
+  select(population = POPESTIMATE2019,
+         state = code) %>%
+  filter(!is.na(state))
+
+
+```
+
+
+```{r, eval=TRUE}
+
+# split into two queries to ensure we obtain all data with the API limit
+
+dat <- httr::GET(URLencode(
+  paste0("https://healthdata.gov/resource/j8mb-icvb.json?",
+  "$where=date between '2020-12-30T12:00:00' and '2021-10-15T12:00:00'&$limit=50000")))
+
+cdc1 <-jsonlite::fromJSON(
+      httr::content(dat,
+                    as = "text", 
+                    encoding = "UTF-8")) %>%
+  as_tibble()
+
+
+dat2 <- httr::GET(URLencode(
+  paste0("https://healthdata.gov/resource/j8mb-icvb.json?",
+  "$where=date between '2021-10-15T14:00:00' and '2022-02-25T14:00:00'&$limit=50000")))
+
+
+cdc2 <-jsonlite::fromJSON(
+      httr::content(dat2,
+                    as = "text", 
+                    encoding = "UTF-8")) %>%
+  as_tibble()
+
+
+cdc <- bind_rows(cdc1, cdc2) %>%
+  mutate(date = ymd(substr(date,1,10))) %>%
+  mutate(across(c(new_results_reported), as.numeric)) %>%
+  filter(!state %in% c("MP", "AS", "GU", "PR", "VI", "MH"))
+
+# overall_outcome is the outcome of the test (Inconclusive, Negative, or Positive)
+# new_results_reported is the number with the given outcome
+cdc_pos <- cdc %>%
+  select(-c(fema_region, total_results_reported)) %>%
+  pivot_wider(names_from = c("overall_outcome"),
+              values_from = c("new_results_reported")) %>%
+  mutate(total = Inconclusive + Negative + Positive) %>%
+  rename_with(tolower) %>%
+  select(state, positive, total, date)
+
+saveRDS(cdc_pos, paste0(here::here(), 
+                        "/data/state_level/tests_daily_all_states.RDS"))
+
+
+
+cdc_pos %>%
+  left_join(dates) %>%
+  filter(!is.na(biweek)) %>%
+  group_by(biweek, state) %>%
+  mutate(positive = sum(positive, na.rm=TRUE),
+         total = sum(total, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(posrate = positive/total) %>%
+  left_join(state_pop) %>%
+  saveRDS(paste0(here::here(), 
+                 "/data/state_level/tests_biweekly_all_states.RDS"))
+
+```
 
 # County-level Cases
 
@@ -563,7 +652,8 @@ read_data <- function(link) {
            total = `Total Tests (Last 14 days)`,
            positive = `Total Positive Tests (Last 14 days)`,
            county_name =County) %>%
-    mutate(state = "MA")
+    mutate( negative = total - positive,
+            state = "MA") 
 
 }
 
@@ -683,7 +773,8 @@ startdate_to_biweek <- data_ma %>%
   arrange(start_period_date) %>%
   mutate(biweek = row_number())
 
-
+# note that summing by biweek is not needed because structure is already in 
+# 2 week interval format
 data_ma  <- data_ma %>%
   filter(!week %% 2 ==0) %>%
   left_join(startdate_to_biweek) %>%
@@ -822,6 +913,48 @@ county_hosp %>%
   saveRDS(paste0(
     here::here(),
     "/data/county_level/hosp/hosp_biweekly_all_counties.RDS"))
+
+
+
+```
+
+
+# COVID-19 Trends and Impact Survey Data
+
+Accessed through the [Covidcast API](https://cmu-delphi.github.io/delphi-epidata/api/covidcast-signals/fb-survey.html).
+
+From the documentation:
+* `smoothed_wtested_positive_14d`: positivity rate among those tested for COVID-19 in previous 14 days
+* `smoothed_wscreening_tested_positive_14d`: positivity rate among those screened for COVID-19 without symptoms or known exposure
+
+
+```{r}
+
+
+screening_data_link <- paste0(
+  "https://api.covidcast.cmu.edu/epidata/covidcast/?data_source=fb-survey",
+  "&signal=smoothed_wscreening_tested_positive_14d,smoothed_wtested_positive_14d",
+  "&geo_type=state&time_type=day&time_values=20210320-20221212&geo_value=*")
+
+fb_screening <- httr::GET(screening_data_link)
+
+fb_symptoms <-jsonlite::fromJSON(
+      httr::content(fb_screening,
+                    as = "text", 
+                    encoding = "UTF-8"))$epidata %>%
+   mutate(date = lubridate::ymd(time_value),
+          week = lubridate::week(date),
+          state = geo_value,
+          value = value/100,
+          stderr = stderr/100) %>% 
+  filter(date <= lubridate::ymd("2022-03-01")) %>%
+  as_tibble()
+
+
+fb_symptoms %>%
+  saveRDS(paste0(
+    here::here(), 
+    "/data/state_level/screeningpos_all_states.RDS"))
 
 
 

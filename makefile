@@ -9,3 +9,7 @@ thesis_output: thesis
 
 data: analysis/data_cleaning/data_cleaning.Rmd
 			Rscript -e "rmarkdown::render('analysis/data_cleaning/data_cleaning.Rmd')"
+			
+			
+county_results: analysis/county_level_correction/county_correction.Rmd analysis/base_functions/base_functions.R analysis/data_cleaning/data_cleaning.Rmd
+			Rscript -e "rmarkdown::render('analysis/county_level_correction/county_correction.Rmd')"
