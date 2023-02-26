@@ -1,13 +1,8 @@
 ---
-title: "index.Rmd"
-author: "Quinn White"
-date: "`r Sys.Date()`"
+title: " <span style ='color: white;border-radius:2px'>Correcting COVID-19 Infection Counts for Undertesting and Diagnostic Test Inaccuracy</span>"
+author: "<span style = 'color:lightgray'>Quinn White</span>"
+date: "<span style = 'color:lightgray'>`r Sys.Date()`</span>"
 output:
-  rmdformats::readthedown:
-    df_print: paged
-    code_folding: hide
-    css: css/template.css
+    html_document:
+      css: css/index.css
 ---
-
-
-Test
