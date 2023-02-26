@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 2 Overview of Approach | Estimating Unobserved COVID-19 Infections in the United States</title>
+  <meta name="description" content="Chapter 2 Overview of Approach | Estimating Unobserved COVID-19 Infections in the United States" />
+  <meta name="generator" content="bookdown 0.29 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 2 Overview of Approach | Estimating Unobserved COVID-19 Infections in the United States" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 2 Overview of Approach | Estimating Unobserved COVID-19 Infections in the United States" />
+  
+  
+  
+
+<meta name="author" content="Quinn White" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="motivation.html"/>
+<link rel="next" href="background.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preliminary Content</a>
+<ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#acknowledgements"><i class="fa fa-check"></i>Acknowledgements</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#preface"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#dedication"><i class="fa fa-check"></i>Dedication</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#abstract"><i class="fa fa-check"></i>Abstract</a></li>
+</ul></li>
+<li class="chapter" data-level="1" data-path="motivation.html"><a href="motivation.html"><i class="fa fa-check"></i><b>1</b> Motivation</a></li>
+<li class="chapter" data-level="2" data-path="overview-of-approach.html"><a href="overview-of-approach.html"><i class="fa fa-check"></i><b>2</b> Overview of Approach</a></li>
+<li class="chapter" data-level="3" data-path="background.html"><a href="background.html"><i class="fa fa-check"></i><b>3</b> Background</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="background.html"><a href="background.html#probabalistic-bias-analysis"><i class="fa fa-check"></i><b>3.1</b> Probabalistic Bias Analysis</a></li>
+<li class="chapter" data-level="3.2" data-path="background.html"><a href="background.html#bayesian-melding"><i class="fa fa-check"></i><b>3.2</b> Bayesian Melding</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="background.html"><a href="background.html#theoretical-background-for-the-approach"><i class="fa fa-check"></i><b>3.2.1</b> Theoretical Background for the Approach</a></li>
+<li class="chapter" data-level="3.2.2" data-path="background.html"><a href="background.html#implementation-through-the-sampling-importance-resampling-algorithm"><i class="fa fa-check"></i><b>3.2.2</b> Implementation through the Sampling-Importance-Resampling Algorithm</a></li>
+<li class="chapter" data-level="3.2.3" data-path="background.html"><a href="background.html#bayesian-melding-applied-to-covid-19-misclassification"><i class="fa fa-check"></i><b>3.2.3</b> Bayesian Melding Applied to COVID-19 Misclassification</a></li>
+<li class="chapter" data-level="3.2.4" data-path="background.html"><a href="background.html#derivation-of-m"><i class="fa fa-check"></i><b>3.2.4</b> Derivation of <span class="math inline">\(M\)</span></a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html"><i class="fa fa-check"></i><b>4</b> Definition of Prior Distributions for Bias Parameters</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#background-on-the-beta-distribution"><i class="fa fa-check"></i><b>4.1</b> Background on the Beta Distribution</a></li>
+<li class="chapter" data-level="4.2" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#background-on-the-gamma-distribution"><i class="fa fa-check"></i><b>4.2</b> Background on the Gamma Distribution</a></li>
+<li class="chapter" data-level="4.3" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#definition-of-prior-distributions-for-incomplete-testing-correction"><i class="fa fa-check"></i><b>4.3</b> Definition of Prior Distributions for Incomplete Testing Correction</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-ps_1untested"><i class="fa fa-check"></i><b>4.3.1</b> Defining <span class="math inline">\(P(S_1|Untested)\)</span></a></li>
+<li class="chapter" data-level="4.3.2" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-alpha"><i class="fa fa-check"></i><b>4.3.2</b> Defining <span class="math inline">\(\alpha\)</span></a></li>
+<li class="chapter" data-level="4.3.3" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-beta"><i class="fa fa-check"></i><b>4.3.3</b> Defining <span class="math inline">\(\beta\)</span></a></li>
+<li class="chapter" data-level="4.3.4" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-ps_0testuntested"><i class="fa fa-check"></i><b>4.3.4</b> Defining <span class="math inline">\(P(S_0|test+,untested)\)</span></a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#definition-of-priors-for-test-inaccuracy-correction"><i class="fa fa-check"></i><b>4.4</b> Definition of Priors for Test Inaccuracy Correction</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-test-sensitivity-s_e"><i class="fa fa-check"></i><b>4.4.1</b> Defining Test Sensitivity (<span class="math inline">\(S_e\)</span>)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-test-specificity-s_p"><i class="fa fa-check"></i><b>4.5</b> Defining Test Specificity (<span class="math inline">\(S_p\)</span>)</a></li>
+<li class="chapter" data-level="4.6" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#summary-table-of-bias-parameter-distributions"><i class="fa fa-check"></i><b>4.6</b> Summary Table of Bias Parameter Distributions</a></li>
+<li class="chapter" data-level="4.7" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#correction-for-incomplete-testing"><i class="fa fa-check"></i><b>4.7</b> Correction for Incomplete Testing</a></li>
+<li class="chapter" data-level="4.8" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#correction-for-diagnostic-test-inaccuracy"><i class="fa fa-check"></i><b>4.8</b> Correction for Diagnostic Test Inaccuracy</a>
+<ul>
+<li class="chapter" data-level="4.8.1" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#derivation-of-formula-for-correction-for-diagnostic-test-inaccuracy"><i class="fa fa-check"></i><b>4.8.1</b> Derivation of Formula for Correction for Diagnostic Test Inaccuracy</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html"><i class="fa fa-check"></i><b>5</b> Comparison to the Covidestim Model</a>
+<ul>
+<li class="chapter" data-level="5.0.1" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html#overview"><i class="fa fa-check"></i><b>5.0.1</b> Overview</a></li>
+<li class="chapter" data-level="5.0.2" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html#the-covidestim-model"><i class="fa fa-check"></i><b>5.0.2</b> The Covidestim Model</a></li>
+<li class="chapter" data-level="5.0.3" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html#assumptions"><i class="fa fa-check"></i><b>5.0.3</b> Assumptions</a></li>
+<li class="chapter" data-level="5.1" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html#comparison-to-other-indicators"><i class="fa fa-check"></i><b>5.1</b> Comparison to Other Indicators</a></li>
+<li class="chapter" data-level="5.2" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html#seropositivity-data"><i class="fa fa-check"></i><b>5.2</b> Seropositivity Data</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>6</b> Results</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="results.html"><a href="results.html#county-level"><i class="fa fa-check"></i><b>6.1</b> County-level</a></li>
+<li class="chapter" data-level="6.2" data-path="results.html"><a href="results.html#state-level"><i class="fa fa-check"></i><b>6.2</b> State-level</a></li>
+</ul></li>
+<li class="appendix"><span><b>Appendix</b></span></li>
+<li class="chapter" data-level="A" data-path="appendix.html"><a href="appendix.html"><i class="fa fa-check"></i><b>A</b> Appendix</a>
+<ul>
+<li class="chapter" data-level="A.1" data-path="appendix.html"><a href="appendix.html#derivation-of-the-mean-and-variance-of-the-beta-distribution"><i class="fa fa-check"></i><b>A.1</b> Derivation of the Mean and Variance of the Beta Distribution</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Estimating Unobserved COVID-19 Infections in the United States</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="overview-of-approach" class="section level1 hasAnchor" number="2">
+<h1><span class="header-section-number">Chapter 2</span> Overview of Approach<a href="overview-of-approach.html#overview-of-approach" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>This work is based on the paper <em>Substantial underestimation of SARS-CoV-2 infection in the United States</em> by Wu <em>et al.</em> <span class="citation">(Wu et al., 2020)</span>. The original implementation considered a single time interval early in the pandemic, with the objective to estimate the true number of cases as of April 18, 2020 at the state level. When we consider the estimates, we can look at both the estimates for total infections by state, but also the ratio of the estimated total cases to the observed cases. This enables us to think about the way case ascertainment varies by state, as we see below.</p>
+<p><img src="figure/figure_original_case_ratio.png" width="50%" /></p>
+<p>The core idea of the approach is to break up the unobserved infections into unobserved infections among those with no or mild symptoms or those with moderate to severe symptoms. We denote this symptom status by an indicator variable where <span class="math inline">\(S_1\)</span> represents having moderate to severe symptoms and <span class="math inline">\(S_0\)</span> represents having no or mild symptoms. In what follows, <span class="math inline">\(test +\)</span> denotes the event that an individual <em>would</em> test positive if they were tested, not that they actually did. For example, <span class="math inline">\(P(test+|S_1,untested)\)</span> represents the probability a symptomatic individual would test positive if they were tested.</p>
+<p>Then, our goal is to estimate the infections among the untested population by calculating the number of moderate to severe esymptomatic infections among the untested population as
+<span class="math display">\[N^+_{untested,S_1} = N_{untested} \; P(S_1|untested) \cdot P(test + | S_1,untested)\]</span>
+and the asymptomatic (or mild) infections among the untested population as
+<span class="math display">\[N^+_{untested,S_0} = N_{untested}(1-P(S_1|untested))P(test + | S_0,untested).\]</span>
+Then we can estimate the total infections among the untested population as</p>
+<p><span class="math display">\[N^+_{untested} = N^+_{untested,S_1} + N^+_{untested,S_0}\]</span>
+which allows us to obtain the estimated number of true infections as</p>
+<p><span class="math display">\[N^+ = N^+_{untested} +N^+_{tested}\]</span>
+where <span class="math inline">\(N^+_{tested}\)</span> is the number of positive tests in a given location.</p>
+<p>The uncertainty inherent in this estimation process is in the quantities <span class="math inline">\(P(S_1|untested)\)</span>, <span class="math inline">\(P(test + | S_1,untested)\)</span>, and <span class="math inline">\(P(test + | S_0,untested)\)</span>.</p>
+<p>It is particularly difficult to think about how we would estimate <span class="math inline">\(P(test + | S_0,untested)\)</span> or <span class="math inline">\(P(test + | S_1,untested)\)</span> directly because there is a lack of data on these quantities.</p>
+<p>Instead, we define a random variable <span class="math inline">\(\alpha\)</span> that represents the ratio <span class="math inline">\(\dfrac{P(test + |S_1, untested)}{P(test + | tested)}\)</span>, that is, <span class="math inline">\(P(test + |S_1, untested) = \alpha P(test+|tested)\)</span>. We can think of <span class="math inline">\(\alpha\)</span> as the correction factor for estimating <span class="math inline">\(P(+|S_1,untested)\)</span> from the test positivity <span class="math inline">\(P(test + |tested)\)</span>.</p>
+<p>We can define <span class="math inline">\(\beta\)</span> analogously for the asymptomatic case, where <span class="math inline">\(\beta = \dfrac{P(test + |S_0, untested)}{P(test + | tested)}\)</span>, so we have <span class="math inline">\(P(test + |S_0, untested) = \beta \; P(test + | tested)\)</span>.</p>
+<p>This formulation enables us to estimate <span class="math inline">\(P(test + |S_0, untested)\)</span> and <span class="math inline">\(P(test + |S_1, untested)\)</span> with information from the observed test positivity rate among the tested population, which means it can reflect differences in transmission dynamics by the location and time interval considered.</p>
+<p>We expect <span class="math inline">\(\alpha\)</span> to be higher than <span class="math inline">\(\beta\)</span> to reflect that the test positivity rate among the asymptomatic untested population is lower than the symptomatic untested population. The specification of these distributions is discussed in greater detail in the [Definition of Prior Distributions for the Bias Parameters ] section.</p>
+<p>Because of the uncertainty around <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>, it is useful to relate these parameters to the asymptomatic rate of the virus, <span class="math inline">\(P(S_0|test +, untested)\)</span>. Due to the importance of asymptomatic transmission to controlling the pandemic, the asymptomatic rate has been an area of substantial interest. This has led to extensive studies on the topic, including multiple meta-analyses summarizing these results <span class="citation">(Ma et al., 2021a; Sah et al., 2021a)</span>.</p>
+<p>We can represent the relationship between <span class="math inline">\(\theta = \{ \alpha, \beta, P(S_1|untested)\}\)</span> and <span class="math inline">\(\phi = \{\; P(S_0|test+, untested)\;\}\)</span> by the deterministic function
+<span class="math inline">\(M: \theta \to \phi\)</span> for <span class="math inline">\(\theta = \{P(S_1|untested), \alpha, \beta \}\)</span> and <span class="math inline">\(\phi = P(S_0|test +,untested)\)</span> defined as:
+<span class="math display">\[P(S_0|test+, untested) = \dfrac{\beta(1 - P(S_1|untested))}{\beta(1-P(S_1|untested)) + \alpha P(S_1|untested)}.\]</span></p>
+<p>When we have prior knowledge about the distributions of the inputs and output of a deterministic function, we can use to generate constrained distributions for the inputs and outputs that are in concordance with one another. In essence, this approach considers the distinct distributions we have for <span class="math inline">\(\phi\)</span>: the distribution informed by previous literature on the asymptomatic rate, and the distribution formed by evaluating <span class="math inline">\(M\)</span> at values of <span class="math inline">\(\theta\)</span>. We can combine these distributions with logarithmic pooling to yield a constrained distribution for <span class="math inline">\(\phi=P(S_0|test +, untested)\)</span>, and then can approximate the inverted distribution to obtain constrained distributions for the inputs <span class="math inline">\(\theta = \{P(S_1|untested), \alpha, \beta \}\)</span>. These</p>
+<p>We can summarize this process in the diagram that follows, where we repeat this process for every geographic unit (a state or county) and time interval (a 2 week interval). We divide the time period into 2-week intervals specifically due to the duration of test positivity, which is about two weeks on average <span class="citation">(Kojima, Roshani, &amp; Klausner, 2022; Mallett et al., 2020)</span>. This enables us to think of our estimates for each two-week period as incident infections.</p>
+<p><img src="figure/analysis_diagram.png" width="80%" style="display: block; margin: auto;" /></p>
+<p>With the original implementation, <span class="math inline">\(\alpha, \beta, \text{ and } P(S_1|untested)\)</span> were assumed to be independent and identically distributed across states. However, because we are considering a wider time interval over all of 2021 and into early 2022, it makes sense to vary these parameters by time and location. Due to the availability of data to inform <span class="math inline">\(\beta\)</span> and <span class="math inline">\(P(S_1|untested)\)</span>, we allow these parameters to vary by time and location, as discussed further in [Definition of Prior Distributions].</p>
+<p>When we allow <span class="math inline">\(\beta\)</span> and <span class="math inline">\(P(S_1|untested)\)</span> to vary over time and location, rather than implementing Bayesian melding once for each time interval, we must implement melding for each time interval and each location considered.</p>
+
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="motivation.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="background.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": [["thesis.pdf", "PDF"], ["thesis.epub", "EPUB"], ["thesis.docx", "Word"]],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

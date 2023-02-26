@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Estimating Unobserved COVID-19 Infections in the United States</title>
+  <meta name="description" content="Estimating Unobserved COVID-19 Infections in the United States" />
+  <meta name="generator" content="bookdown 0.29 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Estimating Unobserved COVID-19 Infections in the United States" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Estimating Unobserved COVID-19 Infections in the United States" />
+  
+  
+  
+
+<meta name="author" content="Quinn White" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+
+<link rel="next" href="motivation.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preliminary Content</a>
+<ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#acknowledgements"><i class="fa fa-check"></i>Acknowledgements</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#preface"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#dedication"><i class="fa fa-check"></i>Dedication</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#abstract"><i class="fa fa-check"></i>Abstract</a></li>
+</ul></li>
+<li class="chapter" data-level="1" data-path="motivation.html"><a href="motivation.html"><i class="fa fa-check"></i><b>1</b> Motivation</a></li>
+<li class="chapter" data-level="2" data-path="overview-of-approach.html"><a href="overview-of-approach.html"><i class="fa fa-check"></i><b>2</b> Overview of Approach</a></li>
+<li class="chapter" data-level="3" data-path="background.html"><a href="background.html"><i class="fa fa-check"></i><b>3</b> Background</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="background.html"><a href="background.html#probabalistic-bias-analysis"><i class="fa fa-check"></i><b>3.1</b> Probabalistic Bias Analysis</a></li>
+<li class="chapter" data-level="3.2" data-path="background.html"><a href="background.html#bayesian-melding"><i class="fa fa-check"></i><b>3.2</b> Bayesian Melding</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="background.html"><a href="background.html#theoretical-background-for-the-approach"><i class="fa fa-check"></i><b>3.2.1</b> Theoretical Background for the Approach</a></li>
+<li class="chapter" data-level="3.2.2" data-path="background.html"><a href="background.html#implementation-through-the-sampling-importance-resampling-algorithm"><i class="fa fa-check"></i><b>3.2.2</b> Implementation through the Sampling-Importance-Resampling Algorithm</a></li>
+<li class="chapter" data-level="3.2.3" data-path="background.html"><a href="background.html#bayesian-melding-applied-to-covid-19-misclassification"><i class="fa fa-check"></i><b>3.2.3</b> Bayesian Melding Applied to COVID-19 Misclassification</a></li>
+<li class="chapter" data-level="3.2.4" data-path="background.html"><a href="background.html#derivation-of-m"><i class="fa fa-check"></i><b>3.2.4</b> Derivation of <span class="math inline">\(M\)</span></a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html"><i class="fa fa-check"></i><b>4</b> Definition of Prior Distributions for Bias Parameters</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#background-on-the-beta-distribution"><i class="fa fa-check"></i><b>4.1</b> Background on the Beta Distribution</a></li>
+<li class="chapter" data-level="4.2" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#background-on-the-gamma-distribution"><i class="fa fa-check"></i><b>4.2</b> Background on the Gamma Distribution</a></li>
+<li class="chapter" data-level="4.3" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#definition-of-prior-distributions-for-incomplete-testing-correction"><i class="fa fa-check"></i><b>4.3</b> Definition of Prior Distributions for Incomplete Testing Correction</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-ps_1untested"><i class="fa fa-check"></i><b>4.3.1</b> Defining <span class="math inline">\(P(S_1|Untested)\)</span></a></li>
+<li class="chapter" data-level="4.3.2" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-alpha"><i class="fa fa-check"></i><b>4.3.2</b> Defining <span class="math inline">\(\alpha\)</span></a></li>
+<li class="chapter" data-level="4.3.3" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-beta"><i class="fa fa-check"></i><b>4.3.3</b> Defining <span class="math inline">\(\beta\)</span></a></li>
+<li class="chapter" data-level="4.3.4" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-ps_0testuntested"><i class="fa fa-check"></i><b>4.3.4</b> Defining <span class="math inline">\(P(S_0|test+,untested)\)</span></a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#definition-of-priors-for-test-inaccuracy-correction"><i class="fa fa-check"></i><b>4.4</b> Definition of Priors for Test Inaccuracy Correction</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-test-sensitivity-s_e"><i class="fa fa-check"></i><b>4.4.1</b> Defining Test Sensitivity (<span class="math inline">\(S_e\)</span>)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-test-specificity-s_p"><i class="fa fa-check"></i><b>4.5</b> Defining Test Specificity (<span class="math inline">\(S_p\)</span>)</a></li>
+<li class="chapter" data-level="4.6" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#summary-table-of-bias-parameter-distributions"><i class="fa fa-check"></i><b>4.6</b> Summary Table of Bias Parameter Distributions</a></li>
+<li class="chapter" data-level="4.7" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#correction-for-incomplete-testing"><i class="fa fa-check"></i><b>4.7</b> Correction for Incomplete Testing</a></li>
+<li class="chapter" data-level="4.8" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#correction-for-diagnostic-test-inaccuracy"><i class="fa fa-check"></i><b>4.8</b> Correction for Diagnostic Test Inaccuracy</a>
+<ul>
+<li class="chapter" data-level="4.8.1" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#derivation-of-formula-for-correction-for-diagnostic-test-inaccuracy"><i class="fa fa-check"></i><b>4.8.1</b> Derivation of Formula for Correction for Diagnostic Test Inaccuracy</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html"><i class="fa fa-check"></i><b>5</b> Comparison to the Covidestim Model</a>
+<ul>
+<li class="chapter" data-level="5.0.1" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html#overview"><i class="fa fa-check"></i><b>5.0.1</b> Overview</a></li>
+<li class="chapter" data-level="5.0.2" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html#the-covidestim-model"><i class="fa fa-check"></i><b>5.0.2</b> The Covidestim Model</a></li>
+<li class="chapter" data-level="5.0.3" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html#assumptions"><i class="fa fa-check"></i><b>5.0.3</b> Assumptions</a></li>
+<li class="chapter" data-level="5.1" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html#comparison-to-other-indicators"><i class="fa fa-check"></i><b>5.1</b> Comparison to Other Indicators</a></li>
+<li class="chapter" data-level="5.2" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html#seropositivity-data"><i class="fa fa-check"></i><b>5.2</b> Seropositivity Data</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>6</b> Results</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="results.html"><a href="results.html#county-level"><i class="fa fa-check"></i><b>6.1</b> County-level</a></li>
+<li class="chapter" data-level="6.2" data-path="results.html"><a href="results.html#state-level"><i class="fa fa-check"></i><b>6.2</b> State-level</a></li>
+</ul></li>
+<li class="appendix"><span><b>Appendix</b></span></li>
+<li class="chapter" data-level="A" data-path="appendix.html"><a href="appendix.html"><i class="fa fa-check"></i><b>A</b> Appendix</a>
+<ul>
+<li class="chapter" data-level="A.1" data-path="appendix.html"><a href="appendix.html#derivation-of-the-mean-and-variance-of-the-beta-distribution"><i class="fa fa-check"></i><b>A.1</b> Derivation of the Mean and Variance of the Beta Distribution</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Estimating Unobserved COVID-19 Infections in the United States</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="header">
+<h1 class="title">Estimating Unobserved COVID-19 Infections in the United States</h1>
+<p class="author"><em>Quinn White</em></p>
+<p class="date"><em>May 2023</em></p>
+</div>
+<div id="preliminary-content" class="section level1 unnumbered hasAnchor">
+<h1>Preliminary Content<a href="index.html#preliminary-content" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="acknowledgements" class="section level2 unnumbered hasAnchor">
+<h2>Acknowledgements<a href="index.html#acknowledgements" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>I want to thank a few people.</p>
+</div>
+<div id="preface" class="section level2 unnumbered hasAnchor">
+<h2>Preface<a href="index.html#preface" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>This is an example of a thesis setup to use the smiththesis document class
+(for LaTeX) and the R bookdown package, in general.</p>
+</div>
+<div id="dedication" class="section level2 unnumbered hasAnchor">
+<h2>Dedication<a href="index.html#dedication" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>You can have a dedication here if you wish.</p>
+</div>
+<div id="abstract" class="section level2 unnumbered hasAnchor">
+<h2>Abstract<a href="index.html#abstract" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>As we have navigated the COVID-19 pandemic, case counts have been a central source of information for understanding transmission dynamics and the effect of public health interventions. However, because the number of cases we observe is limited by the testing effort in a given location, the case counts presented on local or national dashboards are only a fraction of the true infections. Variations in testing rate by time and location impacts the number of cases that go unobserved, which can cloud our understanding of the true COVID-19 incidence at a given time point and can create biases in downstream analyses. Additionally, the number of cases we observe is impacted by the sensitivity and specificity of the diagnostic test.<br />
+To quantify the number of true infections given incomplete testing and diagnostic test inaccuracy, this work implements probabilistic bias analysis at a biweekly time scale from January 1, 2021 through February 2022. In doing so, we can estimate a range of possible true infections for a given time interval and location. This approach can be applied at the state level across the United States, as well as in some counties where the needed data are available.</p>
+<!-- The {.unnumbered} option here means that the introduction will be 
+"Chapter 0." You can also use {-} for no numbers on chapters.
+-->
+<!-- note to self -- defined command-shift-a to be citation shortcut -->
+
+<!--
+This is for including Chapter 1.  Notice that it's also good practice to name your chunk.  This will help you debug potential issues as you knit.  The chunk above is called intro and the one below is called chapter1.  Feel free to change the name of the Rmd file as you wish, but don't forget to change it here from chap1.Rmd.
+-->
+<!--
+The {#rmd-basics} text after the chapter declaration will allow us to link throughout the document back to the beginning of Chapter 1.  These labels will automatically be generated (if not specified) by changing the spaces to hyphens and capital letters to lowercase.  Look for the reference to this label at the beginning of Chapter 2.
+-->
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+<a href="motivation.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": [["thesis.pdf", "PDF"], ["thesis.epub", "EPUB"], ["thesis.docx", "Word"]],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

@@ -1,4 +1,6 @@
 
+all: thesis data county_results
+
 thesis_output: thesis
       # generate citations based on Rmd files in thesis directory
 			Rscript thesis/generate_citations.R 

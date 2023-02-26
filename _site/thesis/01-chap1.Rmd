@@ -1,0 +1,189 @@
+<!--
+This is for including Chapter 1.  Notice that it's also good practice to name your chunk.  This will help you debug potential issues as you knit.  The chunk above is called intro and the one below is called chapter1.  Feel free to change the name of the Rmd file as you wish, but don't forget to change it here from chap1.Rmd.
+-->
+
+<!--
+The {#rmd-basics} text after the chapter declaration will allow us to link throughout the document back to the beginning of Chapter 1.  These labels will automatically be generated (if not specified) by changing the spaces to hyphens and capital letters to lowercase.  Look for the reference to this label at the beginning of Chapter 2.
+-->
+
+```{r,eval=FALSE, include = FALSE}
+rbbt::bbt_update_bib(path_rmd = "./01-chap1.Rmd", path_bib = "./references.bib")
+rbbt::bbt_insert()
+
+## Misc
+
+Things left to do --
+- add plot in motivation section
+- revise + add to prob bias section
+- add more background to summary of approach
+- revise melding section
+- add a prelim results section
+- add abstract
+- add overview section before methods updated diagram
+
+```
+
+
+
+# Motivation  
+  \vspace{.2 mm}
+Throughout the COVID-19 pandemic, observed infections have guided decisions at both the individual and government levels. At the state-level, policies on phased reopening, for example, often include criteria on COVID-19 cases [@californiadepartmentofpublichealth2021; @tomwolf2020; @charlesd.baker2021]. 
+
+ To make this data accessible to the public, several organizations, including the CDC [@centersfordiseasecontrolandprevention2020], John Hopkins University [@dong2020], and the New York Times [@thenewyorktimes2022], compiled comprehensive dashboards presenting key metrics such as positive cases and test positivity rates across states.
+
+However, our interpretation of case counts as a measure of transmission is limited by the fact that testing rates impact these trends. The number of positive cases we observe in a county, for instance, will be a result of that county’s testing capacity and testing behavior of its population. This means the relationship between observed infections and true total infections may not be monotonic.
+
+The importance of considering testing rate led John Hopkins University to organize the most comprehensive testing database available in the United States [@dong2020], which enables us to see that testing rate varies substantially by state and time.
+
+```{re,eval=FALSE,echo=FALSE}
+
+  
+library(tidyverse)
+library(viridis)
+
+setwd("../honors_analysis")
+
+testing <- readRDS("../honors_analysis/data/all_states/cdc_daily_allstates.RDS") %>%
+  filter(date >= "2021-01-01")
+
+# style = 'display:inline-block;margin-bottom:1vw;padding:1vw;'
+
+pop_link <- "https://www2.census.gov/programs-surveys/popest/datasets/2010-2019/state/detail/SCPRC-EST2019-18+POP-RES.csv"
+pop <- read_csv(pop_link)
+
+statecodes <- read_csv("../honors_analysis/data/statecodes.csv")
+
+pop <- pop %>%
+  left_join(statecodes, by = c("NAME" = "state")) %>%
+  select(population = POPESTIMATE2019,
+         state = code) %>%
+  filter(!is.na(state))
+
+testing <- testing %>%
+  left_join(pop)
+
+testing <- testing %>%
+  mutate(week = week(date), year = year(date)) %>%
+  mutate(week = case_when(
+    year == 2021 ~ week,
+    year == 2022 ~ week + 52
+  )) %>%
+  group_by(week, state, population) %>%
+  summarize(date = min(date), 
+            total = sum(total))
+
+   
+
+testing  %>%
+  mutate(`Total Number Tested\nNormalized by Population Size` = total/population ) %>%
+  ggplot(aes(x = date, 
+             y = `Total Number Tested\nNormalized by Population Size`, 
+             color = state)) +
+  geom_line(size = .7) +
+  scale_color_viridis(discrete=TRUE) +
+  theme_bw() +
+  theme(axis.title = element_text(size = 16),
+          legend.position = "none",
+        plot.title = element_text(hjust = .5, face = "bold", size = 19),
+        text = element_text(family = "Arial"),
+        axis.text.x = element_text(size = 14)) +
+  labs(title = "Testing Rate by State (Weekly)")
+
+ggsave("./figure/testing_rate.png")
+
+
+```
+
+```{r, out.width = "90%"}
+
+knitr::include_graphics("./figure/testing_rate.png")
+
+```
+
+
+
+As we study the impact and transmission of SARS-CoV-2 as well as the efficacy of different interventions, we often turn to case counts for information. In this way, case counts form the basis for numerous types of analyses that inform our understanding of the pandemic. This means that bias in case counts due to unobserved infections can greatly impact our understanding of the pandemic.
+
+One way testing rates can influence our understanding of COVID-19 is when we are seeking to make comparisons across different locations. 
+
+The government response to the pandemic has differed greatly by state, with a range of different policies and timelines as local governments weighted complex tradeoffs. The variability in state-level policies sparks several questions related to the consequences of these policies. Comparing case counts enables us to compare the impact of state-level management of the pandemic. For example, Kaufman *et al.* used cumulative case counts to study the effect of state-level social distancing policies [@kaufman2021]. At the county scale, Jiang *et al.* evaluated the association between stay-at-home orders and daily incident cases [@jiang2022a], and Kao *et al.* looked at how the duration of multiple policy interventions -- face mask mandates, stay-at-home orders, and gathering bans -- affected monthly incidence [@kao2023].
+
+The bias in case counts is particularly important for inference related to government interventions. With regard to government interventions, it is highly likely that lower testing resources may be related to less stringent policies in other respects. If this is the case, then lower cases may be observed in locations with less stringent policies as an artifact of inadequate testing rather than lower transmission. As a result, when we estimate the effect of a policy intervention based on observed cases, we may be underestimating the true impact. 
+
+Besides interventions, there has been substantial concern over the disparities in the impact of COVID-19. As a result, it is important  to understand the relationship between various socioeconomic variables and case burden. Chen and Krieger showed a consistent monotonic relationship between the percent poverty and cumulative case burden at the zip-code tabulation area level in Illinois, with higher percent poverty associated with a higher case burden [@chen2021a]. Similarly, Karmakar *et al.* showed in a cross-sectional analysis that for counties in the U.S., incident cases were associated with higher social vulnerability index [@karmakar2021a]. This social vulnerability index is defined by the CDC, and includes information from a collection of census variables related to poverty, unemployment, and racial and ethnic minority status.
+Similar issues may arise when studying the effect of socioeconomic variables. Counties with higher social vulnerability (due to, for example, low economic resources) may also have lower testing resources, which may bias our comparisons to counties where testing is more adequate. 
+
+We also use cases to study the effect of vaccination at the population scale. Work in this area has been expansive. Harris showed an inverse relationship between cross-sectional COVID-19 incidence and county-level vaccination coverage during the Delta surge considering a sample of the  counties with the largest population size  [@harris2022a], and Cuadros *et al.* found a similar trend in counties across the United States [@cuadros2022c]. Nevertheless, as the virus has evolved, the relationship between transmission and case counts has shifted, particularly with the evolution of the highly transmissible Omicron variant. Mclaughlin *et al.* found that there wasn't a relationship between the percentage of the population fully vaccinated and case counts, contrasting findings from other waves [@mclaughlin2022a]. However, they did find that higher booster uptake rates were associated with meaningful decreases in case counts, and higher vaccination rates and booster rates were both associated with decreases in COVID-19 mortality.
+
+Beyond the efficacy of vaccines at the individual level, these studies also demonstrate that we can use case data to quantify the impact of vaccination efforts as a public health intervention. Coupled with information about genetic variants that are circulating, they also can extend our knowledge about the effect of this intervention across different phases of the pandemic. 
+
+Looking to the future, infection counts also may be informative as we better understand the impacts of long COVID-19\footnote{The syndrome goes by a number of names, including long-haul COVID-19, post-acute XXX, [SOURCE].} on a population scale. There is increased concern over the poorly characterized but widespread phenomenon of lingering COVID-19 symptoms, which includes but is not limited to symptoms of fatigue, dyspnea, chest pain, and palpitation. The heterogeneity of presentations and definitions has complicated research on the syndrome, yet its impact has been pervasive. In light of this, the NIH has made the initiative XXX to better understand and treat long COVID-19 [SOURCE.]
+
+Infection counts are particularly relevant for the study of long COVID-19 at the population scale because, contrary to what we might expect, the severity of COVID-19 disease is not associated with the persistence of several symptoms, including anosmia, chest pain, cough, and palpitation [@dirican2022]. Since lingering symptoms can be problematic even with mild cases, trying to characterize the cumulative burden of COVID-19 through a proxy such as hospitalization counts would not capture the full impact.    
+
+Ultimately, COVID-19 case counts are a key metric that informs our understanding of the pandemic. Case numbers are interesting in themselves to quantify the reach of the pandemic across different time periods, and they are also the inputs to an extensive array of analyses that aid our understanding of public health interventions, disparities in the impact of the virus, and differences in the dynamics among circulating genetic variants. This underlies the importance of quantifying the underestimation of COVID-19 infections and how the extent of underestimation differs across time and space. 
+
+# Overview of Approach 
+
+
+ This work is based on the paper *Substantial underestimation of SARS-CoV-2 infection in the United States* by Wu *et al.* [@wuSubstantialUnderestimationSARSCoV22020]. The original implementation considered a single time interval early in the pandemic, with the objective to estimate the true number of cases as of April 18, 2020 at the state level. When we consider the estimates, we can look at both the estimates for total infections by state, but also the ratio of the estimated total cases to the observed cases.  This enables us to think about the way case ascertainment varies by state, as we see below. 
+ 
+ 
+ 
+```{r, echo = FALSE, out.width="50%", caption = "Figure from Wu et al. (2020) showing the ratio of total estimated infections when accounting for imperfect diagnostic test accuracy and incomplete testing to the number of cases confirmed by a positive PCR test."}
+ 
+knitr::include_graphics("./figure/figure_original_case_ratio.png")
+# ![](./figure/figure_original_case_ratio.png){width=200}
+
+```
+
+The core idea of the approach is to break up the unobserved infections into unobserved infections among those with no or mild symptoms or those with moderate to severe symptoms. We denote this symptom status by an indicator variable where $S_1$ represents having moderate to severe symptoms and $S_0$ represents having no or mild symptoms. In what follows, $test +$  denotes the event that an individual *would* test positive if they were tested, not that they actually did. For example, $P(test+|S_1,untested)$ represents the probability a symptomatic individual would test positive if they were tested. 
+
+Then, our goal is to estimate the infections among the untested population by calculating the number of moderate to severe esymptomatic infections among the untested population as
+$$N^+_{untested,S_1} = N_{untested} \; P(S_1|untested) \cdot P(test + | S_1,untested)$$
+and the asymptomatic (or mild) infections among the untested population as
+$$N^+_{untested,S_0} = N_{untested}(1-P(S_1|untested))P(test + | S_0,untested).$$
+Then we can estimate the total infections among the untested population as 
+
+$$N^+_{untested} = N^+_{untested,S_1} + N^+_{untested,S_0}$$
+which allows us to obtain the estimated number of true infections as 
+
+$$N^+ = N^+_{untested} +N^+_{tested}$$
+where $N^+_{tested}$ is the number of positive tests in a given location.
+
+The uncertainty inherent in this estimation process is in the quantities  $P(S_1|untested)$, $P(test + | S_1,untested)$, and $P(test + | S_0,untested)$.
+
+It is particularly difficult to think about how we would estimate $P(test + | S_0,untested)$ or $P(test + | S_1,untested)$ directly because there is a lack of data on these quantities. 
+
+Instead, we define a random variable $\alpha$ that represents the ratio $\dfrac{P(test + |S_1, untested)}{P(test + | tested)}$, that is, $P(test + |S_1, untested) = \alpha P(test+|tested)$. We can think of $\alpha$ as the correction factor for estimating $P(+|S_1,untested)$ from the test positivity $P(test + |tested)$.
+
+We can define $\beta$ analogously for the asymptomatic case, where $\beta =  \dfrac{P(test + |S_0, untested)}{P(test + | tested)}$, so we have $P(test + |S_0, untested) = \beta \; P(test + | tested)$.
+
+This formulation enables us to estimate $P(test + |S_0, untested)$ and $P(test + |S_1, untested)$ with information from the observed test positivity rate among the tested population, which means it can reflect differences in transmission dynamics by the location and time interval considered.
+
+We expect $\alpha$ to be higher than $\beta$ to reflect that the test positivity rate among the asymptomatic untested population is lower than the symptomatic untested population. The specification of these distributions is discussed in greater detail in the [Definition of Prior Distributions for the Bias Parameters ] section.
+
+Because of the uncertainty around $\alpha$ and $\beta$, it is useful to relate these parameters to the asymptomatic rate of the virus, $P(S_0|test +, untested)$. Due to the importance of asymptomatic transmission to controlling the pandemic, the asymptomatic rate has been an area of substantial interest. This has led to extensive studies on the topic, including multiple meta-analyses summarizing these results [@ma2021a;@sah2021a].  
+
+We can represent the relationship between $\theta = \{ \alpha, \beta, P(S_1|untested)\}$ and $\phi = \{\; P(S_0|test+, untested)\;\}$ by the deterministic function
+ $M: \theta \to \phi$ for $\theta =  \{P(S_1|untested), \alpha, \beta \}$ and $\phi = P(S_0|test +,untested)$ defined as:
+$$P(S_0|test+, untested) = \dfrac{\beta(1 - P(S_1|untested))}{\beta(1-P(S_1|untested)) + \alpha P(S_1|untested)}.$$ 
+
+When we have prior knowledge about the distributions of the inputs and output of a deterministic function, we can use \textcolor{blue}{[Bayesian melding]} to generate constrained distributions for the inputs and outputs that are in concordance with one another. In essence, this approach considers the distinct distributions we have for $\phi$: the distribution informed by previous literature on the asymptomatic rate, and the distribution formed by evaluating $M$ at values of $\theta$. We can combine these distributions with logarithmic pooling to yield a constrained distribution for $\phi=P(S_0|test +, untested)$, and then can approximate the inverted distribution to obtain constrained distributions for the inputs $\theta =  \{P(S_1|untested), \alpha, \beta \}$. These 
+
+
+We can summarize this process in the diagram that follows, where we repeat this process for every geographic unit (a state or county) and time interval (a 2 week interval). We divide the time period into 2-week intervals specifically due to the duration of test positivity, which is about two weeks on average [@mallett2020a; @kojima2022a]. This enables us to  think of our estimates for each two-week period as incident infections.
+
+
+ 
+```{r, echo = FALSE, out.width="80%", fig.align = 'center', fig.caption = 'Implementation of probabilistic bias analysis.'}
+ 
+knitr::include_graphics("./figure/analysis_diagram.png")
+# ![](./figure/figure_original_case_ratio.png){width=200}
+
+```
+
+With the original implementation, $\alpha, \beta, \text{ and } P(S_1|untested)$ were assumed to be independent and identically distributed across states. However, because we are considering a wider time interval over all of 2021 and into early 2022, it makes sense to vary these parameters by time and location. Due to the availability of data to inform $\beta$ and $P(S_1|untested)$, we allow these parameters to vary by time and location, as discussed further in [Definition of Prior Distributions].
+
+When we allow $\beta$ and $P(S_1|untested)$ to vary over time and location, rather than implementing Bayesian melding once for each time interval, we must implement melding for each time interval and each location considered.
+

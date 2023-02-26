@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<!-- saved from url=(0076)https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts -->
+<html lang="en" dir="ltr" prefix="og: https://ogp.me/ns#" style="height: 100%;" class="cssgradients no-touchevents details flexbox js stickyTOC"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <script type="text/javascript" src="./archived_webpage_mass_cases_files/23b062ec87"></script><script type="text/javascript" async="" src="./archived_webpage_mass_cases_files/siteanalyze_6427.js"></script><script type="text/javascript" async="" src="./archived_webpage_mass_cases_files/js"></script><script src="./archived_webpage_mass_cases_files/290747046569972" async=""></script><script async="" src="./archived_webpage_mass_cases_files/fbevents.js"></script><script type="text/javascript" async="" src="./archived_webpage_mass_cases_files/analytics.js"></script><script async="" src="./archived_webpage_mass_cases_files/analytics.js"></script><script src="./archived_webpage_mass_cases_files/gtm.js" async=""></script><script>
+  // See: https://gist.github.com/nekman/297ebda63d6b00380058cbb0114296aa#file-polyfill-js-L586
+  // IE11 compatibility: Element.prototype.after
+  function _mutation(nodes) { // eslint-disable-line no-unused-vars
+    if (!nodes.length) {
+      throw new Error('DOM Exception 8');
+    } else if (nodes.length === 1) {
+      return typeof nodes[0] === 'string' ? document.createTextNode(nodes[0]) : nodes[0];
+    } else {
+      var
+      fragment = document.createDocumentFragment(),
+      length = nodes.length,
+      index = -1,
+      node;
+
+      while (++index < length) {
+        node = nodes[index];
+
+        fragment.appendChild(typeof node === 'string' ? document.createTextNode(node) : node);
+      }
+
+      return fragment;
+    }
+  }
+
+  // See: https://gist.github.com/nekman/297ebda63d6b00380058cbb0114296aa#file-polyfill-js-L610
+  // IE11 compatibility: Element.prototype.after
+  if (typeof Document.prototype.after != 'function') {
+    Document.prototype.after = Element.prototype.after = function after() {
+      if (this.parentNode) {
+        this.parentNode.insertBefore(_mutation(arguments), this.nextSibling);
+      }
+    };
+  }
+
+  // See: https://github.com/damienbod/angular-auth-oidc-client/issues/276#issue-352138019
+  // IE11 compatibility: CustomEvent
+  if (typeof CustomEvent != 'function') {
+    (function () {
+      function CustomEvent ( event, params ) {
+        params = params || { bubbles: false, cancelable: false, detail: undefined };
+        var evt = document.createEvent( 'CustomEvent' );
+        evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
+        return evt;
+      }
+
+      CustomEvent.prototype = window.Event.prototype;
+
+      window.CustomEvent = CustomEvent;
+    })();
+  }
+
+  // See: https://github.com/miguelcobain/ember-paper/issues/1058#issuecomment-461764542
+  // IE11 compatibility: NodeList.prototype.forEach
+  if (window.NodeList && !NodeList.prototype.forEach) {
+    NodeList.prototype.forEach = Array.prototype.forEach;
+  }
+
+  // See: https://stackoverflow.com/a/43139506/1038565
+  // IE11 compatibility: String.prototype.includes
+  if (typeof String.prototype.includes != 'function') {
+    String.prototype.includes = function(match) {
+      return this.indexOf(match) !== -1;
+    }
+  }
+</script>
+    <script>
+  document.prefetchAlertsData = {};
+
+  function prefetch_alerts(data) {
+    if (!data) {
+      return;
+    }
+
+    // Previously using fetch, but XMLHttpRequest is more compatible
+    // with older browsers (IE11).
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", data);
+    xhr.responseType = "text";
+    xhr.send();
+
+    xhr.onload = function() {
+      document.prefetchAlertsData[data] = this.responseText;
+
+      // See: https://stackoverflow.com/a/49071358/1038565
+      // IE11 dispatch event not working.
+      var event;
+      if(typeof(Event) === 'function') {
+          event = new Event('mass_alerts_data_ready');
+      }else{
+          event = document.createEvent('Event');
+          event.initEvent('mass_alerts_data_ready', true, true);
+      }
+      document.dispatchEvent(event);
+    };
+
+    xhr.onprogress = function() {};
+    xhr.onerror = function() {};
+  }
+
+  prefetch_alerts("/alerts/page/518711");
+  prefetch_alerts("/alerts/sitewide");
+</script>
+
+    <!-- DEPLOYMENT IDENTIFIER: 25f955d547f3da65758177fb226e78072d5457aa -->
+    <script type="text/javascript">(window.NREUM||(NREUM={})).init={privacy:{cookies_enabled:false},ajax:{deny_list:["%2A.mapbox.com","api.mapbox.com","events.mapbox.com","gov-bam.nr-data.net"]},distributed_tracing:{enabled:true}};(window.NREUM||(NREUM={})).loader_config={agentID:"720602727",accountID:"1522041",trustKey:"1522041",xpid:"VQMFU1ZXCRAHVlFUBwMBUlc=",licenseKey:"23b062ec87",applicationID:"720602643"};;(()=>{var e,t,r={9071:(e,t,r)=>{"use strict";r.d(t,{I:()=>n});var n=0,i=navigator.userAgent.match(/Firefox[\/\s](\d+\.\d+)/);i&&(n=+i[1])},6562:(e,t,r)=>{"use strict";r.d(t,{P_:()=>p,Mt:()=>v,C5:()=>d,DL:()=>y,OP:()=>k,lF:()=>H,Yu:()=>E,Dg:()=>g,CX:()=>f,GE:()=>w,sU:()=>L});var n={};r.r(n),r.d(n,{agent:()=>T,match:()=>_,version:()=>O});var i=r(6797),o=r(909),a=r(8610);class s{constructor(e,t){try{if(!e||"object"!=typeof e)return(0,a.Z)("New setting a Configurable requires an object as input");if(!t||"object"!=typeof t)return(0,a.Z)("Setting a Configurable requires a model to set its initial properties");Object.assign(this,t),Object.entries(e).forEach((e=>{let[t,r]=e;const n=(0,o.q)(t);n.length&&r&&"object"==typeof r&&n.forEach((e=>{e in r&&((0,a.Z)('"'.concat(e,'" is a protected attribute and can not be changed in feature ').concat(t,".  It will have no effect.")),delete r[e])})),this[t]=r}))}catch(e){(0,a.Z)("An error occured while setting a Configurable",e)}}}const c={beacon:i.ce.beacon,errorBeacon:i.ce.errorBeacon,licenseKey:void 0,applicationID:void 0,sa:void 0,queueTime:void 0,applicationTime:void 0,ttGuid:void 0,user:void 0,account:void 0,product:void 0,extra:void 0,jsAttributes:{},userAttributes:void 0,atts:void 0,transactionName:void 0,tNamePlain:void 0},u={};function d(e){if(!e)throw new Error("All info objects require an agent identifier!");if(!u[e])throw new Error("Info for ".concat(e," was never set"));return u[e]}function f(e,t){if(!e)throw new Error("All info objects require an agent identifier!");u[e]=new s(t,c),(0,i.Qy)(e,u[e],"info")}const l={allow_bfcache:!1,privacy:{cookies_enabled:!0},ajax:{deny_list:void 0,enabled:!0,harvestTimeSeconds:10},distributed_tracing:{enabled:void 0,exclude_newrelic_header:void 0,cors_use_newrelic_header:void 0,cors_use_tracecontext_headers:void 0,allowed_origins:void 0},ssl:void 0,obfuscate:void 0,jserrors:{enabled:!0,harvestTimeSeconds:10},metrics:{enabled:!0,harvestTimeSeconds:10},page_action:{enabled:!0,harvestTimeSeconds:30},page_view_event:{enabled:!0},page_view_timing:{enabled:!0,harvestTimeSeconds:30},session_trace:{enabled:!0,harvestTimeSeconds:10},spa:{enabled:!0,harvestTimeSeconds:10}},h={};function p(e){if(!e)throw new Error("All configuration objects require an agent identifier!");if(!h[e])throw new Error("Configuration for ".concat(e," was never set"));return h[e]}function g(e,t){if(!e)throw new Error("All configuration objects require an agent identifier!");h[e]=new s(t,l),(0,i.Qy)(e,h[e],"config")}function v(e,t){if(!e)throw new Error("All configuration objects require an agent identifier!");var r=p(e);if(r){for(var n=t.split("."),i=0;i<n.length-1;i++)if("object"!=typeof(r=r[n[i]]))return;r=r[n[n.length-1]]}return r}const m={accountID:void 0,trustKey:void 0,agentID:void 0,licenseKey:void 0,applicationID:void 0,xpid:void 0},b={};function y(e){if(!e)throw new Error("All loader-config objects require an agent identifier!");if(!b[e])throw new Error("LoaderConfig for ".concat(e," was never set"));return b[e]}function w(e,t){if(!e)throw new Error("All loader-config objects require an agent identifier!");b[e]=new s(t,m),(0,i.Qy)(e,b[e],"loader_config")}const E=(0,i.mF)().o;var A=r(2053),T=null,O=null;if(navigator.userAgent){var x=navigator.userAgent,S=x.match(/Version\/(\S+)\s+Safari/);S&&-1===x.indexOf("Chrome")&&-1===x.indexOf("Chromium")&&(T="Safari",O=S[1])}function _(e,t){if(!T)return!1;if(e!==T)return!1;if(!t)return!0;if(!O)return!1;for(var r=O.split("."),n=t.split("."),i=0;i<n.length;i++)if(n[i]!==r[i])return!1;return!0}var I=r(5526),j=r(2374);const N="NRBA_SESSION_ID";function P(){if(!j.il)return null;try{let e;return null===(e=window.sessionStorage.getItem(N))&&(e=(0,I.ky)(16),window.sessionStorage.setItem(N,e)),e}catch(e){return null}}var R=r(8226);const D=e=>({customTransaction:void 0,disabled:!1,isolatedBacklog:!1,loaderType:void 0,maxBytes:3e4,offset:(0,A.yf)(),onerror:void 0,origin:""+j._A.location,ptid:void 0,releaseIds:{},sessionId:1==v(e,"privacy.cookies_enabled")?P():null,xhrWrappable:"function"==typeof j._A.XMLHttpRequest?.prototype?.addEventListener,userAgent:n,version:R.q}),C={};function k(e){if(!e)throw new Error("All runtime objects require an agent identifier!");if(!C[e])throw new Error("Runtime for ".concat(e," was never set"));return C[e]}function L(e,t){if(!e)throw new Error("All runtime objects require an agent identifier!");C[e]=new s(t,D(e)),(0,i.Qy)(e,C[e],"runtime")}function H(e){return function(e){try{const t=d(e);return!!t.licenseKey&&!!t.errorBeacon&&!!t.applicationID}catch(e){return!1}}(e)}},8226:(e,t,r)=>{"use strict";r.d(t,{q:()=>n});const n="1225.PROD"},9557:(e,t,r)=>{"use strict";r.d(t,{w:()=>o});var n=r(8610);const i={agentIdentifier:""};class o{constructor(e){try{if("object"!=typeof e)return(0,n.Z)("shared context requires an object as input");this.sharedContext={},Object.assign(this.sharedContext,i),Object.entries(e).forEach((e=>{let[t,r]=e;Object.keys(i).includes(t)&&(this.sharedContext[t]=r)}))}catch(e){(0,n.Z)("An error occured while setting SharedContext",e)}}}},4329:(e,t,r)=>{"use strict";r.d(t,{L:()=>d,R:()=>c});var n=r(3752),i=r(7022),o=r(4045),a=r(2325);const s={};function c(e,t){const r={staged:!1,priority:a.p[t]||0};u(e),s[e].get(t)||s[e].set(t,r)}function u(e){e&&(s[e]||(s[e]=new Map))}function d(){let e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:"",t=arguments.length>1&&void 0!==arguments[1]?arguments[1]:"feature";if(u(e),!e||!s[e].get(t))return a(t);s[e].get(t).staged=!0;const r=Array.from(s[e]);function a(t){const r=e?n.ee.get(e):n.ee,a=o.X.handlers;if(r.backlog&&a){var s=r.backlog[t],c=a[t];if(c){for(var u=0;s&&u<s.length;++u)f(s[u],c);(0,i.D)(c,(function(e,t){(0,i.D)(t,(function(t,r){r[0].on(e,r[1])}))}))}delete a[t],r.backlog[t]=null,r.emit("drain-"+t,[])}}r.every((e=>{let[t,r]=e;return r.staged}))&&(r.sort(((e,t)=>e[1].priority-t[1].priority)),r.forEach((e=>{let[t]=e;a(t)})))}function f(e,t){var r=e[1];(0,i.D)(t[r],(function(t,r){var n=e[0];if(r[0]===n){var i=r[1],o=e[3],a=e[2];i.apply(o,a)}}))}},3752:(e,t,r)=>{"use strict";r.d(t,{c:()=>f,ee:()=>u});var n=r(6797),i=r(3916),o=r(7022),a=r(6562),s="nr@context";let c=(0,n.fP)();var u;function d(){}function f(e){return(0,i.X)(e,s,l)}function l(){return new d}function h(){(u.backlog.api||u.backlog.feature)&&(u.aborted=!0,u.backlog={})}c.ee?u=c.ee:(u=function e(t,r){var n={},c={},f={},p=!1;try{p=16===r.length&&(0,a.OP)(r).isolatedBacklog}catch(e){}var g={on:b,addEventListener:b,removeEventListener:y,emit:m,get:E,listeners:w,context:v,buffer:A,abort:h,aborted:!1,isBuffering:T,debugId:r,backlog:p?{}:t&&"object"==typeof t.backlog?t.backlog:{}};return g;function v(e){return e&&e instanceof d?e:e?(0,i.X)(e,s,l):l()}function m(e,r,n,i,o){if(!1!==o&&(o=!0),!u.aborted||i){t&&o&&t.emit(e,r,n);for(var a=v(n),s=w(e),d=s.length,f=0;f<d;f++)s[f].apply(a,r);var l=O()[c[e]];return l&&l.push([g,e,r,a]),a}}function b(e,t){n[e]=w(e).concat(t)}function y(e,t){var r=n[e];if(r)for(var i=0;i<r.length;i++)r[i]===t&&r.splice(i,1)}function w(e){return n[e]||[]}function E(t){return f[t]=f[t]||e(g,t)}function A(e,t){var r=O();g.aborted||(0,o.D)(e,(function(e,n){t=t||"feature",c[n]=t,t in r||(r[t]=[])}))}function T(e){return!!O()[c[e]]}function O(){return g.backlog}}(void 0,"globalEE"),c.ee=u)},9252:(e,t,r)=>{"use strict";r.d(t,{E:()=>n,p:()=>i});var n=r(3752).ee.get("handle");function i(e,t,r,i,o){o?(o.buffer([e],i),o.emit(e,t,r)):(n.buffer([e],i),n.emit(e,t,r))}},4045:(e,t,r)=>{"use strict";r.d(t,{X:()=>o});var n=r(9252);o.on=a;var i=o.handlers={};function o(e,t,r,o){a(o||n.E,i,e,t,r)}function a(e,t,r,i,o){o||(o="feature"),e||(e=n.E);var a=t[o]=t[o]||{};(a[r]=a[r]||[]).push([e,i])}},8544:(e,t,r)=>{"use strict";r.d(t,{bP:()=>s,iz:()=>c,m$:()=>a});var n=r(2374);let i=!1,o=!1;try{const e={get passive(){return i=!0,!1},get signal(){return o=!0,!1}};n._A.addEventListener("test",null,e),n._A.removeEventListener("test",null,e)}catch(e){}function a(e,t){return i||o?{capture:!!e,passive:i,signal:t}:!!e}function s(e,t){let r=arguments.length>2&&void 0!==arguments[2]&&arguments[2];window.addEventListener(e,t,a(r))}function c(e,t){let r=arguments.length>2&&void 0!==arguments[2]&&arguments[2];document.addEventListener(e,t,a(r))}},5526:(e,t,r)=>{"use strict";r.d(t,{Ht:()=>a,M:()=>o,Rl:()=>i,ky:()=>s});var n=r(2374);function i(){var e=null,t=0,r=n._A?.crypto||n._A?.msCrypto;function i(){return e?15&e[t++]:16*Math.random()|0}r&&r.getRandomValues&&(e=r.getRandomValues(new Uint8Array(31)));for(var o,a="xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx",s="",c=0;c<a.length;c++)s+="x"===(o=a[c])?i().toString(16):"y"===o?(o=3&i()|8).toString(16):o;return s}function o(){return s(16)}function a(){return s(32)}function s(e){var t=null,r=0,n=self.crypto||self.msCrypto;n&&n.getRandomValues&&Uint8Array&&(t=n.getRandomValues(new Uint8Array(31)));for(var i=[],o=0;o<e;o++)i.push(a().toString(16));return i.join("");function a(){return t?15&t[r++]:16*Math.random()|0}}},2053:(e,t,r)=>{"use strict";r.d(t,{nb:()=>c,os:()=>u,yf:()=>s,zO:()=>a});var n=r(7145),i=(new Date).getTime(),o=i;function a(){return n.G&&performance.now?Math.round(performance.now()):(i=Math.max((new Date).getTime(),i))-o}function s(){return i}function c(e){o=e}function u(){return o}},7145:(e,t,r)=>{"use strict";r.d(t,{G:()=>n});const n=void 0!==r(2374)._A?.performance?.timing?.navigationStart},6625:(e,t,r)=>{"use strict";r.d(t,{s:()=>c,v:()=>u});var n=r(8283),i=r(9071),o=r(2053),a=r(7145),s=r(2374);let c=!0;function u(e){var t=function(){if(i.I&&i.I<9)return;if(a.G)return c=!1,s._A?.performance?.timing?.navigationStart}();t&&((0,n.B)(e,"starttime",t),(0,o.nb)(t))}},8283:(e,t,r)=>{"use strict";r.d(t,{B:()=>o,L:()=>a});var n=r(2053),i={};function o(e,t,r){void 0===r&&(r=(0,n.zO)()+(0,n.os)()),i[e]=i[e]||{},i[e][t]=r}function a(e,t,r,n){const o=e.sharedContext.agentIdentifier;var a=i[o]?.[r],s=i[o]?.[n];void 0!==a&&void 0!==s&&e.store("measures",t,{value:s-a})}},6368:(e,t,r)=>{"use strict";r.d(t,{e:()=>o});var n=r(2374),i={};function o(e){if(e in i)return i[e];if(0===(e||"").indexOf("data:"))return{protocol:"data"};let t;var r=n._A?.location,o={};if(n.il)t=document.createElement("a"),t.href=e;else try{t=new URL(e,r.href)}catch(e){return o}o.port=t.port;var a=t.href.split("://");!o.port&&a[1]&&(o.port=a[1].split("/")[0].split("@").pop().split(":")[1]),o.port&&"0"!==o.port||(o.port="https"===a[0]?"443":"80"),o.hostname=t.hostname||r.hostname,o.pathname=t.pathname,o.protocol=a[0],"/"!==o.pathname.charAt(0)&&(o.pathname="/"+o.pathname);var s=!t.protocol||":"===t.protocol||t.protocol===r.protocol,c=t.hostname===r.hostname&&t.port===r.port;return o.sameOrigin=s&&(!t.hostname||c),"/"===o.pathname&&(i[e]=o),o}},9548:(e,t,r)=>{"use strict";r.d(t,{T:()=>i});var n=r(2374);const i={isFileProtocol:function(){let e=Boolean("file:"===(0,n.lW)()?.location?.protocol);e&&(i.supportabilityMetricSent=!0);return e},supportabilityMetricSent:!1}},8610:(e,t,r)=>{"use strict";function n(e,t){console&&console.warn&&"function"==typeof console.warn&&(console.warn("New Relic: ".concat(e)),t&&console.warn(t))}r.d(t,{Z:()=>n})},3916:(e,t,r)=>{"use strict";r.d(t,{X:()=>i});var n=Object.prototype.hasOwnProperty;function i(e,t,r){if(n.call(e,t))return e[t];var i=r();if(Object.defineProperty&&Object.keys)try{return Object.defineProperty(e,t,{value:i,writable:!0,enumerable:!1}),i}catch(e){}return e[t]=i,i}},2374:(e,t,r)=>{"use strict";r.d(t,{_A:()=>o,il:()=>n,lW:()=>a,v6:()=>i});const n=Boolean("undefined"!=typeof window&&window.document),i=Boolean("undefined"!=typeof WorkerGlobalScope&&self.navigator instanceof WorkerNavigator);let o=(()=>{if(n)return window;if(i){if("undefined"!=typeof globalThis&&globalThis instanceof WorkerGlobalScope)return globalThis;if(self instanceof WorkerGlobalScope)return self}throw new Error('New Relic browser agent shutting down due to error: Unable to locate global scope. This is possibly due to code redefining browser global variables like "self" and "window".')})();function a(){return o}},7022:(e,t,r)=>{"use strict";r.d(t,{D:()=>i});var n=Object.prototype.hasOwnProperty;function i(e,t){var r=[],i="",o=0;for(i in e)n.call(e,i)&&(r[o]=t(i,e[i]),o+=1);return r}},9226:(e,t,r)=>{"use strict";r.d(t,{$c:()=>u,Ng:()=>d,RR:()=>c});var n=r(6562),i=r(9557),o=r(9548),a=r(8610),s={regex:/^file:\/\/(.*)/,replacement:"file://OBFUSCATED"};class c extends i.w{constructor(e){super(e)}shouldObfuscate(){return u(this.sharedContext.agentIdentifier).length>0}obfuscateString(e){if(!e||"string"!=typeof e)return e;for(var t=u(this.sharedContext.agentIdentifier),r=e,n=0;n<t.length;n++){var i=t[n].regex,o=t[n].replacement||"*";r=r.replace(i,o)}return r}}function u(e){var t=[],r=(0,n.Mt)(e,"obfuscate")||[];return t=t.concat(r),o.T.isFileProtocol()&&t.push(s),t}function d(e){for(var t=!1,r=!1,n=0;n<e.length;n++){"regex"in e[n]?"string"!=typeof e[n].regex&&e[n].regex.constructor!==RegExp&&((0,a.Z)('An obfuscation replacement rule contains a "regex" value with an invalid type (must be a string or RegExp)'),r=!0):((0,a.Z)('An obfuscation replacement rule was detected missing a "regex" value.'),r=!0);var i=e[n].replacement;i&&"string"!=typeof i&&((0,a.Z)('An obfuscation replacement rule contains a "replacement" value with an invalid type (must be a string)'),t=!0)}return!t&&!r}},2650:(e,t,r)=>{"use strict";r.d(t,{K:()=>a,b:()=>o});var n=r(8544);function i(){return"undefined"==typeof document||"complete"===document.readyState}function o(e,t){if(i())return e();(0,n.bP)("load",e,t)}function a(e){if(i())return e();(0,n.iz)("DOMContentLoaded",e)}},6797:(e,t,r)=>{"use strict";r.d(t,{EZ:()=>u,Qy:()=>c,ce:()=>o,fP:()=>a,gG:()=>d,mF:()=>s});var n=r(2053),i=r(2374);const o={beacon:"bam.nr-data.net",errorBeacon:"bam.nr-data.net"};function a(){return i._A.NREUM||(i._A.NREUM={}),void 0===i._A.newrelic&&(i._A.newrelic=i._A.NREUM),i._A.NREUM}function s(){let e=a();return e.o||(e.o={ST:i._A.setTimeout,SI:i._A.setImmediate,CT:i._A.clearTimeout,XHR:i._A.XMLHttpRequest,REQ:i._A.Request,EV:i._A.Event,PR:i._A.Promise,MO:i._A.MutationObserver,FETCH:i._A.fetch}),e}function c(e,t,r){let i=a();const o=i.initializedAgents||{},s=o[e]||{};return Object.keys(s).length||(s.initializedAt={ms:(0,n.zO)(),date:new Date}),i.initializedAgents={...o,[e]:{...s,[r]:t}},i}function u(e,t){a()[e]=t}function d(){return function(){let e=a();const t=e.info||{};e.info={beacon:o.beacon,errorBeacon:o.errorBeacon,...t}}(),function(){let e=a();const t=e.init||{};e.init={...t}}(),s(),function(){let e=a();const t=e.loader_config||{};e.loader_config={...t}}(),a()}},6998:(e,t,r)=>{"use strict";r.d(t,{N:()=>i,e:()=>o});var n=r(8544);function i(e){let t=arguments.length>1&&void 0!==arguments[1]&&arguments[1];return void(0,n.iz)("visibilitychange",(function(){if(t){if("hidden"!=document.visibilityState)return;e()}e(document.visibilityState)}))}function o(){return"hidden"===document.visibilityState?-1:1/0}},6408:(e,t,r)=>{"use strict";r.d(t,{W:()=>i});var n=r(2374);function i(){return"function"==typeof n._A?.PerformanceObserver}},7264:(e,t,r)=>{"use strict";r.d(t,{hF:()=>pe,Fp:()=>O,lx:()=>V,ow:()=>Y,ao:()=>te,G8:()=>oe,XV:()=>B,Zw:()=>C,ig:()=>we,em:()=>le,u5:()=>T,QU:()=>G,_L:()=>$,Gm:()=>ee,Lg:()=>ie,gy:()=>M,BV:()=>D,Kf:()=>ye});var n=r(3752),i=r(8683),o=r.n(i),a=r(2374);const s="nr@original";var c=Object.prototype.hasOwnProperty,u=!1;function d(e,t){return e||(e=n.ee),r.inPlace=function(e,t,n,i,o){n||(n="");var a,s,c,u="-"===n.charAt(0);for(c=0;c<t.length;c++)h(a=e[s=t[c]])||(e[s]=r(a,u?s+n:n,i,s,o))},r.flag=s,r;function r(t,r,n,a,c){return h(t)?t:(r||(r=""),nrWrapper[s]=t,l(t,nrWrapper,e),nrWrapper);function nrWrapper(){var s,u,d,l;try{u=this,s=o()(arguments),d="function"==typeof n?n(s,u):n||{}}catch(t){f([t,"",[s,u,a],d],e)}i(r+"start",[s,u,a],d,c);try{return l=t.apply(u,s)}catch(e){throw i(r+"err",[s,u,e],d,c),e}finally{i(r+"end",[s,u,l],d,c)}}}function i(r,n,i,o){if(!u||t){var a=u;u=!0;try{e.emit(r,n,i,t,o)}catch(t){f([t,r,n,i],e)}u=a}}}function f(e,t){t||(t=n.ee);try{t.emit("internal-error",e)}catch(e){}}function l(e,t,r){if(Object.defineProperty&&Object.keys)try{return Object.keys(e).forEach((function(r){Object.defineProperty(t,r,{get:function(){return e[r]},set:function(t){return e[r]=t,t}})})),t}catch(e){f([e],r)}for(var n in e)c.call(e,n)&&(t[n]=e[n]);return t}function h(e){return!(e&&e instanceof Function&&e.apply&&!e[s])}function p(e,t){e?.[t]?.[s]&&(e[t]=e[t][s])}var g="fetch-",v=g+"body-",m=["arrayBuffer","blob","json","text","formData"],b=a._A.Request,y=a._A.Response,w="prototype",E="nr@context";const A={};function T(e){const t=x(e);if(!(b&&y&&a._A.fetch))return t;if(A[t.debugId]++)return t;function r(e,r,n){var i=e[r];"function"==typeof i&&(e[r]=function(){var e,r=o()(arguments),s={};t.emit(n+"before-start",[r],s),s[E]&&s[E].dt&&(e=s[E].dt);var c=i.apply(this,r);return t.emit(n+"start",[r,e],c),a._A.Promise.resolve(c).then((function(e){return t.emit(n+"end",[null,e],c),e}),(function(e){throw t.emit(n+"end",[e],c),e}))},e[r][s]=i)}return A[t.debugId]=1,m.forEach((e=>{r(b[w],e,v),r(y[w],e,v)})),r(a._A,"fetch",g),t.on(g+"end",(function(e,r){var n=this;if(r){var i=r.headers.get("content-length");null!==i&&(n.rxSize=i),t.emit(g+"done",[null,r],n)}else t.emit(g+"done",[e],n)})),t}function O(e){const t=x(e);1==A[t.debugId]?(m.forEach((e=>{p(b[w],e),p(y[w],e)})),p(a._A,"fetch"),A[t.debugId]=1/0):A[t.debugId]--}function x(e){return(e||n.ee).get("fetch")}const S={},_="setTimeout",I="setInterval",j="clearTimeout",N="-start",P="-",R=[_,"setImmediate",I,j,"clearImmediate"];function D(e){const t=k(e);if(S[t.debugId]++)return t;S[t.debugId]=1;var r=d(t);return r.inPlace(a._A,R.slice(0,2),_+P),r.inPlace(a._A,R.slice(2,3),I+P),r.inPlace(a._A,R.slice(3),j+P),t.on(I+N,(function(e,t,n){e[0]=r(e[0],"fn-",null,n)})),t.on(_+N,(function(e,t,n){this.method=n,this.timerDuration=isNaN(e[1])?0:+e[1],e[0]=r(e[0],"fn-",this,n)})),t}function C(e){const t=k(e);1==S[t.debugId]?(R.forEach((e=>p(a._A,e))),S[t.debugId]=1/0):S[t.debugId]--}function k(e){return(e||n.ee).get("timer")}const L={},H="requestAnimationFrame";function M(e){const t=z(e);if(!a.il||L[t.debugId]++)return t;L[t.debugId]=1;var r=d(t);return r.inPlace(window,[H],"raf-"),t.on("raf-start",(function(e){e[0]=r(e[0],"fn-")})),t}function B(e){const t=z(e);1==L[t.debugId]?(p(window,H),L[t.debugId]=1/0):L[t.debugId]--}function z(e){return(e||n.ee).get("raf")}const F={},U=["pushState","replaceState"];function G(e){const t=q(e);return!a.il||F[t.debugId]++||(F[t.debugId]=1,d(t).inPlace(window.history,U,"-")),t}function V(e){const t=q(e);1==F[t.debugId]?(U.forEach((e=>p(window.history,e))),F[t.debugId]=1/0):F[t.debugId]--}function q(e){return(e||n.ee).get("history")}var W=r(8544);const X={},Z=["appendChild","insertBefore","replaceChild"];function $(e){const t=Q(e);if(!a.il||X[t.debugId])return t;X[t.debugId]=!0;var r=d(t),n=/[?&](?:callback|cb)=([^&#]+)/,i=/(.*)\.([^.]+)/,o=/^(\w+)(\.|$)(.*)$/;function s(e,t){var r=e.match(o),n=r[1],i=r[3];return i?s(i,t[n]):t[n]}return r.inPlace(Node.prototype,Z,"dom-"),t.on("dom-start",(function(e){!function(e){if(!e||"string"!=typeof e.nodeName||"script"!==e.nodeName.toLowerCase())return;if("function"!=typeof e.addEventListener)return;var o=(a=e.src,c=a.match(n),c?c[1]:null);var a,c;if(!o)return;var u=function(e){var t=e.match(i);if(t&&t.length>=3)return{key:t[2],parent:s(t[1],window)};return{key:e,parent:window}}(o);if("function"!=typeof u.parent[u.key])return;var d={};function f(){t.emit("jsonp-end",[],d),e.removeEventListener("load",f,(0,W.m$)(!1)),e.removeEventListener("error",l,(0,W.m$)(!1))}function l(){t.emit("jsonp-error",[],d),t.emit("jsonp-end",[],d),e.removeEventListener("load",f,(0,W.m$)(!1)),e.removeEventListener("error",l,(0,W.m$)(!1))}r.inPlace(u.parent,[u.key],"cb-",d),e.addEventListener("load",f,(0,W.m$)(!1)),e.addEventListener("error",l,(0,W.m$)(!1)),t.emit("new-jsonp",[e.src],d)}(e[0])})),t}function Y(e){const t=Q(e);!0===X[t.debugId]&&(Z.forEach((e=>p(Node.prototype,e))),X[t.debugId]="unwrapped")}function Q(e){return(e||n.ee).get("jsonp")}var J=r(6562);const K={};function ee(e){const t=re(e);if(!a.il||K[t.debugId])return t;K[t.debugId]=!0;var r=d(t),n=J.Yu.MO;return n&&(window.MutationObserver=function(e){return this instanceof n?new n(r(e,"fn-")):n.apply(this,arguments)},MutationObserver.prototype=n.prototype),t}function te(e){const t=re(e);!0===K[t.debugId]&&(window.MutationObserver=J.Yu.MO,K[t.debugId]="unwrapped")}function re(e){return(e||n.ee).get("mutation")}const ne={};function ie(e){const t=ae(e);if(ne[t.debugId])return t;ne[t.debugId]=!0;var r=n.c,i=d(t),o=J.Yu.PR;return o&&function(){function e(r){var n=t.context(),a=i(r,"executor-",n,null,!1);const s=Reflect.construct(o,[a],e);return t.context(s).getCtx=function(){return n},s}a._A.Promise=e,Object.defineProperty(e,"name",{value:"Promise"}),e.toString=function(){return o.toString()},Object.setPrototypeOf(e,o),["all","race"].forEach((function(r){const n=o[r];e[r]=function(e){let i=!1;e?.forEach((e=>{this.resolve(e).then(a("all"===r),a(!1))}));const o=n.apply(this,arguments);return o;function a(e){return function(){t.emit("propagate",[null,!i],o,!1,!1),i=i||!e}}}})),["resolve","reject"].forEach((function(r){const n=o[r];e[r]=function(e){const r=n.apply(this,arguments);return e!==r&&t.emit("propagate",[e,!0],r,!1,!1),r}})),e.prototype=Object.create(o.prototype),e.prototype.constructor=e,e.prototype.then=function(){var e=this,n=r(e);n.promise=e;for(var a=arguments.length,s=new Array(a),c=0;c<a;c++)s[c]=arguments[c];s[0]=i(s[0],"cb-",n,null,!1),s[1]=i(s[1],"cb-",n,null,!1);const u=o.prototype.then.apply(this,s);return n.nextPromise=u,t.emit("propagate",[e,!0],u,!1,!1),u},t.on("executor-start",(function(e){e[0]=i(e[0],"resolve-",this,null,!1),e[1]=i(e[1],"resolve-",this,null,!1)})),t.on("executor-err",(function(e,t,r){e[1](r)})),t.on("cb-end",(function(e,r,n){t.emit("propagate",[n,!0],this.nextPromise,!1,!1)})),t.on("propagate",(function(e,r,n){this.getCtx&&!r||(this.getCtx=function(){if(e instanceof Promise)var r=t.context(e);return r&&r.getCtx?r.getCtx():this})}))}(),t}function oe(e){const t=ae(e);!0===ne[t.debugId]&&(a._A.Promise=J.Yu.PR,ne[t.debugId]="unwrapped")}function ae(e){return(e||n.ee).get("promise")}var se=r(3916);const ce={},ue=XMLHttpRequest,de="addEventListener",fe="removeEventListener";function le(e){var t=ge(e);if(ce[t.debugId]++)return t;ce[t.debugId]=1;var r=d(t,!0);function n(e){r.inPlace(e,[de,fe],"-",i)}function i(e,t){return e[1]}return"getPrototypeOf"in Object&&(a.il&&he(document,n),he(a._A,n),he(ue.prototype,n)),t.on(de+"-start",(function(e,t){var n=e[1];if(null!==n&&("function"==typeof n||"object"==typeof n)){var i=(0,se.X)(n,"nr@wrapped",(function(){var e={object:function(){if("function"!=typeof n.handleEvent)return;return n.handleEvent.apply(n,arguments)},function:n}[typeof n];return e?r(e,"fn-",null,e.name||"anonymous"):n}));this.wrapped=e[1]=i}})),t.on(fe+"-start",(function(e){e[1]=this.wrapped||e[1]})),t}function he(e,t){let r=e;for(;"object"==typeof r&&!Object.prototype.hasOwnProperty.call(r,de);)r=Object.getPrototypeOf(r);for(var n=arguments.length,i=new Array(n>2?n-2:0),o=2;o<n;o++)i[o-2]=arguments[o];r&&t(r,...i)}function pe(e){const t=ge(e);1==ce[t.debugId]?([de,fe].forEach((e=>{"object"==typeof document&&he(document,p,e),he(a._A,p,e),he(ue.prototype,p,e)})),ce[t.debugId]=1/0):ce[t.debugId]--}function ge(e){return(e||n.ee).get("events")}var ve=r(8610);const me={},be=["open","send"];function ye(e){var t=e||n.ee;const r=Ee(t);if(me[r.debugId]++)return r;me[r.debugId]=1,le(t);var i=d(r),o=J.Yu.XHR,s=J.Yu.MO,c=J.Yu.PR,u=J.Yu.SI,f="readystatechange",l=["onload","onerror","onabort","onloadstart","onloadend","onprogress","ontimeout"],h=[],p=a._A.XMLHttpRequest.listeners,g=a._A.XMLHttpRequest=function(e){var t=new o(e);function n(){try{r.emit("new-xhr",[t],t),t.addEventListener(f,m,(0,W.m$)(!1))}catch(e){(0,ve.Z)("An error occured while intercepting XHR",e);try{r.emit("internal-error",[e])}catch(e){}}}return this.listeners=p?[...p,n]:[n],this.listeners.forEach((e=>e())),t};function v(e,t){i.inPlace(t,["onreadystatechange"],"fn-",A)}function m(){var e=this,t=r.context(e);e.readyState>3&&!t.resolved&&(t.resolved=!0,r.emit("xhr-resolved",[],e)),i.inPlace(e,l,"fn-",A)}if(function(e,t){for(var r in e)t[r]=e[r]}(o,g),g.prototype=o.prototype,i.inPlace(g.prototype,be,"-xhr-",A),r.on("send-xhr-start",(function(e,t){v(e,t),function(e){h.push(e),s&&(b?b.then(E):u?u(E):(y=-y,w.data=y))}(t)})),r.on("open-xhr-start",v),s){var b=c&&c.resolve();if(!u&&!c){var y=1,w=document.createTextNode(y);new s(E).observe(w,{characterData:!0})}}else t.on("fn-end",(function(e){e[0]&&e[0].type===f||E()}));function E(){for(var e=0;e<h.length;e++)v(0,h[e]);h.length&&(h=[])}function A(e,t){return t}return r}function we(e){const t=Ee(e);1==me[t.debugId]?(pe(t),a._A.XMLHttpRequest=J.Yu.XHR,be.forEach((e=>{p(a._A.XMLHttpRequest.prototype,e)})),me[t.debugId]=1/0):me[t.debugId]--}function Ee(e){return(e||n.ee).get("xhr")}},8675:(e,t,r)=>{"use strict";r.d(t,{t:()=>n});const n=r(2325).D.ajax},948:(e,t,r)=>{"use strict";r.r(t),r.d(t,{Instrument:()=>N});var n=r(6562),i=r(9252),o=r(3916),a=r(2374),s=1,c="nr@id";function u(e){var t=typeof e;return!e||"object"!==t&&"function"!==t?-1:e===a._A?0:(0,o.X)(e,c,(function(){return s++}))}var d=r(9071);function f(e){if("string"==typeof e&&e.length)return e.length;if("object"==typeof e){if("undefined"!=typeof ArrayBuffer&&e instanceof ArrayBuffer&&e.byteLength)return e.byteLength;if("undefined"!=typeof Blob&&e instanceof Blob&&e.size)return e.size;if(!("undefined"!=typeof FormData&&e instanceof FormData))try{return JSON.stringify(e).length}catch(e){return}}}var l=r(8544),h=r(2053),p=r(7264),g=r(6368),v=r(5526);class m{constructor(e){this.agentIdentifier=e,this.generateTracePayload=this.generateTracePayload.bind(this),this.shouldGenerateTrace=this.shouldGenerateTrace.bind(this)}generateTracePayload(e){if(!this.shouldGenerateTrace(e))return null;var t=(0,n.DL)(this.agentIdentifier);if(!t)return null;var r=(t.accountID||"").toString()||null,i=(t.agentID||"").toString()||null,o=(t.trustKey||"").toString()||null;if(!r||!i)return null;var a=(0,v.M)(),s=(0,v.Ht)(),c=Date.now(),u={spanId:a,traceId:s,timestamp:c};return(e.sameOrigin||this.isAllowedOrigin(e)&&this.useTraceContextHeadersForCors())&&(u.traceContextParentHeader=this.generateTraceContextParentHeader(a,s),u.traceContextStateHeader=this.generateTraceContextStateHeader(a,c,r,i,o)),(e.sameOrigin&&!this.excludeNewrelicHeader()||!e.sameOrigin&&this.isAllowedOrigin(e)&&this.useNewrelicHeaderForCors())&&(u.newrelicHeader=this.generateTraceHeader(a,s,c,r,i,o)),u}generateTraceContextParentHeader(e,t){return"00-"+t+"-"+e+"-01"}generateTraceContextStateHeader(e,t,r,n,i){return i+"@nr=0-1-"+r+"-"+n+"-"+e+"----"+t}generateTraceHeader(e,t,r,n,i,o){if(!("function"==typeof a._A?.btoa))return null;var s={v:[0,1],d:{ty:"Browser",ac:n,ap:i,id:e,tr:t,ti:r}};return o&&n!==o&&(s.d.tk=o),btoa(JSON.stringify(s))}shouldGenerateTrace(e){return this.isDtEnabled()&&this.isAllowedOrigin(e)}isAllowedOrigin(e){var t=!1,r={};if((0,n.Mt)(this.agentIdentifier,"distributed_tracing")&&(r=(0,n.P_)(this.agentIdentifier).distributed_tracing),e.sameOrigin)t=!0;else if(r.allowed_origins instanceof Array)for(var i=0;i<r.allowed_origins.length;i++){var o=(0,g.e)(r.allowed_origins[i]);if(e.hostname===o.hostname&&e.protocol===o.protocol&&e.port===o.port){t=!0;break}}return t}isDtEnabled(){var e=(0,n.Mt)(this.agentIdentifier,"distributed_tracing");return!!e&&!!e.enabled}excludeNewrelicHeader(){var e=(0,n.Mt)(this.agentIdentifier,"distributed_tracing");return!!e&&!!e.exclude_newrelic_header}useNewrelicHeaderForCors(){var e=(0,n.Mt)(this.agentIdentifier,"distributed_tracing");return!!e&&!1!==e.cors_use_newrelic_header}useTraceContextHeadersForCors(){var e=(0,n.Mt)(this.agentIdentifier,"distributed_tracing");return!!e&&!!e.cors_use_tracecontext_headers}}var b=r(6114),y=r(8675),w=r(2325);function E(e,t){!function(e,t){if(t.has(e))throw new TypeError("Cannot initialize the same private elements twice on an object")}(e,t),t.add(e)}var A,T,O,x=["load","error","abort","timeout"],S=x.length,_=n.Yu.REQ,I=a._A.XMLHttpRequest,j=new WeakSet;class N extends b.S{constructor(e,t){let r=!(arguments.length>2&&void 0!==arguments[2])||arguments[2];super(e,t,y.t,r),E(this,j),(0,n.OP)(e).xhrWrappable&&(this.dt=new m(e),this.handler=(e,t,r,n)=>(0,i.p)(e,t,r,n,this.ee),(0,p.u5)(this.ee),(0,p.Kf)(this.ee),function(e,t,r,i){function o(e){var t=this;t.totalCbs=0,t.called=0,t.cbTime=0,t.end=R,t.ended=!1,t.xhrGuids={},t.lastSize=null,t.loadCaptureCalled=!1,t.params=this.params||{},t.metrics=this.metrics||{},e.addEventListener("load",(function(r){C(t,e)}),(0,l.m$)(!1)),d.I||e.addEventListener("progress",(function(e){t.lastSize=e.loaded}),(0,l.m$)(!1))}function s(e){this.params={method:e[0]},D(this,e[1]),this.metrics={}}function c(t,r){var o=(0,n.DL)(e);"xpid"in o&&this.sameOrigin&&r.setRequestHeader("X-NewRelic-ID",o.xpid);var a=i.generateTracePayload(this.parsedOrigin);if(a){var s=!1;a.newrelicHeader&&(r.setRequestHeader("newrelic",a.newrelicHeader),s=!0),a.traceContextParentHeader&&(r.setRequestHeader("traceparent",a.traceContextParentHeader),a.traceContextStateHeader&&r.setRequestHeader("tracestate",a.traceContextStateHeader),s=!0),s&&(this.dt=a)}}function p(e,r){var n=this.metrics,i=e[0],o=this;if(n&&i){var a=f(i);a&&(n.txSize=a)}this.startTime=(0,h.zO)(),this.listener=function(e){try{"abort"!==e.type||o.loadCaptureCalled||(o.params.aborted=!0),("load"!==e.type||o.called===o.totalCbs&&(o.onloadCalled||"function"!=typeof r.onload)&&"function"==typeof o.end)&&o.end(r)}catch(e){try{t.emit("internal-error",[e])}catch(e){}}};for(var s=0;s<S;s++)r.addEventListener(x[s],this.listener,(0,l.m$)(!1))}function v(e,t,r){this.cbTime+=e,t?this.onloadCalled=!0:this.called+=1,this.called!==this.totalCbs||!this.onloadCalled&&"function"==typeof r.onload||"function"!=typeof this.end||this.end(r)}function m(e,t){var r=""+u(e)+!!t;this.xhrGuids&&!this.xhrGuids[r]&&(this.xhrGuids[r]=!0,this.totalCbs+=1)}function b(e,t){var r=""+u(e)+!!t;this.xhrGuids&&this.xhrGuids[r]&&(delete this.xhrGuids[r],this.totalCbs-=1)}function y(){this.endTime=(0,h.zO)()}function E(e,r){r instanceof I&&"load"===e[0]&&t.emit("xhr-load-added",[e[1],e[2]],r)}function A(e,r){r instanceof I&&"load"===e[0]&&t.emit("xhr-load-removed",[e[1],e[2]],r)}function T(e,t,r){t instanceof I&&("onload"===r&&(this.onload=!0),("load"===(e[0]&&e[0].type)||this.onload)&&(this.xhrCbStart=(0,h.zO)()))}function O(e,r){this.xhrCbStart&&t.emit("xhr-cb-time",[(0,h.zO)()-this.xhrCbStart,this.onload,r],r)}function j(e){var t,r=e[1]||{};"string"==typeof e[0]?t=e[0]:e[0]&&e[0].url?t=e[0].url:a._A?.URL&&e[0]&&e[0]instanceof URL&&(t=e[0].href),t&&(this.parsedOrigin=(0,g.e)(t),this.sameOrigin=this.parsedOrigin.sameOrigin);var n=i.generateTracePayload(this.parsedOrigin);if(n&&(n.newrelicHeader||n.traceContextParentHeader))if("string"==typeof e[0]||a._A?.URL&&e[0]&&e[0]instanceof URL){var o={};for(var s in r)o[s]=r[s];o.headers=new Headers(r.headers||{}),c(o.headers,n)&&(this.dt=n),e.length>1?e[1]=o:e.push(o)}else e[0]&&e[0].headers&&c(e[0].headers,n)&&(this.dt=n);function c(e,t){var r=!1;return t.newrelicHeader&&(e.set("newrelic",t.newrelicHeader),r=!0),t.traceContextParentHeader&&(e.set("traceparent",t.traceContextParentHeader),t.traceContextStateHeader&&e.set("tracestate",t.traceContextStateHeader),r=!0),r}}function N(e,t){this.params={},this.metrics={},this.startTime=(0,h.zO)(),this.dt=t,e.length>=1&&(this.target=e[0]),e.length>=2&&(this.opts=e[1]);var r,n=this.opts||{},i=this.target;"string"==typeof i?r=i:"object"==typeof i&&i instanceof _?r=i.url:a._A?.URL&&"object"==typeof i&&i instanceof URL&&(r=i.href),D(this,r);var o=(""+(i&&i instanceof _&&i.method||n.method||"GET")).toUpperCase();this.params.method=o,this.txSize=f(n.body)||0}function P(e,t){var n;this.endTime=(0,h.zO)(),this.params||(this.params={}),this.params.status=t?t.status:0,"string"==typeof this.rxSize&&this.rxSize.length>0&&(n=+this.rxSize);var i={txSize:this.txSize,rxSize:n,duration:(0,h.zO)()-this.startTime};r("xhr",[this.params,i,this.startTime,this.endTime,"fetch"],this,w.D.ajax)}function R(e){var t=this.params,n=this.metrics;if(!this.ended){this.ended=!0;for(var i=0;i<S;i++)e.removeEventListener(x[i],this.listener,!1);t.aborted||(n.duration=(0,h.zO)()-this.startTime,this.loadCaptureCalled||4!==e.readyState?null==t.status&&(t.status=0):C(this,e),n.cbTime=this.cbTime,r("xhr",[t,n,this.startTime,this.endTime,"xhr"],this,w.D.ajax))}}function D(e,t){var r=(0,g.e)(t),n=e.params;n.hostname=r.hostname,n.port=r.port,n.protocol=r.protocol,n.host=r.hostname+":"+r.port,n.pathname=r.pathname,e.parsedOrigin=r,e.sameOrigin=r.sameOrigin}function C(e,t){e.params.status=t.status;var r=function(e,t){var r=e.responseType;return"json"===r&&null!==t?t:"arraybuffer"===r||"blob"===r||"json"===r?f(e.response):"text"===r||""===r||void 0===r?f(e.responseText):void 0}(t,e.lastSize);if(r&&(e.metrics.rxSize=r),e.sameOrigin){var n=t.getResponseHeader("X-NewRelic-App-Data");n&&(e.params.cat=n.split(", ").pop())}e.loadCaptureCalled=!0}t.on("new-xhr",o),t.on("open-xhr-start",s),t.on("open-xhr-end",c),t.on("send-xhr-start",p),t.on("xhr-cb-time",v),t.on("xhr-load-added",m),t.on("xhr-load-removed",b),t.on("xhr-resolved",y),t.on("addEventListener-end",E),t.on("removeEventListener-end",A),t.on("fn-end",O),t.on("fetch-before-start",j),t.on("fetch-start",N),t.on("fn-start",T),t.on("fetch-done",P)}(e,this.ee,this.handler,this.dt),this.abortHandler=function(e,t,r){if(!t.has(e))throw new TypeError("attempted to get private field on non-instance");return r}(this,j,P),this.importAggregator())}}function P(){(0,p.Fp)(this.ee),(0,p.ig)(this.ee),this.abortHandler=void 0}A=N,T="featureName",O=y.t,(T=function(e){var t=function(e,t){if("object"!=typeof e||null===e)return e;var r=e[Symbol.toPrimitive];if(void 0!==r){var n=r.call(e,t||"default");if("object"!=typeof n)return n;throw new TypeError("@@toPrimitive must return a primitive value.")}return("string"===t?String:Number)(e)}(e,"string");return"symbol"==typeof t?t:String(t)}(T))in A?Object.defineProperty(A,T,{value:O,enumerable:!0,configurable:!0,writable:!0}):A[T]=O},8322:(e,t,r)=>{"use strict";r.d(t,{A:()=>i,t:()=>n});const n=r(2325).D.jserrors,i="nr@seenError"},9715:(e,t,r)=>{"use strict";r.r(t),r.d(t,{Instrument:()=>x});var n,i=r(9252),o=r(2053),a=r(3916),s=r(7264),c=r(8683),u=r.n(c),d=r(3752),f=r(7022),l={};try{n=localStorage.getItem("__nr_flags").split(","),console&&"function"==typeof console.log&&(l.console=!0,-1!==n.indexOf("dev")&&(l.dev=!0),-1!==n.indexOf("nr_dev")&&(l.nrDev=!0))}catch(e){}function h(e){try{l.console&&h(e)}catch(e){}}l.nrDev&&d.ee.on("internal-error",(function(e){h(e.stack)})),l.dev&&d.ee.on("fn-err",(function(e,t,r){h(r.stack)})),l.dev&&(h("NR AGENT IN DEVELOPMENT MODE"),h("flags: "+(0,f.D)(l,(function(e,t){return e})).join(", ")));var p=r(6114),g=r(8322),v=r(2325),m=r(2374),b=r(8544),y=r(6562);function w(e,t){!function(e,t){if(t.has(e))throw new TypeError("Cannot initialize the same private elements twice on an object")}(e,t),t.add(e)}var E,A,T,O=new WeakSet;class x extends p.S{constructor(e,t){var r;let n=!(arguments.length>2&&void 0!==arguments[2])||arguments[2];super(e,t,g.t,n),r=this,w(this,O),this.skipNext=0,this.origOnerror=m._A.onerror;try{this.removeOnAbort=new AbortController}catch(e){}const c=this;c.ee.on("fn-start",(function(e,t,r){c.abortHandler&&(c.skipNext+=1)})),c.ee.on("fn-err",(function(e,t,r){c.abortHandler&&!r[g.A]&&((0,a.X)(r,g.A,(function(){return!0})),this.thrown=!0,I(r,void 0,c.ee))})),c.ee.on("fn-end",(function(){c.abortHandler&&!this.thrown&&c.skipNext>0&&(c.skipNext-=1)})),c.ee.on("internal-error",(function(e){(0,i.p)("ierr",[e,(0,o.zO)(),!0],void 0,v.D.jserrors,c.ee)})),m._A.onerror=function(){return r.origOnerror&&r.origOnerror(...arguments),r.onerrorHandler(...arguments),!1},m._A.addEventListener("unhandledrejection",(e=>{const t=function(e){let t="Unhandled Promise Rejection: ";if(e instanceof Error)return e.message=t+e.message,e;if(void 0===e)return new Error(t);try{return new Error(t+JSON.stringify(e))}catch(e){return new Error(t)}}(e.reason);(0,i.p)("err",[t,(0,o.zO)(),!1,{unhandledPromiseRejection:1}],void 0,v.D.jserrors,this.ee)}),(0,b.m$)(!1,this.removeOnAbort?.signal)),(0,s.gy)(this.ee),(0,s.BV)(this.ee),(0,s.em)(this.ee),(0,y.OP)(e).xhrWrappable&&(0,s.Kf)(this.ee),this.abortHandler=function(e,t,r){if(!t.has(e))throw new TypeError("attempted to get private field on non-instance");return r}(this,O,S),this.importAggregator()}onerrorHandler(e,t,r,n,a){try{this.skipNext?this.skipNext-=1:I(a||new _(e,t,r),!0,this.ee)}catch(e){try{(0,i.p)("ierr",[e,(0,o.zO)(),!0],void 0,v.D.jserrors,this.ee)}catch(e){}}return"function"==typeof this.origOnerror&&this.origOnerror.apply(this,u()(arguments))}}function S(){m._A.onerror=this.origOnerror,this.removeOnAbort?.abort(),(0,s.XV)(this.ee),(0,s.Zw)(this.ee),(0,s.hF)(this.ee),(0,y.OP)(this.agentIdentifier).xhrWrappable&&(0,s.ig)(this.ee),this.abortHandler=void 0}function _(e,t,r){this.message=e||"Uncaught error with no additional information",this.sourceURL=t,this.line=r}function I(e,t,r){var n=t?null:(0,o.zO)();(0,i.p)("err",[e,n],void 0,v.D.jserrors,r)}E=x,A="featureName",T=g.t,(A=function(e){var t=function(e,t){if("object"!=typeof e||null===e)return e;var r=e[Symbol.toPrimitive];if(void 0!==r){var n=r.call(e,t||"default");if("object"!=typeof n)return n;throw new TypeError("@@toPrimitive must return a primitive value.")}return("string"===t?String:Number)(e)}(e,"string");return"symbol"==typeof t?t:String(t)}(A))in E?Object.defineProperty(E,A,{value:T,enumerable:!0,configurable:!0,writable:!0}):E[A]=T},6034:(e,t,r)=>{"use strict";r.d(t,{t:()=>n});const n=r(2325).D.metrics},600:(e,t,r)=>{"use strict";r.r(t),r.d(t,{Instrument:()=>O,constants:()=>x});var n=r(9252),i=r(4045),o=r(6114),a=r(2374),s={REACT:"React",ANGULAR:"Angular",ANGULARJS:"AngularJS",BACKBONE:"Backbone",EMBER:"Ember",VUE:"Vue",METEOR:"Meteor",ZEPTO:"Zepto",JQUERY:"Jquery"};function c(){if(!a.il)return[];var e=[];try{(function(){try{if(window.React||window.ReactDOM||window.ReactRedux)return!0;if(document.querySelector("[data-reactroot], [data-reactid]"))return!0;for(var e=document.querySelectorAll("body > div"),t=0;t<e.length;t++)if(Object.keys(e[t]).indexOf("_reactRootContainer")>=0)return!0;return!1}catch(e){return!1}})()&&e.push(s.REACT),function(){try{return!!window.angular||(!!document.querySelector(".ng-binding, [ng-app], [data-ng-app], [ng-controller], [data-ng-controller], [ng-repeat], [data-ng-repeat]")||!!document.querySelector('script[src*="angular.js"], script[src*="angular.min.js"]'))}catch(e){return!1}}()&&e.push(s.ANGULARJS),function(){try{return!!(window.hasOwnProperty("ng")&&window.ng.hasOwnProperty("coreTokens")&&window.ng.coreTokens.hasOwnProperty("NgZone"))||!!document.querySelectorAll("[ng-version]").length}catch(e){return!1}}()&&e.push(s.ANGULAR),window.Backbone&&e.push(s.BACKBONE),window.Ember&&e.push(s.EMBER),window.Vue&&e.push(s.VUE),window.Meteor&&e.push(s.METEOR),window.Zepto&&e.push(s.ZEPTO),window.jQuery&&e.push(s.JQUERY)}catch(e){}return e}var u=r(9548),d=r(9226),f=r(8226),l=r(2650),h=r(8544),p=r(6562),g=r(8610);const v={dedicated:Boolean(a._A?.Worker),shared:Boolean(a._A?.SharedWorker),service:Boolean(a._A?.navigator?.serviceWorker)};let m,b,y;var w=r(6034);var E,A,T;class O extends o.S{constructor(e,t){var r;let n=!(arguments.length>2&&void 0!==arguments[2])||arguments[2];super(e,t,w.t,n),r=this,this.singleChecks(),this.eachSessionChecks(),(0,i.X)("record-supportability",(function(){return r.recordSupportability(...arguments)}),this.featureName,this.ee),(0,i.X)("record-custom",(function(){return r.recordCustom(...arguments)}),this.featureName,this.ee),this.importAggregator()}recordSupportability(e,t){var r=["sm",e,{name:e},t];return(0,n.p)("storeMetric",r,null,this.featureName,this.ee),r}recordCustom(e,t){var r=["cm",e,{name:e},t];return(0,n.p)("storeEventMetrics",r,null,this.featureName,this.ee),r}singleChecks(){this.recordSupportability("Generic/Version/".concat(f.q,"/Detected"));const{loaderType:e}=(0,p.OP)(this.agentIdentifier);e&&this.recordSupportability("Generic/LoaderType/".concat(e,"/Detected")),a.il&&(0,l.K)((()=>{c().forEach((e=>{this.recordSupportability("Framework/"+e+"/Detected")}))})),u.T.isFileProtocol()&&(this.recordSupportability("Generic/FileProtocol/Detected"),u.T.supportabilityMetricSent=!0);const t=(0,d.$c)(this.agentIdentifier);t.length>0&&this.recordSupportability("Generic/Obfuscate/Detected"),t.length>0&&!(0,d.Ng)(t)&&this.recordSupportability("Generic/Obfuscate/Invalid"),function(e){if(!m){if(v.dedicated){m=Worker;try{a._A.Worker=r(m,"Dedicated")}catch(e){o(e,"Dedicated")}if(v.shared){b=SharedWorker;try{a._A.SharedWorker=r(b,"Shared")}catch(e){o(e,"Shared")}}else n("Shared");if(v.service){y=navigator.serviceWorker.register;try{a._A.navigator.serviceWorker.register=(t=y,function(){for(var e=arguments.length,r=new Array(e),n=0;n<e;n++)r[n]=arguments[n];return i("Service",r[1]?.type),t.apply(navigator.serviceWorker,r)})}catch(e){o(e,"Service")}}else n("Service");var t;return}n("All")}function r(e,t){return"undefined"==typeof Proxy?e:new Proxy(e,{construct:(e,r)=>(i(t,r[1]?.type),new e(...r))})}function n(t){a.v6||e("Workers/".concat(t,"/Unavailable"))}function i(t,r){e("Workers/".concat(t,"module"===r?"/Module":"/Classic"))}function o(t,r){e("Workers/".concat(r,"/SM/Unsupported")),(0,g.Z)("NR Agent: Unable to capture ".concat(r," workers."),t)}}(this.recordSupportability.bind(this))}eachSessionChecks(){a.il&&(0,h.bP)("pageshow",(e=>{e.persisted&&this.recordSupportability("Generic/BFCache/PageRestored")}))}}E=O,A="featureName",T=w.t,(A=function(e){var t=function(e,t){if("object"!=typeof e||null===e)return e;var r=e[Symbol.toPrimitive];if(void 0!==r){var n=r.call(e,t||"default");if("object"!=typeof n)return n;throw new TypeError("@@toPrimitive must return a primitive value.")}return("string"===t?String:Number)(e)}(e,"string");return"symbol"==typeof t?t:String(t)}(A))in E?Object.defineProperty(E,A,{value:T,enumerable:!0,configurable:!0,writable:!0}):E[A]=T;var x={SUPPORTABILITY_METRIC:"sm",CUSTOM_METRIC:"cm"}},6486:(e,t,r)=>{"use strict";r.d(t,{t:()=>n});const n=r(2325).D.pageAction},488:(e,t,r)=>{"use strict";r.r(t),r.d(t,{Instrument:()=>c});var n,i,o,a=r(6114),s=r(6486);class c extends a.S{constructor(e,t){let r=!(arguments.length>2&&void 0!==arguments[2])||arguments[2];super(e,t,s.t,r),this.importAggregator()}}n=c,i="featureName",o=s.t,(i=function(e){var t=function(e,t){if("object"!=typeof e||null===e)return e;var r=e[Symbol.toPrimitive];if(void 0!==r){var n=r.call(e,t||"default");if("object"!=typeof n)return n;throw new TypeError("@@toPrimitive must return a primitive value.")}return("string"===t?String:Number)(e)}(e,"string");return"symbol"==typeof t?t:String(t)}(i))in n?Object.defineProperty(n,i,{value:o,enumerable:!0,configurable:!0,writable:!0}):n[i]=o},2484:(e,t,r)=>{"use strict";r.d(t,{t:()=>n});const n=r(2325).D.pageViewEvent},5637:(e,t,r)=>{"use strict";r.r(t),r.d(t,{Instrument:()=>g});var n,i,o,a=r(9252),s=r(2053),c=r(8283),u=r(6625),d=r(6114),f=r(2650),l=r(2484),h=r(2325),p=r(2374);class g extends d.S{constructor(e,t){let r=!(arguments.length>2&&void 0!==arguments[2])||arguments[2];super(e,t,l.t,r),p.il&&((0,u.v)(e),(0,c.B)(e,"firstbyte",(0,s.yf)()),(0,f.K)((()=>this.measureDomContentLoaded())),(0,f.b)((()=>this.measureWindowLoaded()),!0),this.importAggregator())}measureWindowLoaded(){var e=(0,s.zO)();(0,c.B)(this.agentIdentifier,"onload",e+(0,s.os)()),(0,a.p)("timing",["load",e],void 0,h.D.pageViewTiming,this.ee)}measureDomContentLoaded(){(0,c.B)(this.agentIdentifier,"domContent",(0,s.zO)()+(0,s.os)())}}n=g,i="featureName",o=l.t,(i=function(e){var t=function(e,t){if("object"!=typeof e||null===e)return e;var r=e[Symbol.toPrimitive];if(void 0!==r){var n=r.call(e,t||"default");if("object"!=typeof n)return n;throw new TypeError("@@toPrimitive must return a primitive value.")}return("string"===t?String:Number)(e)}(e,"string");return"symbol"==typeof t?t:String(t)}(i))in n?Object.defineProperty(n,i,{value:o,enumerable:!0,configurable:!0,writable:!0}):n[i]=o},6382:(e,t,r)=>{"use strict";r.d(t,{t:()=>n});const n=r(2325).D.pageViewTiming},7817:(e,t,r)=>{"use strict";r.r(t),r.d(t,{Instrument:()=>g});var n,i,o,a=r(9252),s=r(6998),c=r(8544),u=r(2053),d=r(6562),f=r(6114),l=r(6382),h=r(2325),p=r(2374);class g extends f.S{constructor(e,t){var r;let n=!(arguments.length>2&&void 0!==arguments[2])||arguments[2];if(super(e,t,l.t,n),r=this,p.il){if(this.pageHiddenTime=(0,s.e)(),this.performanceObserver,this.lcpPerformanceObserver,this.clsPerformanceObserver,this.fiRecorded=!1,"PerformanceObserver"in window&&"function"==typeof window.PerformanceObserver){this.performanceObserver=new PerformanceObserver((function(){return r.perfObserver(...arguments)}));try{this.performanceObserver.observe({entryTypes:["paint"]})}catch(e){}this.lcpPerformanceObserver=new PerformanceObserver((function(){return r.lcpObserver(...arguments)}));try{this.lcpPerformanceObserver.observe({entryTypes:["largest-contentful-paint"]})}catch(e){}this.clsPerformanceObserver=new PerformanceObserver((function(){return r.clsObserver(...arguments)}));try{this.clsPerformanceObserver.observe({type:"layout-shift",buffered:!0})}catch(e){}}this.fiRecorded=!1;["click","keydown","mousedown","pointerdown","touchstart"].forEach((e=>{(0,c.iz)(e,(function(){return r.captureInteraction(...arguments)}))})),(0,s.N)((()=>{this.pageHiddenTime=(0,u.zO)(),(0,a.p)("docHidden",[this.pageHiddenTime],void 0,h.D.pageViewTiming,this.ee)}),!0),(0,c.bP)("pagehide",(()=>(0,a.p)("winPagehide",[(0,u.zO)()],void 0,h.D.pageViewTiming,this.ee))),this.importAggregator()}}perfObserver(e,t){e.getEntries().forEach((e=>{"first-paint"===e.name?(0,a.p)("timing",["fp",Math.floor(e.startTime)],void 0,h.D.pageViewTiming,this.ee):"first-contentful-paint"===e.name&&(0,a.p)("timing",["fcp",Math.floor(e.startTime)],void 0,h.D.pageViewTiming,this.ee)}))}lcpObserver(e,t){var r=e.getEntries();if(r.length>0){var n=r[r.length-1];if(this.pageHiddenTime<n.startTime)return;var i=[n],o=this.addConnectionAttributes({});o&&i.push(o),(0,a.p)("lcp",i,void 0,h.D.pageViewTiming,this.ee)}}clsObserver(e){e.getEntries().forEach((e=>{e.hadRecentInput||(0,a.p)("cls",[e],void 0,h.D.pageViewTiming,this.ee)}))}addConnectionAttributes(e){var t=navigator.connection||navigator.mozConnection||navigator.webkitConnection;if(t)return t.type&&(e["net-type"]=t.type),t.effectiveType&&(e["net-etype"]=t.effectiveType),t.rtt&&(e["net-rtt"]=t.rtt),t.downlink&&(e["net-dlink"]=t.downlink),e}captureInteraction(e){if(e instanceof d.Yu.EV&&!this.fiRecorded){var t=Math.round(e.timeStamp),r={type:e.type};this.addConnectionAttributes(r),t<=(0,u.zO)()?r.fid=(0,u.zO)()-t:t>(0,u.os)()&&t<=Date.now()?(t-=(0,u.os)(),r.fid=(0,u.zO)()-t):t=(0,u.zO)(),this.fiRecorded=!0,(0,a.p)("timing",["fi",t,r],void 0,h.D.pageViewTiming,this.ee)}}}n=g,i="featureName",o=l.t,(i=function(e){var t=function(e,t){if("object"!=typeof e||null===e)return e;var r=e[Symbol.toPrimitive];if(void 0!==r){var n=r.call(e,t||"default");if("object"!=typeof n)return n;throw new TypeError("@@toPrimitive must return a primitive value.")}return("string"===t?String:Number)(e)}(e,"string");return"symbol"==typeof t?t:String(t)}(i))in n?Object.defineProperty(n,i,{value:o,enumerable:!0,configurable:!0,writable:!0}):n[i]=o},2628:(e,t,r)=>{"use strict";r.r(t),r.d(t,{ADD_EVENT_LISTENER:()=>g,BST_RESOURCE:()=>a,BST_TIMER:()=>l,END:()=>u,FEATURE_NAME:()=>i,FN_END:()=>f,FN_START:()=>d,ORIG_EVENT:()=>p,PUSH_STATE:()=>h,RESOURCE:()=>s,RESOURCE_TIMING_BUFFER_FULL:()=>o,START:()=>c});var n=r(6562);const i=r(2325).D.sessionTrace,o="resourcetimingbufferfull",a="bstResource",s="resource",c="-start",u="-end",d="fn"+c,f="fn"+u,l="bstTimer",h="pushState",p=n.Yu.EV,g="addEventListener"},6649:(e,t,r)=>{"use strict";r.r(t),r.d(t,{Instrument:()=>N});var n=r(9252),i=r(7264),o=r(6408),a=r(8544),s=r(2053),c=r(6114),u=r(2628),d=r(2325),f=r(2374);function l(e,t){!function(e,t){if(t.has(e))throw new TypeError("Cannot initialize the same private elements twice on an object")}(e,t),t.add(e)}const{BST_RESOURCE:h,BST_TIMER:p,END:g,FEATURE_NAME:v,FN_END:m,FN_START:b,ADD_EVENT_LISTENER:y,PUSH_STATE:w,RESOURCE:E,RESOURCE_TIMING_BUFFER_FULL:A,START:T,ORIG_EVENT:O}=u,x="clearResourceTimings";var S,_,I,j=new WeakSet;class N extends c.S{constructor(e,t){if(super(e,t,v,!(arguments.length>2&&void 0!==arguments[2])||arguments[2]),l(this,j),!f.il)return;const r=this.ee;this.timerEE=(0,i.BV)(r),this.rafEE=(0,i.gy)(r),(0,i.QU)(r),(0,i.em)(r),r.on(b,(function(e,t){e[0]instanceof O&&(this.bstStart=(0,s.zO)())})),r.on(m,(function(e,t){var i=e[0];i instanceof O&&(0,n.p)("bst",[i,t,this.bstStart,(0,s.zO)()],void 0,d.D.sessionTrace,r)})),this.timerEE.on(b,(function(e,t,r){this.bstStart=(0,s.zO)(),this.bstType=r})),this.timerEE.on(m,(function(e,t){(0,n.p)(p,[t,this.bstStart,(0,s.zO)(),this.bstType],void 0,d.D.sessionTrace,r)})),this.rafEE.on(b,(function(){this.bstStart=(0,s.zO)()})),this.rafEE.on(m,(function(e,t){(0,n.p)(p,[t,this.bstStart,(0,s.zO)(),"requestAnimationFrame"],void 0,d.D.sessionTrace,r)})),r.on(w+T,(function(e){this.time=(0,s.zO)(),this.startPath=location.pathname+location.hash})),r.on(w+g,(function(e){(0,n.p)("bstHist",[location.pathname+location.hash,this.startPath,this.time],void 0,d.D.sessionTrace,r)})),(0,o.W)()?((0,n.p)(h,[window.performance.getEntriesByType("resource")],void 0,d.D.sessionTrace,r),function(){var e=new PerformanceObserver(((e,t)=>{var i=e.getEntries();(0,n.p)(h,[i],void 0,d.D.sessionTrace,r)}));try{e.observe({entryTypes:["resource"]})}catch(e){}}()):window.performance[x]&&window.performance[y]&&window.performance.addEventListener(A,this.onResourceTimingBufferFull,(0,a.m$)(!1)),document.addEventListener("scroll",this.noOp,(0,a.m$)(!1)),document.addEventListener("keypress",this.noOp,(0,a.m$)(!1)),document.addEventListener("click",this.noOp,(0,a.m$)(!1)),this.abortHandler=function(e,t,r){if(!t.has(e))throw new TypeError("attempted to get private field on non-instance");return r}(this,j,P),this.importAggregator()}noOp(e){}onResourceTimingBufferFull(e){if((0,n.p)(h,[window.performance.getEntriesByType(E)],void 0,d.D.sessionTrace,this.ee),window.performance[x])try{window.performance.removeEventListener(A,this.onResourceTimingBufferFull,!1)}catch(e){}}}function P(){window.performance.removeEventListener(A,this.onResourceTimingBufferFull,!1),(0,i.Zw)(this.ee),(0,i.XV)(this.ee),(0,i.lx)(this.ee),(0,i.hF)(this.ee),this.abortHandler=void 0}S=N,I=v,(_=function(e){var t=function(e,t){if("object"!=typeof e||null===e)return e;var r=e[Symbol.toPrimitive];if(void 0!==r){var n=r.call(e,t||"default");if("object"!=typeof n)return n;throw new TypeError("@@toPrimitive must return a primitive value.")}return("string"===t?String:Number)(e)}(e,"string");return"symbol"==typeof t?t:String(t)}(_="featureName"))in S?Object.defineProperty(S,_,{value:I,enumerable:!0,configurable:!0,writable:!0}):S[_]=I},755:(e,t,r)=>{"use strict";r.r(t),r.d(t,{BODY:()=>A,CB_END:()=>T,CB_START:()=>u,END:()=>E,FEATURE_NAME:()=>i,FETCH:()=>x,FETCH_BODY:()=>m,FETCH_DONE:()=>v,FETCH_START:()=>g,FN_END:()=>c,FN_START:()=>s,INTERACTION:()=>l,INTERACTION_API:()=>d,INTERACTION_EVENTS:()=>o,JSONP_END:()=>b,JSONP_NODE:()=>p,JS_TIME:()=>O,MAX_TIMER_BUDGET:()=>a,REMAINING:()=>f,SPA_NODE:()=>h,START:()=>w,originalSetTimeout:()=>y});var n=r(6562);r(2374);const i=r(2325).D.spa,o=["click","submit","keypress","keydown","keyup","change"],a=999,s="fn-start",c="fn-end",u="cb-start",d="api-ixn-",f="remaining",l="interaction",h="spaNode",p="jsonpNode",g="fetch-start",v="fetch-done",m="fetch-body-",b="jsonp-end",y=n.Yu.ST,w="-start",E="-end",A="-body",T="cb"+E,O="jsTime",x="fetch"},227:(e,t,r)=>{"use strict";r.r(t),r.d(t,{Instrument:()=>x});var n=r(7264),i=r(8544),o=r(6114),a=r(6562),s=r(2053),c=r(755),u=r(2374);function d(e,t){!function(e,t){if(t.has(e))throw new TypeError("Cannot initialize the same private elements twice on an object")}(e,t),t.add(e)}const{FEATURE_NAME:f,START:l,END:h,BODY:p,CB_END:g,JS_TIME:v,FETCH:m,FN_START:b,CB_START:y,FN_END:w}=c;var E,A,T,O=new WeakSet;class x extends o.S{constructor(e,t){if(super(e,t,f,!(arguments.length>2&&void 0!==arguments[2])||arguments[2]),d(this,O),!u.il)return;if(!(0,a.OP)(e).xhrWrappable)return;try{this.removeOnAbort=new AbortController}catch(e){}let r,o=0;const c=this.ee.get("tracer"),E=(0,n._L)(this.ee),A=(0,n.Lg)(this.ee),T=(0,n.BV)(this.ee),x=(0,n.Kf)(this.ee),_=this.ee.get("events"),I=(0,n.u5)(this.ee),j=(0,n.QU)(this.ee),N=(0,n.Gm)(this.ee);function P(e,t){j.emit("newURL",[""+window.location,t])}function R(){o++,r=window.location.hash,this[b]=(0,s.zO)()}function D(){o--,window.location.hash!==r&&P(0,!0);var e=(0,s.zO)();this[v]=~~this[v]+e-this[b],this[w]=e}function C(e,t){e.on(t,(function(){this[t]=(0,s.zO)()}))}this.ee.on(b,R),A.on(y,R),E.on(y,R),this.ee.on(w,D),A.on(g,D),E.on(g,D),this.ee.buffer([b,w,"xhr-resolved"],this.featureName),_.buffer([b],this.featureName),T.buffer(["setTimeout"+h,"clearTimeout"+l,b],this.featureName),x.buffer([b,"new-xhr","send-xhr"+l],this.featureName),I.buffer([m+l,m+"-done",m+p+l,m+p+h],this.featureName),j.buffer(["newURL"],this.featureName),N.buffer([b],this.featureName),A.buffer(["propagate",y,g,"executor-err","resolve"+l],this.featureName),c.buffer([b,"no-"+b],this.featureName),E.buffer(["new-jsonp","cb-start","jsonp-error","jsonp-end"],this.featureName),C(I,m+l),C(I,m+"-done"),C(E,"new-jsonp"),C(E,"jsonp-end"),C(E,"cb-start"),j.on("pushState-end",P),j.on("replaceState-end",P),window.addEventListener("hashchange",P,(0,i.m$)(!0,this.removeOnAbort?.signal)),window.addEventListener("load",P,(0,i.m$)(!0,this.removeOnAbort?.signal)),window.addEventListener("popstate",(function(){P(0,o>1)}),(0,i.m$)(!0,this.removeOnAbort?.signal)),this.abortHandler=function(e,t,r){if(!t.has(e))throw new TypeError("attempted to get private field on non-instance");return r}(this,O,S),this.importAggregator()}}function S(){this.removeOnAbort?.abort(),(0,n.ow)(this.ee),(0,n.G8)(this.ee),(0,n.Zw)(this.ee),(0,n.ig)(this.ee),(0,n.Fp)(this.ee),(0,n.lx)(this.ee),(0,n.ao)(this.ee),this.abortHandler=void 0}E=x,T=f,(A=function(e){var t=function(e,t){if("object"!=typeof e||null===e)return e;var r=e[Symbol.toPrimitive];if(void 0!==r){var n=r.call(e,t||"default");if("object"!=typeof n)return n;throw new TypeError("@@toPrimitive must return a primitive value.")}return("string"===t?String:Number)(e)}(e,"string");return"symbol"==typeof t?t:String(t)}(A="featureName"))in E?Object.defineProperty(E,A,{value:T,enumerable:!0,configurable:!0,writable:!0}):E[A]=T},1509:(e,t,r)=>{"use strict";r.d(t,{W:()=>s});var n=r(6562),i=r(3752),o=r(2384),a=r(6797);class s{constructor(e,t,r){this.agentIdentifier=e,this.aggregator=t,this.ee=i.ee.get(e,(0,n.OP)(this.agentIdentifier).isolatedBacklog),this.featureName=r,this.blocked=!1,this.checkConfiguration()}checkConfiguration(){if(!(0,n.lF)(this.agentIdentifier)){let e={...(0,a.gG)().info?.jsAttributes};try{e={...e,...(0,n.C5)(this.agentIdentifier)?.jsAttributes}}catch(e){}(0,o.j)(this.agentIdentifier,{...(0,a.gG)(),info:{...(0,a.gG)().info,jsAttributes:e}})}}}},6114:(e,t,r)=>{"use strict";r.d(t,{S:()=>c});var n=r(4329),i=r(1509),o=r(2650),a=r(2374),s=r(8610);class c extends i.W{constructor(e,t,r){let i=!(arguments.length>3&&void 0!==arguments[3])||arguments[3];super(e,t,r),this.hasAggregator=!1,this.auto=i,this.abortHandler,i&&(0,n.R)(e,r)}importAggregator(){if(this.hasAggregator||!this.auto)return;this.hasAggregator=!0;const e=async()=>{try{const{lazyLoader:e}=await r.e(729).then(r.bind(r,8110)),{Aggregate:t}=await e(this.featureName,"aggregate");new t(this.agentIdentifier,this.aggregator)}catch(e){(0,s.Z)("Downloading ".concat(this.featureName," failed...")),this.abortHandler?.()}};a.v6?e():(0,o.b)((()=>e()),!0)}}},2384:(e,t,r)=>{"use strict";r.d(t,{j:()=>y});var n=r(8683),i=r.n(n),o=r(2325),a=r(6562),s=r(9252),c=r(7022),u=r(3752),d=r(2053),f=r(4329),l=r(2650),h=r(2374),p=r(8610);function g(e){["setErrorHandler","finished","addToTrace","inlineHit","addRelease","addPageAction","setCurrentRouteName","setPageViewName","setCustomAttribute","interaction","noticeError"].forEach((t=>{e[t]=function(){for(var r=arguments.length,n=new Array(r),i=0;i<r;i++)n[i]=arguments[i];return function(t){for(var r=arguments.length,n=new Array(r>1?r-1:0),i=1;i<r;i++)n[i-1]=arguments[i];Object.values(e.initializedAgents).forEach((e=>{e.exposed&&e.api[t]&&e.api[t](...n)}))}(t,...n)}}))}var v=r(6797);const m={stn:o.D.sessionTrace,err:o.D.jserrors,ins:o.D.pageAction,spa:o.D.spa};const b={};function y(e){let t=arguments.length>1&&void 0!==arguments[1]?arguments[1]:{},n=arguments.length>2?arguments[2]:void 0,y=arguments.length>3?arguments[3]:void 0,{init:w,info:E,loader_config:A,runtime:T={loaderType:n},exposed:O=!0}=t;const x=(0,v.gG)();let S={};return E||(w=x.init,E=x.info,A=x.loader_config,S=x),h.v6&&(E.jsAttributes={...E.jsAttributes,isWorker:!0}),(0,a.CX)(e,E),(0,a.Dg)(e,w||{}),(0,a.GE)(e,A||{}),(0,a.sU)(e,T),function(e,t,n){n||(0,f.R)(e,"api"),g(t);var v=u.ee.get(e),m=v.get("tracer"),b="api-",y=b+"ixn-";function w(){}(0,c.D)(["setErrorHandler","finished","addToTrace","inlineHit","addRelease"],(function(e,r){t[r]=A(b,r,!0,"api")})),t.addPageAction=A(b,"addPageAction",!0,o.D.pageAction),t.setCurrentRouteName=A(b,"routeName",!0,o.D.spa),t.setPageViewName=function(t,r){if("string"==typeof t)return"/"!==t.charAt(0)&&(t="/"+t),(0,a.OP)(e).customTransaction=(r||"http://custom.transaction")+t,A(b,"setPageViewName",!0,"api")()},t.setCustomAttribute=function(t,r){const n=(0,a.C5)(e);return(0,a.CX)(e,{...n,jsAttributes:{...n.jsAttributes,[t]:r}}),A(b,"setCustomAttribute",!0,"api")()},t.interaction=function(){return(new w).get()};var E=w.prototype={createTracer:function(e,t){var r={},n=this,i="function"==typeof t;return(0,s.p)(y+"tracer",[(0,d.zO)(),e,r],n,o.D.spa,v),function(){if(m.emit((i?"":"no-")+"fn-start",[(0,d.zO)(),n,i],r),i)try{return t.apply(this,arguments)}catch(e){throw m.emit("fn-err",[arguments,this,"string"==typeof e?new Error(e):e],r),e}finally{m.emit("fn-end",[(0,d.zO)()],r)}}}};function A(e,t,r,n){return function(){return(0,s.p)("record-supportability",["API/"+t+"/called"],void 0,o.D.metrics,v),(0,s.p)(e+t,[(0,d.zO)()].concat(i()(arguments)),r?null:this,n,v),r?void 0:this}}function T(){r.e(439).then(r.bind(r,5692)).then((t=>{let{setAPI:r}=t;r(e),(0,f.L)(e,"api")})).catch((()=>(0,p.Z)("Downloading runtime APIs failed...")))}(0,c.D)("actionText,setName,setAttribute,save,ignore,onEnd,getContext,end,get".split(","),(function(e,t){E[t]=A(y,t,void 0,o.D.spa)})),t.noticeError=function(e,t){"string"==typeof e&&(e=new Error(e)),(0,s.p)("record-supportability",["API/noticeError/called"],void 0,o.D.metrics,v),(0,s.p)("err",[e,(0,d.zO)(),!1,t],void 0,o.D.jserrors,v)},h.v6?T():(0,l.b)((()=>T()),!0)}(e,S,y),(0,v.Qy)(e,x,"api"),(0,v.Qy)(e,O,"exposed"),h.v6||((0,v.EZ)("activatedFeatures",b),(0,v.EZ)("setToken",(t=>function(e,t){var r=u.ee.get(t);e&&"object"==typeof e&&((0,c.D)(e,(function(e,t){if(!t)return(0,s.p)("block-"+e,[],void 0,m[e],r);t&&!b[e]&&((0,s.p)("feat-"+e,[],void 0,m[e],r),b[e]=!0)})),(0,f.L)(t,o.D.pageViewEvent))}(t,e)))),S}},909:(e,t,r)=>{"use strict";r.d(t,{Z:()=>i,q:()=>o});var n=r(2325);function i(e){switch(e){case n.D.ajax:return[n.D.jserrors];case n.D.sessionTrace:return[n.D.ajax,n.D.pageViewEvent];case n.D.pageViewTiming:return[n.D.pageViewEvent];default:return[]}}function o(e){return e===n.D.jserrors?[]:["auto"]}},2325:(e,t,r)=>{"use strict";r.d(t,{D:()=>n,p:()=>i});const n={ajax:"ajax",jserrors:"jserrors",metrics:"metrics",pageAction:"page_action",pageViewEvent:"page_view_event",pageViewTiming:"page_view_timing",sessionTrace:"session_trace",spa:"spa"},i={[n.pageViewEvent]:1,[n.pageViewTiming]:2,[n.metrics]:3,[n.jserrors]:4,[n.ajax]:5,[n.sessionTrace]:6,[n.pageAction]:7,[n.spa]:8}},8683:e=>{e.exports=function(e,t,r){t||(t=0),void 0===r&&(r=e?e.length:0);for(var n=-1,i=r-t||0,o=Array(i<0?0:i);++n<i;)o[n]=e[t+n];return o}}},n={};function i(e){var t=n[e];if(void 0!==t)return t.exports;var o=n[e]={exports:{}};return r[e](o,o.exports,i),o.exports}i.m=r,i.n=e=>{var t=e&&e.__esModule?()=>e.default:()=>e;return i.d(t,{a:t}),t},i.d=(e,t)=>{for(var r in t)i.o(t,r)&&!i.o(e,r)&&Object.defineProperty(e,r,{enumerable:!0,get:t[r]})},i.f={},i.e=e=>Promise.all(Object.keys(i.f).reduce(((t,r)=>(i.f[r](e,t),t)),[])),i.u=e=>(({78:"page_action-aggregate",147:"metrics-aggregate",193:"session_trace-aggregate",225:"ajax-instrument",317:"jserrors-aggregate",348:"page_view_timing-aggregate",439:"async-api",578:"jserrors-instrument",729:"lazy-loader",757:"session_trace-instrument",786:"page_view_event-aggregate",873:"spa-aggregate",876:"spa-instrument",898:"ajax-aggregate",908:"page_action-instrument"}[e]||e)+"."+{78:"92657d87",118:"d37755e4",147:"b4a54ed9",193:"94c80cda",225:"1e8aaf7f",264:"bcaf68fc",317:"ef250e1c",348:"e791ce32",439:"6bb277af",578:"1eaebfa5",729:"48127245",757:"64f1d623",786:"29613e65",873:"6bec5056",876:"f3685aa9",898:"fc672923",908:"64360627"}[e]+"-1225.min.js"),i.o=(e,t)=>Object.prototype.hasOwnProperty.call(e,t),e={},t="NRBA:",i.l=(r,n,o,a)=>{if(e[r])e[r].push(n);else{var s,c;if(void 0!==o)for(var u=document.getElementsByTagName("script"),d=0;d<u.length;d++){var f=u[d];if(f.getAttribute("src")==r||f.getAttribute("data-webpack")==t+o){s=f;break}}s||(c=!0,(s=document.createElement("script")).charset="utf-8",s.timeout=120,i.nc&&s.setAttribute("nonce",i.nc),s.setAttribute("data-webpack",t+o),s.src=r),e[r]=[n];var l=(t,n)=>{s.onerror=s.onload=null,clearTimeout(h);var i=e[r];if(delete e[r],s.parentNode&&s.parentNode.removeChild(s),i&&i.forEach((e=>e(n))),t)return t(n)},h=setTimeout(l.bind(null,void 0,{type:"timeout",target:s}),12e4);s.onerror=l.bind(null,s.onerror),s.onload=l.bind(null,s.onload),c&&document.head.appendChild(s)}},i.r=e=>{"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},i.p="https://js-agent.newrelic.com/",(()=>{var e={570:0,939:0,225:0,578:0,908:0,757:0,876:0,264:0};i.f.j=(t,r)=>{var n=i.o(e,t)?e[t]:void 0;if(0!==n)if(n)r.push(n[2]);else{var o=new Promise(((r,i)=>n=e[t]=[r,i]));r.push(n[2]=o);var a=i.p+i.u(t),s=new Error;i.l(a,(r=>{if(i.o(e,t)&&(0!==(n=e[t])&&(e[t]=void 0),n)){var o=r&&("load"===r.type?"missing":r.type),a=r&&r.target&&r.target.src;s.message="Loading chunk "+t+" failed.\n("+o+": "+a+")",s.name="ChunkLoadError",s.type=o,s.request=a,n[1](s)}}),"chunk-"+t,t)}};var t=(t,r)=>{var n,o,[a,s,c]=r,u=0;if(a.some((t=>0!==e[t]))){for(n in s)i.o(s,n)&&(i.m[n]=s[n]);if(c)c(i)}for(t&&t(r);u<a.length;u++)o=a[u],i.o(e,o)&&e[o]&&e[o][0](),e[o]=0},r=window.webpackChunkNRBA=window.webpackChunkNRBA||[];r.forEach(t.bind(null,0)),r.push=t.bind(null,r.push.bind(r))})();var o={};(()=>{"use strict";i.r(o);var e=i(2325),t=i(6562);const r=Object.values(e.D);function n(e){const n={};return r.forEach((r=>{n[r]=function(e,r){return!1!==(0,t.Mt)(r,"".concat(e,".enabled"))}(r,e)})),n}var a=i(2384),s=i(909),c=i(9557),u=i(7022);class d extends c.w{constructor(e){super(e),this.aggregatedData={}}store(e,t,r,n,i){var o=this.getBucket(e,t,r,i);return o.metrics=function(e,t){t||(t={count:0});return t.count+=1,(0,u.D)(e,(function(e,r){t[e]=f(r,t[e])})),t}(n,o.metrics),o}merge(e,t,r,n,i){var o=this.getBucket(e,t,n,i);if(o.metrics){var a=o.metrics;a.count+=r.count,(0,u.D)(r,(function(e,t){if("count"!==e){var n=a[e],i=r[e];i&&!i.c?a[e]=f(i.t,n):a[e]=function(e,t){if(!t)return e;t.c||(t=l(t.t));return t.min=Math.min(e.min,t.min),t.max=Math.max(e.max,t.max),t.t+=e.t,t.sos+=e.sos,t.c+=e.c,t}(i,a[e])}}))}else o.metrics=r}storeMetric(e,t,r,n){var i=this.getBucket(e,t,r);return i.stats=f(n,i.stats),i}getBucket(e,t,r,n){this.aggregatedData[e]||(this.aggregatedData[e]={});var i=this.aggregatedData[e][t];return i||(i=this.aggregatedData[e][t]={params:r||{}},n&&(i.custom=n)),i}get(e,t){return t?this.aggregatedData[e]&&this.aggregatedData[e][t]:this.aggregatedData[e]}take(e){for(var t={},r="",n=!1,i=0;i<e.length;i++)t[r=e[i]]=h(this.aggregatedData[r]),t[r].length&&(n=!0),delete this.aggregatedData[r];return n?t:null}}function f(e,t){return null==e?function(e){e?e.c++:e={c:1};return e}(t):t?(t.c||(t=l(t.t)),t.c+=1,t.t+=e,t.sos+=e*e,e>t.max&&(t.max=e),e<t.min&&(t.min=e),t):{t:e}}function l(e){return{t:e,min:e,max:e,sos:e*e,c:1}}function h(e){return"object"!=typeof e?[]:(0,u.D)(e,p)}function p(e,t){return t}var g=i(6797),v=i(5526),m=i(8610);var b=i(5637),y=i(7817),w=i(600),E=i(9715),A=i(948),T=i(6649),O=i(227),x=i(488);new class{constructor(t){let r=arguments.length>1&&void 0!==arguments[1]?arguments[1]:(0,v.ky)(16);this.agentIdentifier=r,this.sharedAggregator=new d({agentIdentifier:this.agentIdentifier}),this.features={},this.desiredFeatures=t.features||[],this.desiredFeatures.sort(((t,r)=>e.p[t.featureName]-e.p[r.featureName])),Object.assign(this,(0,a.j)(this.agentIdentifier,t,t.loaderType||"agent")),this.start()}get config(){return{info:(0,t.C5)(this.agentIdentifier),init:(0,t.P_)(this.agentIdentifier),loader_config:(0,t.DL)(this.agentIdentifier),runtime:(0,t.OP)(this.agentIdentifier)}}start(){const e="features";try{const t=n(this.agentIdentifier);this.desiredFeatures.forEach((e=>{if(t[e.featureName]){const r=(0,s.Z)(e.featureName);r.every((e=>t[e]))||(0,m.Z)("".concat(e.featureName," is enabled but one or more dependent features has been disabled (").concat(JSON.stringify(r),"). This may cause unintended consequences or missing data...")),this.features[e.featureName]=new e(this.agentIdentifier,this.sharedAggregator)}})),(0,g.Qy)(this.agentIdentifier,this.features,e)}catch(t){(0,m.Z)("Failed to initialize all enabled instrument classes (agent aborted) -",t);for(const e in this.features)this.features[e].abortHandler?.();const r=(0,g.fP)();return delete r.initializedAgents[this.agentIdentifier]?.api,delete r.initializedAgents[this.agentIdentifier]?.[e],delete this.sharedAggregator,delete r.ee?.get(this.agentIdentifier),!1}}}({features:[A.Instrument,b.Instrument,y.Instrument,T.Instrument,w.Instrument,x.Instrument,E.Instrument,O.Instrument],loaderType:"spa"})})(),window.NRBA=o})();</script>
+<script>window.dataLayer = window.dataLayer || []; window.dataLayer.push({"drupalLanguage":"en","drupalCountry":"US","drupalSitename":"Mass.gov","entityCreated":"1585765332","entityLangcode":"en","entityStatus":"1","entityUid":"2131","entityUuid":"a5b794a6-60d0-4761-b8cd-6505f6baf0b0","entityVid":"12490636","entityField_organizations":{"6661":{"title":"Department of Public Health","uuid":"1f830767-554d-4659-ba1a-d6372b92738a"}},"entityName":"mleonard","entityType":"node","entityBundle":"info_details","entityIdentifier":"518711","entityTitle":"Archive of COVID-19 cases in Massachusetts","userUid":0});</script>
+<script type="application/ld+json">{
+    "@context": "https://schema.org/",
+    "@type": "Dataset",
+    "name": "Archive of COVID-19 cases in Massachusetts",
+    "description": "Reports from the Massachusetts Department of Public Health (DPH)",
+    "creator": [
+        {
+            "@type": "Organization",
+            "url": "https://www.mass.gov/orgs/department-of-public-health",
+            "name": "Department of Public Health"
+        }
+    ],
+    "spatialCoverage": "Massachusetts",
+    "url": "https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts"
+}</script>
+<meta name="description" content="Reports from the Massachusetts Department of Public Health (DPH)">
+<link rel="shortcut icon" href="https://www.mass.gov/themes/custom/mass_theme/favicon.ico">
+<link rel="mask-icon" href="https://www.mass.gov/libraries/mayflower-artifacts/assets/images/logo/stateseal.svg">
+<link rel="icon" sizes="16x16" href="https://www.mass.gov/themes/custom/mass_theme/icons/logo/icon-16x16.png">
+<link rel="icon" sizes="32x32" href="https://www.mass.gov/themes/custom/mass_theme/icons/logo/icon-32x32.png">
+<link rel="icon" sizes="96x96" href="https://www.mass.gov/themes/custom/mass_theme/icons/logo/icon-96x96.png">
+<link rel="icon" sizes="192x192" href="https://www.mass.gov/themes/custom/mass_theme/icons/logo/icon-192x192.png">
+<link rel="apple-touch-icon" href="https://www.mass.gov/themes/custom/mass_theme/icons/logo/apple-touch-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="https://www.mass.gov/themes/custom/mass_theme/icons/logo/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="https://www.mass.gov/themes/custom/mass_theme/icons/logo/apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="https://www.mass.gov/themes/custom/mass_theme/icons/logo/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="https://www.mass.gov/themes/custom/mass_theme/icons/logo/apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="https://www.mass.gov/themes/custom/mass_theme/icons/logo/apple-touch-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="https://www.mass.gov/themes/custom/mass_theme/icons/logo/apple-touch-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://www.mass.gov/themes/custom/mass_theme/icons/logo/apple-touch-icon-180x180.png">
+<link rel="apple-touch-icon-precomposed" href="https://www.mass.gov/themes/custom/mass_theme/icons/logo/apple-touch-icon-57x57.png">
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://www.mass.gov/themes/custom/mass_theme/icons/logo/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon-precomposed" sizes="76x76" href="https://www.mass.gov/themes/custom/mass_theme/icons/logo/apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="https://www.mass.gov/themes/custom/mass_theme/icons/logo/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon-precomposed" sizes="120x120" href="https://www.mass.gov/themes/custom/mass_theme/icons/logo/apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://www.mass.gov/themes/custom/mass_theme/icons/logo/apple-touch-icon-144x144.png">
+<link rel="apple-touch-icon-precomposed" sizes="152x152" href="https://www.mass.gov/themes/custom/mass_theme/icons/logo/apple-touch-icon-152x152.png">
+<link rel="apple-touch-icon-precomposed" sizes="180x180" href="https://www.mass.gov/themes/custom/mass_theme/icons/logo/apple-touch-icon-180x180.png">
+<meta name="category" content="data">
+<meta name="mg_labels" content="covid19content">
+<meta name="mg_organization" content="departmentofpublichealth,executiveofficeofhealthandhumanservices">
+<meta name="mg_title" content="Archive of COVID-19 cases in Massachusetts">
+<meta name="mg_url" content="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts">
+<meta property="og:site_name" content="Mass.gov">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts">
+<meta property="og:title" content="Archive of COVID-19 cases in Massachusetts">
+<meta property="og:description" content="Reports from the Massachusetts Department of Public Health (DPH)">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:description" content="Reports from the Massachusetts Department of Public Health (DPH)">
+<meta name="twitter:site" content="@massgov">
+<meta name="twitter:title" content="Archive of COVID-19 cases in Massachusetts">
+<meta name="twitter:site:id" content="16264003">
+<meta name="twitter:url" content="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts">
+<meta name="Generator" content="Drupal 9 (https://www.drupal.org)">
+<meta name="MobileOptimized" content="width">
+<meta name="HandheldFriendly" content="true">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="alternate" hreflang="x-default" href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts">
+<link rel="icon" href="https://www.mass.gov/themes/custom/mass_theme/favicon.ico" type="image/png">
+<link rel="canonical" href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts">
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0];var j=d.createElement(s);var dl=l!='dataLayer'?'&l='+l:'';j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl+'';j.async=true;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-MPHNMQ');</script>
+
+    <title>Archive of COVID-19 cases in Massachusetts | Mass.gov</title>
+    <link rel="stylesheet" media="all" href="./archived_webpage_mass_cases_files/css_is6j9qeO7PXq6pQon72yBLEMGCBneDkJjiNS3LTW7zo.css">
+<link rel="stylesheet" media="all" href="./archived_webpage_mass_cases_files/css_6vQW5py8sd6iSTYMKJBKVVNTeFKmDUqUy610IyS38JY.css">
+
+    <script src="./archived_webpage_mass_cases_files/modernizr.min.js"></script>
+<script src="./archived_webpage_mass_cases_files/js_3STNJ64Bf2Aryg_yqK46oqLyX_E-1rKsTnCv5YAsSss.js"></script>
+
+        <script type="application/ld+json">
+      {
+          "@context": "http://schema.org",
+          "@type": "Organization",
+          "@id": "https://www.mass.gov/#organization",
+          "url": "https://www.mass.gov",
+          "logo": "https://www.mass.gov/libraries/mayflower-artifacts/assets/images/logo/stateseal-color.png",          "name": "Commonwealth of Massachusetts",
+          "sameAs":
+            [
+    "https://www.facebook.com/massgov",
+    "https://twitter.com/massgov",
+    "https://www.linkedin.com/company/commonwealth-of-massachusetts",
+    "https://www.youtube.com/user/massgov",
+    "https://www.instagram.com/massgov/"
+]
+                  }
+    </script>
+    <script type="application/ld+json">
+      {
+          "@context": "http://schema.org",
+          "@type": "WPHeader",
+          "@id": "https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#header"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+          "@context": "http://schema.org",
+          "@type": "WPFooter",
+          "@id": "https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#footer"
+      }
+    </script>
+    <script type="application/ld+json">
+        {
+          "@context": "http://schema.org",
+          "@type": "SiteNavigationElement",
+          "@id": "https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#main-navigation"
+        }
+    </script>
+
+  
+          <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-12471675-5', 'auto');
+      </script>
+      <script src="./archived_webpage_mass_cases_files/optimize.js"></script>
+            <link rel="preload" href="https://www.mass.gov/libraries/mayflower-artifacts/assets/fonts/noto/Latin/NotoSans-VF-subset.woff2?version=1" as="font" crossorigin="">
+
+    <link rel="preload" href="https://www.mass.gov/libraries/mayflower-artifacts/assets/fonts/noto/Latin/NotoSansItalic-VF-subset.woff2?version=1" as="font" crossorigin="">
+        <script>
+      var $buoop = {
+        required:{e:11,c:41,f:33,o:15,s:5},
+        api:2021.07,
+        text: "<b>Your browser ({brow_name}) is too old.</b> Things may not look or work right.  <a{up_but}>Update browser</a>  <a{ignore_but}>Ignore</a>"
+      };
+      function $buo_f(){
+      var e = document.createElement("script");
+      e.src = "//browser-update.org/update.min.js";
+      document.body.appendChild(e);
+      };
+      try {document.addEventListener("DOMContentLoaded", $buo_f,false)}
+      catch(e){window.attachEvent("onload", $buo_f)}
+    </script>
+  <script src="./archived_webpage_mass_cases_files/element.js" async=""></script><link type="text/css" rel="stylesheet" charset="UTF-8" href="./archived_webpage_mass_cases_files/m=el_main_css"><script type="text/javascript" charset="UTF-8" src="./archived_webpage_mass_cases_files/m=el_main"></script><script src="./archived_webpage_mass_cases_files/gateway.min.js" type="text/javascript" async="true" data-vendor="fs" data-role="gateway"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="//gateway.foresee.com/code/19.8.1/fs.record.js" data-vendor="fs" src="./archived_webpage_mass_cases_files/fs.record.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="//gateway.foresee.com/code/19.8.1/fs.utils.js" data-vendor="fs" src="./archived_webpage_mass_cases_files/fs.utils.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="//gateway.foresee.com/code/19.8.1/fs.trigger.js" data-vendor="fs" src="./archived_webpage_mass_cases_files/fs.trigger.js"></script></head>
+  <body vocab="http://schema.org/" typeof="WebPage" class="not-front ios-safari-less-than-11" style="position: relative; min-height: 100%; top: 0px;">
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none"><symbol xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" viewBox="0 0 164 164" version="1.1" x="0px" y="0px" id="8ae18d1e31e309e4255718ae841b7c46"><g stroke="none" stroke-width="1"><g transform="translate(-5068.000000, -2475.000000)"><path d="M5169.6076,2556.7348 L5229.8506,2496.4888 C5232.0376,2494.3018 5232.0376,2490.7598 5229.8506,2488.5728 L5217.9066,2476.6268 C5216.8566,2475.5768 5215.4326,2474.9858 5213.9486,2474.9858 C5212.4636,2474.9858 5211.0396,2475.5768 5209.9896,2476.6268 L5149.7446,2536.8718 L5089.5016,2476.6268 C5087.4026,2474.5268 5083.6846,2474.5268 5081.5846,2476.6268 L5069.6416,2488.5728 C5067.4546,2490.7598 5067.4546,2494.3018 5069.6416,2496.4888 L5129.8846,2556.7348 L5069.6416,2616.9748 C5067.4546,2619.1618 5067.4546,2622.7048 5069.6416,2624.8918 L5081.5846,2636.8378 C5082.6346,2637.8868 5084.0596,2638.4778 5085.5436,2638.4778 C5087.0276,2638.4778 5088.4526,2637.8868 5089.5016,2636.8378 L5149.7446,2576.5918 L5209.9896,2636.8378 C5211.0396,2637.8868 5212.4636,2638.4778 5213.9486,2638.4778 C5215.4326,2638.4778 5216.8566,2637.8868 5217.9066,2636.8378 L5229.8506,2624.8918 C5232.0376,2622.7048 5232.0376,2619.1618 5229.8506,2616.9748 L5169.6076,2556.7348 Z"></path></g></g></symbol><symbol xmlns="http://www.w3.org/2000/svg" aria-hidden="true" version="1.1" viewBox="0 0 16 16" id="dd60b6c15f52b52b7652668be6835a6f"><path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm0 12.17a.84.84 0 0 1-.83-.84.83.83 0 1 1 1.67 0c0 .46-.38.84-.84.84zm1.3-3.96c-.6.65-.62 1.01-.62 1.46H7.35c0-.99.01-1.42.95-2.32.38-.36.69-.65.64-1.21-.04-.54-.48-.82-.9-.82-.48 0-1.03.35-1.03 1.35H5.67c0-1.6.94-2.64 2.4-2.64.68 0 1.29.23 1.7.64.37.38.57.91.56 1.53-.01.92-.57 1.53-1.02 2.01z"></path></symbol><symbol xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" version="1.1" viewBox="0 0 16 18" id="2941c74825ac6b2aab1eeb97bfe8461a"><path d="M983.721 1887.28L983.721 1887.28L986.423 1890L986.423 1890L986.423 1890L983.721 1892.72L983.721 1892.72L978.318 1898.17L975.617 1895.45L979.115 1891.92L971.443 1891.92L971.443 1888.0700000000002L979.103 1888.0700000000002L975.617 1884.5500000000002L978.318 1881.8300000000002Z " transform="matrix(1,0,0,1,-971,-1881)"></path></symbol><symbol xmlns="http://www.w3.org/2000/svg" aria-hidden="true" version="1.1" viewBox="0 0 16 16" id="5a0f858f9a0960b466d654cbe1f931da"><path d="M1169.73 14.5924L1169.73 13L1168.27 13L1168.27 14.5924C1166.21 14.9558 1164.6399999999999 16.8309 1164.6399999999999 19.0952L1173.36 19.0952C1173.36 16.8309 1171.79 14.955799999999998 1169.7299999999998 14.592399999999998ZM1176.27 24.4286L1174.09 24.4286L1174.09 21.381C1174.09 20.9604 1173.77 20.619 1173.36 20.619L1164.6399999999999 20.619C1164.2299999999998 20.619 1163.9099999999999 20.9604 1163.9099999999999 21.381L1163.9099999999999 24.4286L1161.7299999999998 24.4286C1161.3299999999997 24.4286 1160.9999999999998 24.7699 1160.9999999999998 25.1905L1160.9999999999998 28.2381C1160.9999999999998 28.659399999999998 1161.3299999999997 29 1161.7299999999998 29L1176.2699999999998 29C1176.6699999999998 29 1176.9999999999998 28.6594 1176.9999999999998 28.2381L1176.9999999999998 25.1905C1176.9999999999998 24.7699 1176.6699999999998 24.4286 1176.2699999999998 24.4286ZM1163.91 27.4762L1162.45 27.4762L1162.45 25.952399999999997L1163.91 25.952399999999997ZM1166.82 27.4762L1165.36 27.4762L1165.36 25.952399999999997L1166.82 25.952399999999997ZM1166.82 23.6667L1165.36 23.6667L1165.36 22.142899999999997L1166.82 22.142899999999997ZM1169.73 27.4762L1168.27 27.4762L1168.27 25.952399999999997L1169.73 25.952399999999997ZM1169.73 23.6667L1168.27 23.6667L1168.27 22.142899999999997L1169.73 22.142899999999997ZM1172.64 27.4762L1171.18 27.4762L1171.18 25.952399999999997L1172.64 25.952399999999997ZM1172.64 23.6667L1171.18 23.6667L1171.18 22.142899999999997L1172.64 22.142899999999997ZM1175.55 27.4762L1174.09 27.4762L1174.09 25.952399999999997L1175.55 25.952399999999997Z " transform="matrix(1,0,0,1,-1161,-13)"></path></symbol><symbol xmlns="http://www.w3.org/2000/svg" aria-hidden="true" version="1.1" width="18" height="16" viewBox="0 0 18 16" id="def7d319d033f8ac58114500dec44955">
+  <path d="M17.0237 7.0722L9.30036 0.927602C9.19873 0.831935 9.07786 0.79496 8.9564 0.800529C8.83461 0.794945 8.71342 0.832135 8.61162 0.928378L1.03369 7.08378L1.01076 7.10241L0.994194 7.12687L0.888117 7.28349L0.853713 7.33429V7.39564L0.853713 7.39826C0.8537 7.42428 0.853675 7.47749 0.86315 7.53345C0.870059 7.57426 0.88496 7.63615 0.923353 7.69443C0.926537 7.70298 0.93039 7.71196 0.935066 7.72116C0.950555 7.75165 0.976767 7.78777 1.0194 7.81574C1.045 7.83255 1.07243 7.84371 1.10034 7.85008L1.28902 7.94121L1.36208 7.97649L1.43907 7.9509L1.75325 7.84648L1.78558 7.83574L1.81253 7.81489L2.23271 7.48992V14.4439C2.23271 14.5884 2.304 14.7153 2.39185 14.8018C2.4799 14.8885 2.60744 14.9572 2.75093 14.9572H15.2679C15.4114 14.9572 15.539 14.8885 15.627 14.8018C15.7149 14.7153 15.7862 14.5884 15.7862 14.4439V7.44624L16.3099 7.86509L16.3754 7.91749C16.3977 7.94541 16.4241 7.96744 16.4513 7.98389C16.545 8.04056 16.6577 8.04086 16.7485 8.01067C16.8067 7.9913 16.8629 7.95745 16.9095 7.9089H17.006L17.006 7.8126C17.0081 7.80989 17.0101 7.80718 17.012 7.80448H17.0879L17.1435 7.69505C17.1901 7.60329 17.2069 7.4859 17.1975 7.38378C17.1895 7.29706 17.1544 7.15023 17.0237 7.0722ZM14.6967 6.65513V13.9307H10.8006V9.9539C10.8006 9.79137 10.7209 9.62067 10.5555 9.52699C10.5457 9.51902 10.533 9.50937 10.5181 9.49954C10.4881 9.47985 10.4211 9.44065 10.3354 9.44065H7.57741C7.38909 9.44065 7.28541 9.54291 7.22889 9.59865C7.22755 9.59997 7.22624 9.60127 7.22495 9.60254C7.17846 9.6483 7.14027 9.70722 7.11401 9.75891C7.09106 9.80409 7.05918 9.8785 7.05918 9.9539V13.9307H3.16309V6.65566L8.95584 1.96268L14.6967 6.65513ZM8.14867 13.8784V10.4149H9.76412V13.8784H8.14867Z" stroke-width="0.4"></path>
+</symbol><symbol xmlns="http://www.w3.org/2000/svg" aria-hidden="true" version="1.1" viewBox="0 0 20 20" id="96c973c3985894519e07c190c6a2e604"><path d="M1424.99 107.4L1419.66 102.105C1420.44 100.884 1420.89 99.4383 1420.89 97.8892C1420.89 93.54 1417.3300000000002 90 1412.95 90C1408.57 90 1405.01 93.54 1405.01 97.89C1405.01 102.241 1408.57 105.781 1412.95 105.781C1414.43 105.781 1415.82 105.375 1417.01 104.67L1422.3799999999999 110ZM1407.97 97.89C1407.97 95.1625 1410.2 92.9416 1412.95 92.9416C1415.7 92.9416 1417.93 95.1617 1417.93 97.89C1417.93 100.619 1415.7 102.839 1412.95 102.839C1410.2 102.839 1407.97 100.619 1407.97 97.89Z " transform="matrix(1,0,0,1,-1405,-90)"></path></symbol><symbol xmlns="http://www.w3.org/2000/svg" aria-hidden="true" version="1.1" viewBox="0 0 20 16" id="56a5bff3d9d0c9b6adf23db4bf62d76e"><path d="M1338.67 19.6L1338.67 16.400000000000002L1345.3300000000002 22L1338.67 27.6L1338.67 24.400000000000002L1332 24.400000000000002L1332 19.6ZM1340.33 14L1340.33 15.6L1350.33 15.6L1350.33 28.4L1340.33 28.4L1340.33 30L1352 30L1352 14Z " transform="matrix(1,0,0,1,-1332,-14)"></path></symbol><symbol xmlns="http://www.w3.org/2000/svg" aria-hidden="true" version="1.1" viewBox="0 0 24 24" id="0242a4451bbcd881e5097ddd8de8495f"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm1 16.057v-3.057h2.994c-.059 1.143-.212 2.24-.456 3.279-.823-.12-1.674-.188-2.538-.222zm1.957 2.162c-.499 1.33-1.159 2.497-1.957 3.456v-3.62c.666.028 1.319.081 1.957.164zm-1.957-7.219v-3.015c.868-.034 1.721-.103 2.548-.224.238 1.027.389 2.111.446 3.239h-2.994zm0-5.014v-3.661c.806.969 1.471 2.15 1.971 3.496-.642.084-1.3.137-1.971.165zm2.703-3.267c1.237.496 2.354 1.228 3.29 2.146-.642.234-1.311.442-2.019.607-.344-.992-.775-1.91-1.271-2.753zm-7.241 13.56c-.244-1.039-.398-2.136-.456-3.279h2.994v3.057c-.865.034-1.714.102-2.538.222zm2.538 1.776v3.62c-.798-.959-1.458-2.126-1.957-3.456.638-.083 1.291-.136 1.957-.164zm-2.994-7.055c.057-1.128.207-2.212.446-3.239.827.121 1.68.19 2.548.224v3.015h-2.994zm1.024-5.179c.5-1.346 1.165-2.527 1.97-3.496v3.661c-.671-.028-1.329-.081-1.97-.165zm-2.005-.35c-.708-.165-1.377-.373-2.018-.607.937-.918 2.053-1.65 3.29-2.146-.496.844-.927 1.762-1.272 2.753zm-.549 1.918c-.264 1.151-.434 2.36-.492 3.611h-3.933c.165-1.658.739-3.197 1.617-4.518.88.361 1.816.67 2.808.907zm.009 9.262c-.988.236-1.92.542-2.797.9-.89-1.328-1.471-2.879-1.637-4.551h3.934c.058 1.265.231 2.488.5 3.651zm.553 1.917c.342.976.768 1.881 1.257 2.712-1.223-.49-2.326-1.211-3.256-2.115.636-.229 1.299-.435 1.999-.597zm9.924 0c.7.163 1.362.367 1.999.597-.931.903-2.034 1.625-3.257 2.116.489-.832.915-1.737 1.258-2.713zm.553-1.917c.27-1.163.442-2.386.501-3.651h3.934c-.167 1.672-.748 3.223-1.638 4.551-.877-.358-1.81-.664-2.797-.9zm.501-5.651c-.058-1.251-.229-2.46-.492-3.611.992-.237 1.929-.546 2.809-.907.877 1.321 1.451 2.86 1.616 4.518h-3.933z"></path></symbol></svg>
+
+    <noscript aria-hidden="true"><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MPHNMQ" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+      <div class="dialog-off-canvas-main-canvas" data-off-canvas-main-canvas="">
+        
+<div class="ma__brand-banner ma__brand-banner--c-primary-alt-bg-dark">
+  <button class="ma__brand-banner-container" aria-controls="ma__brand-banner-content" aria-expanded="false">
+          <img class="ma__brand-banner-logo ma__brand-banner-logo--dark" src="./archived_webpage_mass_cases_files/stateseal.png" alt="Massachusetts State Seal">
+        <span class="ma__brand-banner-text">
+      An official website of the Commonwealth of Massachusetts&nbsp;&nbsp;&nbsp;
+              <span class="ma__button-icon ma__icon-small ma__button-icon--quaternary ma__brand-banner-button ma__button-icon--c-white">
+          <span>Here's how you know</span>
+          <svg aria-hidden="true" width="1em" height="1em" viewBox="0 0 59 38" xmlns="http://www.w3.org/2000/svg">
+            <path d="M29.414 37.657L.344 8.586 8.828.102l20.586 20.584L50 .1l8.484 8.485-29.07 29.072"></path>
+          </svg>
+        </span>
+          </span>
+  </button>
+      <ul class="ma__brand-banner-expansion" id="ma__brand-banner-content">
+      <li class="ma__brand-banner-expansion-item dark">
+        <svg aria-hidden="true" focusable="false"><use xlink:href="#5a0f858f9a0960b466d654cbe1f931da"></use></svg>
+        <div class="ma__brand-banner-expansion-item-content">
+          <p>Official websites use .mass.gov</p>
+          <p>A .mass.gov website belongs to an official government organization in Massachusetts.
+        </p></div>
+      </li>
+      <li class="ma__brand-banner-expansion-item dark">
+                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 25">
+          <path d="M10.399 0a6.491 6.491 0 016.487 6.258l.004.233-.001 3.853h2.077c.952 0 1.724.773 1.724 1.725v11.207c0 .952-.772 1.724-1.724 1.724H1.724A1.724 1.724 0 010 23.276V12.069c0-.952.772-1.724 1.724-1.724l2.184-.001V6.491l.004-.233A6.491 6.491 0 0110.4 0zm0 1.517A4.974 4.974 0 005.43 6.275l-.005.216v3.853h9.947V6.491l-.004-.216a4.974 4.974 0 00-4.97-4.758z" fill-rule="evenodd"></path>
+        </svg>
+        <div class="ma__brand-banner-expansion-item-content">
+          <p>Secure websites use HTTPS certificate</p>
+          <p>A lock icon <span aria-hidden="true">(
+            <svg aria-hidden="true" width="12" height="12" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 25">
+              <path d="M10.399 0a6.491 6.491 0 016.487 6.258l.004.233-.001 3.853h2.077c.952 0 1.724.773 1.724 1.725v11.207c0 .952-.772 1.724-1.724 1.724H1.724A1.724 1.724 0 010 23.276V12.069c0-.952.772-1.724 1.724-1.724l2.184-.001V6.491l.004-.233A6.491 6.491 0 0110.4 0zm0 1.517A4.974 4.974 0 005.43 6.275l-.005.216v3.853h9.947V6.491l-.004-.216a4.974 4.974 0 00-4.97-4.758z" fill-rule="evenodd"></path>
+            </svg>
+              )</span> or https:// means you’ve safely connected to the official website. Share sensitive information only on official, secure websites.</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+  
+
+    
+  
+  <div class="mass-alerts-block" data-alerts-path="/alerts/sitewide" data-alert-processed="1">
+</div>
+  <script>
+                    drupalLike.behaviors.massAlertBlocks.attach(document, "info_details");
+      </script>
+
+
+
+<div class="alert-overlay"></div>
+
+
+  <header class="ma__header__hamburger" id="header">
+
+    <a class="ma__header__hamburger__skip-nav" href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#main-content">
+      Skip to main content
+    </a>
+
+    <nav class="ma__header__hamburger__nav" aria-labelledby="main-navigation-heading" id="main-navigation" role="navigation">
+  <div class="ma__header__hamburger-wrapper">
+
+    <div class="ma__header__hamburger__button-container js-sticky-header">
+      <button type="button" aria-label="Open the main menu for mass.gov" aria-expanded="false" class="ma__header__hamburger__menu-button js-header-menu-button">
+        <span class="ma__header__hamburger__menu-icon"></span>
+                <span class="ma__header__hamburger__menu-text--mobile js-header__menu-text--mobile show">
+          Mass.gov
+        </span>
+        <span class="ma__header__hamburger__menu-text js-header__menu-text show">
+          Menu
+        </span>
+        <span class="ma__header__hamburger__menu-text--close js-header__menu-text--close">
+          Close
+        </span>
+      </button>
+            <button type="button" aria-expanded="false" class="ma__header__hamburger__search-access-button js-header-search-access-button">
+        <span class="ma__visually-hidden">Access to search</span>
+        <svg aria-hidden="true" focusable="false"><use xlink:href="#96c973c3985894519e07c190c6a2e604"></use></svg>
+      </button>
+    </div>
+    <div class="ma__header__hamburger__utility-nav ma__header__hamburger__utility-nav--wide js-utility-nav--wide">
+      <div class="ma__utility-nav js-util-nav">
+  <ul class="ma__utility-nav__items">
+          <li class="ma__utility-nav__item">
+        <div class="ma__utility-nav__translate">
+          <div id="google_translate_element" class="has-rendered"><div class="skiptranslate goog-te-gadget" dir="ltr" style=""><div id=":0.targetLanguage" class="goog-te-gadget-simple" style="white-space: nowrap;"><img src="./archived_webpage_mass_cases_files/cleardot.gif" class="goog-te-gadget-icon" alt="" style="background-image: url(&quot;https://translate.googleapis.com/translate_static/img/te_ctrl3.gif&quot;); background-position: -65px 0px;"><span style="vertical-align: middle;"><a aria-haspopup="true" class="VIpgJd-ZVi9od-xl07Ob-lTBxed" href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#"><span>Select Language</span><img src="./archived_webpage_mass_cases_files/cleardot.gif" alt="" width="1" height="1"><span style="border-left: 1px solid rgb(187, 187, 187);">​</span><img src="./archived_webpage_mass_cases_files/cleardot.gif" alt="" width="1" height="1"><span aria-hidden="true" style="color: rgb(118, 118, 118);">▼</span></a></span></div></div></div>
+          <div class="ma__utility-nav__translate-icon">
+            <svg aria-hidden="true" focusable="false"><use xlink:href="#0242a4451bbcd881e5097ddd8de8495f"></use></svg>
+          </div>
+        </div>
+      </li>
+              <li class="ma__utility-nav__item">
+                                            <a class="ma__utility-nav__link direct-link" href="https://www.mass.gov/info-details/massachusetts-state-organizations-a-to-z">
+              <svg aria-hidden="true" focusable="false"><use xlink:href="#5a0f858f9a0960b466d654cbe1f931da"></use></svg>
+              <span>State Organizations</span>
+            </a>
+                             </li>
+          <li class="ma__utility-nav__item">
+              <button class="ma__utility-nav__link js-util-nav-toggle" aria-haspopup="true" aria-label="Log in to one of Mass.gov&#39;s most frequently accessed services" aria-expanded="false">
+            <svg aria-hidden="true" focusable="false"><use xlink:href="#56a5bff3d9d0c9b6adf23db4bf62d76e"></use></svg>
+            <span>
+              Log In to...
+            </span>
+                        <span class="toggle-indicator" aria-hidden="true"></span>
+          </button>
+          <div aria-hidden="true" class="ma__utility-nav__content js-util-nav-content is-closed" style="top: -225.344px;">
+            <div class="ma__utility-nav__container">
+              <div class="ma__utility-nav__content-title">
+                <button class="ma__utility-nav__close js-close-util-nav"><span>Close</span><span class="ma__utility-nav__close-icon" aria-hidden="true">+</span></button>
+                <svg aria-hidden="true" focusable="false"><use xlink:href="#56a5bff3d9d0c9b6adf23db4bf62d76e"></use></svg>
+                <div>Log In to...</div>
+              </div>
+              <div class="ma__utility-nav__content-body">
+                                                
+<div class="ma__utility-panel">
+  <div class="ma__utility-panel__description ma__utility-panel__description--full">
+        
+  
+    <div class="ma__rich-text " dir="auto">
+                      <p>Top-requested sites to log in to services provided by the state
+</p>          
+        </div>
+  </div>
+  
+  <ul class="ma__utility-panel__items">
+        <li class="ma__utility-panel__item js-clickable">
+      <span class="ma__decorative-link">
+  <a href="https://sso.hhs.state.ma.us/vgportal/login" class="js-clickable-link">Virtual Gateway&nbsp;<svg aria-hidden="true" focusable="false"><use xlink:href="#2941c74825ac6b2aab1eeb97bfe8461a"></use></svg></a>
+</span>
+    </li>
+        <li class="ma__utility-panel__item js-clickable">
+      <span class="ma__decorative-link">
+  <a href="https://uionline.detma.org/Claimant/Core/Login.ASPX" class="js-clickable-link">Unemployment Online&nbsp;<svg aria-hidden="true" focusable="false"><use xlink:href="#2941c74825ac6b2aab1eeb97bfe8461a"></use></svg></a>
+</span>
+    </li>
+        <li class="ma__utility-panel__item js-clickable">
+      <span class="ma__decorative-link">
+  <a href="https://ecse.cse.state.ma.us/ECSE/Login/login.asp" class="js-clickable-link">Child Support Enforcement&nbsp;<svg aria-hidden="true" focusable="false"><use xlink:href="#2941c74825ac6b2aab1eeb97bfe8461a"></use></svg></a>
+</span>
+    </li>
+      </ul>
+</div>
+
+                              </div>
+            </div>
+          </div>
+              </li>
+      </ul>
+</div>
+
+    </div>
+
+                      
+    <div class="visually-hidden" id="main-navigation-heading">Main navigation</div>
+    
+
+    <div class="ma__header__hamburger__nav-container" aria-hidden="true">
+      <div class="ma__header__hamburger__logo ma__header__hamburger__logo--mobile">
+        <div class="ma__site-logo">
+  <a href="https://www.mass.gov/" title="Mass.gov home page">
+    <img src="./archived_webpage_mass_cases_files/stateseal.png" alt="" width="45" height="45">
+
+    <span>Mass.gov</span>
+  </a>
+</div>
+      </div>
+              <div class="ma__header__hamburger__nav-search js-header__nav-search">
+            
+<section class="ma__header-search">
+  <form action="https://search.mass.gov/" class="ma__form js-header-search-form">
+    <div role="search" class="ma__suggestions-container js-suggestions-container ma__search-banner__form cse-header-search-form">
+      <div class="visually-hidden js-suggestions-help" role="status" aria-live="assertive"></div>
+      <label for="header-search" class="ma__header-search__label">Search terms</label>
+      <input id="header-search" name="q" class="ma__header-search__input" autocomplete="off" aria-autocomplete="both" role="combobox" aria-own="suggestions-list" placeholder="Search Mass.gov" data-suggest="" type="text">
+      <div class="ma__suggestions" data-suggestions=""></div>
+    </div>
+    <button type="submit" class="ma__button-search--secondary">
+      <span class="ma__button-search__label">Search</span>
+      <svg aria-hidden="true" focusable="false"><use xlink:href="#96c973c3985894519e07c190c6a2e604"></use></svg>
+    </button>
+  </form>
+</section>
+
+
+
+        </div>
+            <div class="ma__header__hamburger__main-nav">
+                  <div class="ma__main__hamburger-nav">
+  <ul role="menubar" class="ma__main__hamburger-nav__items js-main-nav-hamburger">
+                      <li role="none" class="ma__main__hamburger-nav__item  has-subnav js-main-nav-hamburger-toggle">
+                  <button type="button" role="menuitem" id="button1" class="ma__main__hamburger-nav__top-link js-main-nav-hamburger__top-link" aria-expanded="false" aria-haspopup="true">
+          <span class="visually-hidden show-label">Show the sub topics of </span>
+              Living
+          <span class="toggle-indicator" aria-hidden="true"></span>
+          </button>
+          <div class="ma__main__hamburger-nav__subitems js-main-nav-hamburger-content is-closed">
+            <ul id="menu1" role="menu" aria-labelledby="button1" class="ma__main__hamburger-nav__container js-main-nav-hamburger__container" style="opacity: 0;">
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/health-social-services" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Health &amp; Social Services</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/families-children" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Families &amp; Children</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/housing-property" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Housing &amp; Property</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/transportation" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Transportation</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/legal-justice" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Legal &amp; Justice</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/public-safety" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Public Safety</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/energy" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Energy</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/environment" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Environment</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/taxes" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Taxes</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/unclaimed-property" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Unclaimed Property</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/vital-public-records" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Vital &amp; Public Records</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/voting" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Voting</a>
+                </li>
+                          </ul>
+          </div>
+              </li>
+                      <li role="none" class="ma__main__hamburger-nav__item  has-subnav js-main-nav-hamburger-toggle">
+                  <button type="button" role="menuitem" id="button2" class="ma__main__hamburger-nav__top-link js-main-nav-hamburger__top-link" aria-expanded="false" aria-haspopup="true">
+          <span class="visually-hidden show-label">Show the sub topics of </span>
+              Working
+          <span class="toggle-indicator" aria-hidden="true"></span>
+          </button>
+          <div class="ma__main__hamburger-nav__subitems js-main-nav-hamburger-content is-closed">
+            <ul id="menu2" role="menu" aria-labelledby="button2" class="ma__main__hamburger-nav__container js-main-nav-hamburger__container" style="opacity: 0;">
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/business-resources" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Business Resources</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/professional-licenses-permits" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Professional Licenses &amp; Permits</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/unemployment" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Unemployment</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/finding-a-job" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Finding a Job</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/taxes" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Taxes</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/workers-rights-safety" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Workers' Rights &amp; Safety</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/industry-regulations" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Industry Regulations</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/state-employee-resources" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">For State Employees</a>
+                </li>
+                          </ul>
+          </div>
+              </li>
+                      <li role="none" class="ma__main__hamburger-nav__item  has-subnav js-main-nav-hamburger-toggle">
+                  <button type="button" role="menuitem" id="button3" class="ma__main__hamburger-nav__top-link js-main-nav-hamburger__top-link" aria-expanded="false" aria-haspopup="true">
+          <span class="visually-hidden show-label">Show the sub topics of </span>
+              Learning
+          <span class="toggle-indicator" aria-hidden="true"></span>
+          </button>
+          <div class="ma__main__hamburger-nav__subitems js-main-nav-hamburger-content is-closed">
+            <ul id="menu3" role="menu" aria-labelledby="button3" class="ma__main__hamburger-nav__container js-main-nav-hamburger__container" style="opacity: 0;">
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/early-childhood-education-care" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Early Childhood Education &amp; Care</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/elementary-secondary-schools" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Elementary &amp; Secondary Schools</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/higher-education" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Higher Education</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/continuing-education" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Continuing Education</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/for-educators-administrators" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">For Educators &amp; Administrators</a>
+                </li>
+                          </ul>
+          </div>
+              </li>
+                      <li role="none" class="ma__main__hamburger-nav__item  has-subnav js-main-nav-hamburger-toggle">
+                  <button type="button" role="menuitem" id="button4" class="ma__main__hamburger-nav__top-link js-main-nav-hamburger__top-link" aria-expanded="false" aria-haspopup="true">
+          <span class="visually-hidden show-label">Show the sub topics of </span>
+              Visiting &amp; Exploring
+          <span class="toggle-indicator" aria-hidden="true"></span>
+          </button>
+          <div class="ma__main__hamburger-nav__subitems js-main-nav-hamburger-content is-closed">
+            <ul id="menu4" role="menu" aria-labelledby="button4" class="ma__main__hamburger-nav__container js-main-nav-hamburger__container" style="opacity: 0;">
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/parks-recreation" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Parks &amp; Recreation</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/fishing-hunting" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Fishing &amp; Hunting</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/historic-sites" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Historic Sites</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/arts" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Arts</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/family-fun" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Family Fun</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/travel-options" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Travel Options</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/seasonal-activities" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Seasonal Activities</a>
+                </li>
+                          </ul>
+          </div>
+              </li>
+                      <li role="none" class="ma__main__hamburger-nav__item  has-subnav js-main-nav-hamburger-toggle">
+                  <button type="button" role="menuitem" id="button5" class="ma__main__hamburger-nav__top-link js-main-nav-hamburger__top-link" aria-expanded="false" aria-haspopup="true">
+          <span class="visually-hidden show-label">Show the sub topics of </span>
+              Your Government
+          <span class="toggle-indicator" aria-hidden="true"></span>
+          </button>
+          <div class="ma__main__hamburger-nav__subitems js-main-nav-hamburger-content is-closed">
+            <ul id="menu5" role="menu" aria-labelledby="button5" class="ma__main__hamburger-nav__container js-main-nav-hamburger__container" style="opacity: 0;">
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/executive-branch" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Executive </a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/constitutionals-independents" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Constitutionals &amp; Independents</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/legislative-branch" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Legislative</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/judicial-branch" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Judicial</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/topics/cities-towns" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">Cities &amp; Towns</a>
+                </li>
+                              <li role="none" class="ma__main__hamburger-nav__subitem js-main-nav-hamburger__subitem">
+                  <a role="menuitem" href="https://www.mass.gov/info-details/massachusetts-state-organizations-a-to-z" class="ma__main__hamburger-nav__link js-main-nav-hamburger__link">State Offices &amp; Courts A-Z</a>
+                </li>
+                          </ul>
+          </div>
+              </li>
+                      <li role="none" class="ma__main__hamburger-nav__item  js-main-nav-hamburger-top-link">
+                                                                                    <a role="menuitem" href="https://www.mass.gov/covid-19-updates-and-information" class="ma__main__hamburger-nav__top-link cv-alternate-style">COVID-19</a>
+              </li>
+      </ul>
+</div>
+
+              </div>
+      <div class="ma__header__hamburger__utility-nav ma__header__hamburger__utility-nav--narrow js-utility-nav--narrow">
+        <div class="ma__utility-nav js-util-nav">
+  <ul class="ma__utility-nav__items">
+          <li class="ma__utility-nav__item">
+        
+      </li>
+              <li class="ma__utility-nav__item">
+                                            <a class="ma__utility-nav__link direct-link" href="https://www.mass.gov/info-details/massachusetts-state-organizations-a-to-z">
+              <svg aria-hidden="true" focusable="false"><use xlink:href="#5a0f858f9a0960b466d654cbe1f931da"></use></svg>
+              <span>State Organizations</span>
+            </a>
+                             </li>
+          <li class="ma__utility-nav__item">
+              <button class="ma__utility-nav__link js-util-nav-toggle" aria-haspopup="true" aria-label="Log in to one of Mass.gov&#39;s most frequently accessed services" aria-expanded="false">
+            <svg aria-hidden="true" focusable="false"><use xlink:href="#56a5bff3d9d0c9b6adf23db4bf62d76e"></use></svg>
+            <span>
+              Log In to...
+            </span>
+                        <span class="toggle-indicator" aria-hidden="true"></span>
+          </button>
+          <div aria-hidden="true" class="ma__utility-nav__content js-util-nav-content is-closed" style="max-height: 0px; top: 0px;">
+            <div class="ma__utility-nav__container" style="opacity: 0;">
+              <div class="ma__utility-nav__content-title">
+                <button class="ma__utility-nav__close js-close-util-nav"><span>Close</span><span class="ma__utility-nav__close-icon" aria-hidden="true">+</span></button>
+                <svg aria-hidden="true" focusable="false"><use xlink:href="#56a5bff3d9d0c9b6adf23db4bf62d76e"></use></svg>
+                <div>Log In to...</div>
+              </div>
+              <div class="ma__utility-nav__content-body">
+                                                
+<div class="ma__utility-panel">
+  <div class="ma__utility-panel__description ma__utility-panel__description--full">
+        
+  
+    <div class="ma__rich-text " dir="auto">
+                      <p>Top-requested sites to log in to services provided by the state
+</p>          
+        </div>
+  </div>
+  
+  <ul class="ma__utility-panel__items">
+        <li class="ma__utility-panel__item js-clickable">
+      <span class="ma__decorative-link">
+  <a href="https://sso.hhs.state.ma.us/vgportal/login" class="js-clickable-link">Virtual Gateway&nbsp;<svg aria-hidden="true" focusable="false"><use xlink:href="#2941c74825ac6b2aab1eeb97bfe8461a"></use></svg></a>
+</span>
+    </li>
+        <li class="ma__utility-panel__item js-clickable">
+      <span class="ma__decorative-link">
+  <a href="https://uionline.detma.org/Claimant/Core/Login.ASPX" class="js-clickable-link">Unemployment Online&nbsp;<svg aria-hidden="true" focusable="false"><use xlink:href="#2941c74825ac6b2aab1eeb97bfe8461a"></use></svg></a>
+</span>
+    </li>
+        <li class="ma__utility-panel__item js-clickable">
+      <span class="ma__decorative-link">
+  <a href="https://ecse.cse.state.ma.us/ECSE/Login/login.asp" class="js-clickable-link">Child Support Enforcement&nbsp;<svg aria-hidden="true" focusable="false"><use xlink:href="#2941c74825ac6b2aab1eeb97bfe8461a"></use></svg></a>
+</span>
+    </li>
+      </ul>
+</div>
+
+                              </div>
+            </div>
+          </div>
+              </li>
+      </ul>
+</div>
+
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+    <div class="ma__header__container">
+      <div class="ma__header__hamburger__logo" tabindex="-1">
+        <div class="ma__site-logo">
+  <a href="https://www.mass.gov/" title="Mass.gov home page">
+    <img src="./archived_webpage_mass_cases_files/stateseal.png" alt="" width="45" height="45">
+
+    <span>Mass.gov</span>
+  </a>
+</div>
+      </div>
+              <div class="ma__header__hamburger__search ma__header__hamburger__search-bar js-header-search-menu">
+            
+<section class="ma__header-search">
+  <form action="https://search.mass.gov/" class="ma__form js-header-search-form">
+    <div role="search" class="ma__suggestions-container js-suggestions-container ma__search-banner__form cse-header-search-form">
+      <div class="visually-hidden js-suggestions-help" role="status" aria-live="assertive"></div>
+      <label for="header-search" class="ma__header-search__label">Search terms</label>
+      <input id="header-search" name="q" class="ma__header-search__input" autocomplete="off" aria-autocomplete="both" role="combobox" aria-own="suggestions-list" placeholder="Search Mass.gov" data-suggest="" type="text">
+      <div class="ma__suggestions" data-suggestions=""></div>
+    </div>
+    <button type="submit" class="ma__button-search--secondary">
+      <span class="ma__button-search__label">Search</span>
+      <svg aria-hidden="true" focusable="false"><use xlink:href="#96c973c3985894519e07c190c6a2e604"></use></svg>
+    </button>
+  </form>
+</section>
+
+
+
+        </div>
+          </div>
+
+      
+
+    
+  
+  <div class="mass-alerts-block" data-alerts-path="/alerts/page/518711" data-alert-processed="1"></div>
+  <script>
+                  document.addEventListener('DOMContentLoaded', function () {
+        drupalLike.behaviors.massAlertBlocks.attach(document, "info_details");
+      });
+      </script>
+
+
+
+  </header>
+        
+
+  
+  <div class="ma__breadcrumbs ma__breadcrumbs--light ma__breadcrumbs--desktop">
+  <nav aria-label="Breadcrumbs" class="ma__breadcrumbs__container">
+    <ol class="ma__breadcrumbs__items">
+                              <li class="ma__breadcrumbs__item " id="ma__breadcrumbs__item--1">
+                          <a href="https://www.mass.gov/" aria-label="Home" class="ma__breadcrumbs__item__icon-link"><svg aria-hidden="true" focusable="false"><use xlink:href="#def7d319d033f8ac58114500dec44955"></use></svg></a>
+                      </li>
+                                <li class="ma__breadcrumbs__item " id="ma__breadcrumbs__item--2">
+                          <a href="https://www.mass.gov/orgs/bureau-of-infectious-disease-and-laboratory-sciences">Bureau of Infectious Disease and Laboratory Sciences</a>
+                      </li>
+                                <li class="ma__breadcrumbs__item  ma__breadcrumbs__item--last" id="ma__breadcrumbs__item--3">
+                          <a href="https://www.mass.gov/coronavirus-disease-2019-covid-19">Coronavirus Disease 2019 (COVID-19)</a>
+                      </li>
+                             <li class="ma__breadcrumbs__item--current ma__visually-hidden" aria-current="location">Archive of COVID-19 cases in Massachusetts</li>
+            
+    </ol>
+  </nav>
+</div>
+
+
+
+    <div data-drupal-messages-fallback="" class="hidden"></div>
+<main id="main-content" class="ma__information-details toc-parent" tabindex="-1">
+	<div class="pre-content">
+		    
+                  
+    <div class="ma__relationship-indicators">
+    
+                                          
+      <div class="ma__relationship-indicators--section  single ma__relationship-indicators--section-group" data-group-after="3">
+        <ul class="ma__relationship-indicators--terms" aria-labelledby="secondary">
+          <li class="ma__relationship-indicators__heading">
+                          <span class="ma__relationship-indicators--icon"><svg aria-hidden="true" focusable="false"><use xlink:href="#5a0f858f9a0960b466d654cbe1f931da"></use></svg></span>
+                        <span class="ma__relationship-indicators--label" id="secondary">
+              <span class="ma__visually-hidden">This page, Archive of COVID-19 cases in Massachusetts, is </span>
+              offered by
+            </span>
+          </li>
+                  
+        
+  <li class="ma__relationship-indicators--term js-term ma__relationship-indicators--term--last no-fold">
+  <a href="https://www.mass.gov/orgs/department-of-public-health">Department of Public Health</a>
+</li>
+
+<li class="ma__relationship-indicators__expand-indicators">
+  <button type="button" class="js-relationship-indicator-button" aria-pressed="false" aria-expanded="false" style="display: none;">
+    show <span class="tag-count"></span> <span class="tag-state">more</span>
+  </button>
+</li>
+
+            </ul>
+      </div>
+      </div>
+  
+
+      
+
+
+<section class="ma__page-header">
+    <div class="ma__page-header__content">
+        
+              <h1 class="ma__page-header__title">
+<span>Archive of COVID-19 cases in Massachusetts</span>
+
+      </h1>
+              <div class="ma__page-header__sub-title">Reports from the Massachusetts Department of Public Health (DPH)</div>
+            </div>
+</section><div class="mass-alerts-block" data-alerts-path="/alerts/page/518711" data-alert-processed="1"></div>
+  
+  
+      <section class="ma__sticky-toc" data-min-to-show="" data-parent="#main-content" data-sections=".ma__information-details__content h2" style="display: block;">
+    <div class="ma__jump-links__skip-link__container">
+    <a href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#ma-end-sticky-toc" class="ma__jump-links__skip-link">Skip table of contents</a>
+  </div>
+    <div class="ma__sticky-toc__inner">
+    <div class="ma__sticky-toc__container">
+      <h2 class="ma__sticky-toc__title">Table of Contents</h2>
+      <nav class="ma__sticky-toc__links">
+                <button class="ma__sticky-toc__toggle-link" aria-haspopup="true" aria-expanded="false"><span class="ma__visually-hidden"> table of contents</span><span aria-hidden="true">+</span></button>
+                <div class="ma__sticky-toc__column">
+          <div class="ma__sticky-toc__secondary-label"><span aria-hidden="true">Table of Contents</span> <button class="secondary-label-close" aria-expanded="true"><span class="ma__visually-hidden">Hide Table of contents</span><span aria-hidden="true">x</span></button></div>
+          <ul role="menu">
+                                  <li class="ma__sticky-toc__link" data-link="#february-2023-" role="none"><a href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#february-2023-" role="menuitem"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="35" height="35" viewBox="0 0 35 35"><path class="st0" d="M17.5 35C7.8 35 0 27.2 0 17.5 0 7.8 7.8 0 17.5 0 27.2 0 35 7.8 35 17.5 35 27.2 27.2 35 17.5 35zM16 9l-3 2.9 5.1 5.1L13 22.1l3 2.9 8-8L16 9z"></path></svg>February 2023
+  </a></li><li class="ma__sticky-toc__link" data-link="#january-2023-" role="none"><a href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#january-2023-" role="menuitem"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="35" height="35" viewBox="0 0 35 35"><path class="st0" d="M17.5 35C7.8 35 0 27.2 0 17.5 0 7.8 7.8 0 17.5 0 27.2 0 35 7.8 35 17.5 35 27.2 27.2 35 17.5 35zM16 9l-3 2.9 5.1 5.1L13 22.1l3 2.9 8-8L16 9z"></path></svg>January 2023
+  </a></li><li class="ma__sticky-toc__link" data-link="#december-2022-" role="none"><a href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#december-2022-" role="menuitem"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="35" height="35" viewBox="0 0 35 35"><path class="st0" d="M17.5 35C7.8 35 0 27.2 0 17.5 0 7.8 7.8 0 17.5 0 27.2 0 35 7.8 35 17.5 35 27.2 27.2 35 17.5 35zM16 9l-3 2.9 5.1 5.1L13 22.1l3 2.9 8-8L16 9z"></path></svg>December 2022
+  </a></li><li class="ma__sticky-toc__link" data-link="#november-2022-" role="none"><a href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#november-2022-" role="menuitem"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="35" height="35" viewBox="0 0 35 35"><path class="st0" d="M17.5 35C7.8 35 0 27.2 0 17.5 0 7.8 7.8 0 17.5 0 27.2 0 35 7.8 35 17.5 35 27.2 27.2 35 17.5 35zM16 9l-3 2.9 5.1 5.1L13 22.1l3 2.9 8-8L16 9z"></path></svg>November 2022
+  </a></li><li class="ma__sticky-toc__link" data-link="#october-2022-" role="none"><a href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#october-2022-" role="menuitem"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="35" height="35" viewBox="0 0 35 35"><path class="st0" d="M17.5 35C7.8 35 0 27.2 0 17.5 0 7.8 7.8 0 17.5 0 27.2 0 35 7.8 35 17.5 35 27.2 27.2 35 17.5 35zM16 9l-3 2.9 5.1 5.1L13 22.1l3 2.9 8-8L16 9z"></path></svg>October 2022
+  </a></li><li class="ma__sticky-toc__link" data-link="#september-2022-" role="none"><a href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#september-2022-" role="menuitem"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="35" height="35" viewBox="0 0 35 35"><path class="st0" d="M17.5 35C7.8 35 0 27.2 0 17.5 0 7.8 7.8 0 17.5 0 27.2 0 35 7.8 35 17.5 35 27.2 27.2 35 17.5 35zM16 9l-3 2.9 5.1 5.1L13 22.1l3 2.9 8-8L16 9z"></path></svg>September 2022
+  </a></li><li class="ma__sticky-toc__link" data-link="#august-2022-" role="none"><a href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#august-2022-" role="menuitem"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="35" height="35" viewBox="0 0 35 35"><path class="st0" d="M17.5 35C7.8 35 0 27.2 0 17.5 0 7.8 7.8 0 17.5 0 27.2 0 35 7.8 35 17.5 35 27.2 27.2 35 17.5 35zM16 9l-3 2.9 5.1 5.1L13 22.1l3 2.9 8-8L16 9z"></path></svg>August 2022
+  </a></li><li class="ma__sticky-toc__link" data-link="#july-2022-" role="none"><a href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#july-2022-" role="menuitem"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="35" height="35" viewBox="0 0 35 35"><path class="st0" d="M17.5 35C7.8 35 0 27.2 0 17.5 0 7.8 7.8 0 17.5 0 27.2 0 35 7.8 35 17.5 35 27.2 27.2 35 17.5 35zM16 9l-3 2.9 5.1 5.1L13 22.1l3 2.9 8-8L16 9z"></path></svg>July 2022
+  </a></li><li class="ma__sticky-toc__link" data-link="#june-2022-" role="none"><a href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#june-2022-" role="menuitem"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="35" height="35" viewBox="0 0 35 35"><path class="st0" d="M17.5 35C7.8 35 0 27.2 0 17.5 0 7.8 7.8 0 17.5 0 27.2 0 35 7.8 35 17.5 35 27.2 27.2 35 17.5 35zM16 9l-3 2.9 5.1 5.1L13 22.1l3 2.9 8-8L16 9z"></path></svg>June 2022
+  </a></li><li class="ma__sticky-toc__link" data-link="#may-2022-" role="none"><a href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#may-2022-" role="menuitem"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="35" height="35" viewBox="0 0 35 35"><path class="st0" d="M17.5 35C7.8 35 0 27.2 0 17.5 0 7.8 7.8 0 17.5 0 27.2 0 35 7.8 35 17.5 35 27.2 27.2 35 17.5 35zM16 9l-3 2.9 5.1 5.1L13 22.1l3 2.9 8-8L16 9z"></path></svg>May 2022
+  </a></li><li class="ma__sticky-toc__link" data-link="#april-2022-" role="none"><a href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#april-2022-" role="menuitem"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="35" height="35" viewBox="0 0 35 35"><path class="st0" d="M17.5 35C7.8 35 0 27.2 0 17.5 0 7.8 7.8 0 17.5 0 27.2 0 35 7.8 35 17.5 35 27.2 27.2 35 17.5 35zM16 9l-3 2.9 5.1 5.1L13 22.1l3 2.9 8-8L16 9z"></path></svg>April 2022
+  </a></li><li class="ma__sticky-toc__link" data-link="#march-2022-" role="none"><a href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#march-2022-" role="menuitem"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="35" height="35" viewBox="0 0 35 35"><path class="st0" d="M17.5 35C7.8 35 0 27.2 0 17.5 0 7.8 7.8 0 17.5 0 27.2 0 35 7.8 35 17.5 35 27.2 27.2 35 17.5 35zM16 9l-3 2.9 5.1 5.1L13 22.1l3 2.9 8-8L16 9z"></path></svg>March 2022
+  </a></li><li class="ma__sticky-toc__link" data-link="#february-2022-" role="none"><a href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#february-2022-" role="menuitem"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="35" height="35" viewBox="0 0 35 35"><path class="st0" d="M17.5 35C7.8 35 0 27.2 0 17.5 0 7.8 7.8 0 17.5 0 27.2 0 35 7.8 35 17.5 35 27.2 27.2 35 17.5 35zM16 9l-3 2.9 5.1 5.1L13 22.1l3 2.9 8-8L16 9z"></path></svg>February 2022
+  </a></li><li class="ma__sticky-toc__link" data-link="#january-2022-" role="none"><a href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#january-2022-" role="menuitem"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="35" height="35" viewBox="0 0 35 35"><path class="st0" d="M17.5 35C7.8 35 0 27.2 0 17.5 0 7.8 7.8 0 17.5 0 27.2 0 35 7.8 35 17.5 35 27.2 27.2 35 17.5 35zM16 9l-3 2.9 5.1 5.1L13 22.1l3 2.9 8-8L16 9z"></path></svg>January 2022
+  </a></li><li class="ma__sticky-toc__link" data-link="#2020-2021-" role="none"><a href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#2020-2021-" role="menuitem"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="35" height="35" viewBox="0 0 35 35"><path class="st0" d="M17.5 35C7.8 35 0 27.2 0 17.5 0 7.8 7.8 0 17.5 0 27.2 0 35 7.8 35 17.5 35 27.2 27.2 35 17.5 35zM16 9l-3 2.9 5.1 5.1L13 22.1l3 2.9 8-8L16 9z"></path></svg>2020-2021
+  </a></li><li class="ma__sticky-toc__link" data-link="#related-" role="none"><a href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#related-" role="menuitem"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="35" height="35" viewBox="0 0 35 35"><path class="st0" d="M17.5 35C7.8 35 0 27.2 0 17.5 0 7.8 7.8 0 17.5 0 27.2 0 35 7.8 35 17.5 35 27.2 27.2 35 17.5 35zM16 9l-3 2.9 5.1 5.1L13 22.1l3 2.9 8-8L16 9z"></path></svg>Related
+  </a></li></ul>
+        </div>
+      </nav>
+      <div class="ma__sticky-toc__footer">
+        <button type="button" class="js-sticky-toc__toggle-items" aria-haspopup="true" aria-expanded="false" aria-conrole="sticky-toc">Show More<span class="ma__visually-hidden">Table of contents</span>
+        </button>
+      </div>
+    </div>
+  </div>
+    <div class="ma__sticky-toc__stuck" id="sticky-toc">
+    <div class="ma__sticky-toc__stuck--inner-wrapper">
+      <div class="ma__sticky-toc__current-section">February 2023
+  </div>
+      <div class="ma__sticky-toc__tools">
+        <div class="ma__sticky-toc__sticky-top tool">
+          <button class="stickyTOC-top">
+            <svg aria-hidden="true" focusable="false"><use xlink:href="#2941c74825ac6b2aab1eeb97bfe8461a"></use></svg>
+            <span aria-label="Go to top of the page">top</span>
+          </button>
+        </div>
+        <div class="ma__sticky-toc__sticky-toggle">
+          <button class="stickyTOC-open" aria-haspopup="true" aria-expanded="false">Table of Contents</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ma__skip-link__toc-target">
+    <a id="ma-end-sticky-toc" tabindex="-1"><span>You skipped the table of contents section.</span></a>
+  </div>
+  <div class="ma__sticky-toc__overlay"></div>
+</section>
+  
+  
+	</div>
+	<div class="main-content main-content--two">
+
+		
+		<div class="page-content ">
+
+			<div class="ma__information-details__content">
+
+				
+        <section class="ma__rich-text__container">
+        
+
+
+
+
+
+
+
+<h2 class="ma__comp-heading sticky-toc-jump-target" tabindex="-1" id="february-2023-">February 2023
+  </h2>
+
+  
+    <div class="ma__rich-text " dir="auto">
+            
+      
+  
+    <div class="ma__rich-text " dir="auto">
+              <ul><li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-9-2023/download">COVID-19 Raw Data - February 9, 2023</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-2-2023/download">COVID-19 Raw Data - February 2, 2023</a></li>
+</ul>
+
+  
+        </div>
+
+  
+  
+        </div>
+  </section>
+
+  
+
+
+      <section class="ma__rich-text__container">
+        
+
+
+
+
+
+
+
+<h2 class="ma__comp-heading sticky-toc-jump-target" tabindex="-1" id="january-2023-">January 2023
+  </h2>
+
+  
+    <div class="ma__rich-text " dir="auto">
+            
+      
+  
+    <div class="ma__rich-text " dir="auto">
+              <ul><li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-26-2023/download">COVID-19 Raw Data - January 26, 2023</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-19-2023/download">COVID-19 Raw Data - January 19, 2023</a></li>
+	<li dir="ltr"><a href="https://www.mass.gov/doc/covid-19-raw-data-january-12-2023/download">COVID-19 Raw Data - January 12, 2023</a></li>
+	<li dir="ltr"><a href="https://www.mass.gov/doc/covid-19-raw-data-january-5-2023/download">COVID-19 Raw Data - January 5, 2023</a></li>
+</ul>
+
+  
+        </div>
+
+  
+  
+        </div>
+  </section>
+
+  
+
+
+      <section class="ma__rich-text__container">
+        
+
+
+
+
+
+
+
+<h2 class="ma__comp-heading sticky-toc-jump-target" tabindex="-1" id="december-2022-">December 2022
+  </h2>
+
+  
+    <div class="ma__rich-text " dir="auto">
+            
+      
+  
+    <div class="ma__rich-text " dir="auto">
+              <ul><li><a href="https://www.mass.gov/doc/covid-19-raw-data-december-29-2022/download">COVID-19 Raw Data - December 29, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-december-22-2022/download">COVID-19 Raw Data - December 22, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-december-15-2022/download">COVID-19 Raw Data - December 15, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-december-8-2022/download">COVID-19 Raw Data - December 8, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-december-1-2022-0/download">COVID-19 Raw Data - December 1, 2022</a></li>
+</ul>
+
+  
+        </div>
+
+  
+  
+        </div>
+  </section>
+
+  
+
+
+      <section class="ma__rich-text__container">
+        
+
+
+
+
+
+
+
+<h2 class="ma__comp-heading sticky-toc-jump-target" tabindex="-1" id="november-2022-">November 2022
+  </h2>
+
+  
+    <div class="ma__rich-text " dir="auto">
+            
+      
+  
+    <div class="ma__rich-text " dir="auto">
+              <ul><li dir="ltr"><a href="https://www.mass.gov/doc/covid-19-raw-data-november-24-2022/download">COVID-19 Raw Data - November 24, 2022</a></li>
+	<li dir="ltr"><a href="https://www.mass.gov/doc/covid-19-raw-data-november-17-2022/download">COVID-19 Raw Data - November 17, 2022</a></li>
+	<li dir="ltr"><a href="https://www.mass.gov/doc/covid-19-raw-data-november-10-2022/download">COVID-19 Raw Data - November 10, 2022</a></li>
+	<li dir="ltr"><a href="https://www.mass.gov/doc/covid-19-raw-data-november-3-2022/download">COVID-19 Raw Data - November 3, 2022</a></li>
+</ul>
+
+  
+        </div>
+
+  
+  
+        </div>
+  </section>
+
+  
+
+
+      <section class="ma__rich-text__container">
+        
+
+
+
+
+
+
+
+<h2 class="ma__comp-heading sticky-toc-jump-target" tabindex="-1" id="october-2022-">October 2022
+  </h2>
+
+  
+    <div class="ma__rich-text " dir="auto">
+            
+      
+  
+    <div class="ma__rich-text " dir="auto">
+              <ul><li><a href="https://www.mass.gov/doc/covid-19-raw-data-october-27-2022/download">COVID-19 Raw Data - October 27, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-october-20-2022/download">COVID-19 Raw Data - October 20, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-october-13-2022/download">COVID-19 Raw Data - October 13, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-october-6-2022/download">COVID-19 Raw Data - October 6, 2022</a></li>
+</ul>
+
+  
+        </div>
+
+  
+  
+        </div>
+  </section>
+
+  
+
+
+      <section class="ma__rich-text__container">
+        
+
+
+
+
+
+
+
+<h2 class="ma__comp-heading sticky-toc-jump-target" tabindex="-1" id="september-2022-">September 2022
+  </h2>
+
+  
+    <div class="ma__rich-text " dir="auto">
+            
+      
+  
+    <div class="ma__rich-text " dir="auto">
+              <ul><li><a href="https://www.mass.gov/doc/covid-19-raw-data-september-29-2022/download">COVID-19 Raw Data - September 29, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-september-22-2022/download">COVID-19 Raw Data - September 22, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-september-15-2022/download">COVID-19 Raw Data - September 15, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-september-8-2022/download">COVID-19 Raw Data - September 8, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-september-1-2022/download">COVID-19 Raw Data - September 1, 2022</a></li>
+</ul>
+
+  
+        </div>
+
+  
+  
+        </div>
+  </section>
+
+  
+
+
+      <section class="ma__rich-text__container">
+        
+
+
+
+
+
+
+
+<h2 class="ma__comp-heading sticky-toc-jump-target" tabindex="-1" id="august-2022-">August 2022
+  </h2>
+
+  
+    <div class="ma__rich-text " dir="auto">
+            
+      
+  
+    <div class="ma__rich-text " dir="auto">
+              <ul><li><a href="https://www.mass.gov/doc/covid-19-raw-data-august-25-2022/download">COVID-19 Raw Data - August 25, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-august-18-2022/download">COVID-19 Raw Data - August 18, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-august-11-2022/download">COVID-19 Raw Data - August 11, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-august-4-2022/download">COVID-19 Raw Data - August 4, 2022</a></li>
+</ul>
+
+  
+        </div>
+
+  
+  
+        </div>
+  </section>
+
+  
+
+
+      <section class="ma__rich-text__container">
+        
+
+
+
+
+
+
+
+<h2 class="ma__comp-heading sticky-toc-jump-target" tabindex="-1" id="july-2022-">July 2022
+  </h2>
+
+  
+    <div class="ma__rich-text " dir="auto">
+            
+      
+  
+    <div class="ma__rich-text " dir="auto">
+              <ul><li><a href="https://www.mass.gov/doc/covid-19-raw-data-july-28-2022/download">COVID-19 Raw Data - July 28, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-july-21-2022/download">COVID-19 Raw Data - July 21, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-july-14-2022/download">COVID-19 Raw Data - July 14, 2022</a></li>
+	<li>As of Monday, July 11, 2022, Massachusetts COVID-19 case data are reported on a weekly basis, each Thursday. Learn more in our <a href="https://www.mass.gov/news/department-of-public-health-updates-covid-19-data-reporting">July 8, 2022 press release</a>.</li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-july-8-2022/download">COVID-19 Raw Data - July 8, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-july-7-2022/download">COVID-19 Raw Data - July 7, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-july-6-2022/download">COVID-19 Raw Data - July 6, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-july-5-2022/download">COVID-19 Raw Data - July 5, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-july-1-2022/download">COVID-19 Raw Data - July 1, 2022</a></li>
+</ul>
+
+  
+        </div>
+
+  
+  
+        </div>
+  </section>
+
+  
+
+
+      <section class="ma__rich-text__container">
+        
+
+
+
+
+
+
+
+<h2 class="ma__comp-heading sticky-toc-jump-target" tabindex="-1" id="june-2022-">June 2022
+  </h2>
+
+  
+    <div class="ma__rich-text " dir="auto">
+            
+      
+  
+    <div class="ma__rich-text " dir="auto">
+              <ul><li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-30-2022/download">COVID-19 Raw Data - June 30, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-29-2022/download">COVID-19 Raw Data - June 29, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-28-2022/download">COVID-19 Raw Data - June 28, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-27-2022/download">COVID-19 Raw Data - June 27, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-24-2022/download">COVID-19 Raw Data - June 24, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-23-2022/download">COVID-19 Raw Data - June 23, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-22-2022/download">COVID-19 Raw Data - June 22, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-21-2022/download">COVID-19 Raw Data - June 21, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-17-2022/download">COVID-19 Raw Data - June 17, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-16-2022/download">COVID-19 Raw Data - June 16, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-15-2022/download">COVID-19 Raw Data - June 15, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-14-2022/download">COVID-19 Raw Data - June 14, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-13-2022/download">COVID-19 Raw Data - June 13, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-10-2022/download">COVID-19 Raw Data - June 10, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-9-2022/download">COVID-19 Raw Data - June 9, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-8-2022/download">COVID-19 Raw Data - June 8, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-7-2022/download">COVID-19 Raw Data - June 7, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-6-2022/download">COVID-19 Raw Data - June 6, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-3-2022/download">COVID-19 Raw Data - June 3, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-2-2022/download">COVID-19 Raw Data - June 2, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-june-1-2022/download">COVID-19 Raw Data - June 1, 2022</a></li>
+</ul>
+
+  
+        </div>
+
+  
+  
+        </div>
+  </section>
+
+  
+
+
+      <section class="ma__rich-text__container">
+        
+
+
+
+
+
+
+
+<h2 class="ma__comp-heading sticky-toc-jump-target" tabindex="-1" id="may-2022-">May 2022
+  </h2>
+
+  
+    <div class="ma__rich-text " dir="auto">
+            
+      
+  
+    <div class="ma__rich-text " dir="auto">
+              <ul><li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-31-2022/download">COVID-19 Raw Data - May 31, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-27-2022/download">COVID-19 Raw Data - May 27, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-26-2022/download">COVID-19 Raw Data - May 26, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-25-2022/download">COVID-19 Raw Data - May 25, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-24-2022/download">COVID-19 Raw Data - May 24, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-23-2022/download">COVID-19 Raw Data - May 23, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-20-2022/download">COVID-19 Raw Data - May 20, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-19-2022/download">COVID-19 Raw Data - May 19, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-18-2022/download">COVID-19 Raw Data - May 18, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-17-2022/download">COVID-19 Raw Data - May 17, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-16-2022/download">COVID-19 Raw Data - May 16, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-13-2022/download">COVID-19 Raw Data - May 13, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-12-2022/download">COVID-19 Raw Data - May 12, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-11-2022/download">COVID-19 Raw Data - May 11, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-10-2022/download">COVID-19 Raw Data - May 10, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-9-2022/download">COVID-19 Raw Data - May 9, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-6-2022/download">COVID-19 Raw Data - May 6, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-5-2022/download">COVID-19 Raw Data - May 5, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-4-2022/download">COVID-19 Raw Data - May 4, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-3-2022/download">COVID-19 Raw Data - May 3, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-may-2-2022/download">COVID-19 Raw Data - May 2, 2022</a></li>
+</ul>
+
+  
+        </div>
+
+  
+  
+        </div>
+  </section>
+
+  
+
+
+      <section class="ma__rich-text__container">
+        
+
+
+
+
+
+
+
+<h2 class="ma__comp-heading sticky-toc-jump-target" tabindex="-1" id="april-2022-">April 2022
+  </h2>
+
+  
+    <div class="ma__rich-text " dir="auto">
+            
+      
+  
+    <div class="ma__rich-text " dir="auto">
+              <ul><li><a href="https://www.mass.gov/doc/covid-19-raw-data-april-29-2022/download">COVID-19 Raw Data - April 29, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-april-28-2022/download">COVID-19 Raw Data - April 28, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-april-27-2022/download">COVID-19 Raw Data - April 27, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-april-26-2022/download">COVID-19 Raw Data - April 26, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-april-25-2022/download">COVID-19 Raw Data - April 25, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-april-22-2022/download">COVID-19 Raw Data - April 22, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-april-21-2022/download">COVID-19 Raw Data - April 21, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-april-20-2022/download">COVID-19 Raw Data - April 20, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-april-19-2022/download">COVID-19 Raw Data - April 19, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-april-15-2022/download">COVID-19 Raw Data - April 15, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-april-14-2022/download">COVID-19 Raw Data - April 14, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-april-13-2022/download">COVID-19 Raw Data - April 13, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-april-12-2022/download">COVID-19 Raw Data - April 12, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-april-11-2022/download">COVID-19 Raw Data - April 11, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-april-8-2022/download">COVID-19 Raw Data - April 8, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-april-7-2022/download">COVID-19 Raw Data - April 7, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-april-6-2022/download">COVID-19 Raw Data - April 6, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-april-5-2022/download">COVID-19 Raw Data - April 5, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-april-4-2022/download">COVID-19 Raw Data - April 4, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-april-1-2022/download">COVID-19 Raw Data - April 1, 2022</a></li>
+</ul>
+
+  
+        </div>
+
+  
+  
+        </div>
+  </section>
+
+  
+
+
+      <section class="ma__rich-text__container">
+        
+
+
+
+
+
+
+
+<h2 class="ma__comp-heading sticky-toc-jump-target" tabindex="-1" id="march-2022-">March 2022
+  </h2>
+
+  
+    <div class="ma__rich-text " dir="auto">
+            
+      
+  
+    <div class="ma__rich-text " dir="auto">
+              <ul><li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-31-2022/download">COVID-19 Raw Data - March 31, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-30-2022/download">COVID-19 Raw Data - March 30, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-29-2022/download">COVID-19 Raw Data - March 29, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-28-2022/download">COVID-19 Raw Data - March 28, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-25-2022/download">COVID-19 Raw Data - March 25, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-24-2022/download">COVID-19 Raw Data - March 24, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-23-2022/download">COVID-19 Raw Data - March 23, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-22-2022/download">COVID-19 Raw Data - March 22, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-21-2022/download">COVID-19 Raw Data - March 21, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-18-2022/download">COVID-19 Raw Data - March 18, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-17-2022/download">COVID-19 Raw Data - March 17, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-16-2022/download">COVID-19 Raw Data - March 16, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-15-2022/download">COVID-19 Raw Data - March 15, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-14-2022/download">COVID-19 Raw Data - March 14, 2022</a>
+	<ul><li>As of March 14, 2022, the raw data reflects an <a href="https://www.mass.gov/news/department-of-public-health-updates-covid-19-death-definition">updated surveillance definition used to count COVID-associated deaths</a>. The new definition decreased the total number of deaths reported by 3,770.</li>
+	</ul></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-11-2022/download">COVID-19 Raw Data - March 11, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-10-2022/download">COVID-19 Raw Data - March 10, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-9-2022/download">COVID-19 Raw Data - March 9, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-8-2022/download">COVID-19 Raw Data - March 8, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-7-2022/download">COVID-19 Raw Data - March 7, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-4-2022/download">COVID-19 Raw Data - March 4, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-3-2022/download">COVID-19 Raw Data - March 3, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-2-2022/download">COVID-19 Raw Data - March 2, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-march-1-2022/download">COVID-19 Raw Data - March 1, 2022</a></li>
+</ul>
+
+  
+        </div>
+
+  
+  
+        </div>
+  </section>
+
+  
+
+
+      <section class="ma__rich-text__container">
+        
+
+
+
+
+
+
+
+<h2 class="ma__comp-heading sticky-toc-jump-target" tabindex="-1" id="february-2022-">February 2022
+  </h2>
+
+  
+    <div class="ma__rich-text " dir="auto">
+            
+      
+  
+    <div class="ma__rich-text " dir="auto">
+              <ul><li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-28-2022/download">COVID-19 Raw Data - February 28, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-25-2022/download">COVID-19 Raw Data - February 25, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-24-2022/download">COVID-19 Raw Data - February 24, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-23-2022/download">COVID-19 Raw Data - February 23, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-22-2022/download">COVID-19 Raw Data - February 22, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-18-2022/download">COVID-19 Raw Data - February 18, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-17-2022/download">COVID-19 Raw Data - February 17, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-16-2022/download">COVID-19 Raw Data - February 16, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-15-2022/download">COVID-19 Raw Data - February 15, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-14-2022/download">COVID-19 Raw Data - February 14, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-11-2022/download">COVID-19 Raw Data - February 11, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-10-2022/download">COVID-19 Raw Data - February 10, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-9-2022/download">COVID-19 Raw Data - February 9, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-8-2022/download">COVID-19 Raw Data - February 8, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-7-2022/download">COVID-19 Raw Data - February 7, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-4-2022/download">COVID-19 Raw Data - February 4, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-3-2022/download">COVID-19 Raw Data - February 3, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-2-2022/download">COVID-19 Raw Data - February 2, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-february-1-2022/download">COVID-19 Raw Data - February 1, 2022</a></li>
+</ul>
+
+  
+        </div>
+
+  
+  
+        </div>
+  </section>
+
+  
+
+
+      <section class="ma__rich-text__container">
+        
+
+
+
+
+
+
+
+<h2 class="ma__comp-heading sticky-toc-jump-target" tabindex="-1" id="january-2022-">January 2022
+  </h2>
+
+  
+    <div class="ma__rich-text " dir="auto">
+            
+      
+  
+    <div class="ma__rich-text " dir="auto">
+              <ul><li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-31-2022/download">COVID-19 Raw Data - January 31, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-28-2022/download">COVID-19 Raw Data - January 28, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-27-2022/download">COVID-19 Raw Data - January 27, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-26-2022/download">COVID-19 Raw Data - January 26, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-25-2022/download">COVID-19 Raw Data - January 25, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-24-2022/download">COVID-19 Raw Data - January 24, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-21-2022/download">COVID-19 Raw Data - January 21, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-20-2022/download">COVID-19 Raw Data - January 20, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-19-2022/download">COVID-19 Raw Data - January 19, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-18-2022/download">COVID-19 Raw Data - January 18, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-14-2022/download">COVID-19 Raw Data - January 14, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-13-2022/download">COVID-19 Raw Data - January 13, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-12-2022/download">COVID-19 Raw Data - January 12, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-11-2022/download">COVID-19 Raw Data - January 11, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-10-2022/download">COVID-19 Raw Data - January 10, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-7-2022/download">COVID-19 Raw Data - January 7, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-6-2022/download">COVID-19 Raw Data - January 6, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-5-2022/download">COVID-19 Raw Data - January 5, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-4-2022/download">COVID-19 Raw Data - January 4, 2022</a></li>
+	<li><a href="https://www.mass.gov/doc/covid-19-raw-data-january-3-2022/download">COVID-19 Raw Data - January 3, 2022</a></li>
+</ul>
+
+  
+        </div>
+
+  
+  
+        </div>
+  </section>
+
+  
+
+
+      <section class="ma__rich-text__container">
+        
+
+
+
+
+
+
+
+<h2 class="ma__comp-heading sticky-toc-jump-target" tabindex="-1" id="2020-2021-">2020-2021
+  </h2>
+
+  
+    <div class="ma__rich-text " dir="auto">
+            
+      
+  
+    <div class="ma__rich-text " dir="auto">
+              <p><a href="https://www.mass.gov/info-details/archive-of-covid-19-cases-2020-2021">View reports from the Massachusetts Department of Public Health 2020-2021</a></p>
+
+<p>&nbsp;</p>
+
+  
+        </div>
+
+  
+  
+        </div>
+  </section>
+
+  
+
+
+
+
+  
+
+  
+  
+                
+<section class="ma__link-list ">
+          
+
+
+
+
+
+
+
+<h2 class="ma__comp-heading ma__comp-heading--sidebar sticky-toc-jump-target" tabindex="-1" id="related-">Related
+  </h2>
+  
+  
+  <div class="ma__link-list__container">
+              <ul class="ma__link-list__items ">
+                              <li class="ma__link-list__item">
+                              <span class="ma__decorative-link">
+  <a href="https://www.mass.gov/info-details/covid-19-response-reporting" class="js-clickable-link">COVID-19 Response Reporting&nbsp;<svg aria-hidden="true" focusable="false"><use xlink:href="#2941c74825ac6b2aab1eeb97bfe8461a"></use></svg></a>
+</span>
+                          </li>
+                      <li class="ma__link-list__item">
+                              <span class="ma__decorative-link">
+  <a href="https://www.mass.gov/info-details/archive-of-covid-19-weekly-public-health-reports" class="js-clickable-link">Archive of COVID-19 Weekly Public Health Reports&nbsp;<svg aria-hidden="true" focusable="false"><use xlink:href="#2941c74825ac6b2aab1eeb97bfe8461a"></use></svg></a>
+</span>
+                          </li>
+                      <li class="ma__link-list__item">
+                              <span class="ma__decorative-link">
+  <a href="https://www.mass.gov/lists/press-releases-related-to-covid-19" class="js-clickable-link">Archive of Press Releases Related to COVID-19 &nbsp;<svg aria-hidden="true" focusable="false"><use xlink:href="#2941c74825ac6b2aab1eeb97bfe8461a"></use></svg></a>
+</span>
+                          </li>
+                        </ul>
+      </div>
+  </section>
+  
+      
+  
+			</div>
+
+		</div>
+
+					<aside class="sidebar ">
+				  
+                
+<section class="ma__link-list ">
+          
+
+
+
+
+
+
+
+<h2 class="ma__comp-heading   ma__comp-heading--sidebar " tabindex="-1">Related
+  </h2>
+  
+  
+  <div class="ma__link-list__container">
+              <ul class="ma__link-list__items ">
+                              <li class="ma__link-list__item">
+                              <span class="ma__decorative-link">
+  <a href="https://www.mass.gov/info-details/covid-19-response-reporting" class="js-clickable-link">COVID-19 Response Reporting&nbsp;<svg aria-hidden="true" focusable="false"><use xlink:href="#2941c74825ac6b2aab1eeb97bfe8461a"></use></svg></a>
+</span>
+                          </li>
+                      <li class="ma__link-list__item">
+                              <span class="ma__decorative-link">
+  <a href="https://www.mass.gov/info-details/archive-of-covid-19-weekly-public-health-reports" class="js-clickable-link">Archive of COVID-19 Weekly Public Health Reports&nbsp;<svg aria-hidden="true" focusable="false"><use xlink:href="#2941c74825ac6b2aab1eeb97bfe8461a"></use></svg></a>
+</span>
+                          </li>
+                      <li class="ma__link-list__item">
+                              <span class="ma__decorative-link">
+  <a href="https://www.mass.gov/lists/press-releases-related-to-covid-19" class="js-clickable-link">Archive of Press Releases Related to COVID-19 &nbsp;<svg aria-hidden="true" focusable="false"><use xlink:href="#2941c74825ac6b2aab1eeb97bfe8461a"></use></svg></a>
+</span>
+                          </li>
+                        </ul>
+      </div>
+  </section>
+  			</aside>
+		
+	</div>
+
+	<div class="post-content">
+		  
+  
+  
+
+  
+
+  
+    
+<div data-nosnippet="true" class="ma__mass-feedback-form" id="feedback">
+  <h2 class="ma__mass-feedback-form__heading">Help Us Improve Mass.gov<span class="ma__visually-hidden"> with your feedback</span></h2>
+    <form class="ma__mass-feedback-form__form" method="post" novalidate="" action="https://www.formstack.com/forms/index.php" id="2521317">
+    <fieldset class="ma_feedback-fieldset feedback-load" role="radiogroup">
+      <legend>
+        Did you find what you were looking for on this webpage?
+      </legend>
+
+                  <div class="ma__input-group ">
+     <div class="ma__input-group__items ma__input-group__items--inline">
+                  <div class="ma__input-group__item">
+                    
+<span class="ma__input-radio">
+  <input name="field47054416" type="radio" value="Yes" id="field47054416_1" required="required">
+  <label class="ma__input-radio__label" for="field47054416_1"><span>Yes</span></label>
+</span>
+        </div>
+              <div class="ma__input-group__item">
+                    
+<span class="ma__input-radio">
+  <input name="field47054416" type="radio" value="No" id="field47054416_2" required="required">
+  <label class="ma__input-radio__label" for="field47054416_2"><span>No</span></label>
+</span>
+        </div>
+                </div>
+</div>
+    </fieldset>
+
+    <div class="ma__mass-feedback-form__fields">
+      <div class="ma_feedback-fieldset">
+        <label class="feedback-response feedback-positive" for="field52940022">
+          If you have any suggestions for the website, please let us know.
+        </label>
+
+        <label class="feedback-response feedback-negative" for="field47054414">
+          How can we improve the page? <span aria-hidden="true">*</span>
+        </label>
+
+                <div class="ma__help-tip-container" aria-hidden="true">
+                    <div class="ma__help-tip mobile-tray ma__help-tip__text--c-primary" id="helptext-feedback-no-response">
+  <span class="ma__help-tip__label" id="label-helptext-feedback-no-response">
+          <span>Please do not include personal or contact information.</span>
+        <button class="ma__help-tip__trigger" id="trigger-helptext-feedback-no-response" aria-expanded="false" aria-controls="help-tip-content-helptext-feedback-no-response">
+      <span>You will not get a response</span>
+            <svg aria-hidden="true" focusable="false"><use xlink:href="#dd60b6c15f52b52b7652668be6835a6f"></use></svg>
+    </button>
+      </span>
+  <div class="ma__help-tip__container ma__help-tip__container--c-primary ma__help-tip__content collapsed" id="help-tip-content-helptext-feedback-no-response" style="max-height:none">
+    <button class="ma__help-tip__close-mobile">
+      <svg aria-hidden="true" focusable="false"><use xlink:href="#8ae18d1e31e309e4255718ae841b7c46"></use></svg>
+    </button>
+    <button class="ma__help-tip__close-desktop">
+      <svg aria-hidden="true" focusable="false"><use xlink:href="#8ae18d1e31e309e4255718ae841b7c46"></use></svg>
+    </button>
+    <div class="ma__help-tip__text ma__help-tip__text--c-primary">
+            <p>The feedback will only be used for improving the website. If you need assistance, please <a href="https://www.mass.gov/forms/contact-dph-by-web-form">contact the Department of Public Health</a>. <span class="ma__visually-hidden">Please limit your input to 500 characters. </span></p>    </div>
+  </div>
+</div>
+        </div>
+        
+                <div class="feedback-response feedback-positive">
+                    <div class="ma__textarea__wrapper"><textarea class="" name="field52940022" id="field52940022" data-type="" aria-controls="field52940022-error-required affirmative-textarea-error-alert" maxlength="500" aria-describedby="helptext-feedback-no-response"></textarea><div class="remainCharWrapper" aria-hidden="true"><span class="remainChar">500</span>/500</div><span class="remainCharSR ma__visually-hidden" aria-hidden="true">500 characters remaining</span></div>
+                      <div class="ma__alert-msg" role="region" aria-live="polite" id="affirmative-textarea-error-alert">Please remove any contact information or personal data from your feedback.</div>
+                                <div class="ma__warn-msg has-error-default">If you need assistance, please <a href="https://www.mass.gov/forms/contact-dph-by-web-form">contact the Department of Public Health</a>.</div>
+                  </div>
+        <div class="feedback-response feedback-negative">
+                    <div class="ma__textarea__wrapper"><textarea class="js-is-required" name="field47054414" id="field47054414" data-type="" aria-controls="field47054414-error-required negative-textarea-error-alert" maxlength="500" aria-describedby="helptext-feedback-no-response" required=""></textarea><div class="remainCharWrapper" aria-hidden="true"><span class="remainChar">500</span>/500</div><span class="remainCharSR ma__visually-hidden" aria-hidden="true">500 characters remaining</span></div>
+  <div class="ma__error-msg" role="region" aria-live="polite" id="field47054414-error-required">Please let us know how we can improve this page.</div>
+                      <div class="ma__alert-msg" role="region" aria-live="polite" id="negative-textarea-error-alert">Please remove any contact information or personal data from your feedback.</div>
+                                <div class="ma__warn-msg has-error-default">If you need assistance, please <a href="https://www.mass.gov/forms/contact-dph-by-web-form">contact the Department of Public Health</a>.</div>
+                  </div>
+      </div>
+    </div>
+
+    <div class="ma_feedback-fieldset submitButtonWrapper">
+      <input class="submitButton ma__button ma__button--small" type="submit" value="Send Feedback">
+    </div>
+
+          <input type="hidden" id="field47056299" name="field47056299" value="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts" class="fsField">
+          <input type="hidden" id="field58154059" name="field58154059" value="518711" class="fsField">
+          <input type="hidden" id="field57432673" name="field57432673" value="518711" class="fsField">
+          <input type="hidden" id="field68798989" name="field68798989" value="" class="fsField unique-id-substitute">
+          <input type="hidden" id="field97986104" name="field97986104" value="9999" class="fsField">
+          <input type="hidden" id="form2521317" name="form" value="2521317" class="">
+          <input type="hidden" id="viewkeyvx39GBYJhi" name="viewkey" value="vx39GBYJhi" class="">
+          <input type="hidden" id="hidden_fields2521317" name="hidden_fields" value="" class="">
+          <input type="hidden" id="submit2521317" name="_submit" value="1" class="">
+          <input type="hidden" id="style_version2521317" name="style_version" value="3" class="">
+          <input type="hidden" id="viewparam" name="viewparam" value="524744" class="">
+      </form>
+    <div class="ma__mass-feedback-form__form hidden" id="success-screen">
+          <p>Thank you for your website feedback! We will use this information to improve this page.</p>
+              <p>If you need assistance, please <a href="https://www.mass.gov/forms/contact-dph-by-web-form">contact the Department of Public Health</a>.</p>
+              <p>If you would like to continue helping us improve Mass.gov, <a href="https://www.mass.gov/user-panel?utm_source=survey">join our user panel</a> to test new features for the site.</p>
+      </div>
+</div>
+
+	</div>
+
+		</main>
+
+
+
+  <footer data-nosnippet="true" class="ma__footer-new" id="footer">
+  <div class="ma__footer-new__container">
+    <div class="ma__footer-new__logo">
+      <a href="https://www.mass.gov/" title="Mass.gov home page">
+        <img src="./archived_webpage_mass_cases_files/stateseal.png" alt="Massachusetts State Seal" width="100" height="100">
+      </a>
+    </div>
+    <div class="ma__footer-new__content">
+      <nav class="ma__footer-new__navlinks" aria-label="site navigation">
+                  <div><a href="https://www.mass.gov/topics/massachusetts-topics">All Topics</a></div>
+                  <div><a href="https://www.mass.gov/site-policies">Site Policies</a></div>
+                  <div><a href="https://www.mass.gov/topics/public-records-requests">Public Records Requests</a></div>
+              </nav>
+      <div class="ma__footer-new__copyright">
+        <div class="ma__footer-new__copyright--bold">© 2023 Commonwealth of Massachusetts.</div>
+        <span>Mass.gov® is a registered service mark of the Commonwealth of Massachusetts.</span>
+        <a href="https://www.mass.gov/privacypolicy">Mass.gov Privacy Policy</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+  <div class="ma__fixed-feedback-button" aria-hidden="false">
+  <a href="https://www.mass.gov/info-details/archive-of-covid-19-cases-in-massachusetts#feedback">Feedback</a>
+</div> 
+  </div>
+
+    
+
+
+        <script>
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement({pageLanguage: 'en', includedLanguages: 'af,am,ar,de,el,es,fa,fr,gu,hi,ht,hy,it,iw,ja,km,ko,lo,ml,ne,pl,ps,pt,ru,so,sq,sw,ta,te,th,tl,uk,ur,vi,zh-CN,zh-TW', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+        document.querySelector('#google_translate_element') !== null ? document.querySelector('#google_translate_element').classList.add('has-rendered') : '';
+      }
+      (function() {
+        var script = document.createElement('script');
+        script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+        script.async = true;
+        element = document.getElementsByTagName('head')[0];
+        element.appendChild(script);
+      })();
+    </script>
+    <script type="application/json" data-drupal-selector="drupal-settings-json">{"mayflower":{"namespaces":{"@base":"\/libraries\/mayflower-artifacts\/twig\/00-base\/","@atoms":"\/libraries\/mayflower-artifacts\/twig\/01-atoms\/","@molecules":"\/libraries\/mayflower-artifacts\/twig\/02-molecules\/","@organisms":"\/libraries\/mayflower-artifacts\/twig\/03-organisms\/","@templates":"\/libraries\/mayflower-artifacts\/twig\/04-templates\/","@pages":"\/libraries\/mayflower-artifacts\/twig\/05-pages\/","@meta":"\/libraries\/mayflower-artifacts\/twig\/07-meta\/"},"assets":"\/libraries\/mayflower-artifacts\/assets","utcOffsetString":"-05:00"},"path":{"baseUrl":"\/","scriptPath":null,"pathPrefix":"","currentPath":"node\/518711","currentPathIsAdmin":false,"isFront":false,"currentLanguage":"en"},"pluralDelimiter":"\u0003","suppressDeprecationErrors":true,"dataLayer":{"defaultLang":"en","languages":{"en":{"id":"en","name":"English","direction":"ltr","weight":-12},"es":{"id":"es","name":"Spanish","direction":"ltr","weight":-11},"zh-hans":{"id":"zh-hans","name":"Chinese, Simplified","direction":"ltr","weight":-10},"zh-hant":{"id":"zh-hant","name":"Chinese, Traditional","direction":"ltr","weight":-9},"pt-br":{"id":"pt-br","name":"Portuguese, Brazil","direction":"ltr","weight":-8},"pt-pt":{"id":"pt-pt","name":"Portuguese, Portugal","direction":"ltr","weight":-7},"fr":{"id":"fr","name":"French","direction":"ltr","weight":-6},"ru":{"id":"ru","name":"Russian","direction":"ltr","weight":-5},"ko":{"id":"ko","name":"Korean","direction":"ltr","weight":-4},"vi":{"id":"vi","name":"Vietnamese","direction":"ltr","weight":-3},"ar":{"id":"ar","name":"Arabic","direction":"rtl","weight":-2},"it":{"id":"it","name":"Italian","direction":"ltr","weight":-1},"cv":{"id":"cv","name":"Cape Verdean Creole","direction":"ltr","weight":0},"ht":{"id":"ht","name":"Haitian Creole","direction":"ltr","weight":1},"pl":{"id":"pl","name":"Polish","direction":"ltr","weight":2},"lo":{"id":"lo","name":"Lao","direction":"ltr","weight":3},"km":{"id":"km","name":"Khmer","direction":"ltr","weight":4},"af":{"id":"af","name":"Afrikaans","direction":"ltr","weight":5},"sq":{"id":"sq","name":"Albanian","direction":"ltr","weight":6},"am":{"id":"am","name":"Amharic","direction":"ltr","weight":7},"hi":{"id":"hi","name":"Hindi","direction":"ltr","weight":8},"ne":{"id":"ne","name":"Nepali","direction":"ltr","weight":9},"so":{"id":"so","name":"Somali","direction":"ltr","weight":10},"uk":{"id":"uk","name":"Ukrainian","direction":"ltr","weight":11},"el":{"id":"el","name":"Greek","direction":"ltr","weight":12},"sw":{"id":"sw","name":"Swahili","direction":"rtl","weight":13},"pst":{"id":"pst","name":"Pashto","direction":"rtl","weight":14},"prs":{"id":"prs","name":"Dari","direction":"rtl","weight":15}}},"user":{"uid":0,"permissionsHash":"d5851821248b388a1c1b7ab928e6b56435e00df019549a165e3fc6cff4cf4372"}}</script>
+<script src="./archived_webpage_mass_cases_files/js_l-XtHaMmjbK98caX_sysNjLpwRXU4H5pTB0akQIv4vw.js"></script>
+
+  <script type="text/javascript">window.NREUM||(NREUM={});NREUM.info={"beacon":"gov-bam.nr-data.net","licenseKey":"23b062ec87","applicationID":"720602643","transactionName":"bgcGbUZVXkMCUEZcXldNJ0xHQF9dTFdLW1BUCwcXV1VTWAYdRFxUTg==","queueTime":0,"applicationTime":130,"atts":"QkARGw5PTRxBUhAPSkQf","errorBeacon":"gov-bam.nr-data.net","agent":""}</script>
+
+<script src="./archived_webpage_mass_cases_files/update.min.js"></script><script type="text/javascript" id="">(function(b){var a=document,d=a.createElement("script");a=a.head||a.getElementsByTagName("head")[0];var e="fsReady",f={src:"//gateway.foresee.com/sites/mass-gov/production/gateway.min.js",type:"text/javascript",async:"true","data-vendor":"fs","data-role":"gateway"},c;for(c in f)d.setAttribute(c,f[c]);a.appendChild(d);b[e]=function(){var a="__"+e+"_stk__";b[a]=b[a]||[];b[a].push(arguments)}})(window);</script><script type="text/javascript" id="">Element.prototype.matches||(Element.prototype.matches=Element.prototype.msMatchesSelector||Element.prototype.webkitMatchesSelector);Element.prototype.closest||(Element.prototype.closest=function(b){var a=this;do{if(Element.prototype.matches.call(a,b))return a;a=a.parentElement||a.parentNode}while(null!==a&&1===a.nodeType);return null});</script><div style="display: none; visibility: hidden;">
+<script>!function(b,e,f,g,a,c,d){b.fbq||(a=b.fbq=function(){a.callMethod?a.callMethod.apply(a,arguments):a.queue.push(arguments)},b._fbq||(b._fbq=a),a.push=a,a.loaded=!0,a.version="2.0",a.queue=[],c=e.createElement(f),c.async=!0,c.src=g,d=e.getElementsByTagName(f)[0],d.parentNode.insertBefore(c,d))}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");fbq("init","290747046569972");fbq("track","PageView");</script>
+<noscript></noscript>
+</div><div id="goog-gt-" class="skiptranslate VIpgJd-yAWNEb-L7lbkb" dir="ltr"><div style="padding: 8px;"><div><div class="VIpgJd-yAWNEb-l4eHX"><img src="./archived_webpage_mass_cases_files/translate_24dp.png" width="20" height="20" alt="Google Translate"></div></div></div><div style="padding: 8px; float: left; width: 100%;"><h1 class="VIpgJd-yAWNEb-r4nke VIpgJd-yAWNEb-mrxPge">Original text</h1></div><div style="padding: 8px;"><div class="VIpgJd-yAWNEb-nVMfcd-fmcmS"></div></div><div class="VIpgJd-yAWNEb-cGMI2b" style="padding: 8px;"><div class="VIpgJd-yAWNEb-Z0Arqf-PLDbbf"><span class="VIpgJd-yAWNEb-Z0Arqf-hSRGPd">Contribute a better translation</span></div><div class="VIpgJd-yAWNEb-fw42Ze-Z0Arqf-haAclf"><hr style="color: #ccc; background-color: #ccc; height: 1px; border: none;"><div class="VIpgJd-yAWNEb-Z0Arqf-H9tDt"></div></div></div><div class="VIpgJd-yAWNEb-jOfkMb-Ne3sFf" style="display: none;"></div></div><script type="text/javascript" id="">(function(){function c(b){var a=new URLSearchParams(window.location.search);return(b=a.get(b))||""}if(window.MutationObserver){var f=new MutationObserver(function(b){b.forEach(function(a){var d=a.oldValue,e=a.target.className;-1===d.indexOf("translated-")&&-1<e.indexOf("translated-")&&(console.log(a),window.dataLayer.push({event:"pageTranslated",translationLanguage:a.target.lang||document.getElementsByTagName("html")[0].getAttribute("xml:lang"),translationService:"on-page google translate"}))})}),
+g=document.querySelector("html");f.observe(g,{attributes:!0,attributeOldValue:!0,attributeFilter:["class"]})}-1<window.location.href.indexOf("mass-gov.translate.goog")&&window.dataLayer.push({event:"pageTranslated",translationLanguage:c("_x_tr_tl"),translationService:"google translate website"})})();</script><div class="VIpgJd-ZVi9od-aZ2wEe-wOHMyf"><div class="VIpgJd-ZVi9od-aZ2wEe-OiiCO"><svg xmlns="http://www.w3.org/2000/svg" class="VIpgJd-ZVi9od-aZ2wEe" width="96px" height="96px" viewBox="0 0 66 66"><circle class="VIpgJd-ZVi9od-aZ2wEe-Jt5cK" fill="none" stroke-width="6" stroke-linecap="round" cx="33" cy="33" r="30"></circle></svg></div></div><iframe frameborder="0" class="VIpgJd-ZVi9od-xl07Ob-OEVmcd skiptranslate" title="Language Translate Widget" style="visibility: visible; box-sizing: content-box; width: 417px; height: 263px; display: none;" src="./archived_webpage_mass_cases_files/saved_resource.html"></iframe><script type="text/javascript" id="">(function(){var a=document.createElement("script");a.type="text/javascript";a.async=!0;a.src="//siteimproveanalytics.com/js/siteanalyze_6427.js";var b=document.getElementsByTagName("script")[0];b.parentNode.insertBefore(a,b)})();</script></body></html>

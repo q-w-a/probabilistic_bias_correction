@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 3 Background | Estimating Unobserved COVID-19 Infections in the United States</title>
+  <meta name="description" content="Chapter 3 Background | Estimating Unobserved COVID-19 Infections in the United States" />
+  <meta name="generator" content="bookdown 0.29 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 3 Background | Estimating Unobserved COVID-19 Infections in the United States" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 3 Background | Estimating Unobserved COVID-19 Infections in the United States" />
+  
+  
+  
+
+<meta name="author" content="Quinn White" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="overview-of-approach.html"/>
+<link rel="next" href="definition-of-prior-distributions-for-bias-parameters.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preliminary Content</a>
+<ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#acknowledgements"><i class="fa fa-check"></i>Acknowledgements</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#preface"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#dedication"><i class="fa fa-check"></i>Dedication</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#abstract"><i class="fa fa-check"></i>Abstract</a></li>
+</ul></li>
+<li class="chapter" data-level="1" data-path="motivation.html"><a href="motivation.html"><i class="fa fa-check"></i><b>1</b> Motivation</a></li>
+<li class="chapter" data-level="2" data-path="overview-of-approach.html"><a href="overview-of-approach.html"><i class="fa fa-check"></i><b>2</b> Overview of Approach</a></li>
+<li class="chapter" data-level="3" data-path="background.html"><a href="background.html"><i class="fa fa-check"></i><b>3</b> Background</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="background.html"><a href="background.html#probabalistic-bias-analysis"><i class="fa fa-check"></i><b>3.1</b> Probabalistic Bias Analysis</a></li>
+<li class="chapter" data-level="3.2" data-path="background.html"><a href="background.html#bayesian-melding"><i class="fa fa-check"></i><b>3.2</b> Bayesian Melding</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="background.html"><a href="background.html#theoretical-background-for-the-approach"><i class="fa fa-check"></i><b>3.2.1</b> Theoretical Background for the Approach</a></li>
+<li class="chapter" data-level="3.2.2" data-path="background.html"><a href="background.html#implementation-through-the-sampling-importance-resampling-algorithm"><i class="fa fa-check"></i><b>3.2.2</b> Implementation through the Sampling-Importance-Resampling Algorithm</a></li>
+<li class="chapter" data-level="3.2.3" data-path="background.html"><a href="background.html#bayesian-melding-applied-to-covid-19-misclassification"><i class="fa fa-check"></i><b>3.2.3</b> Bayesian Melding Applied to COVID-19 Misclassification</a></li>
+<li class="chapter" data-level="3.2.4" data-path="background.html"><a href="background.html#derivation-of-m"><i class="fa fa-check"></i><b>3.2.4</b> Derivation of <span class="math inline">\(M\)</span></a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html"><i class="fa fa-check"></i><b>4</b> Definition of Prior Distributions for Bias Parameters</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#background-on-the-beta-distribution"><i class="fa fa-check"></i><b>4.1</b> Background on the Beta Distribution</a></li>
+<li class="chapter" data-level="4.2" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#background-on-the-gamma-distribution"><i class="fa fa-check"></i><b>4.2</b> Background on the Gamma Distribution</a></li>
+<li class="chapter" data-level="4.3" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#definition-of-prior-distributions-for-incomplete-testing-correction"><i class="fa fa-check"></i><b>4.3</b> Definition of Prior Distributions for Incomplete Testing Correction</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-ps_1untested"><i class="fa fa-check"></i><b>4.3.1</b> Defining <span class="math inline">\(P(S_1|Untested)\)</span></a></li>
+<li class="chapter" data-level="4.3.2" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-alpha"><i class="fa fa-check"></i><b>4.3.2</b> Defining <span class="math inline">\(\alpha\)</span></a></li>
+<li class="chapter" data-level="4.3.3" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-beta"><i class="fa fa-check"></i><b>4.3.3</b> Defining <span class="math inline">\(\beta\)</span></a></li>
+<li class="chapter" data-level="4.3.4" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-ps_0testuntested"><i class="fa fa-check"></i><b>4.3.4</b> Defining <span class="math inline">\(P(S_0|test+,untested)\)</span></a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#definition-of-priors-for-test-inaccuracy-correction"><i class="fa fa-check"></i><b>4.4</b> Definition of Priors for Test Inaccuracy Correction</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-test-sensitivity-s_e"><i class="fa fa-check"></i><b>4.4.1</b> Defining Test Sensitivity (<span class="math inline">\(S_e\)</span>)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#defining-test-specificity-s_p"><i class="fa fa-check"></i><b>4.5</b> Defining Test Specificity (<span class="math inline">\(S_p\)</span>)</a></li>
+<li class="chapter" data-level="4.6" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#summary-table-of-bias-parameter-distributions"><i class="fa fa-check"></i><b>4.6</b> Summary Table of Bias Parameter Distributions</a></li>
+<li class="chapter" data-level="4.7" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#correction-for-incomplete-testing"><i class="fa fa-check"></i><b>4.7</b> Correction for Incomplete Testing</a></li>
+<li class="chapter" data-level="4.8" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#correction-for-diagnostic-test-inaccuracy"><i class="fa fa-check"></i><b>4.8</b> Correction for Diagnostic Test Inaccuracy</a>
+<ul>
+<li class="chapter" data-level="4.8.1" data-path="definition-of-prior-distributions-for-bias-parameters.html"><a href="definition-of-prior-distributions-for-bias-parameters.html#derivation-of-formula-for-correction-for-diagnostic-test-inaccuracy"><i class="fa fa-check"></i><b>4.8.1</b> Derivation of Formula for Correction for Diagnostic Test Inaccuracy</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html"><i class="fa fa-check"></i><b>5</b> Comparison to the Covidestim Model</a>
+<ul>
+<li class="chapter" data-level="5.0.1" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html#overview"><i class="fa fa-check"></i><b>5.0.1</b> Overview</a></li>
+<li class="chapter" data-level="5.0.2" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html#the-covidestim-model"><i class="fa fa-check"></i><b>5.0.2</b> The Covidestim Model</a></li>
+<li class="chapter" data-level="5.0.3" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html#assumptions"><i class="fa fa-check"></i><b>5.0.3</b> Assumptions</a></li>
+<li class="chapter" data-level="5.1" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html#comparison-to-other-indicators"><i class="fa fa-check"></i><b>5.1</b> Comparison to Other Indicators</a></li>
+<li class="chapter" data-level="5.2" data-path="comparison-to-the-covidestim-model.html"><a href="comparison-to-the-covidestim-model.html#seropositivity-data"><i class="fa fa-check"></i><b>5.2</b> Seropositivity Data</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>6</b> Results</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="results.html"><a href="results.html#county-level"><i class="fa fa-check"></i><b>6.1</b> County-level</a></li>
+<li class="chapter" data-level="6.2" data-path="results.html"><a href="results.html#state-level"><i class="fa fa-check"></i><b>6.2</b> State-level</a></li>
+</ul></li>
+<li class="appendix"><span><b>Appendix</b></span></li>
+<li class="chapter" data-level="A" data-path="appendix.html"><a href="appendix.html"><i class="fa fa-check"></i><b>A</b> Appendix</a>
+<ul>
+<li class="chapter" data-level="A.1" data-path="appendix.html"><a href="appendix.html#derivation-of-the-mean-and-variance-of-the-beta-distribution"><i class="fa fa-check"></i><b>A.1</b> Derivation of the Mean and Variance of the Beta Distribution</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Estimating Unobserved COVID-19 Infections in the United States</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="background" class="section level1 hasAnchor" number="3">
+<h1><span class="header-section-number">Chapter 3</span> Background<a href="background.html#background" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="probabalistic-bias-analysis" class="section level2 hasAnchor" number="3.1">
+<h2><span class="header-section-number">3.1</span> Probabalistic Bias Analysis<a href="background.html#probabalistic-bias-analysis" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Often the focus of quantifying error about an effect estimate focuses on random error rather than the systematic error. For example, typical frequentist confidence intervals are frequent in medical and epidemiological literature, although they have faced rising criticism <span class="citation">(Greenland et al., 2016)</span>. These confidence intervals quantify the fraction of the times we expect the true value to fall in this interval under the assumption that our model is correct. That is, if we ran an experiment 100 times and computed the effect size each time, we would expect the true value to fall within our 95% confidence interval in 95 of those times, on average. Neyman stressed this in his original publication formalizing the concept of a confidence interval in 1937 <span class="citation">(Neyman, 1937)</span>. The nuance that the confidence interval is not the probability that the true value falls within this interval, however, is often lost in the discussion of results, in part because the true meaning of a confidence interval is less intuitive.</p>
+<p>The aim of quantitative bias analysis is to estimate systematic error to give a range of possible values for the true quantity of interest. In this sense, it is a type of sensitivity analysis. It can be used to estimate various kinds of biases, from misclassification, as is implemented in this work, as well as selection bias and unmeasured confounding <span class="citation">(Petersen, Ranker, Barnard-Mayers, MacLehose, &amp; Fox, 2021)</span>. Often, the goal of performing such an analysis is to see how these sources of bias affect our estimates; in particular, under what situations of bias the observed effect would be null.</p>
+<p>There are multiple different forms of bias analysis <span class="citation">(Lash, Fox, &amp; Fink, 2009)</span>. The most simple case, simple bias analysis, is correcting a point estimate for a single source of error. Multidimensional bias analysis extends this to consider sets of bias parameters, but still provides a corrected point estimate rather than a range of plausible estimates. Probabilistic bias analysis, meanwhile, defines probability distributions for bias parameters to generate a distribution of corrected estimates by repeatedly correcting estimates for bias under different combinations of the parameter values. Then, via Monte Carlo we obtain a distribution of corrected estimates that reflect the corrected values under different scenarios of bias, that is, under different combinations of the bias parameters. This can give us a better idea for the extent of uncertainty about the corrected estimates, although this uncertainty does depend on the specification of the bias parameter distributions. Inherent in bias analysis is the dependence of our results on the specification of bias parameters, which reflect what is known from available data, literature, or theory on the extent of bias that may occur. There is uncertainty about how we define these distributions or values; otherwise, if the precise values of the bias parameters were known, we could simply correct the estimates and probabilistic bias analysis would not be useful.</p>
+<p>Although some forms of probabilistic bias analysis can be applied to summarized data, for example, frequencies in a contingency table, the methods are most often implemented with unsummarized data in its original form, as implemented here.</p>
+<p>In choosing specific distributions for the bias parameters, different specifications may yield density functions where most of the density is within a similar interval (MAKE PLOT WITH EXAMPLE), which means the choice of the specific distribution will not be sensitive to the particular choice of density.</p>
+</div>
+<div id="bayesian-melding" class="section level2 hasAnchor" number="3.2">
+<h2><span class="header-section-number">3.2</span> Bayesian Melding<a href="background.html#bayesian-melding" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="theoretical-background-for-the-approach" class="section level3 hasAnchor" number="3.2.1">
+<h3><span class="header-section-number">3.2.1</span> Theoretical Background for the Approach<a href="background.html#theoretical-background-for-the-approach" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The Bayesian melding approach was proposed by Poole et al. <span class="citation">(Poole &amp; Raftery, 2000)</span>.</p>
+<p>The Bayesian melding approach enables us to account for both uncertainty from inputs and outputs of a deterministic model. The initial motivation for the approach was to study the population dynamics of whales in the presence of substantial uncertainty around model inputs for population growth <span class="citation">(Poole &amp; Raftery, 2000)</span>. However, the framework provided by Poole et al. can applied in any circumstance where we have uncertainty around some quantities <span class="math inline">\(\theta\)</span> and <span class="math inline">\(\phi\)</span> where there is a deterministic function <span class="math inline">\(M:\theta \to\phi\)</span>. Due the utility of Bayesian melding in various contexts, since this deterministic model <span class="math inline">\(M\)</span> could take on a wide range of forms, the approach has since been applied in various fields, including urban simulations <span class="citation">(Ševčíková, Raftery, &amp; Waddell, 2007)</span>, ecology <span class="citation">(Robson, 2014)</span>, and infectious disease <span class="citation">(Powers et al., 2011)</span>.</p>
+<p>At this point, we can define how Bayesian melding works more formally.</p>
+<p>Let <span class="math inline">\(M: \theta \to \phi\)</span> be the deterministic model defined by the function relating a vector of input parameters <span class="math inline">\(\theta\)</span> to an output vector <span class="math inline">\(\phi\)</span>, and suppose we have a prior on <span class="math inline">\(\theta\)</span> denoted <span class="math inline">\(q_1(\theta)\)</span> and a prior on <span class="math inline">\(\phi\)</span> denoted <span class="math inline">\(q_2(\phi)\)</span>.</p>
+<p>However, note that we actually have two distinct priors on <span class="math inline">\(\phi\)</span>. There is the prior formed by the distribution induced on <span class="math inline">\(\phi\)</span> by the prior for <span class="math inline">\(\theta\)</span> and the function <span class="math inline">\(M\)</span>, where we denote this induced prior <span class="math inline">\(q^*_1(\phi)\)</span>.
+If <span class="math inline">\(M^{-1}\)</span> exists, we can write this induced prior <span class="math inline">\(q_1^*(\phi) = q_1(M^{-1}(\phi)) |J(\phi)|\)</span>. This result follows from the fact <span class="math inline">\(M(\theta) = \phi\)</span>, so we apply a change of variables to obtain the distribution of <span class="math inline">\(\phi\)</span> from the distribution of <span class="math inline">\(\theta\)</span>. This is a generalization to the multivariate case of the change of variables result often covered in probability courses in the univariate case. That is, if we have a continuous random variable <span class="math inline">\(X\)</span> with probability density function <span class="math inline">\(f_X\)</span> and <span class="math inline">\(Y=g(X)\)</span> for a differentiable monotonic function, then the probability density function of <span class="math inline">\(Y\)</span> is <span class="math inline">\(f_Y(y) = f_X(g^{-1}(y)) \Big| \frac{dx}{dy} \Big|\)</span>. In practice, <span class="math inline">\(M^{-1}\)</span> rarely exists exists since <span class="math inline">\(\theta\)</span> is often of higher dimensionality then <span class="math inline">\(\phi\)</span>, in which cases <span class="math inline">\(M\)</span> is not invertible. This means we generally approximate <span class="math inline">\(q^*_1(\phi)\)</span> without acquiring its analytical form.</p>
+<p>In addition to this induced prior, we have the prior <span class="math inline">\(q_2(\phi)\)</span>, which does not involve <span class="math inline">\(M\)</span> nor the inputs <span class="math inline">\(\theta\)</span>. Since these priors are based on different sources of information and may reflect different uncertainties, often it useful to use both sources of information to inform our estimates. To do so, we need to combine the distributions for <span class="math inline">\(q^*_1(\phi)\)</span> and <span class="math inline">\(q_2(\phi)\)</span> to create a pooled distribution.</p>
+<p>Multiple pooling strategies exist for distinct distributions, but one requirement for a Bayesian analysis is that the distribution should be independent of the order in which the prior is updated and the combining of the prior distributions. That is, updating the prior distributions using Bayes’ theorem and then combining distributions should yield the same result as combining distributions and then updating this combined distribution; pooling methods that have this property are deemed externally Bayesian. Logarithmic pooling has been shown to be externally Bayesian under some conditions, which are likely to hold in most settings. Furthermore, logarithmic pooling has actually been shown to be the only pooling method where this holds <span class="citation">(Genest, McConway, &amp; Schervish, 1986)</span>.</p>
+<p>The logarithmically pooled prior for <span class="math inline">\(\phi\)</span> by pooling <span class="math inline">\(q^*_1(\phi)\)</span> and <span class="math inline">\(q_2(\phi)\)</span> is proportional to</p>
+<p><span class="math display">\[q^*_1(\phi)^{\alpha} q_2(\phi)^{1-\alpha}\]</span></p>
+<p>where <span class="math inline">\(\alpha \in [0,1]\)</span> is a pooling weight. Commonly, a choice of <span class="math inline">\(\alpha = 0.5\)</span> is used to give the priors equal weight. In this case, logarithmic pooling may be referred to as geometric pooling since it is equivalent to taking a geometric mean.</p>
+<p>If <span class="math inline">\(M\)</span> is invertible, we can obtain the contrained distributions for the model inputs by simply inverting. However, this is rare, so we have to think about how to proceed in the noninvertible case.</p>
+<p>To get intuition for a valid strategy, consider a mapping <span class="math inline">\(M: \theta \to \phi\)</span> for <span class="math inline">\(\theta \in \mathbb{R}\)</span> and <span class="math inline">\(\phi \in \mathbb{R}\)</span>
+defined as follows. Note the choice of <span class="math inline">\(q_1,q_2\)</span> does not matter here as long as they are valid densities.</p>
+<table class=" lightable-classic table" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; margin-left: auto; margin-right: auto; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+<span class="math inline">\(\theta\)</span>
+</th>
+<th style="text-align:right;">
+<span class="math inline">\(q_1(\theta)\)</span>
+</th>
+<th style="text-align:right;">
+<span class="math inline">\(\phi\)</span>
+</th>
+<th style="text-align:right;">
+<span class="math inline">\(q_2(\phi)\)</span>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.4
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.6
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.5
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.6
+</td>
+</tr>
+</tbody>
+</table>
+<p>We see that <span class="math inline">\(M\)</span> is not invertible since <span class="math inline">\(\theta=1\)</span> and <span class="math inline">\(\theta = 2\)</span> both map to <span class="math inline">\(\phi=2\)</span>, which implies the inverse <span class="math inline">\(M^{-1}\)</span> would not be well defined.</p>
+<p>We can compute <span class="math inline">\(q_1^*(\phi)\)</span> using our function <span class="math inline">\(M\)</span> and taking <span class="math inline">\(q_1^*(\phi) = q_1(M^{-1}(\phi))\)</span>; in the continuous case we need to multiply by <span class="math inline">\(|J(\phi)|\)</span>, but not in the discrete case <span class="citation">(Blitzstein &amp; Hwang, 2019)</span>.</p>
+<p>So we have <span class="math inline">\(q^*_1(1) = q_1(1) = 0.3\)</span> since <span class="math inline">\(M(1)=1\)</span>, and <span class="math inline">\(q^*_1(2) = q_1(2) + q_1(3) = 0.2 + 0.5=0.7\)</span> since <span class="math inline">\(M(2) = 2\)</span> and <span class="math inline">\(M(3)=2\)</span>.</p>
+<p>Then, we can compute the logarithmically pooled pooled prior with <span class="math inline">\(\alpha=0.5\)</span> by taking <span class="math inline">\(q_1^*(\phi)^{\alpha} q_2(\phi)^{1-\alpha}\)</span>.</p>
+<p>For <span class="math inline">\(\phi = 1\)</span>, we have <span class="math inline">\(q_1^*(\phi)^{\alpha} q_2(\phi)^{1-\alpha} = (0.3)^{0.5}(0.4)^{0.5} = 0.3464\)</span>
+For <span class="math inline">\(\phi = 2\)</span>, we have <span class="math inline">\(q_1^*(\phi)^{\alpha} q_2(\phi)^{1-\alpha} = (0.6)^{0.5}(0.7)^{0.5} = 0.6481\)</span></p>
+<p>To make this a valid density, however, these probabilities must sum to 1, so we renormalize by dividing by (0.3464 + 0.6481). This gives us the pooled prior <span class="math inline">\(q^{\sim[\phi]}(\phi)\)</span> as</p>
+<p><span class="math inline">\(0.3464 / (0.3464 + 0.6481) = 0.3483\)</span> for <span class="math inline">\(\phi =1\)</span> and <span class="math inline">\(0.6481 / (0.3464 + 0.6481) =0.6517\)</span> for <span class="math inline">\(\phi=2\)</span>.</p>
+<p>Summarizing these results, we have</p>
+<table class=" lightable-classic table" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; margin-left: auto; margin-right: auto; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+<span class="math inline">\(\phi\)</span>
+</th>
+<th style="text-align:right;">
+<span class="math inline">\(q_2(\phi)\)</span>
+</th>
+<th style="text-align:right;">
+<span class="math inline">\(q_1^*(\phi)\)</span>
+</th>
+<th style="text-align:right;">
+<span class="math inline">\(q^{\sim[\phi]}(\phi)\)</span>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.4
+</td>
+<td style="text-align:right;">
+0.3
+</td>
+<td style="text-align:right;">
+0.3483
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.6
+</td>
+<td style="text-align:right;">
+0.7
+</td>
+<td style="text-align:right;">
+0.6517
+</td>
+</tr>
+</tbody>
+</table>
+<p>However, we want the pooled prior on the inputs <span class="math inline">\(\theta\)</span>, that is, <span class="math inline">\(q^{\sim[\theta]}(\theta)\)</span>.</p>
+<p>Poole et al. reasoned as follows. Since <span class="math inline">\(M\)</span> uniquely maps <span class="math inline">\(\theta=1\)</span> to <span class="math inline">\(\phi =1\)</span>, the probability that <span class="math inline">\(\theta=1\)</span> should be equal to the probability <span class="math inline">\(\phi = 1\)</span>. That is, we should have <span class="math inline">\(q^{\sim[\theta]}(1) = q^{\sim[\phi]}(1)\)</span>.</p>
+<p>However, the relationship for <span class="math inline">\(\theta=2\)</span> or <span class="math inline">\(\theta=3\)</span> to <span class="math inline">\(\phi\)</span> is not one to one, but since <span class="math inline">\(M(2)=2\)</span> and <span class="math inline">\(M(3)=2\)</span>, the sum of the probabilities for <span class="math inline">\(\theta=1\)</span> and <span class="math inline">\(\theta=2\)</span> should be equal to that for <span class="math inline">\(\phi=2\)</span>, that is, <span class="math inline">\(q^{\sim[\theta]}(2) + q^{\sim[\theta]}(3) = q^{\sim[\phi]}(2) = 0.6517\)</span>.</p>
+<p>The challenge here is how we divide the probability for <span class="math inline">\(q^{\sim[\phi]}(2)\)</span>, which is defined, among <span class="math inline">\(q^{\sim[\theta]}(2)\)</span> and <span class="math inline">\(q^{\sim[\theta]}(3)\)</span>. The prior for <span class="math inline">\(\phi\)</span> yields no information to assist in this choice, because knowing which value <span class="math inline">\(\phi\)</span> takes on does not give us any information about whether <span class="math inline">\(\theta=2\)</span> or <span class="math inline">\(\theta=3\)</span>. Thus, the information we have about <span class="math inline">\(\theta\)</span> must be taken from <span class="math inline">\(q_1(\theta)\)</span>.</p>
+<p>That is, we can assign a probability for <span class="math inline">\(q^{\sim[\theta]}(2)\)</span> by considering the probability that <span class="math inline">\(\theta = 2\)</span> relative to the probability <span class="math inline">\(\theta =3\)</span>, computing</p>
+<p><span class="math display">\[q^{\sim[\theta]}(2) = q^{\sim[\phi]}(2) \Big( \frac{q_1(2)}{q_1(2) + q_1(3)}\Big).\]</span></p>
+<p>That is, if the probability <span class="math inline">\(\theta\)</span> takes on the value <span class="math inline">\(2\)</span> is lower in this case than the probability <span class="math inline">\(\theta=3\)</span> which we know from the prior on <span class="math inline">\(\theta\)</span>, <span class="math inline">\(q_1(\theta)\)</span>, then the pooled prior on <span class="math inline">\(\theta\)</span>, <span class="math inline">\(q^{\sim[\theta]}(2)\)</span>, should reflect this.</p>
+<p>Using this reasoning, we have <span class="math inline">\(q^{\sim[\theta]}(2) = (0.7) \frac{0.2}{0.2+0.5} = 0.1862\)</span> and <span class="math inline">\(q^{\sim[\theta]}(3) = (0.7) \frac{0.5}{0.2+0.5} = 0.4655\)</span>.</p>
+<p>The result in this simple example, using <span class="math inline">\(q_1(\theta)\)</span> to determine how to distribute the probability for values of <span class="math inline">\(\phi\)</span> where multiple <span class="math inline">\(\theta\)</span> map to <span class="math inline">\(\phi\)</span>, can be used to derive general formulas to compute <span class="math inline">\(q^{\sim[\theta]}(\theta)\)</span> for discrete and continuous distributions <span class="citation">(Poole &amp; Raftery, 2000)</span>.</p>
+</div>
+<div id="implementation-through-the-sampling-importance-resampling-algorithm" class="section level3 hasAnchor" number="3.2.2">
+<h3><span class="header-section-number">3.2.2</span> Implementation through the Sampling-Importance-Resampling Algorithm<a href="background.html#implementation-through-the-sampling-importance-resampling-algorithm" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The steps are:</p>
+<ol style="list-style-type: decimal">
+<li>We draw <span class="math inline">\(\theta\)</span> from its prior distribution <span class="math inline">\(q_1(\theta)\)</span>, where we note <span class="math inline">\(\theta\)</span> can be multidimensional.</li>
+<li>For every <span class="math inline">\(\theta_i\)</span> we compute <span class="math inline">\(\phi_i = M(\theta_i)\)</span>.</li>
+<li>Since <span class="math inline">\(q_1^*(\phi)\)</span> is unlikely to have an analytical form, we can compute it via a density approximation by computing <span class="math inline">\(M(\theta)\)</span> for our sampled values of <span class="math inline">\(\theta\)</span> and then estimating the density from this sample using kernel density estimation.</li>
+<li>Construct weights proportional to the ratio of the prior on <span class="math inline">\(\phi\)</span> evaluated at <span class="math inline">\(M(\theta_i)\)</span> to the induced prior <span class="math inline">\(q_1^*\)</span> evaluated at <span class="math inline">\(M(\theta_i)\)</span>. Note that this is applying the same logic as considering <span class="math inline">\(q_1(\theta)/q^*_1(\theta)\)</span>, as discussed in the previous concrete example, but representing these probabilities in <span class="math inline">\(\phi\)</span> space.</li>
+<li>Sample values from step (1) with probabilities proportional to the weights from (4).</li>
+</ol>
+</div>
+<div id="bayesian-melding-applied-to-covid-19-misclassification" class="section level3 hasAnchor" number="3.2.3">
+<h3><span class="header-section-number">3.2.3</span> Bayesian Melding Applied to COVID-19 Misclassification<a href="background.html#bayesian-melding-applied-to-covid-19-misclassification" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>In this work, we can relate the inputs <span class="math inline">\(\theta = \{P(S_1|untested), \alpha, \beta \}\)</span> and <span class="math inline">\(\phi = P(S_0|test +,untested)\)</span> by the deterministic model <span class="math inline">\(M: \theta \to \phi\)</span> given by
+<span class="math display">\[P(S_0|test+, untested) = \frac{\beta(1 - P(S_1|untested))}{\beta(1-P(S_1|untested)) + \alpha P(S_1|untested)}.\]</span> The derivation of <span class="math inline">\(M\)</span> is in the following section.</p>
+<p>Now, we have two distributions on <span class="math inline">\(\phi\)</span>: the distribution based on data on the asymptomatic rate of infection of COVID-19, and the distribution formed by taking <span class="math inline">\(M(\theta)\)</span> where <span class="math inline">\(\theta\)</span> represents the values from the defined distributions of <span class="math inline">\(\alpha,\beta,\)</span> and <span class="math inline">\(P(S_1|untested)\)</span>. With Bayesian melding, we pool these distributions using logarithmic pooling, and then implement the sampling-importance-resampling algorithm to obtain constrained distributions of the inputs <span class="math inline">\(\theta\)</span> that are in accordance with information about the asymptomatic rate of the virus.</p>
+<p>Due to the uncertainty around our definitions of <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>, it is particularly useful to leverage the information we have about the asymptomatic rate of the virus <span class="math inline">\(P(S_0|test +,untested)\)</span> because a large collection of studies has been published in this area. In a meta-analysis pooling data from 95 studies, the pooled estimate among the confirmed population that was asymptomatic was 40.50% [95% CI, 33.50%-47.50%] <span class="citation">(Ma et al., 2021b)</span>. Another meta-analysis including 350 studies estimated the asymptomatic percentage as 36.9% [95% CI: 31.8 to 42.4%] <span class="citation">(Sah et al., 2021b)</span>.</p>
+<p>To clarify the use of this method, we can look at the distributions before and after applying Bayesian melding.</p>
+<p><img src="figure/melded.png" width="95%" /></p>
+<p>Comparing these priors above, we see that although they have shared support, some values from the induced distribution we acquire by using <span class="math inline">\(M\)</span> to generate values of <span class="math inline">\(\phi\)</span> from sampled values of <span class="math inline">\(\theta\)</span> are very unlikely to be in accordance with the information we know about SARS-CoV-2 asymptomatic infection. This is where Bayesian melding comes into play. Pooling these distributions enable us to take both the prior on <span class="math inline">\(q_2(\phi)\)</span> from published analyses on asymptomatic infection, and the induced prior, <span class="math inline">\(q_1^*(\phi)\)</span>, into account to constrain the distributions of <span class="math inline">\(\phi\)</span> and <span class="math inline">\(\theta\)</span> to be in accordance.</p>
+</div>
+<div id="derivation-of-m" class="section level3 hasAnchor" number="3.2.4">
+<h3><span class="header-section-number">3.2.4</span> Derivation of <span class="math inline">\(M\)</span><a href="background.html#derivation-of-m" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Define <span class="math inline">\(M: \theta \to \phi\)</span> for <span class="math inline">\(\theta = (P(S_1|untested), \alpha, \beta)\)</span> and <span class="math inline">\(\phi = P(S_0|test +)\)</span> as
+<span class="math display">\[P(S_0|test+, untested) = \frac{\beta(1 - P(S_1|untested))}{\beta(1-P(S_1|untested)) + \alpha P(S_1|untested)}.\]</span>
+We define <span class="math inline">\(test +\)</span> to denote the event that an individual <em>would</em> test positive if they were tested, not that they actually did test positive.</p>
+<p>Since we have <span class="math inline">\(\alpha = \frac{P(test+|S_1, untested)}{P(test+|tested)}\)</span> and <span class="math inline">\(\beta = \frac{P(test+|S_0, untested)}{P(test+|tested)}\)</span>, we can write</p>
+<p><span class="math display">\[ = \frac{\frac{P(test+|S_0, untested)}{P(test+|tested)}(1 - P(S_1|untested))}{\frac{P(test+|S_0, untested)}{P(test+|tested)}(1-P(S_1|untested)) + \frac{P(test+|S_1, untested)}{P(test+|tested)} P(S_1|untested)}\]</span>
+and cancelling out the term <span class="math inline">\(P(test+|tested)\)</span> we have</p>
+<p><span class="math display">\[ = \frac{{P(test+|S_0, untested)}(1 - P(S_1|untested))}{P(test+|S_0, untested)(1-P(S_1|untested)) + P(test+|S_1, untested) P(S_1|untested)}.\]</span></p>
+<p>Notice that <span class="math inline">\(P(S_0|untested) = 1 - P(S_1|untested)\)</span>, so we have
+<span class="math display">\[P(S_0|test+) = \frac{{P(test+|S_0, untested)}P(S_0|untested)}{P(test+|S_0, untested)P(S_0|untested) + P(test+|S_1, untested) P(S_1|untested)}.\]</span></p>
+<p>We can write the numerator <span class="math display">\[P(test+|S_0, untested)P(S_0|untested) = \Big( \frac{P(test+,S_0, untested)}{P(S_0, untested)} \Big) \Big(\frac{P(S_0, untested)}{P(untested)}\Big)\]</span>
+<span class="math display">\[= \frac{P(test+,S_0, untested)}{P(untested)} = P(S_0, test+|untested).\]</span>
+With the same reasoning, we obtain <span class="math inline">\(P(test+|S_1, untested)P(S_1|untested) = P(S_1, test+|untested)\)</span>.</p>
+<p>Thus, using this result, we have</p>
+<p><span class="math display">\[ = \frac{P(S_0, test+|untested)}{P(S_0, test+|untested) + P(S_1, test+|untested)}.\]</span></p>
+<p>We can write</p>
+<p><span class="math display">\[P(S_0,test +|untested) = \frac{P(S_0,test +,untested)}{P(untested)} = \frac{P(test + ,untested |S_0) P(S_0)}{P(untested)}\]</span>
+and similarly <span class="math inline">\(P(S_1,test +|untested) = \frac{P(test + ,untested |S_1) P(S_1)}{P(untested)}\)</span>.</p>
+<p>Thus, we can write the denominator as <span class="math display">\[P(S_0,test +|untested) + P(S_2,test +|untested)\]</span>
+<span class="math display">\[= \frac{P(test + ,untested |S_1) P(S_1) + P(test + ,untested |S_0) P(S_0)}{P(untested)}\]</span>
+<span class="math display">\[ = \frac{P(test+,untested)}{P(untested)} = P(test + |untested).\]</span></p>
+<p>Putting these results together, we have
+<span class="math display">\[ = \frac{P(S_0, test+|untested)}{P(test+|untested)} = \frac{\frac{P(S_0, test+, untested)}{P(untested)}}{ \frac{P(test+,untested)}{P(untested)}} =
+\frac{P(S_0, test+, untested)}{P(test+,untested)} =
+P(S_0 |test+, untested).\]</span></p>
+
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="overview-of-approach.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="definition-of-prior-distributions-for-bias-parameters.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": [["thesis.pdf", "PDF"], ["thesis.epub", "EPUB"], ["thesis.docx", "Word"]],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

@@ -1,0 +1,13 @@
+---
+title: "index.Rmd"
+author: "Quinn White"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    df_print: paged
+    code_folding: hide
+    css: css/template.css
+---
+
+
+Test
