@@ -1,6 +1,6 @@
 name: "probabilistic-bias-analysis"
 navbar: 
-  title: "Probabilistic Bias Analysis"
+  title: "Bias Analysis"
   left:
   - text: "Home"
     href: index.html

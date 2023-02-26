@@ -714,8 +714,8 @@ county_fips <- county_fips %>%
   filter(!(fips %in% grouped_counties_fips)) %>%
   bind_rows(tibble(name = "Dukes and Nantucket", 
                    fips = paste0(grouped_counties_fips, 
-                                 collapse=","),
-                   state = "MA"))
+                                 collapse=","))) %>%
+                   mutate(state = "MA")
 
  
 # sum populations for grouped counties
@@ -933,7 +933,7 @@ From the documentation:
 
 screening_data_link <- paste0(
   "https://api.covidcast.cmu.edu/epidata/covidcast/?data_source=fb-survey",
-  "&signal=smoothed_wscreening_tested_positive_14d,smoothed_wtested_positive_14d,smoothed_wcli",
+  "&signal=smoothed_wscreening_tested_positive_14d,smoothed_wtested_positive_14d",
   "&geo_type=state&time_type=day&time_values=20210320-20221212&geo_value=*")
 
 fb_screening <- httr::GET(screening_data_link)
