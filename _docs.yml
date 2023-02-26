@@ -1,8 +1,0 @@
-name: "probabilistic-bias-analysis"
-navbar: 
-  title: "Bias Analysis"
-  left:
-  - text: "Home"
-    href: index.html
-  - text: "Data Cleaning"
-    href: analysis/data_cleaning/data_cleaning.html

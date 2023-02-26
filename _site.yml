@@ -6,3 +6,4 @@ navbar:
     href: index.html
   - text: "Data Cleaning"
     href: analysis/data_cleaning/data_cleaning.html
+output_dir: "docs"
