@@ -1,0 +1,14 @@
+---
+title: "Bayesian Melding App"
+author: "Quinn White"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    df_print: paged
+    code_folding: hide
+  html_document:
+    df_print: paged
+---
+
+
+Shiny app exploring the implications of changing the parameters for $\alpha, \beta,$ and $P(S_1|untested)$ is deployed [here](https://q-w-a.shinyapps.io/bayesian_melding_priors/).
