@@ -36,11 +36,11 @@ library(lubridate)
 
 # File Descriptions
 
-
 ### Demographic 
 * `population_2019.RDS` contains the population for each fips code
-* `statecodes.csv` contains state names mapped to codes
+* `statecodes.csv` contains state names mapped to codes from [the census](https://www2.census.gov/programs-surveys/popest/datasets/2010-2019/counties/totals/)
 * `county_fips.tsv` contains fips code mapped to county name and state 
+* `state_pop.RDS` contains state population estimates from [the census](https://www2.census.gov/programs-surveys/popest/datasets/2010-2019/state/detail/)
 
 ### Covidestim
 * `covidestim_original_all.RDS` is an RDS file of the covidestim csv from the link `https://covidestim.s3.us-east-2.amazonaws.com/latest/state/estimates.csv`, unmodified; includes dates through 2021 earlier than 2021-12-02
@@ -395,6 +395,10 @@ dates <- readRDS(paste0(here::here(),
 # PAGE: https://www2.census.gov/programs-surveys/popest/datasets/2010-2019/state/detail/
 state_population_link <- "https://www2.census.gov/programs-surveys/popest/datasets/2010-2019/state/detail/SCPRC-EST2019-18+POP-RES.csv"
 state_pop <- read_csv(state_population_link)
+
+saveRDS(state_pop, paste0(
+  here::here(), 
+  "/data/demographic/state_pop.RDS"))
 
 statecodes <- read_csv(paste0(
   here::here(), 
