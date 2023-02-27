@@ -6,6 +6,7 @@ output:
   rmdformats::readthedown:
     df_print: paged
     code_folding: hide
+    css: ../../css/template.css
   html_document:
     df_print: paged
 ---
@@ -80,9 +81,10 @@ w_data %>%
 ```
 
 
+
+```{r,include=FALSE}
 # States with the Most Wastewater Data
 
-```{r}
 # states with the most wastewater data
 w_data %>% 
   group_by(name,fips,state) %>%
@@ -406,7 +408,9 @@ w_data %>%
 ```
 
 
-```{r,eval=FALSE}
+# CTIS Survey Data Sample Size 
+
+```{r}
 
 fb_symptoms <- readRDS(
   paste0(
@@ -437,25 +441,42 @@ fb_sample_size <- fb_symptoms %>%
 
 fb_sample_size <- fb_sample_size %>% 
   group_by(state) %>%
-  mutate(mean_sampled = mean(prop_sampled)) %>%
+  mutate(mean_sampled = median(prop_sampled)) %>%
   ungroup() %>%
   mutate(quantile_sampled = ntile(mean_sampled, n = 4)) %>%
   group_by(state) %>%
   # ensure one quantile per state
   mutate(quantile_sampled = max(quantile_sampled)) 
 
+
+```
+
+```{r, fig.height = 10, fig.width = 10}
+
+# plot distribution of population sampled by state,
+# split into quantiles
+
 fb_sample_size %>%
-  mutate(quantile_sampled = as_factor(
-    quantile_sampled)) %>%
+  mutate(quantile_sampled_fact = factor(
+    quantile_sampled, levels = unique(quantile_sampled ))) %>%
   ggplot(aes(x = prop_sampled,
-             fill =quantile_sampled)) +
+             fill =fct_reorder(quantile_sampled_fact, 
+                               quantile_sampled))) +
   geom_density() +
-  facet_wrap(~fct_reorder(state, as.numeric(quantile_sampled)))
+  facet_wrap(~fct_reorder(state, quantile_sampled)) +
+  theme_bw() +
+  viridis::scale_fill_viridis(discrete = TRUE, 
+                              end = .9,
+                              direction = -1) +
+  labs(fill = "Quantile",
+       x = "Proportion of Population Sampled",
+       title = "Distribution of the Proportion of Population Sampled by State",
+       subtitle = "Divided into 4 Quantiles") +
+  theme(plot.title = element_text(face="bold", hjust = .5, size = 20),
+          plot.subtitle = element_text(face = "italic",
+                                       hjust = .5,
+                                       size = 18))
   
-  
-  
-  group_by(state) %>%
-  mutate(mean_sampled = mean(value))
   
 
 ```

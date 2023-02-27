@@ -36,11 +36,11 @@ library(lubridate)
 
 # File Descriptions
 
-
 ### Demographic 
 * `population_2019.RDS` contains the population for each fips code
-* `statecodes.csv` contains state names mapped to codes
+* `statecodes.csv` contains state names mapped to codes from [the census](https://www2.census.gov/programs-surveys/popest/datasets/2010-2019/counties/totals/)
 * `county_fips.tsv` contains fips code mapped to county name and state 
+* `state_pop.RDS` contains state population estimates from [the census](https://www2.census.gov/programs-surveys/popest/datasets/2010-2019/state/detail/)
 
 ### Covidestim
 * `covidestim_original_all.RDS` is an RDS file of the covidestim csv from the link `https://covidestim.s3.us-east-2.amazonaws.com/latest/state/estimates.csv`, unmodified; includes dates through 2021 earlier than 2021-12-02
@@ -396,6 +396,10 @@ dates <- readRDS(paste0(here::here(),
 state_population_link <- "https://www2.census.gov/programs-surveys/popest/datasets/2010-2019/state/detail/SCPRC-EST2019-18+POP-RES.csv"
 state_pop <- read_csv(state_population_link)
 
+saveRDS(state_pop, paste0(
+  here::here(), 
+  "/data/demographic/state_pop.RDS"))
+
 statecodes <- read_csv(paste0(
   here::here(), 
   "/data/demographic/statecodes.csv"))
@@ -714,8 +718,8 @@ county_fips <- county_fips %>%
   filter(!(fips %in% grouped_counties_fips)) %>%
   bind_rows(tibble(name = "Dukes and Nantucket", 
                    fips = paste0(grouped_counties_fips, 
-                                 collapse=","))) %>%
-                   mutate(state = "MA")
+                                 collapse=","),
+                   state = "MA"))
 
  
 # sum populations for grouped counties
@@ -924,16 +928,17 @@ county_hosp %>%
 Accessed through the [Covidcast API](https://cmu-delphi.github.io/delphi-epidata/api/covidcast-signals/fb-survey.html).
 
 From the documentation:
+
 * `smoothed_wtested_positive_14d`: positivity rate among those tested for COVID-19 in previous 14 days
 * `smoothed_wscreening_tested_positive_14d`: positivity rate among those screened for COVID-19 without symptoms or known exposure
 
 
-```{r}
+```{r, eval=TRUE}
 
 
 screening_data_link <- paste0(
   "https://api.covidcast.cmu.edu/epidata/covidcast/?data_source=fb-survey",
-  "&signal=smoothed_wscreening_tested_positive_14d,smoothed_wtested_positive_14d",
+  "&signal=smoothed_wscreening_tested_positive_14d,smoothed_wtested_positive_14d,smoothed_wcli",
   "&geo_type=state&time_type=day&time_values=20210320-20221212&geo_value=*")
 
 fb_screening <- httr::GET(screening_data_link)

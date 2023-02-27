@@ -8,8 +8,10 @@ navbar:
     href: analysis/data_cleaning/data_cleaning.html
   - text: "County Level Correction (MA)"
     href: analysis/county_level_correction/county_level_correction_ma.html
- - text: "County Level Correction (MI)"
+  - text: "County Level Correction (MI)"
     href: analysis/county_level_correction/county_level_correction_mi.html    
   - text: "Melding App"
     href: app/melding_link_to_page.html
+  - text: "Selecting States"
+    href: analysis/subsetting_states/subsetting_states.html
 output_dir: "docs"

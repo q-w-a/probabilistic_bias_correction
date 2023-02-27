@@ -1,5 +1,5 @@
 ---
-title: " <span style ='color: white;'>Correcting COVID-19 Infection Counts for Undertesting and Diagnostic Test Inaccuracy</span>"
+title: " <span style ='color:white;'>Correcting COVID-19 Infection Counts for Undertesting and Diagnostic Test Inaccuracy</span>"
 author: "<span style = 'color:lightgray'>Quinn White</span>"
 date: "<span style = 'color:lightgray'>`r Sys.Date()`</span>"
 output:

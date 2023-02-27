@@ -1,0 +1,483 @@
+---
+title: "Subsetting States"
+author: "Quinn White"
+date: '`r Sys.Date()`'
+output:
+  rmdformats::readthedown:
+    df_print: paged
+    code_folding: hide
+    css: ../../css/template.css
+  html_document:
+    df_print: paged
+---
+
+
+```{css, echo = FALSE}
+#content{
+max-width:2300px;
+}
+  
+``` 
+
+
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE,message=FALSE)
+
+
+library(tidyverse)
+library(lubridate)
+library(scales)
+
+```
+
+# Approaches to Choosing States to Run at the County Level
+
+* Idea 1 -- see which states have wastewater to data to compare to, which would provide another source of information to compare the trends we see.
+  * Problem: most states do not have many counties with a substantial amount of wastewater data, so this comparison is only possible for a limited number of counties.
+  * Massachusetts happens to be a state with multiple counties with comprehensive wastewater data. 
+
+Idea 2 -- select states based on survey sample size relative to total population. 
+
+# Wastewater Data from Biobot Analytics
+
+```{r}
+
+biobot_link <- "https://raw.githubusercontent.com/biobotanalytics/covid19-wastewater-data/master/wastewater_by_county.csv"
+
+
+w_data <- read_csv(biobot_link)%>% 
+  filter(sampling_week >= ymd("2021-03-01") &  sampling_week <= ymd("2022-03-01")) %>%
+  mutate(fips = factor(fipscode)) %>%
+  select(-fipscode)
+
+
+```
+
+## Counties with the Most Wastewater Data Reports
+
+```{r}
+# counties with the most wastewater data
+w_data %>% 
+  group_by(name,fips) %>%
+  summarize(n=n()) %>%
+  arrange(desc(n))
+
+```
+
+## Number of Counties with > 35 Observations by State
+
+```{r}
+w_data %>% 
+  group_by(name,fips, state) %>%
+  summarize(n=n()) %>%
+  arrange(desc(n)) %>%
+  filter(n > 35) %>%
+  group_by(state) %>%
+  summarize(n_counties = n()) %>%
+  arrange(desc(n_counties))
+
+```
+
+
+
+```{r,include=FALSE}
+# States with the Most Wastewater Data
+
+# states with the most wastewater data
+w_data %>% 
+  group_by(name,fips,state) %>%
+  summarize(n=n()) %>% 
+  group_by(state) %>% 
+  summarize(obs = sum(n)) %>% 
+  arrange(desc(obs))
+
+```
+
+
+```{r}
+
+####################################################################
+# COMPARE WASTEWATER TO CORRECTED CASES
+####################################################################
+
+state <- "ma"
+priors_versions <- c("v1", "v2", "v3", "v4")
+
+
+versions <- tibble(
+  version = c("v1", "v2", "v3", "v4"),
+  vlabel = c("Priors Do Not Vary by County and Date", 
+             "Distr. for Beta Centered at Empirical Value",
+             "Distr. for P(S_1|untested) and Beta Centered at Empirical Values",
+             "Distr. for P(S_1|untested) Centered at Empirical Value")
+)
+
+
+state_corrected_path <-  paste0(here::here(), "/analysis/results/adj_biweekly_county/", state, "/")
+
+
+################################
+# ESTIMATED
+################################
+dates <- readRDS(paste0(here::here(), "/data/date_to_biweek.RDS"))
+
+corrected <- map_df(priors_versions, ~readRDS(
+        paste0(state_corrected_path, "adj_",
+               .x, 
+               ".RDS")) %>% 
+          mutate(version = .x)) %>%
+  left_join(dates)
+
+corrected <- corrected %>%
+  left_join(versions)
+
+
+pal <- c("#74A09F", "#A0748B", 
+         "#748BA0", "#A08974",
+         "#D49E9F", "#D4B89E", "#AFCFE5")
+
+```
+
+
+```{r}
+
+compare_county_wastewater <- function(county_fips, end_date ="2021-12-15") {
+  
+  county_name <- w_data %>% 
+    filter(fips == county_fips) %>%
+    pull(name)
+    
+  custom_title = paste0("Comparing Wastewater Concentration to Corrected Estimates for ",
+                 county_name, "\nFIPS: ", county_fips)
+  
+  end_date <- ymd(end_date)
+  
+  w_data_for_county <- w_data %>%
+    rename(date = sampling_week) %>%
+    filter(fips == county_fips & date <= end_date)
+  
+  if(nrow(w_data_for_county) == 0) {
+    message(paste0("No wastewater data for FIPS: ", 
+                   county_fips));
+    return()}
+  
+  begin_date <- min(w_data_for_county$date)
+  
+  
+  adj <- corrected %>%filter(fips == county_fips & date <= end_date) %>% pull(exp_cases_ub) %>% max()
+  
+  conc_max <- max(w_data_for_county$effective_concentration_rolling_average) 
+  
+  adj <- conc_max/adj
+  
+  corrected %>%
+    filter(fips == county_fips  & date >= begin_date & date <= end_date) %>%
+    ggplot() +
+    geom_ribbon(aes(x = date, 
+               ymin = exp_cases_lb*adj,
+               ymax = exp_cases_ub*adj,
+               fill = vlabel),
+               alpha = .7) +
+    geom_line(data = w_data_for_county, 
+              aes(x = date, y =effective_concentration_rolling_average ),
+              color = "#DB4048",
+              size = 1.1) +
+    geom_point(data = w_data_for_county, 
+              aes(x = date, y =effective_concentration_rolling_average ),
+              color = "#DB4048",
+              alpha = .5,
+              size = 1.2) +
+    facet_wrap(~vlabel) +
+    scale_fill_manual(values = pal) +
+    theme_bw() +
+    theme(
+      legend.position = "none",
+      plot.title = element_text(face = "bold", size = 16, hjust = .5),
+      axis.title = element_text(size = 18),
+      strip.text = element_text(size = 14)
+    )+
+    scale_y_continuous(sec.axis = sec_axis(~./adj,
+                                       name = "Corrected Infection Estimates",
+                                       labels = comma),
+                       labels = comma) +
+    labs(y = "Effective Concentration Rolling Average",
+         title = custom_title) +
+    scale_x_date(date_labels = "%b %Y")
+}
+
+# compare_county_wastewater(county_fips = "25023")
+
+
+
+```
+
+
+## Compare Wastewater Trends to Corrected Estimates
+
+```{r, fig.height = 10, fig.width =14, message = TRUE}
+
+
+walk(unique(corrected$fips), ~{
+  plt <- compare_county_wastewater(county_fips = .x)
+  print(plt)
+} ) 
+
+
+
+```
+
+
+```{r, eval= FALSE}
+library(scales)
+
+
+end_date <- ymd("2021-12-15")
+
+w_data_for_county <- w_data %>%
+  rename(date = sampling_week) %>%
+  filter(fips == "25023" & date <= end_date)
+
+begin_date <- min(w_data_for_county$date)
+
+
+adj <- corrected %>%filter(fips == "25023" & date <= end_date) %>% pull(exp_cases_ub) %>% max()
+
+conc_max <- max(w_data_for_county$effective_concentration_rolling_average) 
+
+adj <- conc_max/adj
+
+corrected %>%
+  filter(fips == "25023"  & date >= begin_date & date <= end_date) %>%
+  ggplot() +
+  geom_ribbon(aes(x = date, 
+             ymin = exp_cases_lb*adj,
+             ymax = exp_cases_ub*adj,
+             fill = vlabel),
+             alpha = .7) +
+  geom_line(data = w_data_for_county, 
+            aes(x = date, y =effective_concentration_rolling_average ),
+            color = "#DB4048",
+            size = 1.1) +
+  facet_wrap(~vlabel) +
+  scale_fill_manual(values = pal) +
+  theme_bw() +
+  theme(
+    legend.position = "none"
+  )+
+  scale_y_continuous(sec.axis = sec_axis(~./adj,
+                                     name = "Corrected Infection Estimates",
+                                     labels = comma),
+                     labels = comma) +
+  labs(y = "Effective Concentration Rolling Average") +
+  theme(axis.title = element_text(size = 18))
+
+
+adj <- conc_max/adj 
+
+w_data %>%
+  filter(fips == "25023") %>%
+  select(date = sampling_week,
+                  fips = fips, 
+                  value = effective_concentration_rolling_average) %>%
+  mutate(source = "concentration") %>%
+  bind_rows(all_25005) %>%
+  filter(date <= ymd("2021-12-15")) %>%
+   ggplot(aes(x=date,y=value,color=source)) +
+  geom_line()
+
+
+
+corrected %>%
+  filter(fips == "25023") %>%
+  left_join(dates) %>%
+  ggplot() +
+  geom_line(data = aes(x = ))
+
+
+
+# look at counties in MA 
+w_data %>% 
+  filter(state == "MA"& sampling_week <= ymd("2021-12-15")) %>%
+  ggplot(aes(x = sampling_week, y = effective_concentration_rolling_average)) +
+  geom_line() +
+  geom_point(size =.5, alpha = .5) +
+  geom_line() +
+  facet_wrap(~fips)
+
+
+
+
+all_ma <- readRDS(paste0(here::here(), "/data/ma/ma_full_county.RDS")) %>%
+   filter(start_date >= ymd("2021-03-01") &  start_date <= ymd("2022-03-01"))
+
+all_ma %>% 
+  filter(fips == "25005") %>%
+  ggplot(aes(x = start_date, y = positive)) +
+  geom_point()
+
+
+w_data_for_county <- w_data %>%
+  filter(fips == "25005" & date <= ymd("2021-12-15"))
+
+
+w_data %>%
+  filter(fips == "25005") %>%
+  select(date = sampling_week,
+                  fips = fips, 
+                  value = effective_concentration_rolling_average) %>%
+  mutate(source = "concentration") %>%
+  bind_rows(all_25005) %>%
+  filter(date <= ymd("2021-12-15")) %>%
+   ggplot(aes(x=date,y=value,color=source)) +
+  geom_line()
+
+
+
+w_data %>% 
+  filter(state == "MA") %>% pull(fips) %>% unique() %>% length()
+  
+
+adj <- all_ma %>% 
+  filter(fips == "25005" & start_date <=  ymd("2021-12-15" ))  %>%
+  pull(positive) %>% max()
+
+
+
+conc_max <- w_data %>%
+  filter(fips == "25005" & sampling_week <=  ymd("2021-12-15" )) %>%
+  pull(effective_concentration_rolling_average) %>%
+  max() 
+
+adj <- conc_max/adj 
+
+w_data %>% 
+  filter(state == "MA"& sampling_week <= ymd("2021-12-15") & fips == "25005") %>%
+  ggplot() +
+  geom_line(aes(x = sampling_week, y = effective_concentration_rolling_average)) +
+  geom_line(aes(x = start_date, y = positive/adj)) +
+  geom_point(size =.5, alpha = .5) +
+  geom_line() +
+  facet_wrap(~fips)
+
+
+
+w_data %>% 
+  filter(state == "MA"& sampling_week <= ymd("2021-12-15") & fips == "25005") %>%
+  left_join(all_ma[all_ma$fips == "25005" & all_ma$start_date <= ymd("2021-12-15"),]) %>%
+  mutate(positive_adj = positive / adj) %>% View()
+
+
+
+all_25005 <- all_ma %>%
+  filter(fips == "25005") %>%
+  mutate(positive = positive*adj) %>%
+  select(date = start_date, fips = fips, value=positive) %>%
+  mutate(source = "cases")
+
+
+all_25005 %>%
+  ggplot(aes(x = date, y = value)) +
+  geom_line()
+
+
+
+w_data %>%
+  filter(fips == "25005") %>%
+  select(date = sampling_week,
+                  fips = fips, 
+                  value = effective_concentration_rolling_average) %>%
+  ggplot(aes(x = date, y = value)) +
+  geom_line()
+
+
+w_data %>%
+  filter(fips == "25005") %>%
+  select(date = sampling_week,
+                  fips = fips, 
+                  value = effective_concentration_rolling_average) %>%
+  mutate(source = "concentration") %>%
+  bind_rows(all_25005) %>%
+  filter(date <= ymd("2021-12-15")) %>%
+   ggplot(aes(x=date,y=value,color=source)) +
+  geom_line()
+
+
+
+```
+
+
+# CTIS Survey Data Sample Size 
+
+```{r}
+
+fb_symptoms <- readRDS(
+  paste0(
+    here::here(), 
+    "/data/state_level/screeningpos_all_states.RDS"))
+
+state_pop <- readRDS(paste0(here::here(), 
+                            "/data/demographic/state_pop.RDS")) %>%
+  select(POPESTIMATE2019, NAME) 
+
+state_codes <- read_csv(paste0(here::here(), "/data/demographic/statecodes.csv"))
+
+state_pop <- state_pop %>%
+  left_join(state_codes, by = c("NAME" = "state")) %>% 
+  filter(!is.na(code)) %>%
+  rename_with(.cols = everything(), tolower) %>%
+  mutate(code = tolower(code)) %>%
+  select(pop = popestimate2019, state = code)
+
+
+fb_symptoms <- fb_symptoms %>%
+  left_join(state_pop, by = c("state"="state")) %>%
+  mutate(prop_sampled = sample_size / pop) 
+  
+fb_sample_size <- fb_symptoms %>%
+  pivot_wider(names_from = signal, values_from = value) %>%
+  select(state,date, sample_size, prop_sampled) 
+
+fb_sample_size <- fb_sample_size %>% 
+  group_by(state) %>%
+  mutate(mean_sampled = median(prop_sampled)) %>%
+  ungroup() %>%
+  mutate(quantile_sampled = ntile(mean_sampled, n = 4)) %>%
+  group_by(state) %>%
+  # ensure one quantile per state
+  mutate(quantile_sampled = max(quantile_sampled)) 
+
+
+```
+
+```{r, fig.height = 10, fig.width = 10}
+
+# plot distribution of population sampled by state,
+# split into quantiles
+
+fb_sample_size %>%
+  mutate(quantile_sampled_fact = factor(
+    quantile_sampled, levels = unique(quantile_sampled ))) %>%
+  ggplot(aes(x = prop_sampled,
+             fill =fct_reorder(quantile_sampled_fact, 
+                               quantile_sampled))) +
+  geom_density() +
+  facet_wrap(~fct_reorder(state, quantile_sampled)) +
+  theme_bw() +
+  viridis::scale_fill_viridis(discrete = TRUE, 
+                              end = .9,
+                              direction = -1) +
+  labs(fill = "Quantile",
+       x = "Proportion of Population Sampled",
+       title = "Distribution of the Proportion of Population Sampled by State",
+       subtitle = "Divided into 4 Quantiles") +
+  theme(plot.title = element_text(face="bold", hjust = .5, size = 20),
+          plot.subtitle = element_text(face = "italic",
+                                       hjust = .5,
+                                       size = 18))
+  
+  
+
+```
+
