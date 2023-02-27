@@ -1,9 +1,11 @@
 name: "probabilistic-bias-analysis"
 navbar: 
-  title: "Bias Analysis"
+  title: "Probabilistic Bias Analysis"
   left:
   - text: "Home"
     href: index.html
   - text: "Data Cleaning"
     href: analysis/data_cleaning/data_cleaning.html
+  - text: "County Level Correction"
+    href: analysis/county_level_correction/county_level_correction.html
 output_dir: "docs"
