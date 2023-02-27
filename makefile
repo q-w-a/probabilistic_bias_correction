@@ -14,4 +14,5 @@ data: analysis/data_cleaning/data_cleaning.Rmd
 			
 			
 county_results: analysis/county_level_correction/county_correction.Rmd analysis/base_functions/base_functions.R analysis/data_cleaning/data_cleaning.Rmd
-			Rscript -e "rmarkdown::render('analysis/county_level_correction/county_correction.Rmd')"
+			Rscript -e "rmarkdown::render('analysis/county_level_correction/county_correction.Rmd', params = list(state = 'ma'), output_file = 'county_level_correction_ma.html')"
+			Rscript -e "rmarkdown::render('analysis/county_level_correction/county_correction.Rmd', params = list(state = 'mi'), output_file = 'county_level_correction_mi.html')"
