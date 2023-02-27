@@ -176,13 +176,13 @@ est_P_A_testpos = function(P_S_untested, alpha, beta){
 
 
 #' Add sensitivity and specificity
-process_priors_per_county <-  function(priors, county_df){
-  dist_Se <- truncdist::rtrunc(n = 1e5,spec = "beta",a = 0.65,b = 1,
+process_priors_per_county <-  function(priors, county_df, nsamp){
+  dist_Se <- truncdist::rtrunc(n = nsamp,spec = "beta",a = 0.65,b = 1,
                                shape1 = get_beta_params(mu = 0.8,
                                                         sd = (0.4)^2)$a,
                                shape2 = get_beta_params(mu = 0.8,
                                                         sd = (0.4)^2)$b)
-  dist_Sp <- truncdist::rtrunc(n = 1e5,spec = "beta",a = 0.9998,b = 1,
+  dist_Sp <- truncdist::rtrunc(n = nsamp,spec = "beta",a = 0.9998,b = 1,
                                shape1 = get_beta_params(mu = 0.99995,
                                                         sd = (0.01)^2)$a,
                                shape2 = get_beta_params(mu = 0.99995,
@@ -314,20 +314,6 @@ summarize_corrected_sample <- function(priors_by_county_df_exp_cases) {
     total = unique(priors_by_county_df_exp_cases$total))
   
   return(summarized)
-  
-}
-
-
-get_corrected_counts <- function(county_df, melded_df) {
-  
-  
-  corrected <- pmap_df(county_df, ~ {
-    process_priors_per_county(
-      priors = melded_df,
-      df = list(...)) %>%
-      generate_corrected_sample(., num_reps = 1e3) %>%
-      summarize_corrected_sample() })
-  
   
 }
 
