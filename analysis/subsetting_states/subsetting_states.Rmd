@@ -31,6 +31,14 @@ library(scales)
 
 ```
 
+# Approaches to Choosing States to Run at the County Level
+
+* Idea 1 -- see which states have wastewater to data to compare to, which would provide another source of information to compare the trends we see.
+  * Problem: most states do not have many counties with a substantial amount of wastewater data, so this comparison is only possible for a limited number of counties.
+  * Massachusetts happens to be a state with multiple counties with comprehensive wastewater data. 
+
+Idea 2 -- select states based on survey sample size relative to total population. 
+
 # Wastewater Data from Biobot Analytics
 
 ```{r}
@@ -99,20 +107,13 @@ priors_versions <- c("v1", "v2", "v3", "v4")
 versions <- tibble(
   version = c("v1", "v2", "v3", "v4"),
   vlabel = c("Priors Do Not Vary by County and Date", 
-             "Distribution for Beta is Centered at Empirical Value",
-             "Distributions for P(S_1|untested) and Beta Centered at Empirical Values",
-             "Distribution for P(S_1|untested) Centered at Empirical Value")
+             "Distr. for Beta Centered at Empirical Value",
+             "Distr. for P(S_1|untested) and Beta Centered at Empirical Values",
+             "Distr. for P(S_1|untested) Centered at Empirical Value")
 )
 
 
 state_corrected_path <-  paste0(here::here(), "/analysis/results/adj_biweekly_county/", state, "/")
-
-
-versions <- versions %>%
-  mutate(vlabel= gsub("Distribution about", "", vlabel)) %>%
-  mutate(vlabel = gsub("Empirical", "Emp.", vlabel))%>%
-  mutate(vlabel = factor(vlabel, levels = .$vlabel))
-
 
 
 ################################
@@ -204,7 +205,7 @@ compare_county_wastewater <- function(county_fips, end_date ="2021-12-15") {
     scale_x_date(date_labels = "%b %Y")
 }
 
- # compare_county_wastewater(county_fips = "25023")
+# compare_county_wastewater(county_fips = "25023")
 
 
 
@@ -412,6 +413,50 @@ fb_symptoms <- readRDS(
     here::here(), 
     "/data/state_level/screeningpos_all_states.RDS"))
 
+state_pop <- readRDS(paste0(here::here(), 
+                            "/data/demographic/state_pop.RDS")) %>%
+  select(POPESTIMATE2019, NAME) 
+
+state_codes <- read_csv(paste0(here::here(), "/data/demographic/statecodes.csv"))
+
+state_pop <- state_pop %>%
+  left_join(state_codes, by = c("NAME" = "state")) %>% 
+  filter(!is.na(code)) %>%
+  rename_with(.cols = everything(), tolower) %>%
+  mutate(code = tolower(code)) %>%
+  select(pop = popestimate2019, state = code)
+
+
+fb_symptoms <- fb_symptoms %>%
+  left_join(state_pop, by = c("state"="state")) %>%
+  mutate(prop_sampled = sample_size / pop) 
+  
+fb_sample_size <- fb_symptoms %>%
+  pivot_wider(names_from = signal, values_from = value) %>%
+  select(state,date, sample_size, prop_sampled) 
+
+fb_sample_size <- fb_sample_size %>% 
+  group_by(state) %>%
+  mutate(mean_sampled = mean(prop_sampled)) %>%
+  ungroup() %>%
+  mutate(quantile_sampled = ntile(mean_sampled, n = 4)) %>%
+  group_by(state) %>%
+  # ensure one quantile per state
+  mutate(quantile_sampled = max(quantile_sampled)) 
+
+fb_sample_size %>%
+  mutate(quantile_sampled = as_factor(
+    quantile_sampled)) %>%
+  ggplot(aes(x = prop_sampled,
+             fill =quantile_sampled)) +
+  geom_density() +
+  facet_wrap(~fct_reorder(state, as.numeric(quantile_sampled)))
+  
+  
+  
+  group_by(state) %>%
+  mutate(mean_sampled = mean(value))
+  
 
 ```
 
