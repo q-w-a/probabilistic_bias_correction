@@ -1,8 +1,11 @@
 ---
-title: " <span style ='color: white;border-radius:2px'>Correcting COVID-19 Infection Counts for Undertesting and Diagnostic Test Inaccuracy</span>"
+title: " <span style ='color: white;'>Correcting COVID-19 Infection Counts for Undertesting and Diagnostic Test Inaccuracy</span>"
 author: "<span style = 'color:lightgray'>Quinn White</span>"
 date: "<span style = 'color:lightgray'>`r Sys.Date()`</span>"
 output:
     html_document:
       css: css/index.css
 ---
+
+
+<span style = 'color:lightgray'>Link to repo with all code is [here](https://github.com/q-w-a/probabilistic_bias_correction). </span>
