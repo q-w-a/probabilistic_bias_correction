@@ -349,9 +349,9 @@ Running analysis for `r params$state`.
 # include slow plots comparing melded distributions for modified priors to original melded distribution
 include_slow <- TRUE
 # only include subset of rows for testing 
-testing <- TRUE
+testing <- FALSE
 # whether to save results adj_v*.RDS (if testing, don't save results)
-save <- FALSE
+save <- TRUE
 
 set.seed(123)
 
@@ -378,7 +378,7 @@ prior_params <- list(
 corrected_sample_reps <- 1e3
 
 # relevant for versions 2,3
-beta_smoothing_span <- .1
+beta_smoothing_span <- .15
 # relevant for versions 3,4
 s_untested_smoothing_span <- .2
 
