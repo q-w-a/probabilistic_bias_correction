@@ -349,9 +349,9 @@ Running analysis for `r params$state`.
 # include slow plots comparing melded distributions for modified priors to original melded distribution
 include_slow <- TRUE
 # only include subset of rows for testing 
-testing <- FALSE
+testing <- TRUE
 # whether to save results adj_v*.RDS (if testing, don't save results)
-save <- TRUE
+save <- FALSE
 
 set.seed(123)
 
@@ -446,7 +446,6 @@ Priors do not vary by state or date; melding performed once.
 
 priors_version <- "v1"
 
-
 melded <- do.call(get_melded, prior_params)
 
 saveRDS(melded$post_melding,
@@ -458,11 +457,19 @@ saveRDS(melded$post_melding,
 # only use a few rows if testing
 covid_county <- if(testing) covid_county[1:4,] else covid_county
 
+# check there are no NAs
+# covid_county %>% 
+#   filter(if_any(everything(), is.na))
+
 tictoc::tic()
 corrected <- pmap_df(
- # covid_county[1:4,],
   covid_county,
+ # covid_county,
   ~ {
+    # message("biweek=", list(...)$biweek, 
+    #         "\ncounty=", list(...)$county,
+    #         "\n-------\n")
+    
     process_priors_per_county(
       priors = melded$post_melding,
       county_df = list(...),
@@ -489,12 +496,13 @@ saveRDS(corrected,
 
 title <- paste0("Pre and Post Melding Distributions")
        
-melded_long <- reformat_melded(melded_df =  melded$post_melding,
-                                      theta_df =  melded$pre_melding,
-                                      p_s0_pos_mean = prior_params$p_s0_pos_mean,
-                                      p_s0_pos_sd = prior_params$p_s0_pos_sd,
-                                      p_s0_pos_bounds = prior_params$p_s0_pos_bounds,
-                                      nsamp = prior_params$nsamp)
+melded_long <- reformat_melded(
+  melded_df =  melded$post_melding,
+  theta_df =  melded$pre_melding,
+  p_s0_pos_mean = prior_params$p_s0_pos_mean,
+  p_s0_pos_sd = prior_params$p_s0_pos_sd,
+  p_s0_pos_bounds = prior_params$p_s0_pos_bounds,
+  nsamp = prior_params$nsamp)
 
 melded_long %>%
          plot_melded(custom_title = title,
@@ -503,6 +511,54 @@ melded_long %>%
 
 
 ```
+
+
+
+## Visualization of CTIS Data
+
+Versions 2, 3, and 4 all use the [CTIS testing indicators data](https://cmu-delphi.github.io/delphi-epidata/api/covidcast-signals/fb-survey.html#testing-indicators).
+
+```{r}
+
+fb_symptoms <- readRDS(
+  paste0(
+    here::here(), 
+    "/data/state_level/screeningpos_all_states.RDS")) %>%
+  filter(state == state_name)
+
+
+
+
+
+```
+
+```{r}
+
+###########################################################################
+# compare empirical distribution across all dates to prior on beta 
+###########################################################################
+fb_symptoms %>% 
+  select(signal, date, value, stderr) %>% 
+  pivot_wider(names_from = signal,
+              values_from = c(value,stderr)) %>%
+  mutate(beta_est = value_smoothed_wscreening_tested_positive_14d/
+           value_smoothed_wtested_positive_14d)%>%
+  select(value = beta_est) %>%
+  mutate(type = "Estimate for Beta\n(Screening Test Positivity/Test Positivity)") %>%
+  bind_rows(beta_prior) %>%
+  ggplot(aes(x=value, fill = type)) +
+  geom_density(alpha = .6) +
+  theme_bw() +
+  labs(title = "Comparing Prior for Beta to Empirical Distribution\n from COVID-19 Trends and Impact Survey Data Across All Dates",
+       subtitle = paste0("State: ", toupper(state_name)),
+       fill = "") +
+  theme_c()
+
+
+
+```
+
+
 
 ## Version 2
 

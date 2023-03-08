@@ -1,22 +1,14 @@
 ---
 title: "Melding Experiment"
 author: "Quinn White"
-date: "2023-01-20"
+date: "`r Sys.Date()`"
 output:
   rmdformats::readthedown:
     df_print: paged
     code_folding: hide
+    css: ../css/template.css
   html_document:
     df_print: paged
-knit: (function(input, ...) {
-    rmarkdown::render(
-      input,
-      output_file = paste0(
-        xfun::sans_ext(input), '-', Sys.Date(), '.html'
-      ),
-      envir = globalenv()
-    )
-  })
 ---
 
 
@@ -30,7 +22,7 @@ max-width:2300px;
 
 
 ```{r setup, include=FALSE, eval= TRUE}
-knitr::opts_chunk$set(echo = TRUE,message=FALSE,warning=FALSE, results='hide',fig.width = 11, fig.height = 16)
+knitr::opts_chunk$set(echo = TRUE,message=FALSE,warning=FALSE, results='hide',fig.width = 6, fig.height = 9, dpi=36)
 library(truncdist)
 library(tidyverse)
 library(latex2exp)
@@ -78,7 +70,7 @@ $P(S_1|untested)$ is always very small relative to $1-P(S_1|untested)$, so chang
 # Read Data -----------
 state_name <- "ma"
 covid_county <- paste0(here::here(),
-                          "/data/",
+                          "/data/county_level/",
                           state_name,
                           "/",
                           state_name,
@@ -91,7 +83,7 @@ covid_county <- paste0(here::here(),
 #covid_county <- covid_county[1,]
 
 corrected_original <- readRDS(paste0(here::here(),
-               "/melding2/example_county_data/example_county.RDS"))
+               "/app/example_county_data/example_county.RDS"))
 
 
 dates <- readRDS(paste0(here::here(),

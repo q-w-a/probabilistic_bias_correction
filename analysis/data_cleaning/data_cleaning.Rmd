@@ -482,19 +482,14 @@ cdc_pos %>%
 
 
 
-```{r, eval=TRUE}
+```{r michigan county, eval=TRUE}
 
 county_fips <- read_tsv(paste0(
   here::here(),
   "/data/demographic/county_fips.tsv")) %>%
   dplyr::rename_with(.cols =everything(), tolower)
 
-```
 
-
-
-
-```{r michigan county, eval = TRUE}
 
 
 ###############################
@@ -576,27 +571,22 @@ county_biweekly <- county %>%
                  sum)) %>%
   ungroup() %>%
   mutate(posrate = positive/ total) %>%
-  select(-week)
+  select(-week) %>%
+  filter(!is.na(fips))
 
 
 county_biweekly %>%
-  saveRDS(paste0(here::here(), 
-               "/data/county_level/mi/mi_county_biweekly.RDS"))
-
-
-readRDS(paste0(
-  here::here(), 
-  "/data/county_level/mi/mi_county_biweekly.RDS")) %>%
-  mutate(week = week(date), year=year(date)) %>%
-  mutate(
-         week = case_when(
-           year == 2021 ~week,
-           year == 2022 ~ week + 52
-         )) %>%
   select(biweek,date) %>%
     distinct() %>%
   saveRDS(paste0(here::here(),
                  "/data/date_to_biweek.RDS"))
+
+county_biweekly %>%
+  select(-date) %>%
+  distinct() %>%
+  saveRDS(paste0(here::here(), 
+               "/data/county_level/mi/mi_county_biweekly.RDS"))
+
 
 
 ```
