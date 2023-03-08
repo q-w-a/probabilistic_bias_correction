@@ -5,3 +5,5 @@
 .DS_Store
 *.Rproj
 covidestim_county_estimates.RDS
+app/melding_experiment.html
+app/melding_experiment_files/*
