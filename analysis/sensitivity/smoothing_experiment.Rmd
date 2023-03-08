@@ -1,0 +1,286 @@
+---
+title: "Sensitivity to Smoothing Bandwidth"
+author: "Quinn White"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Implementation of version 2 with multiple smoothing bandwidth cchoices t
+
+## Version 2
+
+Time varying estimate of beta using the state-level estimate.
+
+
+```{r}
+
+
+# remove objects from previous version
+remove(list = ls()[!ls() %in% do_not_remove] )
+
+covid_county <- readRDS(state_data_path)
+
+
+source(paste0(here::here(), "/analysis/base_functions/base_functions.R"))
+
+priors_version <- "v2"
+
+fb_symptoms <- readRDS(
+  paste0(
+    here::here(), 
+    "/data/state_level/screeningpos_all_states.RDS")) %>%
+  filter(state == state_name)
+
+
+
+beta_prior <-  tibble(value = sample_beta_density(1e5,
+                          mean = prior_params$beta_mean,
+                          sd = prior_params$beta_sd,
+                          bounds = prior_params$beta_bounds),
+                      type = "Prior on Beta")
+
+```
+
+```{r,  eval= TRUE}
+
+################################################################################################
+# compare empirical distribution across all dates to prior on beta 
+################################################################################################
+fb_symptoms %>% 
+  select(signal, date, value, stderr) %>% 
+  pivot_wider(names_from = signal,
+              values_from = c(value,stderr)) %>%
+  mutate(beta_est = value_smoothed_wscreening_tested_positive_14d/
+           value_smoothed_wtested_positive_14d)%>%
+  select(value = beta_est) %>%
+  mutate(type = "Estimate for Beta\n(Screening Test Positivity/Test Positivity)") %>%
+  bind_rows(beta_prior) %>%
+  ggplot(aes(x=value, fill = type)) +
+  geom_density(alpha = .6) +
+  theme_bw() +
+  labs(title = "Comparing Prior for Beta to Empirical Distribution\n from COVID-19 Trends and Impact Survey Data Across All Dates",
+       subtitle = paste0("State: ", toupper(state_name)),
+       fill = "") +
+  theme_c()
+
+
+
+```
+
+```{r,  eval= TRUE}
+
+dates <- readRDS(paste0(here::here(), "/data/date_to_biweek.RDS"))
+
+get_smoothed <- function(input_smoothing_span) {
+  
+  beta_est <- fb_symptoms %>% 
+    select(signal, date, value, stderr) %>% 
+    pivot_wider(names_from = signal,
+                values_from = c(value,stderr)) %>%
+    mutate(beta_estimate = value_smoothed_wscreening_tested_positive_14d
+           /value_smoothed_wtested_positive_14d) %>%
+    arrange(date) %>%
+    mutate(index = 1:nrow(.)) %>%
+    ungroup() %>%
+    # fill last weeks (missing from survey data) with rolling mean from previous
+    # 3 observations
+    mutate(rolled_mean = RcppRoll::roll_mean(beta_estimate, n = 3, na.rm = FALSE, fill = NA)) %>%
+    fill(rolled_mean, .direction = "down") %>%
+    mutate(beta_estimate = ifelse(is.na(beta_estimate), rolled_mean, beta_estimate))
+  
+  smoothed_beta <- loess(beta_estimate~index, data= beta_est, span = input_smoothing_span)
+  
+  beta_est %>%
+    mutate(beta_estimate_smoothed = predict(smoothed_beta)) %>%
+    select(beta_estimate, beta_estimate_smoothed, date) %>%
+    mutate(span = input_smoothing_span)
+  
+}
+
+
+beta_est <- map_df(seq(.1,.5, by = .05),
+                  ~ get_smoothed(input_smoothing_span = .x))        
+
+
+```
+
+```{r plot beta over time,  eval= TRUE}
+
+cust_lab <- function(x) paste0("span: ", x)
+
+
+###############################################################
+# look at empirical beta estimates across time 
+###############################################################
+beta_est  %>%
+  ggplot(aes(x=date, y = beta_estimate)) +
+  geom_line() +
+  geom_point(alpha = .5) +
+  geom_line(aes(y=beta_estimate_smoothed), color = "darkred", size = 1.2) +
+  facet_wrap(~span, labeller=as_labeller(cust_lab)) +
+  theme_c() +
+  labs(title = "Estimates of Beta across Time",
+       subtitle = paste0("State: ", toupper(state_name)),
+       y = "Estimate of Beta") +
+  scale_x_date(date_breaks = "2 months", date_labels = "%b %d")
+
+
+```
+
+
+```{r, eval=TRUE}
+
+####################################################
+# summarize to one observation per biweek 
+###################################################
+symptoms <- beta_est %>%
+  select(date, beta_estimate_smoothed) %>%
+  left_join(dates) %>%
+  group_by(biweek) %>%
+  # get last date since observation for date corresponds to value for previous
+  # 2 weeks
+  slice_max(n=1, order_by = date) %>%
+  ungroup() %>%
+  select(-date)
+
+```
+
+```{r, eval = FALSE}
+
+# COMPARE PREMELDING DISTRIUBTIONS
+
+compare_priors <- symptoms %>%
+  # only need biweeks in dates data frame
+  filter(!is.na(biweek)) %>%
+  pmap_df(~ {
+    df <- tibble(...)
+    #glimpse(df)
+    #print(df$beta_estimate_smoothed)
+    tibble(empirical = sample_beta_density(
+      1e4, 
+      mean = df$beta_estimate_smoothed, 
+      sd = prior_params$beta_sd),
+      original_prior = sample_beta_density(
+        1e4,
+        mean = prior_params$beta_mean,
+        sd = prior_params$beta_sd),
+      biweek = df$biweek)
+    })
+
+
+# compare (unconstrained) distributions
+compare_priors %>%
+  pivot_longer(c(empirical,original_prior), 
+               names_to = "Prior") %>%
+  mutate(biweek = as.factor(biweek)) %>%
+  ggplot(aes(x = value, y=fct_reorder(biweek, 
+                                      as.numeric(biweek),
+                                      .desc=TRUE), 
+             fill = Prior)) +
+  ggridges::geom_density_ridges(alpha = .6) +
+  labs(y = "Biweek",
+       title = "Comparing Distribution Centered\nat Empirical Estimate of Beta\nto Original Prior\n(Not Melded)") +
+  theme_c(legend.title = element_text(face="bold", size = 16))
+
+
+```
+
+
+```{r constrain priors for every biweek,  eval= TRUE, results = 'hide'}
+
+  
+covid_county <- covid_county %>% 
+  left_join(symptoms) %>%
+  # only have CTIS data starting at week 6
+  # filter out the beginning dates where beta_estimate_smoothed is NA
+  filter(!is.na(beta_estimate_smoothed))
+
+
+priors_constrained_by_biweek <- covid_county %>% 
+  select(biweek,beta_estimate_smoothed) %>%
+  arrange(biweek) %>%
+  # there will be more than one observation per county since
+  # beta estimates are at the state level
+  distinct() %>%
+  pmap_df(~ {
+    args <- list(...)
+   # message(paste0("before: ",prior_params$beta_mean))
+    prior_params$beta_mean <- args$beta_estimate_smoothed
+   # message(paste0("after: ",prior_params$beta_mean))
+    res <- do.call(get_melded, prior_params)
+    res$post_melding %>%
+      mutate(biweek= args$biweek)
+})
+
+
+```
+
+### Compare Melded Priors to Original Across Time
+
+```{r compare melded distributions to original,eval=include_slow, fig.height = 8}
+
+melded_original <- readRDS(paste0(
+  here::here(),
+  "/analysis/results/melded/constrained_v1.RDS"))
+
+# plot melded distributions and compare to original
+original <- map_df(6:30, ~{ 
+  melded_original %>%
+    select(beta) %>%
+    mutate(source = "original_prior",
+           biweek = .x)})
+ 
+
+priors_constrained_by_biweek %>%
+  mutate(source = "melded distribution\ncentered at empirical value") %>%
+  select(beta, biweek, source) %>%
+  bind_rows(original) %>%
+  mutate(biweek = as.factor(biweek)) %>%
+  ggplot(aes(x = beta, y=fct_reorder(biweek, 
+                                      as.numeric(biweek),
+                                      .desc=TRUE), 
+             fill = source)) +
+  ggridges::geom_density_ridges(alpha = .6) +
+  labs(y = "Biweek",
+       title = paste0("Comparing Post-melding Distribution Centered\n",
+       "at Empirical Estimate of Beta\nto Original Prior")) +
+  theme_c(legend.title = element_text(face="bold", size = 16))
+  
+  
+
+
+```
+
+```{r correct counts version 2,  eval= TRUE, results = 'hide'}
+
+
+# only use a few rows if testing
+covid_county <- if(testing) covid_county[1:4,] else covid_county
+
+tictoc::tic()
+corrected <- pmap_df(
+ # covid_county[1:4,], 
+  covid_county,
+  ~ { 
+    
+    input_df <- list(...)
+    message(paste0(input_df$biweek, ", " , input_df$fips))
+    process_priors_per_county(
+      priors = priors_constrained_by_biweek[priors_constrained_by_biweek$biweek == input_df$biweek,],
+      county_df = input_df,
+      nsamp = prior_params$nsamp) %>%
+      generate_corrected_sample(., 
+                                num_reps = corrected_sample_reps) %>%
+      summarize_corrected_sample()
+                                  })
+
+tictoc::tic()
+
+```
+
+```
+

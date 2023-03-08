@@ -17,7 +17,7 @@ params:
 # County Level Analysis for `r toupper(params$state)`
 
 ```{r setup, include=FALSE, message = FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, eval=FALSE, fig.width = 11)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, eval=TRUE, fig.width = 11)
 
 ```
 
@@ -349,9 +349,9 @@ Running analysis for `r params$state`.
 # include slow plots comparing melded distributions for modified priors to original melded distribution
 include_slow <- TRUE
 # only include subset of rows for testing 
-testing <- FALSE
+testing <- TRUE
 # whether to save results adj_v*.RDS (if testing, don't save results)
-save <- TRUE
+save <- FALSE
 
 set.seed(123)
 
@@ -435,6 +435,246 @@ versions <- tibble(
 ```
 
 
+
+
+# Visualization of CTIS Data
+
+Versions 2, 3, and 4 all use the [CTIS testing indicators data](https://cmu-delphi.github.io/delphi-epidata/api/covidcast-signals/fb-survey.html#testing-indicators).
+
+```{r}
+
+fb_symptoms <- readRDS(
+  paste0(
+    here::here(), 
+    "/data/state_level/screeningpos_all_states.RDS")) %>%
+  filter(state == state_name)
+
+
+
+
+beta_prior <-  tibble(value = sample_beta_density(1e5,
+                          mean = prior_params$beta_mean,
+                          sd = prior_params$beta_sd,
+                          bounds = prior_params$beta_bounds),
+                      type = "Prior on Beta")
+
+```
+
+```{r}
+
+######################################################################
+# compare empirical distribution across all dates to prior on beta 
+######################################################################
+fb_symptoms %>% 
+  select(signal, date, value, stderr) %>% 
+  pivot_wider(names_from = signal,
+              values_from = c(value,stderr)) %>%
+  mutate(beta_est = value_smoothed_wscreening_tested_positive_14d/
+           value_smoothed_wtested_positive_14d)%>%
+  select(value = beta_est) %>%
+  mutate(type = "Estimate for Beta\n(Screening Test Positivity/Test Positivity)") %>%
+  bind_rows(beta_prior) %>%
+  ggplot(aes(x=value, fill = type)) +
+  geom_density(alpha = .6) +
+  theme_bw() +
+  labs(title = "Comparing Prior for Beta to Empirical Distribution\n from COVID-19 Trends and Impact Survey Data Across All Dates",
+       subtitle = paste0("State: ", toupper(state_name)),
+       fill = "") +
+  theme_c()
+
+
+
+```
+
+## Standard Errors
+```{r, fig.width = 9}
+
+######################################################################
+# each indicator from survey separately w/ standard error bars
+######################################################################
+fb_symptoms %>% 
+  select(signal, date, value, stderr) %>% 
+  ggplot(aes(x = date, y = value)) +
+  geom_ribbon(aes(ymin = value -stderr, ymax = value +stderr)) +
+  geom_point(aes(y = value),
+              size = .5, alpha = .5) +
+   geom_line() +
+  facet_wrap(~signal, scales="free_y", nrow = 3) +
+  theme_c()
+
+# plot standard errors by indicator
+fb_symptoms %>% 
+  select(signal, date, value, stderr) %>%
+  ggplot(aes(x= stderr, fill = signal)) +
+  geom_density(alpha = .7) +
+  viridis::scale_fill_viridis(discrete=TRUE) +
+  labs(x = "Standard Error", 
+       title = "Standard Errors Reported in CTIS Survey, by Indicator",
+       subtitle = paste0("State: ", toupper(state_name))) +
+  theme_c(legend.position ="right",
+          legend.text = element_text(size = 12))
+  
+  
+```
+
+## Compare Smoothing Approaches
+
+```{r}
+
+smoothing_span <- beta_smoothing_span
+
+beta_est <- fb_symptoms %>% 
+  select(signal, date, value, stderr) %>% 
+  pivot_wider(names_from = signal,
+              values_from = c(value,stderr)) %>%
+  mutate(beta_estimate = value_smoothed_wscreening_tested_positive_14d
+         /value_smoothed_wtested_positive_14d) %>%
+  arrange(date) %>%
+  mutate(index = 1:nrow(.)) %>%
+  ungroup() %>%
+  # fill last weeks (missing from survey data) with rolling mean from previous
+  # 3 observations
+  mutate(rolled_mean_beta = RcppRoll::roll_mean(beta_estimate,
+                                           n = 3,
+                                           na.rm = FALSE, 
+                                           fill = NA),
+         rolled_mean_screening = RcppRoll::roll_mean(
+             value_smoothed_wscreening_tested_positive_14d,
+                                           n = 3,
+                                           na.rm = FALSE, 
+                                           fill = NA)) %>%
+  fill(c(rolled_mean_beta,
+         rolled_mean_screening),
+         .direction = "down") %>%
+  mutate(beta_estimate = ifelse(is.na(beta_estimate), 
+                                rolled_mean_beta, 
+                                beta_estimate),
+         value_smoothed_wscreening_tested_positive_14d =
+           ifelse(is.na(value_smoothed_wscreening_tested_positive_14d),
+                  rolled_mean_screening,
+                  value_smoothed_wscreening_tested_positive_14d))
+
+smoothed_beta <- loess(beta_estimate~index,
+                       data= beta_est,
+                       span = smoothing_span)
+
+smoothed_screening <- loess(value_smoothed_wscreening_tested_positive_14d~index,
+                       data= beta_est,
+                       span = smoothing_span)
+
+# smaller smoothing span to capture behavior at end of time interval
+smoothed_posrate <- loess(value_smoothed_wtested_positive_14d~index,
+                       data= beta_est,
+                       span = smoothing_span/2)
+
+beta_est <- beta_est %>%
+  mutate(beta_estimate_smoothed = predict(smoothed_beta),
+         screening_estimate_smoothed = predict(smoothed_screening),
+         posrate_estimate_smoothed = predict(smoothed_posrate)) 
+
+
+
+```
+
+
+```{r}
+
+###################################
+# beta estimates across time 
+###################################
+beta_est  %>%
+  ggplot(aes(x=date, y = beta_estimate)) +
+  geom_line() +
+  geom_point(alpha = .5) +
+  geom_line(aes(y=beta_estimate_smoothed), color = "darkred", size = 1.2) +
+  theme_c() +
+  labs(title = "Estimates of Beta across Time",
+       subtitle = paste0("State: ", toupper(state_name)),
+       y = "Estimate of Beta") +
+  scale_x_date(date_breaks = "2 months", date_labels = "%b %d")
+
+###################################
+# screening positivity across time 
+###################################
+beta_est  %>%
+  select(date,
+         screening_pos = value_smoothed_wscreening_tested_positive_14d,
+         screening_pos_err = stderr_smoothed_wscreening_tested_positive_14d,
+         screening_estimate_smoothed) %>%
+  ggplot(aes(x=date, 
+             y = screening_pos)) +
+  geom_line() +
+  geom_ribbon(aes(ymin = screening_pos-screening_pos_err,
+                  ymax = screening_pos+screening_pos_err)) +
+  geom_point(alpha = .5,size = .5) +
+  geom_line(aes(y=screening_estimate_smoothed),
+            color = "darkred", size = 1.2) +
+  theme_c() +
+  labs(title = "Estimates of Screening Positivity across Time",
+       subtitle = paste0("State: ",
+                         toupper(state_name)),
+       y = "Estimate of Screening Positivity") +
+  scale_x_date(date_breaks = "2 months",
+               date_labels = "%b %d")
+
+
+###################################
+# overall test positivity over time 
+###################################
+beta_est  %>%
+  select(date,
+         pos = value_smoothed_wtested_positive_14d,
+         pos_err = stderr_smoothed_wtested_positive_14d,
+         posrate_estimate_smoothed) %>%
+  ggplot(aes(x=date, 
+             y = pos)) +
+  geom_line() +
+  geom_ribbon(aes(ymin = pos-pos_err,
+                  ymax = pos+pos_err)) +
+  geom_point(alpha = .5,size = .5) +
+  geom_line(aes(y=posrate_estimate_smoothed),
+            color = "darkred", size = 1.2) +
+  theme_c() +
+  labs(title = "Estimates of Test Positivity across Time",
+       subtitle = paste0("State: ",
+                         toupper(state_name)),
+       y = "Estimate of Test Positivity") +
+  scale_x_date(date_breaks = "2 months",
+               date_labels = "%b %d")
+
+
+
+
+# compare smoothing approaches
+beta_est %>%
+  select(date,
+         beta_estimate,
+         screening_pos = value_smoothed_wscreening_tested_positive_14d,
+         screening_pos_err = stderr_smoothed_wscreening_tested_positive_14d,
+         screening_estimate_smoothed,
+         beta_estimate_smoothed,
+         posrate_estimate_smoothed)  %>%
+  ggplot(aes(x = date, y = beta_estimate)) +
+  geom_line() +
+  geom_point(size = .7, alpha = .5) +
+  geom_line(aes(y = beta_estimate_smoothed, color = 'smoothing once')) +
+  geom_line(aes(y = screening_estimate_smoothed/posrate_estimate_smoothed,
+                color = 'smoothing separately')) +
+  scale_color_manual(name = '',
+                     values = c(
+                       'smoothing once'='#5FBEB3',
+                       'smoothing separately' = 'orange')) +
+  labs(y = "Estimate of Beta", 
+       title = "Comparing Smoothing Approaches for Estimating Beta",
+       subtitle = paste0("State: ",
+                         toupper(state_name))) + 
+  theme_c()
+
+
+
+```
+
+
 # Analysis
 
 ## Version 1
@@ -446,23 +686,36 @@ Priors do not vary by state or date; melding performed once.
 
 priors_version <- "v1"
 
-
 melded <- do.call(get_melded, prior_params)
 
+```
+
+```{r,eval=save}
 saveRDS(melded$post_melding,
         paste0(
   here::here(),
   "/analysis/results/melded/constrained_v1.RDS"))
 
+```
+
+```{r}
 
 # only use a few rows if testing
 covid_county <- if(testing) covid_county[1:4,] else covid_county
 
+# check there are no NAs
+# covid_county %>% 
+#   filter(if_any(everything(), is.na))
+
 tictoc::tic()
 corrected <- pmap_df(
- # covid_county[1:4,],
   covid_county,
+ # covid_county,
   ~ {
+    # message("biweek=", list(...)$biweek, 
+    #         "\ncounty=", list(...)$county,
+    #         "\n-------\n")
+    
     process_priors_per_county(
       priors = melded$post_melding,
       county_df = list(...),
@@ -489,12 +742,13 @@ saveRDS(corrected,
 
 title <- paste0("Pre and Post Melding Distributions")
        
-melded_long <- reformat_melded(melded_df =  melded$post_melding,
-                                      theta_df =  melded$pre_melding,
-                                      p_s0_pos_mean = prior_params$p_s0_pos_mean,
-                                      p_s0_pos_sd = prior_params$p_s0_pos_sd,
-                                      p_s0_pos_bounds = prior_params$p_s0_pos_bounds,
-                                      nsamp = prior_params$nsamp)
+melded_long <- reformat_melded(
+  melded_df =  melded$post_melding,
+  theta_df =  melded$pre_melding,
+  p_s0_pos_mean = prior_params$p_s0_pos_mean,
+  p_s0_pos_sd = prior_params$p_s0_pos_sd,
+  p_s0_pos_bounds = prior_params$p_s0_pos_bounds,
+  nsamp = prior_params$nsamp)
 
 melded_long %>%
          plot_melded(custom_title = title,
@@ -503,6 +757,9 @@ melded_long %>%
 
 
 ```
+
+
+
 
 ## Version 2
 
@@ -593,9 +850,9 @@ beta_est <- beta_est %>%
 
 ```{r plot beta over time,  eval= TRUE}
 
-################################################################################################
+###############################################################
 # look at empirical beta estimates across time 
-################################################################################################
+###############################################################
 beta_est  %>%
   ggplot(aes(x=date, y = beta_estimate)) +
   geom_line() +
@@ -612,9 +869,9 @@ beta_est  %>%
 
 
 ```{r, eval=TRUE}
-################################################################################################
+####################################################
 # summarize to one observation per biweek 
-################################################################################################
+###################################################
 symptoms <- beta_est %>%
   select(date, beta_estimate_smoothed) %>%
   left_join(dates) %>%
@@ -724,7 +981,8 @@ priors_constrained_by_biweek %>%
              fill = source)) +
   ggridges::geom_density_ridges(alpha = .6) +
   labs(y = "Biweek",
-       title = "Comparing Post-melding Distribution Centered\nat Empirical Estimate of Beta\nto Original Prior") +
+       title = paste0("Comparing Post-melding Distribution Centered\n",
+       "at Empirical Estimate of Beta\nto Original Prior")) +
   theme_c(legend.title = element_text(face="bold", size = 16))
   
   
@@ -760,6 +1018,7 @@ tictoc::tic()
 ```
 
 ```{r, eval = save}
+
 saveRDS(corrected,
         paste0(results_path,
         "adj_",
