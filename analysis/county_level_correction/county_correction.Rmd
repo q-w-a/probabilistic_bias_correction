@@ -688,11 +688,17 @@ priors_version <- "v1"
 
 melded <- do.call(get_melded, prior_params)
 
+```
+
+```{r,eval=save}
 saveRDS(melded$post_melding,
         paste0(
   here::here(),
   "/analysis/results/melded/constrained_v1.RDS"))
 
+```
+
+```{r}
 
 # only use a few rows if testing
 covid_county <- if(testing) covid_county[1:4,] else covid_county
