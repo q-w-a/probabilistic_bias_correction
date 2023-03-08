@@ -94,6 +94,8 @@ options(width = 70, echo = FALSE)
 ```{r}
 knitr::opts_chunk$set(fig.width = 10, echo = FALSE)
 ```
+
+
 <!--
 The ackowledgements, preface, dedication, and abstract are added into the PDF
 version automatically by inputing them in the YAML at the top of this file.
