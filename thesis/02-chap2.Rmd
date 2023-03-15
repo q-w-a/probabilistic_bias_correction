@@ -614,6 +614,7 @@ Locally estimated scatterplot smoothing (LOESS) fits a collection of local regre
 
 ```{r, fig.cap="\\label{fig:loess}", echo = FALSE, fig.asp = .6}
 
+set.seed(123)
 smoothing_span <- .2
 y<- rnorm(1e3, mean = 10, sd = 80)
 div <- seq(1,5, length = 1000)
