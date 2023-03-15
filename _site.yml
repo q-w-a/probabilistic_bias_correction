@@ -14,8 +14,8 @@ navbar:
     href: app/melding_link_to_page.html
   - text: "Selecting States"
     href: analysis/subsetting_states/subsetting_states.html
-  - text: "Changing Prior Parameters"
-    href: app/melding_experiment.html
+  - text: "Melding Vignete"
+    href: analysis/vignettes/melding_vignette.html
   - text: "Smoothing Bandwidth"
     href: analysis/sensitivity/smoothing_experiment.html
 output_dir: "docs"
