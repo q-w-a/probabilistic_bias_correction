@@ -4,7 +4,9 @@ knitr::opts_chunk$set(echo = FALSE,
                       eval = TRUE,
                       message = FALSE,
                       warning = FALSE,
-                      cache = FALSE)
+                      cache = FALSE,
+                      fig.asp = .75,
+                      fig.width = 6)
 ```
 
 
@@ -65,7 +67,7 @@ theme_c <- function(...){
 
 ## Probabalistic Bias Analysis 
 
-Often the focus of quantifying error about an effect estimate focuses on random error rather than the systematic error. For example, typical frequentist confidence intervals are frequent in medical and epidemiological literature, although they have faced rising criticism [@greenland2016]. These confidence intervals quantify the fraction of the times we expect the true value to fall in this interval under the assumption that our model is correct. That is, if we ran an experiment 100 times and computed the effect size each time, we would expect the true value to fall within our 95% confidence interval in 95 of those times, on average. Neyman stressed this in his original publication formalizing the concept of a confidence interval in 1937 [@neyman1937]. The nuance that the confidence interval is not the probability that the true value falls within this interval, however, is often lost in the discussion of results, in part because the true meaning of a confidence interval is less intuitive.
+Often the focus of quantifying error about an effect estimate focuses on random error rather than the systematic error. For example, typical frequentist confidence intervals are frequent in medical and epidemiological literature, although they have faced rising criticism [@greenland2016]. These confidence intervals quantify the fraction of the times we expect the true value to fall in this interval under the assumption that our model is correct. That is, if we ran an experiment 100 times and computed the effect size each time, we would expect the 95% confidence interval to contain the true value to 95 of those times, on average. Neyman stressed this in his original publication formalizing the concept of a confidence interval in 1937 [@neyman1937]. The nuance that the confidence interval is not the probability that the true value falls within this interval, however, is often lost in the discussion of results, in part because the true meaning of a confidence interval is less intuitive.
 
 The aim of quantitative bias analysis is to estimate systematic error to give a range of possible values for the true quantity of interest. In this sense, it is a type of sensitivity analysis. It can be used to estimate various kinds of biases, from misclassification, as is implemented in this work, as well as selection bias and unmeasured confounding [@petersen2021]. Often, the goal of performing such an analysis is to see how these sources of bias affect our estimates; in particular, under what situations of bias the observed effect would be null. 
 
@@ -79,6 +81,7 @@ In choosing specific distributions for the bias parameters, different specificat
 ## Bayesian Melding 
 
 ### Theoretical Background for the Approach 
+
 The Bayesian melding approach was proposed by Poole et al. [@poole2000].
 
 The Bayesian melding approach enables us to account for both uncertainty from inputs and outputs of a deterministic model. The initial motivation for the approach was to study the population dynamics of whales in the presence of substantial uncertainty around model inputs for population growth [@poole2000]. However, the framework provided by Poole et al. can applied in any circumstance where we have uncertainty around some quantities $\theta$ and $\phi$ where there is a deterministic function $M:\theta \to\phi$. Due the utility of Bayesian melding in various contexts, since this deterministic model $M$ could take on a wide range of forms, the approach has since been applied in various fields, including urban simulations [@sevcikova2007], ecology [@robson2014], and infectious disease [@powers2011].  
@@ -353,7 +356,7 @@ tibble(x = seq(0, 1, by = 10^(-4)),
        y = dtrunc_beta_s1_untested(x)) %>%
   ggplot(aes(x=x, y = y)) +
   geom_area(alpha = .8) + 
-  theme_c(plot.title =element_text(size = 16)) +
+  theme_c(plot.title =element_text(size = 14)) +
   labs(x = "Value", y = "Probability Density", 
        title = TeX("$P(S_1|untested)$"))
 
@@ -530,53 +533,522 @@ theta  %>%
                             default = label_parsed)) + 
   theme_c(axis.text.y = element_blank(),
           axis.ticks.y = element_blank(),
-          plot.title =element_text(size = 16),
-          strip.text = element_text(size = 16),
-          legend.text = element_text(size = 16)) +
+          plot.title =element_text(size = 14),
+          strip.text = element_text(size = 14),
+          legend.text = element_text(size = 14)) +
   labs(title = TeX("$Comparing \\, Distributions \\, Before \\, and \\, After \\, Melding$"),
        fill = "")
 
 
 ```
 
+\newpage 
+
 ### Derivation of $M$ 
 
+Recall that we have the function $M: \theta \to \phi$ that relates the random variables $\theta = \{P(S_1|untested), \alpha\}$ to the test positivity rate in the asymptomatic untested population, that is, $\phi = P(S_0|test_+, \text{untested})$. $M$  is defined as
+
+\begin{align*}  &= 
+ P(S_0|test_+, \text{untested}) = \dfrac{\beta (1- P(S_1|\text{untested}))}{\beta(1- P(S_1|\text{untested})) + \alpha(P(S_1|\text{untested})} \hspace{ 15 mm }
+\end{align*}
 
 
-Define $M: \theta \to \phi$ for $\theta = (P(S_1|untested), \alpha, \beta)$ and $\phi = P(S_0|test +)$ as
-$$P(S_0|test+, untested) = \frac{\beta(1 - P(S_1|untested))}{\beta(1-P(S_1|untested)) + \alpha P(S_1|untested)}.$$
-We define $test +$ to denote the event that an individual *would* test positive if they were tested, not that they actually did test positive. 
+\noindent Since we have $\alpha = \frac{P(test_+|S_1, \text{untested})}{P(test_+|tested)}$ and $\beta = \dfrac{P(test_+|S_0, \text{untested})}{P(test_+|tested)}$, we can write 
 
-Since we have $\alpha = \frac{P(test+|S_1, untested)}{P(test+|tested)}$ and $\beta = \frac{P(test+|S_0, untested)}{P(test+|tested)}$, we can write 
-
-$$ = \frac{\frac{P(test+|S_0, untested)}{P(test+|tested)}(1 - P(S_1|untested))}{\frac{P(test+|S_0, untested)}{P(test+|tested)}(1-P(S_1|untested)) + \frac{P(test+|S_1, untested)}{P(test+|tested)} P(S_1|untested)}$$
-and cancelling out the term $P(test+|tested)$ we have
+\begin{align*}  &= \dfrac{\dfrac{P(test_+|S_0, \text{untested})}{P(test_+|tested)}(1 - P(S_1|\text{untested}))}{\dfrac{P(test_+|S_0, \text{untested})}{P(test_+|tested)}(1-P(S_1|\text{untested})) + \dfrac{P(test_+|S_1, \text{untested})}{P(test_+|tested)} P(S_1|\text{untested})}
+\end{align*}
+and cancelling out the term $P(test_+|tested)$ we have
 
 
-$$ = \frac{{P(test+|S_0, untested)}(1 - P(S_1|untested))}{P(test+|S_0, untested)(1-P(S_1|untested)) + P(test+|S_1, untested) P(S_1|untested)}.$$
+$$ = \dfrac{{P(test_+|S_0, \text{untested})}(1 - P(S_1|\text{untested}))}{P(test_+|S_0, \text{untested})(1-P(S_1|\text{untested})) + P(test_+|S_1, \text{untested}) P(S_1|\text{untested})}.$$
 
-Notice that $P(S_0|untested) = 1 - P(S_1|untested)$, so  we have 
-$$P(S_0|test+) = \frac{{P(test+|S_0, untested)}P(S_0|untested)}{P(test+|S_0, untested)P(S_0|untested) + P(test+|S_1, untested) P(S_1|untested)}.$$ 
+\noindent Since $P(S_0|\text{untested}) = 1 - P(S_1|\text{untested})$,
 
-We can write the numerator $$P(test+|S_0, untested)P(S_0|untested) = \Big( \frac{P(test+,S_0, untested)}{P(S_0, untested)} \Big) \Big(\frac{P(S_0, untested)}{P(untested)}\Big)$$
-$$= \frac{P(test+,S_0, untested)}{P(untested)} = P(S_0, test+|untested).$$
-With the same reasoning, we obtain $P(test+|S_1, untested)P(S_1|untested) = P(S_1, test+|untested)$.
+\begin{align*} 
+&=  \dfrac{{P(test_+|S_0, \text{untested})}P(S_0|\text{untested})}{P(test_+|S_0, \text{untested})P(S_0|\text{untested}) + P(test_+|S_1, \text{untested}) P(S_1|\text{untested})}.
+\end{align*}
 
-Thus, using this result, we have 
+Applying the definition of conditional probability to  the term \\ $P(test_+|S_0, \text{untested})P(S_0|\text{untested})$ in the numerator,
 
-$$ = \frac{P(S_0, test+|untested)}{P(S_0, test+|untested) + P(S_1, test+|untested)}.$$
+\begin{align*}
+&=
+    \dfrac{\Big( \dfrac{P(test_+,S_0, \text{untested})}{P(S_0, \text{untested})} \Big) \Big(\dfrac{P(S_0, \text{untested})}{P(\text{untested})}\Big)}{P(test_+|S_0, \text{untested})P(S_0|\text{untested}) + P(test_+|S_1, \text{untested}) P(S_1|\text{untested})}\\ 
+    &= \dfrac{\Big( \dfrac{P(test_+,S_0, \text{untested})}{P(S_0, \text{untested})} \Big) \Big(\dfrac{P(S_0, \text{untested})}{P(\text{untested})}\Big)}{P(test_+|S_0, \text{untested})P(S_0|\text{untested}) + P(test_+|S_1, \text{untested}) P(S_1|\text{untested})}\\
+    &=  \dfrac{\dfrac{P(test_+,S_0, \text{untested})}{P(\text{untested})}}{P(test_+|S_0, \text{untested})P(S_0|\text{untested}) + P(test_+|S_1, \text{untested}) P(S_1|\text{untested})}\\
+    &=  \dfrac{{P(test_+,S_0|\text{untested})}}{P(test_+|S_0, \text{untested})P(S_0|\text{untested}) + P(test_+|S_1, \text{untested}) P(S_1|\text{untested})}.
+\end{align*}
 
-We can write 
+\noindent We can substitute this result in for the $P(test_+|S_0, \text{untested})P(S_0|\text{untested})$ term in the denominator to yield
+\begin{align*}
+  &=  \dfrac{{P(test_+,S_0|\text{untested})}}{P(test_+,S_0|\text{untested}) + P(test_+|S_1, \text{untested}) P(S_1|\text{untested})} \hspace{ 20 mm }
+\end{align*}
 
-$$P(S_0,test +|untested) = \frac{P(S_0,test +,untested)}{P(untested)} = \frac{P(test + ,untested |S_0) P(S_0)}{P(untested)}$$
-and similarly $P(S_1,test +|untested) = \frac{P(test + ,untested |S_1) P(S_1)}{P(untested)}$.
+With same reasoning, we can simplify \\$P(test_+|S_1, \text{untested})P(S_1|\text{untested}) = P(S_1, test_+|\text{untested})$, giving us
 
-Thus, we can write the denominator as $$P(S_0,test +|untested) + P(S_2,test +|untested)$$
-$$= \frac{P(test + ,untested |S_1) P(S_1) + P(test + ,untested |S_0) P(S_0)}{P(untested)}$$
-$$ = \frac{P(test+,untested)}{P(untested)} = P(test + |untested).$$
+\begin{align*}
+  &=  \dfrac{{P(test_+,S_0|\text{untested})}}{P(test_+,S_0|\text{untested}) +  P(S_1, test_+|\text{untested})} \hspace{45 mm }\\ 
+   &=  \dfrac{{P(test_+,S_0|\text{untested})}}{P(test_+|\text{untested}) } \\
+   &= \dfrac{\dfrac{P(S_0, test_+, \text{untested})}{P(\text{untested})}}{ \dfrac{P(test_+,\text{untested})}{P(\text{untested})}} \\ 
+  &=\dfrac{P(S_0, test_+, \text{untested})}{P(test_+,\text{untested})} \\
+  &= P(S_0 |test_+, \text{untested}).
+\end{align*}
+
+\noindent Hence, we have 
 
 
-Putting these results together, we have
-$$ = \frac{P(S_0, test+|untested)}{P(test+|untested)} = \frac{\frac{P(S_0, test+, untested)}{P(untested)}}{ \frac{P(test+,untested)}{P(untested)}} = 
-\frac{P(S_0, test+, untested)}{P(test+,untested)} =
-P(S_0 |test+, untested).$$
+\begin{align*}
+P(S_0 |test_+, \text{untested}) = \dfrac{\beta (1- P(S_1|\text{untested}))}{\beta(1- P(S_1|\text{untested})) + \alpha(P(S_1|\text{untested})}
+\end{align*}
+
+\noindent as desired. 
+\qed
+
+
+\newpage
+## LOESS Smoothing 
+
+### Introduction
+
+Locally estimated scatterplot smoothing (LOESS) fits a collection of local regression models to obtain a smooth curve through the observed data (Figure \ref{fig:loess}). It is highly flexible in the sense that we do not have to specify the functional relationship between the predictor and response variable for the entire range of the predictor, which may be impossible in various settings. It is particularly with time series data with substantial noise.
+
+
+```{r, fig.cap="\\label{fig:loess}", echo = FALSE, fig.asp = .6}
+
+smoothing_span <- .2
+y<- rnorm(1e3, mean = 10, sd = 80)
+div <- seq(1,5, length = 1000)
+y <- cumsum(y)
+y <- y /div
+
+data <- tibble(x = 1:1000, y = y)
+
+
+smoothed <- loess(y ~ x, data = data, span = smoothing_span) %>%
+  predict()
+
+data %>%
+  ggplot(aes(x = x, y = y)) +
+  geom_point(size = .7, alpha = .5) +
+  geom_line(aes(y= smoothed), 
+            color = "darkred",
+            size = 1.2) +
+  labs(title = "Locally Estimated Scatterplot (LOESS)\nSmoothing Curve",
+       subtitle = paste0("Span = ", smoothing_span)) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = .5, face="bold", size = 14),
+        plot.subtitle = element_text(hjust = .5, face="italic", size = 14),
+        axis.title = element_text(size = 14))
+
+
+```
+
+
+To perform LOESS smoothing, we estimate a set of local regressions [@chambers1997]. To do this, we must specify the span; this smoothing parameter is the fraction of the data that is used for the local polynomial fit. With a smaller span, the resulting curve will fit the trends more closely, while a larger span reflects broader trends (Figure \ref{fig:smooth-spans}).
+
+```{r, fig.cap="\\label{fig:smooth-spans}", fig.asp = .67}
+
+
+smoothed_all <- map_df(c(.1,.3, .5,.7, .9), ~
+                         {
+                          smoothed <- loess(y ~ x, 
+                                            data = data, 
+                                            span = .x) %>%
+                            predict()
+                          
+                           data %>%
+                             mutate(span = .x,
+                                    smoothed = smoothed)
+                         })
+
+
+smoothed_all %>%
+  mutate(span = as.factor(span)) %>%
+  ggplot(aes(x=x, y = y))+
+  geom_point(size = .7, alpha = .5) +
+  geom_line(aes(y= smoothed, color = span), 
+            size = 1) +
+  viridis::scale_color_viridis(discrete=TRUE, 
+                               direction = -1, end = .9)+
+  labs(title = "Locally Estimated Scatterplot (LOESS)\nSmoothing Curve",
+       subtitle = paste0("By Span")) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = .5, face="bold", size = 14),
+        plot.subtitle = element_text(hjust = .5, face="italic", size = 14),
+        axis.title = element_text(size = 14))
+
+  
+
+
+
+```
+
+### Fitting the LOESS Curve
+
+To introduce some notation for the model at hand, we have a dependent variable $\mathbf y$ and independent variable $\mathbf  x$, where $\mathbf  y$ and $\mathbf x$ are related by some unknown function $g$, that is,  $y = g(x) + \boldsymbol \epsilon$^[Recall we use bold type for vectors, e.g., $\mathbf x \in \mathbb R^n$ is a vector with observations $x_i \in \mathbb R$.]. When we want to use LOESS smoothing to estimate $g$, often this function is complex, so we break up the problem into estimating a set of local regressions.
+
+To obtain a predicted value $\hat g(x^*)$ for a particular value of the independent variable $x^*$,  we fit a polynomial with greatest weight placed on points in the neighborhood of $x^*$, where the width of this neighborhood is defined by the choice of smoothing span. Let $\alpha \in (0,1]$ denote the chosen smoothing span.
+
+For a particular value of $x^*$, we estimate the predicted value $\hat g(x^*)$ by fitting a local regression. We first compute the weights by computing the vector of distances from this point $x^*$, that is,
+
+$$\Delta (x^*) = |\mathbf x -x^* | $$
+
+We define $q = \text{floor}(\alpha n)$, and take  $\Delta_q(x^*) \in \mathbb R$  to be the $q^th$ smallest distance of $\Delta (x^*)$.
+
+The vector of weights is then 
+$$T(\Delta(x^*), \Delta_q(x^*))$$
+
+where $T$ is the tricube weight function given by
+
+$$
+T(x) = \begin{cases} (1-(x)^3)^3 \hspace{9 mm}  \text{ for } |x| < 1\\
+0  \hspace{25 mm} \text{ for |x| } \geq 1 \end{cases}.
+$$
+Essentially, this process gives weight to points in the neighborhood of $x^*$. Consider $x^* = 500$ and $\text{smoothing span} = \alpha = .2$.
+
+Then the weights we obtain are given in Figure \ref{fig:weights}.
+
+```{r, warning = FALSE, fig.cap = "\\label{fig:weights} We see that the only values with nonzero weights are those within the interval $(500 - \\alpha (n), 500 - \\alpha (n))$, that is, the proportion $\\alpha$ of the data points closest to $x^*$.", fig.asp= 0.6}
+
+
+
+tricube <- function(x) {
+  ifelse(abs(x) < 1, (1-(abs(x))^3)^3, 0) 
+}
+
+
+
+alpha <- 0.2
+x_star <- 500
+width <- alpha*length(data$x)
+
+delta_q <- sort(abs(x_star-data$x), decreasing = FALSE)[floor(alpha*1000)]
+weights <- tricube( abs(x_star - data$x )/(delta_q))
+
+
+data %>%
+  mutate(Weight = weights,
+         lower = x_star -width/2,
+         upper = x_star + width/2) %>%
+  ggplot(aes(x = x, y =weights)) +
+  geom_point(size = .8) +
+  geom_vline(aes(xintercept = upper),
+             color = "darkred", alpha = .6) +
+  geom_vline(aes(xintercept = lower),
+                 color = "darkred", alpha = .6) +
+  annotate(x = 330, geom= "text", y = .5, 
+           label = TeX("$500 - (\\alpha)(n)$"), parse =TRUE) +
+  annotate(x = 670, geom= "text", y = .5, 
+           label = TeX("$500 + (\\alpha)(n)$"), parse =TRUE) +
+  theme_bw()+
+  theme(plot.title = element_text(hjust = .5, face="bold", size = 14),
+        plot.subtitle = element_text(hjust = .5, face="italic", size = 14),
+        axis.title = element_text(size = 14)) +
+  labs(title = TeX("Weights Computed for $x^* = 500$"))
+
+
+
+
+```
+
+
+We fit a linear regression with polynomial terms, typically with degree up to 2, with these weights. 
+
+For example, fitting the model for this same $x^*=500$, we obtain the polynomial in Figure \ref{fig:ex-poly}.
+
+```{r, fig.cap = "\\label{fig:ex-poly}", fig.asp = .6}
+
+model <- lm(y ~ x + I(x^2), weights = weights, data = data)
+
+data %>%
+  mutate(Weight = weights,
+         predicted = predict(model)) %>%
+  ggplot(aes(x = x, y =y)) +
+  geom_point(size = .5, alpha = .6) +
+  geom_line(aes(y = predicted), size = 1.3, color = "#728BC8") +
+  geom_point(x =500, 
+             y = data[data$x==x_star,]$y,
+             size =4,
+             color = "orange") +
+  theme_bw()+
+  theme(plot.title = element_text(hjust = .5, face="bold", size = 14),
+        plot.subtitle = element_text(hjust = .5, face="italic", size = 14),
+        axis.title = element_text(size = 14)) +
+  labs(title = TeX("Local Model Estimated for Neighborhood about $x^* = 500$")) +
+  ylim(min(data$y)- 50, max(data$y) + 50)
+
+
+```
+
+
+By fitting the model for every point in $\mathbf x$, we obtain the smoothed line shown in red in Figure \ref{fig:loess-all}.
+
+```{r, fig.cap = "\\label{smooth-functions}"}
+
+get_predicted <- function(x_i, all = FALSE) {
+
+  delta_q <- sort((abs(x_i-data$x)), decreasing = FALSE)[floor(alpha*1000)]
+
+  weights <- tricube( abs(x_i - data$x )/(delta_q))
+  
+  model <- lm(y ~ x + I(x^2), weights = weights, data = data)
+  
+  if(all) predict(model) 
+  else predict(model, newdata = list(x=x_i))
+}
+
+
+
+get_predicted_all <- function(x_i) {
+
+
+  delta_q <- sort(abs(x_i-data$x), decreasing = FALSE)[floor(alpha*1000)]
+ # message(delta_q)
+  
+  weights <- tricube((data$x -x_i)/(delta_q))
+  
+  # message(head(weights))
+  model <- lm(y ~ x + I(x^2), weights = weights, data = data)
+  
+   predict(model)
+  
+}
+
+```
+
+```{r loess-all, fig.cap = "\\label{loess-all}", fig.asp = .6}
+
+predicted_all <- map_df(data$x, ~tibble(fit = paste0("fit_", .x), 
+                                        x_pred = .x,
+                                        x = data$x,
+                                        y = data$y,
+                                        fitted = get_predicted(.x, all = TRUE)))
+
+
+predicted_all %>%
+  group_by(x_pred) %>%
+  # get smoothed line
+  mutate(fitted_star =  fitted[which(x==x_pred)]) %>%
+  ungroup() %>%
+  ggplot() +
+  geom_line(aes(x = x, y = fitted, 
+                color = fit, 
+                group = fit),
+            alpha = .5,
+            show.legend=FALSE) +
+  geom_line(aes(x = x_pred, y = fitted_star), color = "darkred", size = 1.2) +
+#  geom_point(alpha = .5, aes(x =x, y = y), show.legend = FALSE) +
+  ylim(min(data$y)-10, max(data$y) + 10) +
+  viridis::scale_color_viridis(option="mako", discrete = TRUE) +
+  theme_bw()+
+  theme(plot.title = element_text(hjust = .5, 
+                                  face="bold",
+                                  size = 14),
+        plot.subtitle = element_text(hjust = .5, 
+                                     face="italic",
+                                     size = 14),
+        axis.title = element_text(size = 14)) +
+  labs(title = TeX("All Local Models to Produce LOESS Curve"),
+       y  = TeX("$\\hat{y}$"))
+
+
+```
+
+```{r, include = FALSE, eval = FALSE}
+dat <- data %>%
+  mutate(pred = map_dbl(x, get_predicted))
+
+dat %>%
+  mutate(pred2 = predict(smoothed)) %>%
+  ggplot(aes(x=x,y=y)) +
+  geom_point() +
+  geom_line(aes(y= pred), color = "darkred") +
+  geom_line(aes(y = pred2))
+
+
+# predicted_all %>%
+#   filter(fit %in% paste0("fit_", c(500, 600, 700))) %>%
+#   ggplot(aes(x =x,y = fitted, color = fit, group = fit)) +
+#   geom_line(show.legend=FALSE) +
+#   geom_line(alpha = .5, aes(y = y)) +
+#   ylim(min(data$y)-10, max(data$y) + 10)
+
+
+
+
+y<- rnorm(1e3, mean = 10, sd = 80)
+div <- seq(1,5, length = 1000)
+y <- cumsum(y)
+y <- y /div
+
+data <- tibble(x = 1:1000, y = y)
+
+smoothed_1 <- loess(y ~ x, data = data[1:500,], span = 1) %>%
+  predict()
+smoothed_2 <- loess(y ~ x, data = data[501:1000,], span = 1) %>%
+  predict()
+
+smoothed_3 <-  loess(y ~ x, data = data[1:1000,], 
+                     span = .5, 
+                     model = TRUE,
+                     control = loess.control( surface = c("interpolate")),
+                     cell = 1) %>%
+  predict()
+
+
+alpha <- .2
+
+
+# compute fitted value for y_i
+
+x_i <- 1
+
+weights <- c()
+
+
+
+tricube <- function(x) {
+  ifelse((x) < 1, (1-((x))^3)^3, 0) 
+}
+
+# weights <- tricube( u = (x_i - data$x ), t = (min(x_i-data$x)))
+
+
+delta_q <- sort(x_i-data$x, decreasing = TRUE)[floor(alpha*1000)]
+
+
+weights <- tricube(abs(x_i - data$x )/(delta_q))
+
+
+
+model <- lm(y ~ x + I(x^2), weights = weights, data = data)
+
+data %>% mutate(predicted = predict(model)) %>%
+  filter(x==x_i)
+
+model$coefficients
+
+
+data %>% mutate(first_fit = predict(model)) %>%
+  ggplot(aes(x = x, y = first_fit)) +
+   geom_line() +
+  geom_point(aes(x=x,y=y)) +
+  ylim(min(NA), max(data$y))
+
+
+# automate 
+
+
+
+
+tricube <- function(x) {
+  ifelse(abs(x) < 1, (1-(abs(x))^3)^3, 0) 
+}
+
+
+get_predicted <- function(x_i, all = FALSE) {
+
+  delta_q <- sort((abs(x_i-data$x)), decreasing = FALSE)[floor(alpha*1000)]
+
+  weights <- tricube( abs(x_i - data$x )/(delta_q))
+  
+  model <- lm(y ~ x + I(x^2), weights = weights, data = data)
+  
+  if(all) predict(model) 
+  else predict(model, newdata = list(x=x_i))
+}
+
+
+
+get_predicted_all <- function(x_i) {
+
+
+  delta_q <- sort(abs(x_i-data$x), decreasing = FALSE)[floor(alpha*1000)]
+ # message(delta_q)
+  
+  weights <- tricube((data$x -x_i)/(delta_q))
+  
+  # message(head(weights))
+  model <- lm(y ~ x + I(x^2), weights = weights, data = data)
+  
+   predict(model)
+  
+}
+
+predicted_all <- map_df(data$x, ~tibble(fit = paste0("fit_", .x), 
+                                        x = data$x,
+                                        y = data$y,
+                                        fitted = get_predicted(.x, all = TRUE)))
+
+
+
+predicted_all %>%
+  filter(fit %in% paste0("fit_", c(500, 600, 700))) %>%
+  ggplot(aes(x =x,y = fitted, color = fit, group = fit)) +
+  geom_line(show.legend=FALSE) +
+  geom_line(alpha = .5, aes(y = y)) +
+  ylim(min(data$y)-10, max(data$y) + 10)
+
+predicted_all %>%
+#  filter(fit %in% paste0("fit_", c(500, 600, 700))) %>%
+  ggplot(aes(x =x,y = fitted, color = fit, group = fit)) +
+  geom_line(show.legend=FALSE) +
+  geom_line(alpha = .5, aes(y = y), show.legend = FALSE) +
+  ylim(min(data$y)-10, max(data$y) + 10) +
+  viridis::scale_color_viridis(option="mako", discrete = TRUE)
+
+dat <- data %>%
+  mutate(pred = map_dbl(x, get_predicted))
+
+dat %>%
+  mutate(pred2 = predict(smoothed)) %>%
+  ggplot(aes(x=x,y=y)) +
+  geom_point() +
+  geom_line(aes(y= pred), color = "darkred") +
+  geom_line(aes(y = pred2))
+
+
+```
+
+```{r, include = FALSE, eval = FALSE}
+smoothed <- loess(y ~ x, data =data, span = .2)
+
+# verify correspondence with loess function
+dat %>%
+  mutate(prediction_loess = predict(smoothed)) %>%
+  ggplot(aes(x=x,y=y)) +
+  geom_point() +
+  geom_line(aes(y= pred), color = "darkred") +
+  geom_line(aes(y = prediction_loess))
+
+
+```
+
+
+Smoothing methods are sensitive to the choice of smoothing parameter $h$, which represents the fraction of the data that is used for the local polynomial fit.
+
+
+Methods exist for picking the smoothing parameter $h$ that minimizes the mean squared error between the predicted values from the estimated line and observed values of the dependent variable, for example, leave-one-out cross-validation or generalized cross-validation. 
+
+However, for this work, we used LOESS smoothing to smooth survey data from the COVID-19 Trends and Impact Survey [@reinhart2021]. 
+We choose the smoothing parameter for each variable based on domain knowledge regarding the level of noise present for each variable of interest. For example, there is substantial noise in the screening test positivity data that reflect trends that do not represent meaningful differences in the screening test positivity. Some trends in the screening sensitivity may be due to scheduled workplace screenings happening at regular time intervals, and some of the variation may be due to the frequency of screening testing due to other variables, such as the access and cost of testing.
+
+Since the ratio  $\frac{\text{screening test positivity}}{\text{overall test positivity}}$ is used to estimate $\beta = \frac{P(test + | S_0, untested)}{P(test + |tested)}$, the variability in the screening positivity creates substantial variability in our estimates of $\beta$.
+
+In light of this variability and the presence of other trends regarding the screening test positivity, we set the span  to $\frac{4}{12} = 0.33$ to fit the local regressions for 4-month intervals with the aim to capture the broader trends over time.
+
+INCLUDE FIGURE OF SMOOTHED ESTIMATES HERE 
+
+There was less variabiity in the smoothing span for the weighted percentage of COVID-like Illness, the estimate of $P(S_1|untested)$. Hence, we set the smoothing parameter to $0.2$ detect trends at a finer time scale.
+
+Sensitivity analyses with modified versions of the smoothing span of $\beta$ are included in the appendix in the section INCLUDE SECTION. 
+
+
+\newpage
+
+
+
+## Kernel Density Estimation
+
+
+## Sampling Importance Resampling
+

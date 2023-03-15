@@ -26,6 +26,7 @@ Things left to do --
 
 
 # Motivation  
+
   \vspace{.2 mm}
 Throughout the COVID-19 pandemic, observed infections have guided decisions at both the individual and government levels. At the state-level, policies on phased reopening, for example, often include criteria on COVID-19 cases [@californiadepartmentofpublichealth2021; @tomwolf2020; @charlesd.baker2021]. 
 
