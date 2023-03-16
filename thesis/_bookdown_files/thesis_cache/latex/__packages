@@ -1,0 +1,17 @@
+tidyverse
+ggplot2
+tibble
+tidyr
+readr
+purrr
+dplyr
+stringr
+forcats
+latex2exp
+viridisLite
+viridis
+kableExtra
+remotes
+pioneerdown
+cowplot
+ggtext
