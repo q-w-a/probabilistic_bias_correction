@@ -24,6 +24,8 @@ bibliography: "bibliography.json"
 csl: csl/apa.csl
 lot: true
 lof: true
+urlcolor: blue
+linkcolor: blue
 ---
 
 ```{r,eval=FALSE,include=FALSE}

@@ -2,10 +2,6 @@
 
 # Results
 
-\begin{tcolorbox}
-TEST
-\end{tcolorbox}
-
 
 ## County-level
 

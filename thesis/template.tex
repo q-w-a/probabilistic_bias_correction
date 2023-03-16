@@ -43,14 +43,14 @@
 \floatplacement{figure}{H}
 % End of CII addition
 \usepackage{rotating}
-\hypersetup{
-    colorlinks=true,
-    linkcolor=blue,
-    filecolor=magenta,      
-    urlcolor=blue,
-    pdftitle={Overleaf Example},
-    pdfpagemode=FullScreen,
-    }
+%\hypersetup{
+%    colorlinks=true,
+%    linkcolor=blue,
+%    filecolor=magenta,      
+ %   urlcolor=blue,
+ %   pdftitle={Overleaf Example},
+ %   pdfpagemode=FullScreen,
+ %   }
 
 % Next line commented out by CII
 %%% \usepackage{natbib}
@@ -67,23 +67,28 @@
 \def\chapterautorefname{Chapter}
 \def\sectionautorefname{Section}
 \def\subsectionautorefname{Subsection}
-\hypersetup{
-     colorlinks=true,
-     linkcolor=blue,
-     filecolor=blue,
-     citecolor = black,      
-     urlcolor=cyan,
-     }
+% \hypersetup{
+%     colorlinks=true,
+%     linkcolor=blue,
+%    filecolor=blue,
+%     citecolor = blue,      
+%     urlcolor=cyan,
+ %    }
+\hypersetup{colorlinks=true,
+            linkcolor=$if(linkcolor)$$linkcolor$$else$black$endif$,
+            citecolor=$if(citecolor)$$citecolor$$else$black$endif$,
+            urlcolor=$if(urlcolor)$$urlcolor$$else$black$endif$}
 % End of CII addition
 
 % Added by CII
 \usepackage{caption}
 \captionsetup{width=5in}
-\usepackage{tcolorbox}
 % End of CII addition
 
 % \usepackage{times} % other fonts are available like times, bookman, charter, palatino
 \usepackage{palatino}
+\usepackage{tcolorbox}
+
 % Syntax highlighting #22
 $if(highlighting-macros)$
   $highlighting-macros$
@@ -219,10 +224,13 @@ $if(preface)$
   \end{preface}
 $endif$
 
+% https://github.com/ismayc/thesisdown/issues/32 
 $if(toc)$
-  \hypersetup{linkcolor=$if(toccolor)$$toccolor$$else$black$endif$}
-  \setcounter{tocdepth}{$toc-depth$}
-  \tableofcontents
+  {
+    \hypersetup{linkcolor=$if(toccolor)$$toccolor$$else$black$endif$}
+    \setcounter{tocdepth}{$toc-depth$}
+    \tableofcontents
+  }
 $endif$
 
 $if(lot)$
