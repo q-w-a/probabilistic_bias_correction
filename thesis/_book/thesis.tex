@@ -39,6 +39,7 @@
 % Added by CII
 \usepackage{hyperref}
 \usepackage{lmodern}
+\usepackage{multicol}
 \usepackage{float}
 \floatplacement{figure}{H}
 % End of CII addition
@@ -173,9 +174,6 @@ Will add
 You can have a dedication here if you wish.
 }
 
-\Preface{
-
-}
 
 \Abstract{
 As we have navigated the COVID-19 pandemic, case counts have been a central source of information for understanding transmission dynamics and the effect of public health interventions. However, because the number of cases we observe is limited by the testing effort in a given location, the case counts presented on local or national dashboards are only a fraction of the true infections. Variations in testing rate by time and location impacts the number of cases that go unobserved, which can cloud our understanding of the true COVID-19 incidence at a given time point and can create biases in downstream analyses. Additionally, the number of cases we observe is impacted by the sensitivity and specificity of the diagnostic test. To quantify the number of true infections given incomplete testing and diagnostic test inaccuracy, this work implements probabilistic bias analysis at a biweekly time scale from January 1, 2021 through February 2022. In doing so, we can estimate a range of possible true infections for a given time interval and location. This approach can be applied at the state level across the United States, as well as in some counties where the needed data are available.
@@ -218,9 +216,7 @@ As we have navigated the COVID-19 pandemic, case counts have been a central sour
     \tableofcontents
   }
 
-  \listoftables
 
-  \listoffigures
   \begin{abstract}
     As we have navigated the COVID-19 pandemic, case counts have been a central source of information for understanding transmission dynamics and the effect of public health interventions. However, because the number of cases we observe is limited by the testing effort in a given location, the case counts presented on local or national dashboards are only a fraction of the true infections. Variations in testing rate by time and location impacts the number of cases that go unobserved, which can cloud our understanding of the true COVID-19 incidence at a given time point and can create biases in downstream analyses. Additionally, the number of cases we observe is impacted by the sensitivity and specificity of the diagnostic test. To quantify the number of true infections given incomplete testing and diagnostic test inaccuracy, this work implements probabilistic bias analysis at a biweekly time scale from January 1, 2021 through February 2022. In doing so, we can estimate a range of possible true infections for a given time interval and location. This approach can be applied at the state level across the United States, as well as in some counties where the needed data are available.
   \end{abstract}
@@ -262,29 +258,42 @@ Let \(M: \theta \to \phi\) be the deterministic model defined by the function re
 
 However, note that we actually have two distinct priors on \(\phi\). There is the prior formed by the distribution induced on \(\phi\) by the prior for \(\theta\) and the function \(M\), where we denote this induced prior \(f_\phi^{induced}(\phi)\). Generally, these priors are based on different sources of information.
 
-If \(M^{-1}\) exists, we can write this induced prior \(f_\phi^{induced}(\phi) = f_\theta(M^{-1}(\phi)) |J(\phi)|\). This result follows from the fact \(M(\theta) = \phi\), so we apply a change of variables to obtain the distribution of \(\phi\) from the distribution of \(M(\theta)\).
+If \(M^{-1}\) exists, we can write this induced prior \(f_\phi^{induced}(\phi) = f_\theta(M^{-1}(\phi)) |J(\phi)|\)\footnote{In the continuous case we need to multiply by \(|J(\phi)|\), but not in the discrete case (Blitzstein \& Hwang, 2019).}. This result follows from the fact \(M(\theta) = \phi\), so we apply a change of variables to obtain the distribution of \(\phi\) from the distribution of \(M(\theta)\).
 
-In practice, \(M^{-1}\) rarely exists exists since \(\theta\) is often of higher dimensionality then \(\phi\), in which cases \(M\) is not invertible. This means we generally approximate \(q^*_1(\phi)\) without acquiring its analytical form.
+In practice, \(M^{-1}\) rarely exists exists since \(\theta\) is often of higher dimensionality then \(\phi\), in which cases \(M\) is not invertible. This means we generally approximate \(f_\phi^{induced}\) without acquiring its analytical form.
 
-In addition to this induced prior, we have the prior \(f_\phi^{direct}(\phi)\), which does not involve \(M\) nor the inputs \(\theta\). Since these priors are based on different sources of information and may reflect different uncertainties, often it useful to use both sources of information to inform our estimates. To do so, we need to combine the distributions for \(q^*_1(\phi)\) and \(f_\phi^{direct}(\phi)\) to create a pooled distribution.
+In addition to this induced prior, we have the prior \(f_\phi^{direct}(\phi)\), which does not involve \(M\) nor the inputs \(\theta\). Since these priors are based on different sources of information and may reflect different uncertainties, often it useful to use both sources of information to inform our estimates. To do so, we need to combine the distributions for \(f_\phi^{induced}\) and \(f_\phi^{direct}\) to create a pooled distribution.
 
 Multiple pooling strategies exist for distinct distributions, but one requirement for a Bayesian analysis is that the distribution should be independent of the order in which the prior is updated and the combining of the prior distribution. That is, updating the prior distributions using Bayes' theorem and then combining distributions should yield the same result as combining distributions and then updating this combined distribution; pooling methods that have this property are deemed externally Bayesian. Logarithmic pooling has been shown to be externally Bayesian under some conditions, which are likely to hold in most settings. Furthermore, logarithmic pooling has actually been shown to be the only pooling method where this holds (Genest, McConway, \& Schervish, 1986). For this reason, Poole \emph{et al.} recommend proceeding with logarithmic pooling for Bayesian melding.
 
-The logarithmically pooled prior for \(\phi\) by pooling \(q^*_1(\phi)\) and \(f_\phi^{direct}(\phi)\) is proportional to
+The logarithmically pooled prior for \(\phi\) by pooling \(f_\phi^{induced}\) and \(f_\phi^{direct}\) is
 
-\[(f_\phi^{induced}(\phi))^{\alpha} (f_\phi^{direct}(\phi))^{1-\alpha}\]
+\[f_\phi^{pooled} (\phi) = t(\boldsymbol{\alpha}) (f_\phi^{induced}(\phi))^{\alpha} (f_\phi^{direct}(\phi))^{1-\alpha}\]
 
-where \(\alpha \in [0,1]\) is a pooling weight. Commonly, a choice of \(\alpha = 0.5\) is used to give the priors equal weight. In this case, logarithmic pooling may be referred to as geometric pooling since it is equivalent to taking a geometric mean.
+where \(\alpha \in [0,1]\) is a pooling weight and \(t(\boldsymbol{\alpha})\) is the normalizing constant. Commonly, a choice of \(\alpha = 0.5\) is used to give the priors equal weight. In this case, logarithmic pooling may be referred to as geometric pooling since it is equivalent to taking a geometric mean.
 
 If \(M\) is invertible, we can obtain the contrained distributions for the model inputs by simply inverting \(M\). However, \(M\) is rarely invertible, so we have to think about how to proceed in the noninvertible case.
 
+\hypertarget{simple-discrete-example}{%
+\subsection{Simple Discrete Example}\label{simple-discrete-example}}
+
 To get intuition for a valid strategy Poole et al.~recommend, we consider a mapping \(M: \theta \to \phi\) for \(\theta \in \mathbb{R}\) and \(\phi \in \mathbb{R}\)
-defined as follows. Note the choice of \(f_\theta,f_\phi^{direct}\) does not matter here as long as they are valid densities.
+defined as follows (Figure \ref{fig:dex}). Note the choice of \(f_\theta,f_\phi^{direct}\) does not matter here as long as they are valid densities.
+\begin{multicols}{2}
+\begin{figure}
+
+{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-4-1} 
+
+}
+
+\caption{\label{fig:dex}A simple discrete example where $M$ is not invertible.}\label{fig:unnamed-chunk-4}
+\end{figure}
+\columnbreak
 \begin{table}[H]
 \centering
 \begin{tabular}[t]{r|r|r|r}
 \hline
-$\theta$ & $f_\theta(\theta)$ & $\phi$ & $f_\phi^{direct}(\phi)$\\
+$\theta$ & $f_\theta(\theta)$ & $M(\theta)=\phi$ & $f_\phi^{direct}(\phi)$\\
 \hline
 1 & 0.3 & 1 & 0.4\\
 \hline
@@ -294,26 +303,35 @@ $\theta$ & $f_\theta(\theta)$ & $\phi$ & $f_\phi^{direct}(\phi)$\\
 \hline
 \end{tabular}
 \end{table}
+\end{multicols}
 We see that \(M\) is not invertible since \(\theta=1\) and \(\theta = 2\) both map to \(\phi=2\), which implies the inverse \(M^{-1}\) would not be well defined.
 
-We can generate a sample from the density \(f_\phi^{induced}(\phi)\) using our function \(M\) and taking \(f_\phi^{induced}(\phi) = f_\theta(M^{-1}(\phi))\); in the continuous case we need to multiply by \(|J(\phi)|\), but not in the discrete case (Blitzstein \& Hwang, 2019).
+We can generate a sample from the density \(f_\phi^{induced}\) by sampling from \(f_\theta\) and computing \(M(\theta)\).
 
-So we have \(f_\phi^{induced}(1) = f_\theta(1) = 0.3\) since \(M(1)=1\), and \(f_\phi^{induced}(2) = f_\theta(2) + f_\theta(3) = 0.2 + 0.5=0.7\) since \(M(2) = 2\) and \(M(3)=2\).
-
+So we have
+\begin{align*}
+f_\phi^{induced}(1) &= f_{\theta}(1) = 0.3 & \text{ (since $\theta = 1$ maps $\phi = 1$) } \\
+f_\phi^{induced}(2) &= f_{\theta}(2) +  f_{\theta}(3) = 0.2 + 0.5=  0.7 & \text{ (since $\theta = 2$ and $\theta=3$ both map to $\phi = 2$) }
+\end{align*}
 Then, we can compute the logarithmically pooled pooled prior with \(\alpha=0.5\) by taking \(f_\phi^{induced}(\phi)^{\alpha} f_\phi^{direct}(\phi)^{1-\alpha}\).
 
-For \(\phi = 1\), we have \(f_\phi^{induced}(\phi)^{\alpha} f_\phi^{direct}(\phi)^{1-\alpha} = (0.3)^{0.5}(0.4)^{0.5} = 0.3464\).
-For \(\phi = 2\), we have \(f_\phi^{induced}(\phi)^{\alpha} f_\phi^{direct}(\phi)^{1-\alpha} = (0.6)^{0.5}(0.7)^{0.5} = 0.6481\).
-
+This gives us
+\begin{align*}
+f_\phi^{induced}(\phi)^{\alpha} f_\phi^{direct}(\phi)^{1-\alpha} &= (0.3)^{0.5}(0.4)^{0.5} = 0.3464\\
+f_\phi^{induced}(\phi)^{\alpha} f_\phi^{direct}(\phi)^{1-\alpha} &= (0.7)^{0.5}(0.6)^{0.5} = 0.6481.
+\end{align*}
 To make this a valid density, however, these probabilities must sum to 1, so we renormalize by dividing by (0.3464 + 0.6481). Denoting the pooled prior in phi-space as \(f_\phi^{pooled}(\phi)\), this gives us
-\(0.3464 / (0.3464 + 0.6481) = 0.3483\) for \(\phi =1\) and \(0.6481 / (0.3464 + 0.6481) =0.6517\) for \(\phi=2\).
-
-Summarizing these results, we have
+\begin{align*}
+f_\phi^{pooled}(1) &= \frac{ 0.3464  }  { 0.3464 + 0.6481 } = 0.3483 \\
+f_\phi^{pooled}(2) &= \dfrac{ 0.6481 } { 0.3464 + 0.6481}  =0.6517.
+\end{align*}
+We summarize these results and compare \(f_\phi^{induced}, f_\phi^{direct}\), and \(f_\phi^{pooled}\) in Figure \ref{fig:comp}.
+\begin{multicols}{2}
 \begin{table}[H]
 \centering
 \begin{tabular}[t]{r|r|r|r}
 \hline
-$\phi$ & $f_\phi^{direct}(\phi)$ & $f_\phi^{induced}(\phi)$ & $q^{\sim[\phi]}(\phi)$\\
+$\phi$ & $f_\phi^{direct}(\phi)$ & $f_\phi^{induced}(\phi)$ & $f_\phi^{pooled}(\phi)$\\
 \hline
 1 & 0.4 & 0.3 & 0.3483\\
 \hline
@@ -321,7 +339,17 @@ $\phi$ & $f_\phi^{direct}(\phi)$ & $f_\phi^{induced}(\phi)$ & $q^{\sim[\phi]}(\p
 \hline
 \end{tabular}
 \end{table}
-However, we want the pooled prior on the inputs \(\theta\), that is, \(f_\theta^{pooled}(\theta)\).
+\columnbreak
+\begin{figure}
+
+{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-7-1} 
+
+}
+
+\caption{\label{fig:comp}}\label{fig:unnamed-chunk-7}
+\end{figure}
+\end{multicols}
+However, we also want the pooled prior on the inputs \(\theta\), that is, \(f_\theta^{pooled}(\theta)\).
 
 Poole et al.~reasoned as follows. Since \(M\) uniquely maps \(\theta=1\) to \(\phi =1\), the probability that \(\theta=1\) should be equal to the probability \(\phi = 1\). That is, we should have \(f_\theta^{pooled}(1) = f_\phi^{pooled}(1)\).
 
@@ -335,8 +363,10 @@ That is, we can assign a probability for \(f_\theta^{pooled}(2)\) by considering
 
 That is, if the probability \(\theta\) takes on the value \(2\) is lower in this case than the probability \(\theta=3\) which we know from the prior on \(\theta\), \(f_\theta(\theta)\), then the pooled prior on \(\theta\), \(f_\theta^{pooled}(2)\), should reflect this.
 
-Using this reasoning, we have \(f_\theta^{pooled}(2) = (0.7) \frac{0.2}{0.2+0.5} = 0.1862\) and \(f_\theta^{pooled}(3) = (0.7) \frac{0.5}{0.2+0.5} = 0.4655\).
-
+Using this reasoning, we have
+\begin{align*} f_\theta^{pooled}(2) &= (0.7) \frac{0.2}{0.2+0.5} = 0.1862\\
+f_\theta^{pooled}(3) &= (0.7) \frac{0.5}{0.2+0.5} = 0.4655.
+\end{align*}
 The result in this simple example, using \(f_\theta(\theta)\) to determine how to distribute the probability for values of \(\phi\) where multiple \(\theta\) map to \(\phi\), can be used to derive general formulas to compute \(f_\theta^{pooled}(\theta)\) for discrete and continuous distributions (Poole \& Raftery, 2000).
 
 \hypertarget{general-solution-for-the-discrete-case}{%
@@ -354,18 +384,16 @@ We denote \(B = M(A) = \{M(\theta) : \theta \in A \}\) and \(C = M^{-1}(B) = \{\
 Then
 
 \[
-f_\phi^{pooled} (M(\theta)) \left( \frac{f_\theta(\theta)}{f_\phi^{induced}(M(\theta))} \right) \tag{1}
+f_\phi^{pooled} (M(\theta)) =t({\alpha}) f_\theta(\theta) \left( \frac{f_\phi^{direct}(M(\theta))}{f_\phi^{induced}(M(\theta))} \right)^{1-\alpha} \tag{2}
 \]
-
-\[
-=k_{\alpha} f_\theta(\theta) \left( \frac{f_\phi^{direct}(M(\theta))}{f_\phi^{induced}(M(\theta))} \right)^{1-\alpha} \tag{2}
-\]
-where \(k_\alpha\) is a renormalizing constant for the choice of \(\alpha\). However, how we get from (1) to (2) is unclear to me.
+where \(t({\alpha})\) is a renormalizing constant for the choice of \(\alpha\).
 
 \hypertarget{implementation-through-the-sampling-importance-resampling-algorithm}{%
 \subsection{Implementation through the Sampling-Importance-Resampling Algorithm}\label{implementation-through-the-sampling-importance-resampling-algorithm}}
 
-The steps to the sampling-importance-resampling procedure to are:
+We can obtain the pooled distributions \(f^{pooled}_\theta\) and \(f^{pooled}_\phi\) by using the Sampling-Importance-Resampling Algorithm.
+
+The steps are as follows.
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
@@ -404,11 +432,11 @@ This means we have two priors on the asymptomatic rate \(\phi\), that by taking 
 First, we obtain a sample \(\theta_1, \theta_2, \dots, \theta_k\) from \(\theta\) (Figure \ref{fig:theta}).
 \begin{figure}[H]
 
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-7-1} 
+{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-9-1} 
 
 }
 
-\caption{\label{fig:theta}}\label{fig:unnamed-chunk-7}
+\caption{\label{fig:theta}}\label{fig:unnamed-chunk-9}
 \end{figure}
 \hypertarget{direct-prior-and-induced-prior-distributions-for-ps_0texttest_textuntested}{%
 \subsection{\texorpdfstring{Direct Prior and Induced Prior Distributions for \(P(S_0|\text{test}_+,\text{untested})\)}{Direct Prior and Induced Prior Distributions for P(S\_0\textbar\textbackslash text\{test\}\_+,\textbackslash text\{untested\})}}\label{direct-prior-and-induced-prior-distributions-for-ps_0texttest_textuntested}}
@@ -416,11 +444,11 @@ First, we obtain a sample \(\theta_1, \theta_2, \dots, \theta_k\) from \(\theta\
 Then, taking \(M(\theta)\), we can compute the induced distribution \(f_\phi^{induced}(M(\theta))\) and compare it to our prior on \(\phi\) from meta-analyses on the asymptomatic rate, \(f_\phi^{direct}(\phi)\) (\ref{fig:prior-induced}).
 \begin{figure}
 
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-8-1} 
+{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-10-1} 
 
 }
 
-\caption{\label{fig:prior-induced}}\label{fig:unnamed-chunk-8}
+\caption{\label{fig:prior-induced}}\label{fig:unnamed-chunk-10}
 \end{figure}
 \newpage
 
@@ -438,11 +466,11 @@ Once we have these weights, we resample the \(\phi_1,\dots,\phi_M\) to obtain a 
 We see the melded distributions and pre-melding distributions in Figure \ref{fig:melded}.
 \begin{figure}
 
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-10-1} 
+{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-12-1} 
 
 }
 
-\caption{\label{fig:melded}}\label{fig:unnamed-chunk-10}
+\caption{\label{fig:melded}}\label{fig:unnamed-chunk-12}
 \end{figure}
 Comparing the induced and direct priors on \(P(S_0| \text{test}_+, \text{untested})\) above, we see that although they have shared support, some values from the induced distribution we acquire by using \(M\) to generate values of \(\phi\) from sampled values of \(\theta\) are very unlikely to be in accordance with the information we know about the prevalence of SARS-CoV-2 asymptomatic infection. This is where Bayesian melding comes into play. Pooling these distributions enable us to take both the prior on \(f^{direct}\) from published analyses on asymptomatic infection, and the induced prior, \(f^{induced}\), into account to constrain the distributions of both the model inputs \(\theta = \{ \alpha, \beta, P(S_1 | \text{untested})\}\) and model output \(\phi = P(S_0|\text{test}_+, \text{untested})\) to be in accordance with both prior distributions. We then use these constrained distributions as inputs in the probabilistic bias analysis.
 
@@ -520,7 +548,7 @@ P(S_0 |\text{test}_+, \text{untested}) = \dfrac{\beta (1- P(S_1|\text{untested})
 \hypertarget{overview}{%
 \subsection{Overview}\label{overview}}
 
-~~~The Sampling-Importance-Resampling Algorithm, introduced in (\textbf{rubin1987?}), is a non-iterative method for approximating a sample from a target probability density function \(f\).
+~~~The Sampling-Importance-Resampling Algorithm, introduced in Rubin (1987), is a non-iterative method for approximating a sample from a target probability density function \(f\).
 
 The two main steps are the sampling step and importance resampling step. We have two (generally distinct) sample sizes, where \(m\) is the initial sample size and \(r\) is the posterior sample size.
 
@@ -530,9 +558,11 @@ In the sampling step, we draw an independent and identically distributed sample 
 
 We resample with these defined weights to obtain a sample of size \(r\) from \(Y_1, Y_2, \dots, Y_m\). We denote this resample \(Z_1,\dots, Z_r\).
 
-The method is most efficient when \(g\) is a good approximation of \(f\). Also of interest is setting the sampling size and posterior sample size. The algorithm generates independent and identically distributed samples as \(m/r \to \infty\), but in most applications \(m/r\) between 10 and 20 is appropriate (\textbf{rubin2004?}).
+The method is most efficient when \(g\) is a good approximation of \(f\). Also of interest is setting the sampling size and posterior sample size. The algorithm generates independent and identically distributed samples as \(m/r \to \infty\), but in most applications \(m/r\) between 10 and 20 is appropriate (Rubin, Gelman, \& Meng, 2004).
 
-Sometimes the resulting distribution will have a closed form.
+Sometimes the resulting distribution will have a closed form, which we can see in the following two examples.
+
+\newpage
 
 \hypertarget{example-1}{%
 \subsubsection{Example 1:}\label{example-1}}
@@ -546,21 +576,23 @@ From the PDF of the gamma distribution, \(\dfrac{\beta^\alpha}{\Gamma(\alpha) }y
 We can see this result by considering \(Y\) before and after resampling below (Figure \ref{fig:ex1}).
 \begin{figure}
 
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-11-1} 
+{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-13-1} 
 
 }
 
-\caption{\label{fig:ex1}}\label{fig:unnamed-chunk-11}
+\caption{\label{fig:ex1}}\label{fig:unnamed-chunk-13}
 \end{figure}
 Then, we can see that the PDF of the the gamma distribution with \(\alpha = 2\) and \(\beta = \lambda\) corresponds to the post-sampling distribution as expected (Figure \ref{fig:ex12}).
 \begin{figure}
 
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-12-1} 
+{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-14-1} 
 
 }
 
-\caption{\label{fig:ex12}}\label{fig:unnamed-chunk-12}
+\caption{\label{fig:ex12}}\label{fig:unnamed-chunk-14}
 \end{figure}
+\newpage
+
 \hypertarget{example-2}{%
 \subsubsection{Example 2:}\label{example-2}}
 
@@ -575,20 +607,20 @@ which is proportional to the exponential distribution with parameter \(2\lambda\
 The distributions before and after resampling are shown in Figure \ref{fig:ex2}.
 \begin{figure}
 
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-13-1} 
+{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-15-1} 
 
 }
 
-\caption{\label{fig:ex2}}\label{fig:unnamed-chunk-13}
+\caption{\label{fig:ex2}}\label{fig:unnamed-chunk-15}
 \end{figure}
 and then plotting the PDF of the exponential distribution with parameter \(2\lambda\) we can see the correspondence to the post-sampling distribution (Figure \ref{fig:ex22}).
 \begin{figure}
 
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-14-1} 
+{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-16-1} 
 
 }
 
-\caption{\label{fig:ex22}}\label{fig:unnamed-chunk-14}
+\caption{\label{fig:ex22}}\label{fig:unnamed-chunk-16}
 \end{figure}
 \newpage
 
@@ -642,7 +674,7 @@ It follows that the probability density function of \(Z\) is proportional to \(h
 \hypertarget{logpooled}{%
 \subsection{Obtaining Logarithmic Pooled Distribution with the Sampling-Importance-Resampling Algorithm}\label{logpooled}}
 
-As outlined in (\textbf{carvalho2023?}), we can formally define logarithmic pooling as follows.
+As outlined in Carvalho, Villela, Coelho, \& Bastos (2023), we can formally define logarithmic pooling as follows.
 
 If we have a set of densities \(\{ f_1(\phi), f_2(\phi), \ldots, f_n(\phi)\}\) and corresponding pooling weights \(\boldsymbol{\alpha}=\{\alpha_1, \alpha_2, \ldots, \alpha_n\}\), then the pooled density is
 
@@ -670,20 +702,20 @@ Sampling from \(f^{induced}\) with these weights will yield a sample with approx
 Locally estimated scatterplot smoothing (LOESS) fits a collection of local regression models to obtain a smooth curve through the observed data (Figure \ref{fig:loess}). It is highly flexible in the sense that we do not have to specify the functional relationship between the predictor and response variable for the entire range of the predictor, which may be impossible in various settings. It is particularly useful when working with time series data with substantial noise.
 \begin{figure}
 
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-16-1} 
+{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-18-1} 
 
 }
 
-\caption{\label{fig:loess}}\label{fig:unnamed-chunk-16}
+\caption{\label{fig:loess}}\label{fig:unnamed-chunk-18}
 \end{figure}
-To perform LOESS smoothing, we estimate a set of local regressions (\textbf{chambers1997?}). To do this, we must specify the span; this smoothing parameter is the fraction of the data that is used for the local polynomial fit. With a smaller span, the resulting curve will fit the trends more closely, while a larger span reflects broader trends (Figure \ref{fig:smooth-spans}).
+To perform LOESS smoothing, we estimate a set of local regressions (Chambers, 1997). To do this, we must specify the span; this smoothing parameter is the fraction of the data that is used for the local polynomial fit. With a smaller span, the resulting curve will fit the trends more closely, while a larger span reflects broader trends (Figure \ref{fig:smooth-spans}).
 \begin{figure}
 
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-17-1} 
+{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-19-1} 
 
 }
 
-\caption{\label{fig:smooth-spans}}\label{fig:unnamed-chunk-17}
+\caption{\label{fig:smooth-spans}}\label{fig:unnamed-chunk-19}
 \end{figure}
 \hypertarget{fitting-the-loess-curve}{%
 \subsection{Fitting the LOESS Curve}\label{fitting-the-loess-curve}}
@@ -712,11 +744,11 @@ Essentially, this process gives weight to points in the neighborhood of \(x^*\).
 Then the weights we obtain are given in Figure \ref{fig:weights}.
 \begin{figure}
 
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-18-1} 
+{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-20-1} 
 
 }
 
-\caption{\label{fig:weights} The only values with nonzero weights are those within the interval $(500 - \alpha (n), 500 - \alpha (n))$. That is, the proportion $\alpha$ of the data points closest to $x^*$ will have nonzero weights.}\label{fig:unnamed-chunk-18}
+\caption{\label{fig:weights} The only values with nonzero weights are those within the interval $(500 - \alpha (n), 500 - \alpha (n))$. That is, the proportion $\alpha$ of the data points closest to $x^*$ will have nonzero weights.}\label{fig:unnamed-chunk-20}
 \end{figure}
 \newpage
 
@@ -724,11 +756,11 @@ We fit a linear regression with polynomial terms, typically with degree up to 2,
 \begin{flushleft}
 \begin{figure}
 
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-19-1} 
+{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-21-1} 
 
 }
 
-\caption{\label{fig:ex-poly}}\label{fig:unnamed-chunk-19}
+\caption{\label{fig:ex-poly}}\label{fig:unnamed-chunk-21}
 \end{figure}
 \end{flushleft}
 By fitting the model for every point in \(\mathbf x\), we obtain the smoothed line shown in red in Figure \ref{fig:loess-all}.
@@ -744,7 +776,7 @@ Smoothing methods are sensitive to the choice of smoothing parameter \(h\), whic
 
 Methods exist for picking the smoothing parameter \(h\) that minimizes the mean squared error between the predicted values from the estimated line and observed values of the dependent variable, for example, leave-one-out cross-validation or generalized cross-validation.
 
-However, for this work, we used LOESS smoothing to smooth survey data from the COVID-19 Trends and Impact Survey (\textbf{reinhart2021?}).
+However, for this work, we used LOESS smoothing to smooth survey data from the COVID-19 Trends and Impact Survey (Reinhart et al., 2021).
 We choose the smoothing parameter for each variable based on domain knowledge regarding the level of noise present for each variable of interest. For example, there is substantial noise in the screening test positivity data that reflect trends that do not represent meaningful differences in the screening test positivity. Some trends in the screening sensitivity may be due to scheduled workplace screenings happening at regular time intervals, and some of the variation may be due to the frequency of screening testing due to other variables, such as the access and cost of testing.
 
 Since the ratio \(\frac{\text{screening test positivity}}{\text{overall test positivity}}\) is used to estimate \(\beta = \frac{P(\text{test}_+| S_0, untested)}{P(\text{test}_+|tested)}\), the variability in the screening positivity creates substantial variability in our estimates of \(\beta\).
@@ -761,9 +793,6 @@ Sensitivity analyses with modified versions of the smoothing span of \(\beta\) a
 
 \hypertarget{kernel-density-estimation}{%
 \section{Kernel Density Estimation}\label{kernel-density-estimation}}
-
-\hypertarget{sampling-importance-resampling}{%
-\section{Sampling Importance Resampling}\label{sampling-importance-resampling}}
 
 \hypertarget{definition-of-prior-distributions-for-bias-parameters}{%
 \chapter{Definition of Prior Distributions for Bias Parameters}\label{definition-of-prior-distributions-for-bias-parameters}}
@@ -877,6 +906,12 @@ Placeholder
 \leavevmode\vadjust pre{\hypertarget{ref-blitzsteinIntroductionProbability2019}{}}%
 Blitzstein, J. K., \& Hwang, J. (2019). \emph{Introduction to probability} (Second edition). Boca Raton: CRC Press.
 
+\leavevmode\vadjust pre{\hypertarget{ref-carvalho2023}{}}%
+Carvalho, L. M., Villela, D. A. M., Coelho, F. C., \& Bastos, L. S. (2023). Bayesian Inference for the Weights in Logarithmic Pooling. \emph{Bayesian Analysis}, \emph{18}(1). http://doi.org/\href{https://doi.org/10.1214/22-BA1311}{10.1214/22-BA1311}
+
+\leavevmode\vadjust pre{\hypertarget{ref-chambers1997}{}}%
+Chambers, J. M. (Ed.). (1997). \emph{Statistical models in S} (Reprint). London: Chapman \& Hall.
+
 \leavevmode\vadjust pre{\hypertarget{ref-genest1986}{}}%
 Genest, C., McConway, K. J., \& Schervish, M. J. (1986). Characterization of Externally Bayesian Pooling Operators. \emph{The Annals of Statistics}, \emph{14}(2), 487--501. Retrieved from \url{https://www.jstor.org/stable/2241231}
 
@@ -901,8 +936,17 @@ Poole, D., \& Raftery, A. E. (2000). Inference for Deterministic Simulation Mode
 \leavevmode\vadjust pre{\hypertarget{ref-powers2011}{}}%
 Powers, K. A., Ghani, A. C., Miller, W. C., Hoffman, I. F., Pettifor, A. E., Kamanga, G., \ldots{} Cohen, M. S. (2011). The role of acute and early HIV infection in the spread of HIV and implications for transmission prevention strategies in Lilongwe, Malawi: a modelling study. \emph{The Lancet}, \emph{378}(9787), 256--268. http://doi.org/\href{https://doi.org/10.1016/S0140-6736(11)60842-8}{10.1016/S0140-6736(11)60842-8}
 
+\leavevmode\vadjust pre{\hypertarget{ref-reinhart2021}{}}%
+Reinhart, A., Brooks, L., Jahja, M., Rumack, A., Tang, J., Agrawal, S., \ldots{} Tibshirani, R. J. (2021). An open repository of real-time COVID-19 indicators. \emph{Proceedings of the National Academy of Sciences}, \emph{118}(51), e2111452118. http://doi.org/\href{https://doi.org/10.1073/pnas.2111452118}{10.1073/pnas.2111452118}
+
 \leavevmode\vadjust pre{\hypertarget{ref-robson2014}{}}%
 Robson, B. J. (2014). When do aquatic systems models provide useful predictions, what is changing, and what is next? \emph{Environmental Modelling \& Software}, \emph{61}, 287--296. http://doi.org/\href{https://doi.org/10.1016/j.envsoft.2014.01.009}{10.1016/j.envsoft.2014.01.009}
+
+\leavevmode\vadjust pre{\hypertarget{ref-rubin1987}{}}%
+Rubin, D. B. (1987). The Calculation of Posterior Distributions by Data Augmentation: Comment: A Noniterative Sampling/Importance Resampling Alternative to the Data Augmentation Algorithm for Creating a Few Imputations When Fractions of Missing Information Are Modest: The SIR Algorithm. \emph{Journal of the American Statistical Association}, \emph{82}(398), 543. http://doi.org/\href{https://doi.org/10.2307/2289460}{10.2307/2289460}
+
+\leavevmode\vadjust pre{\hypertarget{ref-rubin2004}{}}%
+Rubin, D. B., Gelman, A., \& Meng, X.-L. (Eds.). (2004). \emph{Applied Bayesian modeling and causal inference from incomplete-data perspectives: an essential journey with Donald Rubin's statistical family}. Chichester, West Sussex, England\,; Hoboken, NJ: Wiley.
 
 \leavevmode\vadjust pre{\hypertarget{ref-sah2021}{}}%
 Sah, P., Fitzpatrick, M. C., Zimmer, C. F., Abdollahi, E., Juden-Kelly, L., Moghadas, S. M., \ldots{} Galvani, A. P. (2021). Asymptomatic SARS-CoV-2 infection: A systematic review and meta-analysis. \emph{Proceedings of the National Academy of Sciences}, \emph{118}(34), e2109229118. http://doi.org/\href{https://doi.org/10.1073/pnas.2109229118}{10.1073/pnas.2109229118}

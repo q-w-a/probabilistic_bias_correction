@@ -2,25 +2,25 @@
 \contentsline {chapter}{Chapter 2: Background}{3}{chapter.2}%
 \contentsline {section}{\numberline {2.1}Probabalistic Bias Analysis}{3}{section.2.1}%
 \contentsline {section}{\numberline {2.2}Background for the Approach}{4}{section.2.2}%
-\contentsline {subsection}{\numberline {2.2.1}General Solution for the Discrete Case}{7}{subsection.2.2.1}%
-\contentsline {subsection}{\numberline {2.2.2}General Solution for the Continuous Case}{7}{subsection.2.2.2}%
-\contentsline {subsection}{\numberline {2.2.3}Implementation through the Sampling-Importance-Resampling Algorithm}{7}{subsection.2.2.3}%
-\contentsline {section}{\numberline {2.3}Bayesian Melding Applied to COVID-19 Misclassification}{8}{section.2.3}%
-\contentsline {subsection}{\numberline {2.3.1}Distribution of \(\theta = \{\alpha , \beta , P(S_1|\text {untested}) \}\)}{9}{subsection.2.3.1}%
-\contentsline {subsection}{\numberline {2.3.2}Direct Prior and Induced Prior Distributions for \(P(S_0|\text {test}_+,\text {untested})\)}{9}{subsection.2.3.2}%
-\contentsline {subsection}{\numberline {2.3.3}Pooling}{10}{subsection.2.3.3}%
-\contentsline {subsection}{\numberline {2.3.4}Derivation of \(M\)}{12}{subsection.2.3.4}%
-\contentsline {section}{\numberline {2.4}Sampling-Importance-Resampling Algorithm }{14}{section.2.4}%
-\contentsline {subsection}{\numberline {2.4.1}Overview}{14}{subsection.2.4.1}%
-\contentsline {subsubsection}{Example 1:}{14}{section*.14}%
-\contentsline {subsubsection}{Example 2:}{15}{section*.17}%
-\contentsline {subsection}{\numberline {2.4.2}Proof that Algorithm Obtains Approximate Sample from Target Distribution}{17}{subsection.2.4.2}%
-\contentsline {subsection}{\numberline {2.4.3}Obtaining Logarithmic Pooled Distribution with the Sampling-Importance-Resampling Algorithm}{18}{subsection.2.4.3}%
-\contentsline {section}{\numberline {2.5}LOESS Smoothing}{20}{section.2.5}%
-\contentsline {subsection}{\numberline {2.5.1}Introduction}{20}{subsection.2.5.1}%
-\contentsline {subsection}{\numberline {2.5.2}Fitting the LOESS Curve}{21}{subsection.2.5.2}%
-\contentsline {section}{\numberline {2.6}Kernel Density Estimation}{25}{section.2.6}%
-\contentsline {section}{\numberline {2.7}Sampling Importance Resampling}{25}{section.2.7}%
+\contentsline {subsection}{\numberline {2.2.1}Simple Discrete Example}{5}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}General Solution for the Discrete Case}{7}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}General Solution for the Continuous Case}{7}{subsection.2.2.3}%
+\contentsline {subsection}{\numberline {2.2.4}Implementation through the Sampling-Importance-Resampling Algorithm}{8}{subsection.2.2.4}%
+\contentsline {section}{\numberline {2.3}Bayesian Melding Applied to COVID-19 Misclassification}{9}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Distribution of \(\theta = \{\alpha , \beta , P(S_1|\text {untested}) \}\)}{10}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Direct Prior and Induced Prior Distributions for \(P(S_0|\text {test}_+,\text {untested})\)}{10}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}Pooling}{11}{subsection.2.3.3}%
+\contentsline {subsection}{\numberline {2.3.4}Derivation of \(M\)}{13}{subsection.2.3.4}%
+\contentsline {section}{\numberline {2.4}Sampling-Importance-Resampling Algorithm }{15}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Overview}{15}{subsection.2.4.1}%
+\contentsline {subsubsection}{Example 1:}{16}{section*.13}%
+\contentsline {subsubsection}{Example 2:}{17}{section*.16}%
+\contentsline {subsection}{\numberline {2.4.2}Proof that Algorithm Obtains Approximate Sample from Target Distribution}{18}{subsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.4.3}Obtaining Logarithmic Pooled Distribution with the Sampling-Importance-Resampling Algorithm}{19}{subsection.2.4.3}%
+\contentsline {section}{\numberline {2.5}LOESS Smoothing}{21}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Introduction}{21}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}Fitting the LOESS Curve}{22}{subsection.2.5.2}%
+\contentsline {section}{\numberline {2.6}Kernel Density Estimation}{26}{section.2.6}%
 \contentsline {chapter}{Chapter 3: Definition of Prior Distributions for Bias Parameters}{27}{chapter.3}%
 \contentsline {section}{\numberline {3.1}Background on the Beta Distribution}{28}{section.3.1}%
 \contentsline {section}{\numberline {3.2}Background on the Gamma Distribution}{28}{section.3.2}%
@@ -50,4 +50,4 @@
 \contentsline {section}{\numberline {5.7}State-level}{31}{section.5.7}%
 \contentsline {chapter}{Appendix A: Appendix}{33}{appendix.A}%
 \contentsline {section}{\numberline {A.1}Derivation of the Mean and Variance of the Beta Distribution}{33}{section.A.1}%
-\contentsline {chapter}{References}{35}{appendix*.25}%
+\contentsline {chapter}{References}{35}{appendix*.24}%

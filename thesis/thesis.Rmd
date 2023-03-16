@@ -1,3 +1,46 @@
+---
+title: 'Estimating Unobserved COVID-19 Infections in the United States'
+author: 'Quinn White'
+date: 'May 2023'
+institution: 'Smith College'
+division: 'Mathematics and Natural Sciences'
+advisor: 'Ben Baumer'
+altadvisor: 'Nicholas Reich'
+department: 'Statistical and Data Sciences'
+degree: 'Bachelor of Arts'
+knit: bookdown::render_book
+site: bookdown::bookdown_site
+params:
+  'Install needed packages for {pioneerdown}': True
+output:
+  pioneerdown::thesis_pdf: default 
+  pioneerdown::thesis_gitbook: default 
+abstract: '`r if(knitr:::is_latex_output()) paste(readLines(here::here("thesis/prelims", "00-abstract.Rmd")), collapse = "\n  ")`'
+acknowledgements: |
+  Will add
+dedication: |
+  You can have a dedication here if you wish. 
+bibliography: "bibliography.json"
+csl: csl/apa.csl
+lot: false
+lof: false
+urlcolor: blue
+linkcolor: blue
+---
+
+
+
+<!--chapter:end:index.Rmd-->
+
+
+# Motivation  
+
+Placeholder
+
+
+
+<!--chapter:end:01-chap1.Rmd-->
+
 
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, 
@@ -1613,4 +1656,77 @@ Sensitivity analyses with modified versions of the smoothing span of $\beta$ are
 ## Kernel Density Estimation
 
 
+
+
+<!--chapter:end:02-chap2.Rmd-->
+
+
+# Definition of Prior Distributions for Bias Parameters
+
+Placeholder
+
+
+## Background on the Beta Distribution
+## Background on the Gamma Distribution
+## Definition of Prior Distributions for Incomplete Testing Correction
+### Defining $P(S_1|Untested)$
+### Defining $\alpha$
+### Defining $\beta$
+### Defining $P(S_0|test+,untested)$
+## Definition of Priors for Test Inaccuracy Correction
+### Defining Test Sensitivity ($S_e$)
+## Defining Test Specificity ($S_p$)
+## Summary Table of Bias Parameter Distributions
+## Correction for Incomplete Testing 
+## Correction for Diagnostic Test Inaccuracy
+### Derivation of Formula for Correction for Diagnostic Test Inaccuracy
+
+<!--chapter:end:03-chap3.Rmd-->
+
+# Details of Implementation
+
+- Describe each step here
+- Mention reproducible workflow with make 
+
+<!--chapter:end:04-chap4.Rmd-->
+
+
+# Results
+
+Placeholder
+
+
+## County-level
+## State-level
+## Comparison to the Covidestim Model
+### Overview
+### The Covidestim Model
+### Assumptions
+## Comparison to Other Indicators
+## Seropositivity Data
+## County-level
+## State-level
+
+<!--chapter:end:05-chap5.Rmd-->
+
+
+# Appendix
+
+Placeholder
+
+
+## Smoothing Span
+### Changing SPAN for LOESS Smoothing of $\beta$
+## Changing Mean and Variance for Prior Distribution Specifications 
+
+<!--chapter:end:08-appendix.Rmd-->
+
+
+# References {-}
+
+Placeholder
+
+
+
+<!--chapter:end:99-references.Rmd-->
 

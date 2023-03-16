@@ -5,9 +5,13 @@
 
 # Appendix
 
-## Derivation of the Mean and Variance of the Beta Distribution
+## Smoothing Span
 
-To add
+### Changing SPAN for LOESS Smoothing of $\beta$
+
+## Changing Mean and Variance for Prior Distribution Specifications 
+
+
 
 <!--
 If you feel it necessary to include an appendix, it goes here.
