@@ -78,46 +78,49 @@ Although some forms of probabilistic bias analysis can be applied to summarized 
 In choosing specific distributions for the bias parameters, different specifications may yield density functions where most of the density is within a similar interval (MAKE PLOT WITH EXAMPLE), which means the choice of the specific distribution will not be sensitive to the particular choice of density. 
 
 
-## Bayesian Melding 
 
-### Theoretical Background for the Approach 
+##  Background for the Approach 
 
 The Bayesian melding approach was proposed by Poole et al. [@poole2000].
 
-The Bayesian melding approach enables us to account for both uncertainty from inputs and outputs of a deterministic model. The initial motivation for the approach was to study the population dynamics of whales in the presence of substantial uncertainty around model inputs for population growth [@poole2000]. However, the framework provided by Poole et al. can applied in any circumstance where we have uncertainty around some quantities $\theta$ and $\phi$ where there is a deterministic function $M:\theta \to\phi$. Due the utility of Bayesian melding in various contexts, since this deterministic model $M$ could take on a wide range of forms, the approach has since been applied in various fields, including urban simulations [@sevcikova2007], ecology [@robson2014], and infectious disease [@powers2011].  
+This approach enables us to account for both uncertainty from inputs and outputs of a deterministic model. The initial motivation for the approach was to study the population dynamics of whales in the presence of substantial uncertainty around model inputs for population growth [@poole2000]. However, the framework provided by Poole et al. can applied in any circumstance where we have uncertainty around some quantities $\theta$ and $\phi$ where there is a deterministic function $M:\theta \to\phi$. Due the utility of Bayesian melding in various contexts, since this deterministic model $M$ could take on a wide range of forms, the approach has since been applied in various fields, including urban simulations [@sevcikova2007], ecology [@robson2014], and infectious disease [@powers2011].  
 
-At this point, we can define how Bayesian melding works more formally.
+Let $M: \theta \to \phi$ be the deterministic model defined by the function relating a vector of input parameters $\theta$ to an output vector $\phi$, and suppose we have a prior on $\theta$ denoted $f_\theta(\theta)$ and  a prior on $\phi$ denoted $f_\phi^{direct}(\phi)$.
 
-Let $M: \theta \to \phi$ be the deterministic model defined by the function relating a vector of input parameters $\theta$ to an output vector $\phi$, and suppose we have a prior on $\theta$ denoted $q_1(\theta)$ and  a prior on $\phi$ denoted $q_2(\phi)$.
-
-However, note that we actually have two distinct priors on $\phi$. There is the prior formed by the distribution induced on $\phi$ by the prior for $\theta$ and the function $M$, where we denote this induced prior $q^*_1(\phi)$. 
-If $M^{-1}$ exists, we can write this induced prior $q_1^*(\phi) = q_1(M^{-1}(\phi)) |J(\phi)|$. This result follows from the fact $M(\theta) = \phi$, so we apply a change of variables to obtain the distribution of $\phi$ from the distribution of $\theta$. This is a generalization to the multivariate case of the change of variables result often covered in probability courses in the univariate case. That is, if we have a continuous random variable $X$ with probability density function $f_X$ and $Y=g(X)$ for a differentiable monotonic function, then the probability density function of $Y$ is $f_Y(y) = f_X(g^{-1}(y)) \Big| \frac{dx}{dy} \Big|$. In practice,  $M^{-1}$ rarely exists exists since $\theta$ is often of higher dimensionality then $\phi$, in which cases $M$ is not invertible. This means we generally approximate $q^*_1(\phi)$ without acquiring its analytical form. 
+However, note that we actually have two distinct priors on $\phi$. There is the prior formed by the distribution induced on $\phi$ by the prior for $\theta$ and the function $M$, where we denote this induced prior $f_\phi^{induced}(\phi)$. Generally, these priors are based on different sources of information.
 
 
- In addition to this induced prior, we have the prior $q_2(\phi)$, which does not involve $M$ nor the inputs $\theta$. Since these priors are based on different sources of information and may reflect different uncertainties, often it useful to use both sources of information to inform our estimates. To do so, we need to combine the distributions for $q^*_1(\phi)$ and $q_2(\phi)$ to create a pooled distribution.
+If $M^{-1}$ exists, we can write this induced prior $f_\phi^{induced}(\phi) = f_\theta(M^{-1}(\phi)) |J(\phi)|$. This result follows from the fact $M(\theta) = \phi$, so we apply a [change of variables](https://en.wikipedia.org/wiki/Probability_density_function#Function_of_random_variables_and_change_of_variables_in_the_probability_density_function) to obtain the distribution of $\phi$ from the distribution of $M(\theta)$. 
 
-Multiple pooling strategies exist for distinct distributions, but one requirement for a Bayesian analysis is that the distribution should be independent of the order in which the prior is updated and the combining of the prior distributions. That is, updating the prior distributions using Bayes’ theorem and then combining distributions should yield the same result as combining distributions and then updating this combined distribution; pooling methods that have this property are deemed externally Bayesian. Logarithmic pooling has been shown to be externally Bayesian under some conditions, which are likely to hold in most settings. Furthermore, logarithmic pooling has actually been shown to be the only pooling method where this holds [@genest1986].
+In practice,  $M^{-1}$ rarely exists exists since $\theta$ is often of higher dimensionality then $\phi$, in which cases $M$ is not invertible. This means we generally approximate $q^*_1(\phi)$ without acquiring its analytical form. 
 
-The logarithmically pooled prior for $\phi$ by pooling $q^*_1(\phi)$ and $q_2(\phi)$ is proportional to 
 
-$$q^*_1(\phi)^{\alpha} q_2(\phi)^{1-\alpha}$$
+ In addition to this induced prior, we have the prior $f_\phi^{direct}(\phi)$, which does not involve $M$ nor the inputs $\theta$. Since these priors are based on different sources of information and may reflect different uncertainties, often it useful to use both sources of information to inform our estimates. To do so, we need to combine the distributions for $q^*_1(\phi)$ and $f_\phi^{direct}(\phi)$ to create a pooled distribution.
+
+Multiple pooling strategies exist for distinct distributions, but one requirement for a Bayesian analysis is that the distribution should be independent of the order in which the prior is updated and the combining of the prior distribution. That is, updating the prior distributions using Bayes’ theorem and then combining distributions should yield the same result as combining distributions and then updating this combined distribution; pooling methods that have this property are deemed **externally Bayesian**. Logarithmic pooling has been shown to be externally Bayesian under some conditions, which are likely to hold in most settings. Furthermore, logarithmic pooling has actually been shown to be the only pooling method where this holds [@genest1986]. For this reason, Poole *et al.* recommend proceeding with logarithmic pooling for Bayesian melding.
+
+The logarithmically pooled prior for $\phi$ by pooling $q^*_1(\phi)$ and $f_\phi^{direct}(\phi)$ is proportional to 
+
+$$(f_\phi^{induced}(\phi))^{\alpha} (f_\phi^{direct}(\phi))^{1-\alpha}$$
 
 where $\alpha \in [0,1]$ is a pooling weight. Commonly, a choice of $\alpha = 0.5$ is used to give the priors equal weight. In this case, logarithmic pooling may be referred to as geometric pooling since it is equivalent to taking a geometric mean.
 
-If $M$ is invertible, we can obtain the contrained distributions for the model inputs by simply inverting. However, this is rare, so we have to think about how to proceed in the noninvertible case.
+If $M$ is invertible, we can obtain the contrained distributions for the model inputs by simply inverting $M$. However, $M$ is rarely invertible, so we have to think about how to proceed in the noninvertible case.
 
-To get intuition for a valid strategy, consider a mapping $M: \theta \to \phi$ for $\theta \in \mathbb{R}$ and $\phi \in \mathbb{R}$ 
-defined as follows. Note the choice of $q_1,q_2$ does not matter here as long as they are valid densities.
+To get intuition for a valid strategy Poole et al. recommend, we consider a mapping $M: \theta \to \phi$ for $\theta \in \mathbb{R}$ and $\phi \in \mathbb{R}$ 
+defined as follows. Note the choice of $f_\theta,f_\phi^{direct}$ does not matter here as long as they are valid densities.
 
 
 
 ```{r, echo = FALSE}
+
+
 library(kableExtra)
 df <- tibble::tibble(
              `$\\theta$` = c(1,2,3),
-             `$q_1(\\theta)$` = c(.3,.2,.5),
+             `$f_\\theta(\\theta)$` = c(.3,.2,.5),
              `$\\phi$` = c(1,2,2),
-             `$q_2(\\phi)$` = c(0.4,0.6,0.6))
+             `$f_\\phi^{direct}(\\phi)$` = c(0.4,0.6,0.6))
 
 kbl(df, escape=FALSE) %>%
   kable_classic()%>%
@@ -130,17 +133,17 @@ kbl(df, escape=FALSE) %>%
 
 We see that $M$ is not invertible since $\theta=1$ and $\theta = 2$ both map to $\phi=2$, which implies the inverse $M^{-1}$ would not be well defined.
 
-We can compute $q_1^*(\phi)$ using our function $M$ and taking $q_1^*(\phi) = q_1(M^{-1}(\phi))$; in the continuous case we need to multiply by $|J(\phi)|$, but not in the discrete case [@blitzsteinIntroductionProbability2019].
+We can generate a sample from the density $f_\phi^{induced}(\phi)$ using our function $M$ and taking $f_\phi^{induced}(\phi) = f_\theta(M^{-1}(\phi))$; in the continuous case we need to multiply by $|J(\phi)|$, but not in the discrete case [@blitzsteinIntroductionProbability2019].
 
-So we have $q^*_1(1) = q_1(1) = 0.3$ since $M(1)=1$, and $q^*_1(2) = q_1(2) + q_1(3) = 0.2 + 0.5=0.7$ since $M(2) = 2$ and $M(3)=2$.
 
-Then, we can compute the logarithmically pooled pooled prior with $\alpha=0.5$ by taking $q_1^*(\phi)^{\alpha} q_2(\phi)^{1-\alpha}$.
+So we have $f_\phi^{induced}(1) = f_\theta(1) = 0.3$ since $M(1)=1$, and $f_\phi^{induced}(2) = f_\theta(2) + f_\theta(3) = 0.2 + 0.5=0.7$ since $M(2) = 2$ and $M(3)=2$.
 
-For $\phi = 1$, we have $q_1^*(\phi)^{\alpha} q_2(\phi)^{1-\alpha} = (0.3)^{0.5}(0.4)^{0.5} = 0.3464$
-For $\phi = 2$, we have $q_1^*(\phi)^{\alpha} q_2(\phi)^{1-\alpha} = (0.6)^{0.5}(0.7)^{0.5} = 0.6481$
+Then, we can compute the logarithmically pooled pooled prior with $\alpha=0.5$ by taking $f_\phi^{induced}(\phi)^{\alpha} f_\phi^{direct}(\phi)^{1-\alpha}$.
 
-To make this a valid density, however, these probabilities must sum to 1, so we renormalize by dividing by (0.3464 + 0.6481). This gives us the pooled prior $q^{\sim[\phi]}(\phi)$ as
+For $\phi = 1$, we have $f_\phi^{induced}(\phi)^{\alpha} f_\phi^{direct}(\phi)^{1-\alpha} = (0.3)^{0.5}(0.4)^{0.5} = 0.3464$.
+For $\phi = 2$, we have $f_\phi^{induced}(\phi)^{\alpha} f_\phi^{direct}(\phi)^{1-\alpha} = (0.6)^{0.5}(0.7)^{0.5} = 0.6481$.
 
+To make this a valid density, however, these probabilities must sum to 1, so we renormalize by dividing by (0.3464 + 0.6481). Denoting the pooled prior in phi-space as $f_\phi^{pooled}(\phi)$, this gives us
 $0.3464 / (0.3464 + 0.6481) = 0.3483$ for $\phi =1$ and $0.6481 / (0.3464 + 0.6481) =0.6517$ for $\phi=2$. 
 
 Summarizing these results, we have 
@@ -148,10 +151,10 @@ Summarizing these results, we have
 ```{r, echo = FALSE}
 df <- tibble::tibble(
              # `$\\theta$` = c(1,2,3),
-             # `$q_1(\\theta)$` = c(.3,.2,.5),
+             # `$f_\theta(\\theta)$` = c(.3,.2,.5),
              `$\\phi$` = c(1,2),
-             `$q_2(\\phi)$` = c(0.4,0.6),
-            `$q_1^*(\\phi)$` = c(0.3, 0.7),
+             `$f_\\phi^{direct}(\\phi)$` = c(0.4,0.6),
+            `$f_\\phi^{induced}(\\phi)$` = c(0.3, 0.7),
             `$q^{\\sim[\\phi]}(\\phi)$` = c(0.3483,0.6517 ))
 
 kbl(df, escape=FALSE) %>%
@@ -160,36 +163,600 @@ kbl(df, escape=FALSE) %>%
 ```
 
 
-However, we want the pooled prior on the inputs $\theta$, that is, $q^{\sim[\theta]}(\theta)$.
+However, we want the pooled prior on the inputs $\theta$, that is, $f_\theta^{pooled}(\theta)$.
 
-Poole et al. reasoned as follows. Since $M$ uniquely maps $\theta=1$ to $\phi =1$, the probability that $\theta=1$ should be equal to the probability $\phi = 1$. That is, we should have $q^{\sim[\theta]}(1) = q^{\sim[\phi]}(1)$.
+Poole et al. reasoned as follows. Since $M$ uniquely maps $\theta=1$ to $\phi =1$, the probability that $\theta=1$ should be equal to the probability $\phi = 1$. That is, we should have $f_\theta^{pooled}(1) = f_\phi^{pooled}(1)$.
 
-However, the relationship for $\theta=2$ or $\theta=3$ to $\phi$ is not one to one, but since $M(2)=2$ and $M(3)=2$, the sum of the probabilities for $\theta=1$ and $\theta=2$ should be equal to that for $\phi=2$, that is, $q^{\sim[\theta]}(2) + q^{\sim[\theta]}(3) = q^{\sim[\phi]}(2) = 0.6517$. 
+However, the relationship for $\theta=2$ or $\theta=3$ to $\phi$ is not one to one. Since $M(2)=2$ and $M(3)=2$, the sum of the probabilities for $\theta=1$ and $\theta=2$ should be equal to that for $\phi=2$, that is, $f_\theta^{pooled}(2) + f_\theta^{pooled}(3) = f_\phi^{pooled}(2) = 0.6517$. 
 
-The challenge here is how we divide the probability for $q^{\sim[\phi]}(2)$, which is defined, among $q^{\sim[\theta]}(2)$ and $q^{\sim[\theta]}(3)$. The prior for $\phi$ yields no information to assist in this choice, because knowing which value $\phi$ takes on does not give us any information about whether $\theta=2$ or $\theta=3$. Thus, the information we have about $\theta$ must be taken from $q_1(\theta)$.
+The challenge here is how we divide the probability for $f_\phi^{pooled}(2)$, which is defined, among $f_\theta^{pooled}(2)$ and $f_\theta^{pooled}(3)$. The prior for $\phi$ yields no information to assist in this choice, because knowing which value $\phi$ takes on does not give us any information about whether $\theta=2$ or $\theta=3$. Thus, the information we have about $\theta$ must be taken from $f_\theta(\theta)$.
 
-That is, we can assign a probability for $q^{\sim[\theta]}(2)$ by considering the probability that $\theta = 2$ relative to the probability $\theta =3$, computing
+That is, we can assign a probability for $f_\theta^{pooled}(2)$ by considering the probability that $\theta = 2$ relative to the probability $\theta =3$, computing
 
-$$q^{\sim[\theta]}(2) = q^{\sim[\phi]}(2) \Big( \frac{q_1(2)}{q_1(2) + q_1(3)}\Big).$$ 
 
-That is, if the probability $\theta$ takes on the value $2$ is lower in this case than the probability $\theta=3$ which we know from the prior on $\theta$, $q_1(\theta)$, then the pooled prior on $\theta$,  $q^{\sim[\theta]}(2)$, should reflect this.
+$$f_\theta^{pooled}(2) = f_\phi^{pooled}(2) \Big( \frac{f_\theta(2)}{f_\theta(2) + f_\theta(3)}\Big).$$ 
 
-Using this reasoning, we have $q^{\sim[\theta]}(2) = (0.7) \frac{0.2}{0.2+0.5} = 0.1862$ and $q^{\sim[\theta]}(3) = (0.7) \frac{0.5}{0.2+0.5} = 0.4655$.
+That is, if the probability $\theta$ takes on the value $2$ is lower in this case than the probability $\theta=3$ which we know from the prior on $\theta$, $f_\theta(\theta)$, then the pooled prior on $\theta$,  $f_\theta^{pooled}(2)$, should reflect this.
 
-The result in this simple example, using $q_1(\theta)$ to determine how to distribute the probability for values of $\phi$ where multiple $\theta$ map to $\phi$, can be used to derive general formulas to compute $q^{\sim[\theta]}(\theta)$ for discrete and continuous distributions [@poole2000]. 
+Using this reasoning, we have $f_\theta^{pooled}(2) = (0.7) \frac{0.2}{0.2+0.5} = 0.1862$ and $f_\theta^{pooled}(3) = (0.7) \frac{0.5}{0.2+0.5} = 0.4655$.
 
+The result in this simple example, using $f_\theta(\theta)$ to determine how to distribute the probability for values of $\phi$ where multiple $\theta$ map to $\phi$, can be used to derive general formulas to compute $f_\theta^{pooled}(\theta)$ for discrete and continuous distributions [@poole2000]. 
+
+### General Solution for the Discrete Case
+
+Denote the possible values of $\theta$ as $A_1, A_2, \dots$, the possible values of $\phi$ as $B_1, B_2, \dots$, and a mapping $m: \mathbb{N} \to \mathbb{N}$ such that $M(A_i) = B_{m(i)}$ and $C_j = M^{-1}(B_j) = \{A_i : M(A_i) = B_j\}$. Then
+
+$$f_\theta^{pooled}(A_i) = f_\phi^{pooled}(B_{m(i)}) \left( \frac{f_\theta(A_i)}{f_\phi^{induced}(B_{m(i)})} \right).$$
+
+### General Solution for the Continuous Case
+
+
+We denote $B = M(A) = \{M(\theta) : \theta \in A \}$ and $C = M^{-1}(B) = \{\theta: M(\theta) \in B \}$.
+
+
+Then 
+
+$$
+f_\phi^{pooled} (M(\theta)) \left( \frac{f_\theta(\theta)}{f_\phi^{induced}(M(\theta))} \right) \tag{1}
+$$
+
+$$
+=k_{\alpha} f_\theta(\theta) \left( \frac{f_\phi^{direct}(M(\theta))}{f_\phi^{induced}(M(\theta))} \right)^{1-\alpha} \tag{2}
+$$
+where $k_\alpha$ is a renormalizing constant for the choice of $\alpha$. However, how we get from (1) to (2) is unclear to me.
 
 ### Implementation through the Sampling-Importance-Resampling Algorithm 
 
-The steps are:
+The steps to the sampling-importance-resampling procedure to are:
 
-1. We draw $\theta$ from its prior distribution $q_1(\theta)$, where we note $\theta$ can be multidimensional.
-2. For every $\theta_i$ we compute $\phi_i = M(\theta_i)$.
-3. Since $q_1^*(\phi)$ is unlikely to have an analytical form, we can compute it via a density approximation by computing $M(\theta)$ for our sampled values of $\theta$ and then estimating the density from this sample using kernel density estimation.
-4. Construct weights proportional to the ratio of the prior on $\phi$ evaluated at $M(\theta_i)$ to the induced prior $q_1^*$ evaluated at $M(\theta_i)$. Note that this is applying the same logic as considering $q_1(\theta)/q^*_1(\theta)$, as discussed in the previous concrete example, but representing these probabilities in $\phi$ space.
-5. Sample values from step (1) with probabilities proportional to the weights from (4).
+1. We draw $\theta$ from its prior distribution $f_\theta(\theta)$.
+2. For every $\theta_i$ we compute $\phi_i = M(\theta_i)$ to obtain a sample from the induced distribution.
+3. Since the density $f_\phi^{induced}(\phi)$ is unlikely to have an analytical form, we can compute it via a density approximation such as kernel density estimation.
+4. Construct weights proportional to the ratio of the prior on $\phi$ evaluated at $M(\theta_i)$ to the induced prior $f_\phi^{induced}$ evaluated at $M(\theta_i)$. If a likelihood $L_1(\theta)$ for the inputs and $L_2(\phi)$ is available, the weights are 
+$$w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}.$$
+However, in this work, no likelihood is available for the variables of interest, so the likelihood is left out of the weights, leaving us with
+$$w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}.$$
+5. Sample $\theta$ and $\phi$ from step (1) with probabilities proportional to the weights from (4).
 
 
+## Bayesian Melding Applied to COVID-19 Misclassification
+
+
+In this work, we can relate the inputs $\theta =  \{P(S_1|untested), \alpha, \beta \}$ and  $\phi = P(S_0|test +,untested)$ by the deterministic model $M: \theta \to \phi$ given by $$P(S_0|test+, untested) = \frac{\beta(1 - P(S_1|untested))}{\beta(1-P(S_1|untested)) + \alpha P(S_1|untested)}.$$ The derivation of $M$ is in the following section.
+
+Now, we have two distributions on $\phi$: the distribution based on data on the asymptomatic rate of infection of COVID-19, and the distribution formed by taking $M(\theta)$ where $\theta$ represents the values from the defined distributions of $\alpha,\beta,$ and $P(S_1|untested)$. With Bayesian melding, we pool these distributions using logarithmic pooling, and then implement the sampling-importance-resampling algorithm to obtain constrained distributions of the inputs $\theta$ that are in accordance with information about the asymptomatic rate of the virus. 
+
+Due to the uncertainty around our definitions of $\alpha$ and $\beta$, it is particularly useful to leverage the information we have about the asymptomatic rate of the virus $P(S_0|test +,untested)$ because a large collection of studies has been published in this area. In a meta-analysis pooling data from 95 studies, the pooled estimate among the confirmed population that was asymptomatic was 40.50% [95% CI, 33.50%-47.50%] [@ma2021]. Another meta-analysis including 350 studies estimated the asymptomatic percentage to be 36.9% [95% CI: 31.8 to 42.4%], and, when restricting to screening studies, 47.3% (95% CI: 34.0% -61.0%) [@sah2021].
+
+This means we have two priors on the asymptomatic rate $\phi$, that by taking $M(\theta)$ for sampled values of $\theta$, denoted $f_\phi^{induced}(M(\theta))$ in the previous section, and that based on data about the asymptomatic rate, $f_\phi^{direct}(\phi)$. 
+
+### Distribution of $\theta = \{\alpha, \beta, P(S_1|untested) \}$
+
+
+First, we obtain a sample $\theta_1, \theta_2, \dots, \theta_M$ from $\theta$. 
+
+
+
+```{r}
+library(latex2exp)
+
+
+
+###############################################################
+# BETA PARAMETERS FROM DESIRED MEAN AND VARIANCE
+###############################################################
+get_beta_params <- function(mu, sd) {
+    var = sd^2
+    alpha <- ((1 - mu) / var - 1 / mu) * mu ^ 2
+    beta <- alpha * (1 / mu - 1)
+    return(params = list(alpha = alpha,
+                         beta = beta))
+}
+
+
+
+
+###############################################################
+# BETA DENSITY WITH DESIRED MEAN AND VARIANCE
+###############################################################
+beta_density <- function(x, mean, sd, bounds=NA) {
+    shape_params <-  get_beta_params(
+        mu = mean,
+        sd = sd)
+
+    if(!length(bounds) == 1){
+        # message("here")
+        dtrunc(x,
+               spec = "beta",
+               a = bounds[1],
+               b = bounds[2],
+              shape1 = shape_params$alpha,
+              shape2 = shape_params$beta) %>%
+            return()
+    }else{
+        dbeta(x,
+          shape1 = shape_params$alpha,
+          shape2 = shape_params$beta)  %>%
+            return()
+        }
+}
+
+
+
+
+###############################################################
+# SAMPLE FROM BETA DENSITY WITH DESIRED MEAN AND VARIANCE
+###############################################################
+
+sample_beta_density <- function(n, mean, sd, bounds = NA) {
+
+    shape_params <-  get_beta_params(
+        mu = mean,
+        sd = sd)
+
+    rbeta(n,
+          shape1 = shape_params$alpha,
+          shape2 = shape_params$beta)
+
+    if(!length(bounds) == 1){
+        # message("here")
+        rtrunc(n,
+               spec = "beta",
+               a = bounds[1],
+               b = bounds[2],
+               shape1 = shape_params$alpha,
+               shape2 = shape_params$beta) %>%
+            return()
+    }else{
+        rbeta(n,
+              shape1 = shape_params$alpha,
+              shape2 = shape_params$beta)  %>%
+            return()
+    }
+}
+
+
+
+
+###############################################################
+# GAMMA PARAMETERS FROM DESIRED MEAN AND VARIANCE
+###############################################################
+get_gamma_params <- function(mu, sd) {
+    var = (mu/sd)^2
+    shape = (mu/sd)^2
+    scale = sd^2/mu
+    return(params = list(shape = shape,
+                         scale = scale))
+}
+
+
+###############################################################
+# GAMMA DENSITY WITH DESIRED MEAN AND VARIANCE
+###############################################################
+gamma_density <- function(x, mean, sd, bounds=NA) {
+
+    shape_params <-  get_gamma_params(
+        mu = mean,
+        sd = sd)
+
+    if(!length(bounds) == 1){
+        #message("here")
+        dtrunc(x,
+               spec = "gamma",
+               a = bounds[1],
+               b = bounds[2],
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }else{
+        dgamma(x,
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }
+}
+
+
+sample_gamma_density <- function(n, mean, sd, bounds = NA) {
+
+    shape_params <-  get_gamma_params(
+        mu = mean,
+        sd = sd)
+
+    if(!length(bounds) == 1){
+        #message("here")
+        rtrunc(n,
+               spec = "gamma",
+               a = bounds[1],
+               b = bounds[2],
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }else{
+        rgamma(n,
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }
+}
+
+
+
+
+
+###############################################################
+# INDUCED PRIOR ON ASYMPTOMATIC RATE  P(S_0|test+,untested)
+###############################################################
+
+# input sampled values of theta and compute M(\theta)
+est_P_A_testpos = function(P_S_untested, alpha, beta){
+    (beta * (1 - P_S_untested)) / (( beta * (1 - P_S_untested)) + (alpha * P_S_untested))
+}
+
+
+
+
+```
+
+```{r, fig.width =6, fig.height = 3}
+
+# set prior parameters
+alpha_mean = .95
+alpha_sd = 0.08
+alpha_bounds = NA
+ # alpha_bounds = c(.8,1),
+beta_mean = .15
+beta_sd =.09
+beta_bounds = NA
+#  beta_bounds = c(0.002, 0.4),
+s_untested_mean = .03
+s_untested_sd = .0225
+#  s_untested_bounds = c(0.0018, Inf),
+s_untested_bounds = NA
+p_s0_pos_mean = .4
+p_s0_pos_sd = .1225
+p_s0_pos_bounds = NA
+#  p_s0_pos_bounds = c(.25, .7),
+pre_nsamp = 1e5
+post_nsamp = 1e4
+
+theta <- tibble(alpha = sample_gamma_density(pre_nsamp,
+                                                mean = alpha_mean,
+                                                sd = alpha_sd,
+                                                bounds = alpha_bounds),
+                    beta= sample_beta_density(pre_nsamp,
+                                              mean = beta_mean,
+                                              sd = beta_sd,
+                                              bounds = beta_bounds),
+                    P_S_untested = sample_beta_density(pre_nsamp,
+                                                       mean = s_untested_mean,
+                                                       sd = s_untested_sd,
+                                                       bounds = s_untested_bounds)) %>%
+        mutate(phi_induced = est_P_A_testpos(P_S_untested = P_S_untested,
+                                             alpha = alpha,
+                                             beta=beta))
+
+
+
+theta %>% select(-phi_induced) %>%
+  rename( "$\\alpha$" = alpha,
+          "$\\beta$" = beta,
+         "$P(S_1|untested)$" = P_S_untested ) %>%
+  pivot_longer(cols= everything()) %>%
+  ggplot(aes(x=value)) +
+  geom_density(alpha = .8, fill = "black") +
+  theme_bw() +
+   theme(plot.title = element_text(size = 16, 
+                                   face="bold",
+                                   hjust = .5),
+          strip.text = element_text(size = 14),
+         axis.title = element_text(size = 14)
+          )  +
+   labs(x = "Value",
+        y = "Density",
+        title = TeX("Sampling from $\\theta = \\alpha,\\beta, P(S_1|untested)$")
+       ) +
+  facet_wrap(~name,
+             labeller=  as_labeller(TeX,
+                                    default = label_parsed)
+             )
+
+# ggsave("./img/theta.png", dpi = 800)
+
+```
+
+### Prior and Induced Prior Distributions for $P(S_0|\text{test}_+,\text{untested})$ 
+
+Then, taking $M(\theta)$, we can compute the induced distribution $f_\phi^{induced}(M(\theta))$ and compare it to our prior on $\phi$ from meta-analyses on the asymptomatic rate, $f_\phi^{direct}(\phi)$ (\ref{fig:prior-induced}).
+
+```{r, fig.cap ="\\label{fig:prior-induced}", fig.width = 6.5, fig.height = 3}
+
+
+
+########################################################################################
+# COMPARING DIRECT AND INDUCED PRIORS ON ASYMPTOMATIC RATE  P(S_0|test+,untested)
+########################################################################################
+
+
+theta %>%
+  mutate(phi_prior = sample_beta_density(pre_nsamp, 
+                                         mean = p_s0_pos_mean, 
+                                         sd =p_s0_pos_sd,
+                                         bounds = p_s0_pos_bounds)) %>%
+  pivot_longer(c(phi_prior, 
+                 phi_induced), names_to = "density") %>%
+  mutate(density = ifelse(density == "phi_induced", 
+                          "Induced Prior Distribution", 
+                          "Original Prior Distribution")) %>%
+  ggplot(aes(x=value, fill = density)) +
+  geom_density(alpha = .8) +
+  theme_bw() + 
+  theme(legend.position = "right",
+          legend.text = element_text(size = 14),
+          plot.title = element_text(size = 16),
+          axis.text.y = element_blank()) +
+  scale_fill_manual(values = c("#577C9C", "#56BFA8")) +
+  labs(title = TeX("$\\overset{Distribution \\, on \\,P(S_0|untested, +)}{and \\, Induced \\, Distribution \\, on \\, P(S_0|untested, +)}$",
+                   bold = TRUE),
+       fill = "",
+       y = "Density",
+       x = "Value")
+
+```
+
+## Bayesian Melding 
+
+At this point, we want to obtain the logarithmically pooled distribution, denoted $f^{pooled}$.
+
+
+
+```{r}
+
+
+# theta contains values sampled from alpha, beta, P_S_untested, and M(theta) = phi_induced
+# induced phi
+phi <- theta$phi_induced
+
+# approximate $f_\phi^{induced}(\phi)$ via a density approximation
+phi_induced_density <- density(x = phi, n = pre_nsamp, adjust = 2, kernel = "gaussian")
+
+
+```
+
+
+```{r,  fig.width = 10}
+
+
+
+indexes <- findInterval(phi, phi_induced_density$x)
+
+
+phi_sampled_density <- phi_induced_density$y[indexes]
+
+
+  
+```
+
+
+Now, as described in the section regarding the weights of the Sampling-Importance-Resampling algorithm, the weights are $w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}.$
+
+We perform a kernel density estimation to approximate the density of $f_\phi^{induced}(\phi)$ at the coordinates $\phi_1, \dots, \phi_M$. To compute $f_\phi^{direct}(\phi)$, we can use the density function $f_\phi$.
+
+
+```{r}
+
+dp_s0_pos <- function(x) {
+
+      beta_density(x,
+                   mean=p_s0_pos_mean,
+                   sd = p_s0_pos_sd,
+                   bounds=p_s0_pos_bounds)
+}
+
+
+weights <- (phi_sampled_density/ dp_s0_pos(phi))^(.5)
+
+
+```
+
+
+Once we have these weights, we resample the $\phi_1,\dots,\phi_M$ to obtain a sample from the target distribution $c_\alpha \Big( f^{induced}(M(\theta)) \Big)^{0.5} \Big( f^{direct} (M(\theta)) \Big)^{0.5}$, where $c_\alpha$ is the normalizing constant needed to make the pooled density valid. We resample $\theta_1, \dots, \theta_M$ with the same weights to obtain the constrained distributions for the inputs. 
+
+We can compare the melded distributions to the pre-melding distributions, as shown in \ref{fig:melded}.
+
+
+```{r, fig.cap = "\\label{fig:melded}", fig.height = 9, fig.width = 6.5}
+
+# resample the posterior
+post_samp_ind <-sample.int(n=pre_nsamp,
+                           size=post_nsamp, 
+                           prob=1/weights,
+                           replace=T)
+
+
+pi_samp <- cbind(theta[post_samp_ind,], 
+                 P_A_testpos =  phi[post_samp_ind]) %>%
+  select(-phi_induced)
+
+pi_samp_long <- pi_samp %>%
+  pivot_longer(cols=everything()) %>%
+  mutate(type = "After Melding")
+
+compare_melded <- theta %>%
+  mutate(P_A_testpos = sample_beta_density(pre_nsamp, 
+                                         mean = p_s0_pos_mean, 
+                                         sd =p_s0_pos_sd,
+                                         bounds = p_s0_pos_bounds)) %>%
+  pivot_longer(cols=everything()) %>%
+  mutate(type = ifelse(
+    name == "phi_induced",
+  "Induced", "Before Melding")) %>%
+  mutate(name = ifelse(name == "phi_induced", "P_A_testpos", name)) %>%
+  bind_rows(pi_samp_long) %>%
+  mutate(name = case_when(
+    name == "alpha" ~"$\\alpha$",
+    name == "beta" ~"$\\beta$",
+    name == "P_A_testpos" ~ "$P(S_0|test+,untested)$",
+    name == "P_S_untested" ~ "$P(S_1|untested)$")
+  ) %>%
+  mutate(name = factor(name,
+                       levels = c(
+                         "$\\alpha$",
+                         "$\\beta$",
+                         "$P(S_1|untested)$",
+                         "$P(S_0|test+,untested)$"))) 
+
+library(cowplot)
+
+
+p <- compare_melded %>%
+  ggplot(aes(x = value, fill = type)) +
+  geom_density(alpha = .5) +
+  facet_wrap(~name,
+             labeller = as_labeller(
+               TeX,
+               default = label_parsed), ncol = 3) + 
+  theme_c(axis.text.y = element_blank(),
+          axis.ticks.y = element_blank(),
+          axis.title = element_text(size = 18),
+          axis.text.x = element_text(size = 12),
+          plot.title =element_text(size = 25, margin =margin(.5,.5,.5,.5)),
+          strip.text = element_text(size = 16),
+          legend.text = element_text(size = 16)) +
+  labs(
+       fill = "",
+       y = "Density") +
+  scale_fill_manual(values = c("#5670BF", "#418F6A", "#B28542"))
+
+
+
+p1 <- p %+% subset(compare_melded, 
+                   name %in% c( "$\\alpha$",
+                         "$\\beta$",
+                         "$P(S_1|untested)$")) %+%
+  theme(legend.position = "none")
+
+p2 <-   p %+% subset(compare_melded, 
+                     name == "$P(S_0|test+,untested)$")
+
+legend <- get_legend(
+  p1
+)
+
+cowplot::plot_grid(
+  p1,
+  p2,
+  nrow = 2
+)
+
+
+
+# ggsave("./img/melded.png", dpi = 700)
+
+```
+
+\newpage 
+
+## Sampling-Importance-Resampling Algorithm
+
+
+The Sampling-Importance-Resampling is fundamental to the implementation of Bayesian melding. To gain further insight into how sampling with weights $w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{0.5}$
+ approximates a sample from the target distribution the logarithmically pooled distribution $f^{pooled}$, we first prove a more general result. 
+
+
+
+\begin{tcolorbox}
+Suppose we sample $Y_1, Y_2, \dots, Y_m$ independently and identically distributed with probability density function  $g$ and compute the weights
+\[ w_i =\dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) }\]
+for some nonnegative function $h$ defined on the support of $Y$.
+% \[ w_i = h(Y_i) = \dfrac{\frac{f(Y_i)}{g(Y_i)}}{\sum_{j=1}^m \frac{f(Y_j)}{g(Y_j)}}\]
+
+If  we sample $Z_1, \dots, Z_r$ from the discrete distribution $Y_1,\dots, Y_m$ such that 
+
+\[ P(Z = Y_i) = \dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) } = w_i ,\]
+then $Z_1, \dots, Z_r$ is approximately a sample with density proportional to $h \cdot f$.
+
+\end{tcolorbox}
+\vspace{5 mm}
+
+Since $Z$ is sampled from $Y$, we have
+\[ P(Z \leq x ) = \sum_{z_i \leq x} P(Z=z_i) = \sum_{Y_i \leq x} P(Z=Y_i) .\]
+
+We can take this sum to be over all possible values of $Y$ by including the indicator function $\mathbb{I} (Y_i \leq x)$, yielding
+\[  = \sum_{i = 1}^m P(Z=y_i)\;\;\mathbb{I} (Y_i \leq x).  \]
+and since $P(Z=Y_i) = \dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) }$ by definition we have
+
+\begin{align*} 
+&= \sum_{i = 1}^m \dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x)   \\
+&=  \left( \dfrac{1}{ {\sum_{i=1}^mh(Y_i) }} \right) {\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x)   \\
+&=   \dfrac{ {\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x) }{\sum_{i=1}^mh(Y_i) } \\
+&=   \dfrac{ \frac 1m {\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x) }{\frac 1m \sum_{i=1}^mh(Y_i) }. \\
+\end{align*} 
+
+
+Now, we need the Weak Law of Large Numbers. That is, if we have a sequence of random variables $X_1, X_2, \dots $ with finite variance, then,
+\[ \lim_{n \to \infty} \left( \frac{1}{n} \sum_{i=1}^n X_i \right)  = E(X_i). \]
+
+Applying this law to both the numerator and denominator, we obtain
+\begin{align*}  \lim_{m \to \infty} \left( \dfrac{ \frac 1m {\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x) }{\frac 1m \sum_{i=1}^mh(Y_i) } \right) &= \dfrac{ E_g[ h(Y) \;\; \mathbb I (Y \leq x) ]  }{ E_g[ h(Y) ]  }\\
+&= \dfrac{\int_{-\infty}^\infty h(y) \;\; \mathbb I (y \leq x) \; g(y) \; dy}{\int_{-\infty}^\infty h(y) \, g(y) \;dy}\\
+&= \dfrac{\int_{-\infty}^x h(y) \, g(y) dy}{\int_{-\infty}^\infty h(y) \, g(y) \;dy}\\
+&\propto \int_{-\infty}^x h(y) \, g(y) dy. 
+\end{align*}
+
+It follows that the probability density function of $Z$ is proportional to $h \cdot g$.
+
+\vspace{3 mm}
+
+
+\qed
+
+
+### Formal Definition of Logarithmic Pooling
+
+As outlined in Carvalho *et al.*, we can formally define logarithmic pooling as follows [@carvalho2023].
+
+If we have a set of densities $\{ f_1(\phi), f_2(\phi), \ldots, f_n(\phi)\}$ and corresponding pooling weights $\boldsymbol{\alpha}=\{\alpha_1, \alpha_2, \ldots, \alpha_n\}$, then the pooled density is 
+
+$$ t(\boldsymbol{\alpha}) \prod_{i=0}^n f_i(\phi)^{\alpha_i}$$ where $t(\boldsymbol{\alpha})$ is the normalizing constant $t(\boldsymbol{\alpha}) = \dfrac{1}{ \int_{\Phi}\prod_{i=0}^n f_i(\phi)^{\alpha_i} d\phi}$ to ensure the pooled density is a valid probability density. 
+
+
+The case for this work is more simple: we only have two densities we wish to pool, $f_\phi^{induced}$ and $f_\phi^{direct}$, and we assign them equal weights by letting $\boldsymbol{\alpha} = \{.5, .5\}$. This  yields
+
+$$f^{pooled}(\phi) = \left( f^{induced} (\phi) \right)^{0.5} \left( f^{direct} (\phi) \right)^{0.5}.$$
+
+
+### Theorem 1: Distribution After Resampling with Sampling Weights 
+
+
+After some searching, I found a formulation of this problem [here](https://stats.stackexchange.com/questions/599440/density-of-sampled-exponential-data-with-sampling-weights-proportional-to-x-its). 
+
+Suppose we have a random variable $X$ with PDF $f_X$ and are sampling with weights $h(x)$ for a nonnegative function $h$. We are interested in determining the distribution after sampling.
+
+Letting $U$ denote the event that $X$ was sampled, the probability that a given value of $X$ is sampled is $P(U=1|X=x) = h(x)$. We want the post-sampling distribution, that is, $P(X \leq z | U = 1)$. 
+
+By the definition of conditional probability we have $P(X \leq z | U = 1) = \dfrac{P(X \leq z , U = 1)}{ P(U=1)}$,
+
+and since we will always be sampling at least some values, $P(U=1)$ will always be a nonzero constant.
+
+This gives us 
+
+$$P(X \leq z | U = 1) = \dfrac{1}{ P(U=1)} P(X \leq z , U = 1) \tag{1}.$$
+Since the joint probability is $$P(X \leq z, U= 1) = P(U=1|X\leq z) \; P(X\leq z),$$  we write it as the integral $$P(X \leq z, U = 1) = \int^z P(U=1|X=x) \; f_X(x) \; dx.$$
+
+Substituting this expression of the joint probability into (1), we have
+
+
+$$P(X \leq z | U = 1) = \dfrac{1}{ P(U=1)} \int^z P(U=1|X=x) \; f_X(x) \; dx.$$
+
+As defined, $h(x) = P(U=1|X=x)$, so we have 
+
+$$P(X \leq z | U = 1) = \dfrac{1}{ P(U=1)} \int^z h(x) \; f_X(x) \; dx.$$
+$$ \propto \int^z h(x) \; f_X(x) \; dx.$$
+
+
+
+```{r,echo=FALSE,eval=FALSE}
 ### Bayesian Melding Applied to COVID-19 Misclassification
 
 
@@ -203,7 +770,6 @@ Due to the uncertainty around our definitions of $\alpha$ and $\beta$, it is par
 To clarify the use of this method, we can look at the distributions before and after applying Bayesian melding.
 
 
-```{r,echo=FALSE,eval=FALSE}
 Consider the case where we have distributions for bias parameters $\alpha$, $\beta$, $P(S_1|untested)$, and $P(S_0|test+,untested)$ where:
 
 * $S_0$ is an indicator variable for being asymptomatic, and $S_1$ is an indicator of having moderate to severe COVID-19 symptoms.
@@ -546,58 +1112,75 @@ theta  %>%
 
 ### Derivation of $M$ 
 
-Recall that we have the function $M: \theta \to \phi$ that relates the random variables $\theta = \{P(S_1|untested), \alpha\}$ to the test positivity rate in the asymptomatic untested population, that is, $\phi = P(S_0|test_+, \text{untested})$. $M$  is defined as
 
-\begin{align*}  &= 
- P(S_0|test_+, \text{untested}) = \dfrac{\beta (1- P(S_1|\text{untested}))}{\beta(1- P(S_1|\text{untested})) + \alpha(P(S_1|\text{untested})} \hspace{ 15 mm }
+\indent We have $\theta = \{P(S_1|\text{untested}), \alpha, \beta \}$. The parameters $\alpha$ and $\beta$ relate the observed overall test positivity rate to the test positivity rate we would obtain if we tested the asymptomatic and symptomatic partitions of the untested population. We define:
+
+* $\alpha = \dfrac{P(\text{test}_+|S_1,\text{untested})}{P(\text{test}_+|\text{tested})}$
+* $\beta = \dfrac{P(\text{test}_+|S_0,\text{untested})}{P(\text{test}_+|\text{tested})}$.
+
+The parameter $P(S_1|\text{untested})$ reflects the probability someone among the untested population has moderate to severe COVID-like symptoms.
+
+We relate this set of parameters to the asymptomatic infection rate $\phi = P(S_0|\text{test}_+, \text{untested})$ by the function $M: \theta \to \phi$: 
+
+\begin{tcolorbox}
+\vspace{2 mm}
+\begin{align*}   
+ M(\theta)  = \dfrac{\beta (1- P(S_1|\text{untested}))}{\beta(1- P(S_1|\text{untested})) + \alpha(P(S_1|\text{untested})} = P(S_0|\text{test}_+, \text{untested}).\\
 \end{align*}
+\end{tcolorbox}
 
 
-\noindent Since we have $\alpha = \frac{P(test_+|S_1, \text{untested})}{P(test_+|tested)}$ and $\beta = \dfrac{P(test_+|S_0, \text{untested})}{P(test_+|tested)}$, we can write 
+In what follows, we show this equality holds.
 
-\begin{align*}  &= \dfrac{\dfrac{P(test_+|S_0, \text{untested})}{P(test_+|tested)}(1 - P(S_1|\text{untested}))}{\dfrac{P(test_+|S_0, \text{untested})}{P(test_+|tested)}(1-P(S_1|\text{untested})) + \dfrac{P(test_+|S_1, \text{untested})}{P(test_+|tested)} P(S_1|\text{untested})}
+\noindent Since we have $\alpha = \frac{P(\text{test}_+|S_1, \text{untested})}{P(\text{test}_+|tested)}$ and $\beta = \dfrac{P(\text{test}_+|S_0, \text{untested})}{P(\text{test}_+|tested)}$, we can write 
+
+\begin{align*}  &= \dfrac{\dfrac{P(\text{test}_+|S_0, \text{untested})}{P(\text{test}_+|tested)}(1 - P(S_1|\text{untested}))}{\dfrac{P(\text{test}_+|S_0, \text{untested})}{P(\text{test}_+|tested)}(1-P(S_1|\text{untested})) + \dfrac{P(\text{test}_+|S_1, \text{untested})}{P(\text{test}_+|tested)} P(S_1|\text{untested})}
 \end{align*}
-and cancelling out the term $P(test_+|tested)$ we have
+and cancelling out the term $P(\text{test}_+|tested)$ we have
 
 
-$$ = \dfrac{{P(test_+|S_0, \text{untested})}(1 - P(S_1|\text{untested}))}{P(test_+|S_0, \text{untested})(1-P(S_1|\text{untested})) + P(test_+|S_1, \text{untested}) P(S_1|\text{untested})}.$$
+$$ = \dfrac{{P(\text{test}_+|S_0, \text{untested})}(1 - P(S_1|\text{untested}))}{P(\text{test}_+|S_0, \text{untested})(1-P(S_1|\text{untested})) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})}.$$
 
 \noindent Since $P(S_0|\text{untested}) = 1 - P(S_1|\text{untested})$,
 
 \begin{align*} 
-&=  \dfrac{{P(test_+|S_0, \text{untested})}P(S_0|\text{untested})}{P(test_+|S_0, \text{untested})P(S_0|\text{untested}) + P(test_+|S_1, \text{untested}) P(S_1|\text{untested})}.
+&=  \dfrac{{P(\text{test}_+|S_0, \text{untested})}P(S_0|\text{untested})}{P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested}) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})}.
 \end{align*}
 
-Applying the definition of conditional probability to  the term \\ $P(test_+|S_0, \text{untested})P(S_0|\text{untested})$ in the numerator,
+Applying the definition of conditional probability to  the term 
+$P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested})$ in the numerator,
 
 \begin{align*}
 &=
-    \dfrac{\Big( \dfrac{P(test_+,S_0, \text{untested})}{P(S_0, \text{untested})} \Big) \Big(\dfrac{P(S_0, \text{untested})}{P(\text{untested})}\Big)}{P(test_+|S_0, \text{untested})P(S_0|\text{untested}) + P(test_+|S_1, \text{untested}) P(S_1|\text{untested})}\\ 
-    &= \dfrac{\Big( \dfrac{P(test_+,S_0, \text{untested})}{P(S_0, \text{untested})} \Big) \Big(\dfrac{P(S_0, \text{untested})}{P(\text{untested})}\Big)}{P(test_+|S_0, \text{untested})P(S_0|\text{untested}) + P(test_+|S_1, \text{untested}) P(S_1|\text{untested})}\\
-    &=  \dfrac{\dfrac{P(test_+,S_0, \text{untested})}{P(\text{untested})}}{P(test_+|S_0, \text{untested})P(S_0|\text{untested}) + P(test_+|S_1, \text{untested}) P(S_1|\text{untested})}\\
-    &=  \dfrac{{P(test_+,S_0|\text{untested})}}{P(test_+|S_0, \text{untested})P(S_0|\text{untested}) + P(test_+|S_1, \text{untested}) P(S_1|\text{untested})}.
+    \dfrac{\Big( \dfrac{P(\text{test}_+,S_0, \text{untested})}{P(S_0, \text{untested})} \Big) \Big(\dfrac{P(S_0, \text{untested})}{P(\text{untested})}\Big)}{P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested}) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})}\\ 
+    &= \dfrac{\Big( \dfrac{P(\text{test}_+,S_0, \text{untested})}{P(S_0, \text{untested})} \Big) \Big(\dfrac{P(S_0, \text{untested})}{P(\text{untested})}\Big)}{P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested}) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})}\\
+    &=  \dfrac{\dfrac{P(\text{test}_+,S_0, \text{untested})}{P(\text{untested})}}{P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested}) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})}\\
+    &=  \dfrac{{P(\text{test}_+,S_0|\text{untested})}}{P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested}) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})}.
 \end{align*}
 
-\noindent We can substitute this result in for the $P(test_+|S_0, \text{untested})P(S_0|\text{untested})$ term in the denominator to yield
+\noindent We can substitute this result in for the $P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested})$ term in the denominator to yield
 \begin{align*}
-  &=  \dfrac{{P(test_+,S_0|\text{untested})}}{P(test_+,S_0|\text{untested}) + P(test_+|S_1, \text{untested}) P(S_1|\text{untested})} \hspace{ 20 mm }
+  &=  \dfrac{{P(\text{test}_+,S_0|\text{untested})}}{P(\text{test}_+,S_0|\text{untested}) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})} \hspace{ 20 mm }
 \end{align*}
 
-With same reasoning, we can simplify \\$P(test_+|S_1, \text{untested})P(S_1|\text{untested}) = P(S_1, test_+|\text{untested})$, giving us
+With same reasoning, we can simplify 
+\begin{align*}
+P(\text{test}_+|S_1, \text{untested})P(S_1|\text{untested}) = P(S_1, \text{test}_+|\text{untested}),
+\end{align*} giving us
 
 \begin{align*}
-  &=  \dfrac{{P(test_+,S_0|\text{untested})}}{P(test_+,S_0|\text{untested}) +  P(S_1, test_+|\text{untested})} \hspace{45 mm }\\ 
-   &=  \dfrac{{P(test_+,S_0|\text{untested})}}{P(test_+|\text{untested}) } \\
-   &= \dfrac{\dfrac{P(S_0, test_+, \text{untested})}{P(\text{untested})}}{ \dfrac{P(test_+,\text{untested})}{P(\text{untested})}} \\ 
-  &=\dfrac{P(S_0, test_+, \text{untested})}{P(test_+,\text{untested})} \\
-  &= P(S_0 |test_+, \text{untested}).
+  &=  \dfrac{{P(\text{test}_+,S_0|\text{untested})}}{P(\text{test}_+,S_0|\text{untested}) +  P(S_1, \text{test}_+|\text{untested})} \hspace{45 mm }\\ 
+   &=  \dfrac{{P(\text{test}_+,S_0|\text{untested})}}{P(\text{test}_+|\text{untested}) } \\
+   &= \dfrac{\dfrac{P(S_0, \text{test}_+, \text{untested})}{P(\text{untested})}}{ \dfrac{P(\text{test}_+,\text{untested})}{P(\text{untested})}} \\ 
+  &=\dfrac{P(S_0, \text{test}_+, \text{untested})}{P(\text{test}_+,\text{untested})} \\
+  &= P(S_0 |\text{test}_+, \text{untested}).
 \end{align*}
 
 \noindent Hence, we have 
 
 
 \begin{align*}
-P(S_0 |test_+, \text{untested}) = \dfrac{\beta (1- P(S_1|\text{untested}))}{\beta(1- P(S_1|\text{untested})) + \alpha(P(S_1|\text{untested})}
+P(S_0 |\text{test}_+, \text{untested}) = \dfrac{\beta (1- P(S_1|\text{untested}))}{\beta(1- P(S_1|\text{untested})) + \alpha(P(S_1|\text{untested})}
 \end{align*}
 
 \noindent as desired. 
@@ -665,7 +1248,7 @@ smoothed_all <- map_df(c(.1,.3, .5,.7, .9), ~
 smoothed_all %>%
   mutate(span = as.factor(span)) %>%
   ggplot(aes(x=x, y = y))+
-  geom_point(size = .7, alpha = .5) +
+  geom_point(size = .5, alpha = .4) +
   geom_line(aes(y= smoothed, color = span), 
             size = 1) +
   viridis::scale_color_viridis(discrete=TRUE, 
@@ -708,7 +1291,7 @@ Essentially, this process gives weight to points in the neighborhood of $x^*$. C
 
 Then the weights we obtain are given in Figure \ref{fig:weights}.
 
-```{r, warning = FALSE, fig.cap = "\\label{fig:weights} We see that the only values with nonzero weights are those within the interval $(500 - \\alpha (n), 500 - \\alpha (n))$, that is, the proportion $\\alpha$ of the data points closest to $x^*$.", fig.asp= 0.6}
+```{r, warning = FALSE, fig.cap = "\\label{fig:weights} We see that the only values with nonzero weights are those within the interval $(500 - \\alpha (n), 500 - \\alpha (n))$. That is, the proportion $\\alpha$ of the data points closest to $x^*$ will have nonzero weights.", fig.asp= 0.65, fig.width =7.5}
 
 
 

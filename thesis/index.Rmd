@@ -20,8 +20,6 @@ acknowledgements: |
   Will add
 dedication: |
   You can have a dedication here if you wish. 
-preface: |
-  I am unsure as to what goes here.
 bibliography: "bibliography.json"
 csl: csl/apa.csl
 lot: true

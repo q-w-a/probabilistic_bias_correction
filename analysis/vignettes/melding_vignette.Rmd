@@ -7,7 +7,7 @@ output:
     df_print: paged
     code_folding: hide
     css: ../../css/template.css
-bibliography: "`r rbbt::bbt_write_bib(paste0(here::here(), '/analysis/vignettes/refs_vignette.JSON'), overwrite=TRUE)`"
+bibliography: "`r rbbt::bbt_write_bib(paste0(here::here(), '/analysis/vignettes/refs_vignette.json'), overwrite=TRUE)`"
 ---
 
 ```{r setup, include=FALSE}
@@ -84,6 +84,8 @@ The logarithmically pooled prior for $\phi$ by pooling $q^*_1(\phi)$ and $f_\phi
 $$(f_\phi^{induced}(\phi))^{\alpha} (f_\phi^{direct}(\phi))^{1-\alpha}$$
 
 where $\alpha \in [0,1]$ is a pooling weight. Commonly, a choice of $\alpha = 0.5$ is used to give the priors equal weight. In this case, logarithmic pooling may be referred to as geometric pooling since it is equivalent to taking a geometric mean.
+
+### Intuition for Specification of Sampling Weights
 
 If $M$ is invertible, we can obtain the contrained distributions for the model inputs by simply inverting $M$. However, $M$ is rarely invertible, so we have to think about how to proceed in the noninvertible case.
 
@@ -236,129 +238,221 @@ get_beta_params <- function(mu, sd) {
 
 ```
 
+
+```{r}
+library(latex2exp)
+
+
+
+###############################################################
+# BETA PARAMETERS FROM DESIRED MEAN AND VARIANCE
+###############################################################
+get_beta_params <- function(mu, sd) {
+    var = sd^2
+    alpha <- ((1 - mu) / var - 1 / mu) * mu ^ 2
+    beta <- alpha * (1 / mu - 1)
+    return(params = list(alpha = alpha,
+                         beta = beta))
+}
+
+
+
+
+###############################################################
+# BETA DENSITY WITH DESIRED MEAN AND VARIANCE
+###############################################################
+beta_density <- function(x, mean, sd, bounds=NA) {
+    shape_params <-  get_beta_params(
+        mu = mean,
+        sd = sd)
+
+    if(!length(bounds) == 1){
+        # message("here")
+        dtrunc(x,
+               spec = "beta",
+               a = bounds[1],
+               b = bounds[2],
+              shape1 = shape_params$alpha,
+              shape2 = shape_params$beta) %>%
+            return()
+    }else{
+        dbeta(x,
+          shape1 = shape_params$alpha,
+          shape2 = shape_params$beta)  %>%
+            return()
+        }
+}
+
+
+
+
+###############################################################
+# SAMPLE FROM BETA DENSITY WITH DESIRED MEAN AND VARIANCE
+###############################################################
+
+sample_beta_density <- function(n, mean, sd, bounds = NA) {
+
+    shape_params <-  get_beta_params(
+        mu = mean,
+        sd = sd)
+
+    rbeta(n,
+          shape1 = shape_params$alpha,
+          shape2 = shape_params$beta)
+
+    if(!length(bounds) == 1){
+        # message("here")
+        rtrunc(n,
+               spec = "beta",
+               a = bounds[1],
+               b = bounds[2],
+               shape1 = shape_params$alpha,
+               shape2 = shape_params$beta) %>%
+            return()
+    }else{
+        rbeta(n,
+              shape1 = shape_params$alpha,
+              shape2 = shape_params$beta)  %>%
+            return()
+    }
+}
+
+
+
+
+###############################################################
+# GAMMA PARAMETERS FROM DESIRED MEAN AND VARIANCE
+###############################################################
+get_gamma_params <- function(mu, sd) {
+    var = (mu/sd)^2
+    shape = (mu/sd)^2
+    scale = sd^2/mu
+    return(params = list(shape = shape,
+                         scale = scale))
+}
+
+
+###############################################################
+# GAMMA DENSITY WITH DESIRED MEAN AND VARIANCE
+###############################################################
+gamma_density <- function(x, mean, sd, bounds=NA) {
+
+    shape_params <-  get_gamma_params(
+        mu = mean,
+        sd = sd)
+
+    if(!length(bounds) == 1){
+        #message("here")
+        dtrunc(x,
+               spec = "gamma",
+               a = bounds[1],
+               b = bounds[2],
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }else{
+        dgamma(x,
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }
+}
+
+
+sample_gamma_density <- function(n, mean, sd, bounds = NA) {
+
+    shape_params <-  get_gamma_params(
+        mu = mean,
+        sd = sd)
+
+    if(!length(bounds) == 1){
+        #message("here")
+        rtrunc(n,
+               spec = "gamma",
+               a = bounds[1],
+               b = bounds[2],
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }else{
+        rgamma(n,
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }
+}
+
+
+
+
+
+###############################################################
+# INDUCED PRIOR ON ASYMPTOMATIC RATE  P(S_0|test+,untested)
+###############################################################
+
+# input sampled values of theta and compute M(\theta)
+est_P_A_testpos = function(P_S_untested, alpha, beta){
+    (beta * (1 - P_S_untested)) / (( beta * (1 - P_S_untested)) + (alpha * P_S_untested))
+}
+
+
+
+
+```
+
+
+
 ```{r, out.width = "80%", fig.align = "center"}
 
-##############################  
-# DISTRIBUTION OF ALPHA
-##############################  
+# set prior parameters
+alpha_mean = .95
+alpha_sd = 0.08
+alpha_bounds = NA
+ # alpha_bounds = c(.8,1),
+beta_mean = .15
+beta_sd =.09
+beta_bounds = NA
+#  beta_bounds = c(0.002, 0.4),
+s_untested_mean = .03
+s_untested_sd = .0225
+#  s_untested_bounds = c(0.0018, Inf),
+s_untested_bounds = NA
+p_s0_pos_mean = .4
+p_s0_pos_sd = .1225
+p_s0_pos_bounds = NA
+#  p_s0_pos_bounds = c(.25, .7),
+pre_nsamp = 1e5
+post_nsamp = 1e4
 
-# truncated support between a=0, b=0.15
-dtrunc_alpha <- function(x) {
-  
-  shape_params <-  get_beta_params(
-                      mu = 0.9, 
-                      sd = 0.04)
-  
-  truncdist::dtrunc(x,spec = "beta",
-                    a = 0.80, 
-                    b = 1,
-                    shape1 = shape_params$alpha,
-                    shape2 = shape_params$beta)
-} 
-
-
-rtrunc_alpha <- function(x) {
-  
-   shape_params <-  get_beta_params(
-                      mu = 0.9, 
-                      sd = 0.04)
-   
-  truncdist::rtrunc(x,spec = "beta",
-                    a = 0.80, 
-                    b = 1,
-                    shape1 = shape_params$alpha,
-                    shape2 = shape_params$beta)
-} 
-
-
-
-##############################
-# DISTRIBUTION OF BETA 
-##############################
-
-# truncated support between a=0.002, b=0.4
-dtrunc_beta <- function(x) {
-  shape_params <- get_beta_params(
-                      mu = 0.15, 
-                      sd = 0.09)
-  
-  truncdist::dtrunc(x,spec = "beta",
-                    a = 0.002,
-                    b = 0.4,
-                    shape1 = shape_params$alpha,
-                    shape2 = shape_params$beta)
-} 
-
-rtrunc_beta <- function(x) {
-   shape_params <- get_beta_params(
-                      mu = 0.15, 
-                      sd = 0.09)
-  
-  truncdist::rtrunc(x,
-                    spec = "beta",
-                    a = 0.002,
-                    b = 0.4,
-                    shape1 = shape_params$alpha,
-                    shape2 = shape_params$beta)
-} 
+theta <- tibble(alpha = sample_gamma_density(pre_nsamp,
+                                                mean = alpha_mean,
+                                                sd = alpha_sd,
+                                                bounds = alpha_bounds),
+                    beta= sample_beta_density(pre_nsamp,
+                                              mean = beta_mean,
+                                              sd = beta_sd,
+                                              bounds = beta_bounds),
+                    P_S_untested = sample_beta_density(pre_nsamp,
+                                                       mean = s_untested_mean,
+                                                       sd = s_untested_sd,
+                                                       bounds = s_untested_bounds)) %>%
+        mutate(phi_induced = est_P_A_testpos(P_S_untested = P_S_untested,
+                                             alpha = alpha,
+                                             beta=beta))
 
 
 
-#############################################      
-# DISTRIBUTION OF P(S1|untested)
-#############################################      
-
-# DENSITY
-dtrunc_s1_untested <- function(x) {
-  
-  shape_params <- get_beta_params(
-                      mu = 0.025, 
-                      sd = (0.15)^2)
-      
-  # truncated support between a=0, b=0.15
-  truncdist::dtrunc(x,spec = "beta",
-                    a = 0,
-                    b = 0.15,
-                    shape1 = shape_params$alpha,
-                    shape2 = shape_params$beta)
-} 
-
-
-
-# SAMPLE FROM DISTRIBUTION
-rtrunc_s1_untested <- function(x) {
-  
-   shape_params <- get_beta_params(
-                      mu = 0.025, 
-                      sd = (0.15)^2)
-      
-  # truncated support between a=0, b=0.15
-  truncdist::rtrunc(x,spec = "beta",
-                    a = 0,
-                    b = 0.15,
-                    shape1 = shape_params$alpha,
-                    shape2 = shape_params$beta)
-} 
-
-
-
-
-#####################################
-# PLOT THETA ALL TOGETHER
-#####################################
-tibble(x = seq(0, 1, by = 10^(-4)),
-       "$\\alpha$" = dtrunc_alpha(x),
-      "$\\beta$" = dtrunc_beta(x),
-       "$P(S_1|untested)$" = dtrunc_s1_untested(x)) %>%
-  pivot_longer(-c(x)) %>%
-  ggplot(aes(x=x, y = value)) +
-  geom_area(alpha = .8) +
+theta %>% select(-phi_induced) %>%
+  rename( "$\\alpha$" = alpha,
+          "$\\beta$" = beta,
+         "$P(S_1|untested)$" = P_S_untested ) %>%
+  pivot_longer(cols= everything()) %>%
+  ggplot(aes(x=value)) +
+  geom_density(alpha = .8, fill = "black") +
   theme_bw() +
    theme(plot.title = element_text(size = 25, 
                                    face="bold",
                                    hjust = .5),
-                                   axis.text.y = element_blank(),
-           axis.ticks.y = element_blank(),
           strip.text = element_text(size = 20),
          axis.title = element_text(size = 16)
           )  +
@@ -370,7 +464,6 @@ tibble(x = seq(0, 1, by = 10^(-4)),
              labeller=  as_labeller(TeX,
                                     default = label_parsed)
              )
-
 
 # ggsave("./img/theta.png", dpi = 800)
 
@@ -384,65 +477,16 @@ Then, taking $M(\theta)$, we can compute the induced distribution $f_\phi^{induc
 
 
 
-#######################################################
-# PRIOR ON ASYMPTOMATIC RATE  P(S_0|test+,untested)
-#######################################################
-# f_\phi^{direct}(\phi)
-
-# DENSITY
-dp_s0_pos <- function(x){
-  shape_params <-  get_beta_params(mu = 0.4,
-                                   sd = (0.35)^2)
-  truncdist::dtrunc(n,
-                    spec = "beta",
-                    a = 0.25,
-                    b =   0.7,
-                    shape1 = shape_params$alpha,
-                    shape2 = shape_params$beta)
-}
-
-# DRAW SAMPLE
-rp_s0_pos <- function(n){
-  shape_params <-  get_beta_params(mu = 0.4, sd = (0.35)^2)
-  truncdist::rtrunc(n,
-                    spec = "beta",
-                    a = 0.25,
-                    b = 0.7,
-                    shape1 = shape_params$alpha,
-                    shape2 = shape_params$beta)
-}
-
-
-
-
-
-###############################################################
-# INDUCED PRIOR ON ASYMPTOMATIC RATE  P(S_0|test+,untested)
-###############################################################
-# f_\phi^{induced}(\theta)
-
-# input sampled values of theta and compute M(\theta)
- est_P_A_testpos = function(P_S_untested, alpha, beta){
-    beta * (1 - P_S_untested) / (( beta * (1 - P_S_untested)) + (alpha * P_S_untested))
- }
- 
- 
-nsamp <- 1e5
-
-theta <- tibble(alpha = rtrunc_alpha(nsamp),
-       beta= rtrunc_beta(nsamp),
-       P_S_untested = rtrunc_s1_untested(nsamp))
-
-
-theta <- theta %>%
-  mutate(phi_induced = est_P_A_testpos(P_S_untested = P_S_untested,
-                                       alpha = alpha, 
-                                       beta=beta))
-
+########################################################################################
+# COMPARING DIRECT AND INDUCED PRIORS ON ASYMPTOMATIC RATE  P(S_0|test+,untested)
+########################################################################################
 
 
 theta %>%
-  mutate(phi_prior = rp_s0_pos(nsamp)) %>%
+  mutate(phi_prior = sample_beta_density(pre_nsamp, 
+                                         mean = p_s0_pos_mean, 
+                                         sd =p_s0_pos_sd,
+                                         bounds = p_s0_pos_bounds)) %>%
   pivot_longer(c(phi_prior, 
                  phi_induced), names_to = "density") %>%
   mutate(density = ifelse(density == "phi_induced", 
@@ -463,6 +507,7 @@ theta %>%
        x = "Value")
 
 ```
+
 
 ## Bayesian Melding 
 
@@ -492,7 +537,7 @@ The `density` function returns a list where $x$ is the coordinates of the points
 phi <- theta$phi_induced
 
 # approximate $f_\phi^{induced}(\phi)$ via a density approximation
-phi_induced_density <- density(x = phi, n = nsamp, adjust = 2, kernel = "gaussian")
+phi_induced_density <- density(x = phi, n = pre_nsamp, adjust = 2, kernel = "gaussian")
 
 glimpse(phi_induced_density)
 
@@ -646,15 +691,13 @@ all.equal(weights,weights2)
 
 ```
 
-Once we have these weights, we resample the posterior.
+Once we have these weights, we resample the posterior to obtain a sample from the target distribution $k_\alpha \Big( f^{induced}(M(\theta)) \Big)^{0.5} \Big( f^{direct} (M(\theta)) \Big)^{0.5}$, where $k_\alpha$ is the normalizing constant needed to make the pooled density valid.
 
 ```{r}
 
-nsamp  <- 1e5
 # resample the posterior
-nsamp_post <- 1e5 # number of samples from the posterior
-post_samp_ind <-sample.int(n=nsamp,
-                           size=nsamp_post, 
+post_samp_ind <-sample.int(n=pre_nsamp,
+                           size=post_nsamp, 
                            prob=1/weights,
                            replace=T)
 
@@ -667,9 +710,11 @@ pi_samp_long <- pi_samp %>%
   pivot_longer(cols=everything()) %>%
   mutate(type = "After Melding")
 
-
 compare_melded <- theta %>%
-  mutate(P_A_testpos = rp_s0_pos(nsamp)) %>%
+  mutate(P_A_testpos = sample_beta_density(pre_nsamp, 
+                                         mean = p_s0_pos_mean, 
+                                         sd =p_s0_pos_sd,
+                                         bounds = p_s0_pos_bounds)) %>%
   pivot_longer(cols=everything()) %>%
   mutate(type = ifelse(
     name == "phi_induced",
@@ -1433,7 +1478,7 @@ dat %>%
 
 ### Setting Pre and Post Number of Samples for COVID-19 Misclassification
 
-```{r base functions, eval= TRUE}
+```{r base functions}
 
 ###############################################################
 # BETA PARAMETERS FROM DESIRED MEAN AND VARIANCE
@@ -1585,391 +1630,6 @@ sample_gamma_density <- function(n, mean, sd, bounds = NA) {
 est_P_A_testpos = function(P_S_untested, alpha, beta){
     (beta * (1 - P_S_untested)) / (( beta * (1 - P_S_untested)) + (alpha * P_S_untested))
 }
-
-
-
-##########################################
-# County Correction Functions -----------
-##########################################
-
-
-#' Add sensitivity and specificity
-process_priors_per_county <-  function(priors, df){
-  dist_Se <- truncdist::rtrunc(n = 1e5,spec = "beta",a = 0.65,b = 1,
-                               shape1 = get_beta_params(mu = 0.8,
-                                                        sd = (0.4)^2)$alpha,
-                               shape2 = get_beta_params(mu = 0.8,
-                                                        sd = (0.4)^2)$beta)
-  dist_Sp <- truncdist::rtrunc(n = 1e5,spec = "beta",a = 0.9998,b = 1,
-                               shape1 = get_beta_params(mu = 0.99995,
-                                                        sd = (0.01)^2)$alpha,
-                               shape2 = get_beta_params(mu = 0.99995,
-                                                        sd = (0.01)^2)$beta)
-  priors_out <- priors %>%
-    mutate(
-      # calculate P(+|S_1, untested) and P(+|S_0, untested)
-      P_testpos_S = priors$Z_S  * df$posrate,
-      P_testpos_A = priors$Z_A  * df$posrate,
-      empirical_testpos = df$posrate,
-      population = df$population,
-      total = df$total,
-      positive = df$positive,
-      negative = df$negative) %>%
-    mutate(Se = dist_Se,
-           Sp = dist_Sp,
-           biweek = df$biweek,
-           fips = df$fips) %>%
-    # compute with constrained priors
-    mutate(P_A_testpos = est_P_A_testpos(
-      P_S_untested = priors$P_S_untested,
-      alpha = priors$Z_S,
-      beta = priors$Z_A))
-  return(priors_out)
-}
-
-
-#' correct for test inaccuracy
-calc_A_star <- function(N, N_tested,
-                        N_pos_obs,
-                        P_testpos_est,
-                        P_S_untested,
-                        P_A_testpos,
-                        Z_S,
-                        Z_A,
-                        Se,
-                        Sp){
-
-  N_untested = N - N_tested
-
-  # number symptomatic and asymptomatic among tested
-  Npos_tested_S = N_pos_obs * (1 - P_A_testpos)
-  Npos_tested_A = N_pos_obs - Npos_tested_S
-
-  #  prob testpos among untested
-  P_testpos_S = P_testpos_est * Z_S
-  P_testpos_A = P_testpos_est * Z_A
-
-  # estimate number of positives among untested
-  Npos_untested_S = P_S_untested * N_untested * P_testpos_S
-  Npos_untested_A = (1 - P_S_untested) * N_untested * P_testpos_A
-
-  A_star = Npos_tested_S   + Npos_tested_A +
-    Npos_untested_S + Npos_untested_A
-
-  # correct for imperfect sensitivity and specificity
-  A = (A_star - ((1 - Sp) * N)) / (Se + Sp - 1)
-
-  return(max(A,0))
-
-}
-
-#' compute corrected counts for randomly sampled combination of parameters
-correct_bias <- function(priors_by_county_df){
-  # N, N_tested, N_pos_obs, P_testpos_est,
-
-  # sample index to draw from distribution
-  sample_ind = sample(1:nrow(priors_by_county_df),
-                      size = 1,
-                      replace=TRUE)
-
-  # randomly sample from each distribution
-  sampled_priors = priors_by_county_df[sample_ind,]
-
-  # corrected case count
-  Astar = calc_A_star(N = sampled_priors$population,
-                      N_tested =sampled_priors$total,
-                      N_pos_obs = sampled_priors$positive,
-                      P_testpos_est = sampled_priors$empirical_testpos,
-                      P_S_untested = sampled_priors$P_S_untested,
-                      P_A_testpos = sampled_priors$P_A_testpos,
-                      Z_S = sampled_priors$Z_S,
-                      Z_A = sampled_priors$Z_A,
-                      Se = sampled_priors$Se,
-                      Sp = sampled_priors$Sp
-  )
-
-  out = cbind(sampled_priors, exp_cases=Astar)
-
-  return(out)
-}
-
-
-#' generate distribution of corrected counts
-generate_corrected_sample = function(priors_by_county_df,
-                                     num_reps){
-
-  # Obtain corrected case estimates
-  reps = num_reps
-
-  # need to set seed here to ensure that the same random draws are
-  # used for a given time period / location with same priors
-  set.seed(123)
-
-  # perform probabilistic bias analysis
-  result = replicate(reps, correct_bias(priors_by_county_df ), simplify=FALSE) %>%
-    bind_rows()
-
-  return(result)
-
-}
-
-
-#' summarize distribution of corrected counts
-summarize_corrected_sample <- function(priors_by_county_df_exp_cases) {
-
-  summarized <-  tibble(
-    exp_cases_median = median(priors_by_county_df_exp_cases$exp_cases),
-    exp_cases_lb = quantile(priors_by_county_df_exp_cases$exp_cases,
-                            prob = 0.025) %>% unlist(),
-    exp_cases_ub = quantile(priors_by_county_df_exp_cases$exp_cases,
-                            prob = 0.975) %>% unlist(),
-    biweek = unique(priors_by_county_df_exp_cases$biweek),
-    fips = unique(priors_by_county_df_exp_cases$fips),
-    empirical_testpos = unique(priors_by_county_df_exp_cases$empirical_testpos),
-    population = unique(priors_by_county_df_exp_cases$population),
-    negative = unique(priors_by_county_df_exp_cases$negative),
-    positive = unique(priors_by_county_df_exp_cases$positive),
-    total = unique(priors_by_county_df_exp_cases$total))
-
-  return(summarized)
-
-}
-
-
-get_corrected_counts <- function(county_df, melded_df) {
-
-  melded_df <- melded_df %>%
-    rename(Z_S = alpha,
-           Z_A = beta)
-
-  corrected <- pmap_df(county_df, ~ {
-    process_priors_per_county(
-      priors = melded_df,
-      df = list(...)) %>%
-      generate_corrected_sample(., num_reps = 1e3) %>%
-      summarize_corrected_sample() })
-
-  corrected %>%
-    left_join(dates)
-}
-
-
-
-get_melded <- function(alpha_mean = 0.9,
-                       alpha_sd = 0.04,
-                       alpha_bounds = NA,
-                       beta_mean = .15,
-                       beta_sd =.09,
-                       beta_bounds = NA,
-                       s_untested_mean = .025,
-                       s_untested_sd = .0225,
-                       s_untested_bounds = NA,
-                       p_s0_pos_mean = .4,
-                       p_s0_pos_sd = .1225,
-                       p_s0_pos_bounds = NA,
-                       nsamp = 1e3) {
-
-  given_args <- as.list(environment())
-  # cat("Arguments to get_melded:\n")
-  # print(given_args)
-
-
-    theta <- tibble(alpha = sample_gamma_density(nsamp,
-                                                mean = alpha_mean,
-                                                sd = alpha_sd,
-                                                bounds = alpha_bounds),
-                    beta= sample_beta_density(nsamp,
-                                              mean = beta_mean,
-                                              sd = beta_sd,
-                                              bounds = beta_bounds),
-                    P_S_untested = sample_beta_density(nsamp,
-                                                       mean = s_untested_mean,
-                                                       sd = s_untested_sd,
-                                                       bounds = s_untested_bounds)) %>%
-        mutate(phi_induced = est_P_A_testpos(P_S_untested = P_S_untested,
-                                             alpha = alpha,
-                                             beta=beta))
-
-    # theta contains values sampled from alpha, beta, P_S_untested, and M(theta) = phi_induced
-    # induced phi
-    phi <- theta$phi_induced
-
-    # approximate induced distribution via a density approximation
-    phi_induced_density <- density(x = phi, n = nsamp, adjust = 2, kernel = "gaussian")
-
-
-    indexes <- findInterval(phi, phi_induced_density$x)
-
-
-    phi_sampled_density <- phi_induced_density$y[indexes]
-
-    dp_s0_pos <- function(x) {
-
-      beta_density(x,
-                   mean=p_s0_pos_mean,
-                   sd = p_s0_pos_sd,
-                   bounds=p_s0_pos_bounds)
-    }
-
-
-    weights <- (phi_sampled_density/ dp_s0_pos(phi))^(.5)
-
-
-    post_samp_ind <-sample.int(n=nsamp,
-                               size=nsamp,
-                               prob=1/weights,
-                               replace=TRUE)
-
-
-    pi_samp <- cbind(theta[post_samp_ind,],
-                     P_A_testpos =  phi[post_samp_ind]) %>%
-        select(-phi_induced)
-
-
-    return(list(post_melding = pi_samp, pre_melding = theta))
-
-}
-
-
-#' reformat for plot generation
-reformat_melded <- function(melded_df,
-                            theta_df,
-                            nsamp,
-                            p_s0_pos_mean,
-                            p_s0_pos_sd,
-                            p_s0_pos_bounds) {
-
-  melded_df_long <- melded_df %>%
-    pivot_longer(cols=everything()) %>%
-    mutate(type = "After Melding")
-
-
-  melded <- theta_df %>%
-    mutate(P_A_testpos = sample_beta_density(nsamp,
-                                             mean = p_s0_pos_mean,
-                                             sd = p_s0_pos_sd,
-                                             bounds = p_s0_pos_bounds)) %>%
-    pivot_longer(cols=everything()) %>%
-    mutate(type = ifelse(
-      name == "phi_induced",
-      "Induced", "Before Melding")) %>%
-    mutate(name = ifelse(name == "phi_induced",
-                         "P_A_testpos",
-                         name)) %>%
-    bind_rows(melded_df_long) %>%
-    mutate(name = case_when(
-      name == "alpha" ~"$\\alpha$",
-      name == "beta" ~"$\\beta$",
-      name == "P_A_testpos" ~ "$P(S_0|test+,untested)$",
-      name == "P_S_untested" ~ "$P(S_1|untested)$")
-    ) %>%
-    mutate(name = factor(name,
-                         levels = c(
-                           "$\\alpha$",
-                           "$\\beta$",
-                           "$P(S_1|untested)$",
-                           "$P(S_0|test+,untested)$")))
-
-}
-
-
-
-plot_melded <- function(melded, custom_title="", nsamp) {
-  
-  
-  p1 <- melded %>%
-    filter(name != "$P(S_0|test+,untested)$") %>%
-    ggplot(aes(x = value, fill = type)) +
-    geom_density(alpha = .5, show.legend=FALSE) +
-    facet_wrap(~name,
-               labeller = as_labeller(
-                 TeX,   default = label_parsed),
-               ncol = 3,
-               scales = "fixed") +
-    theme_bw() +
-    theme(
-          # axis.text.y = element_blank(),
-          # axis.ticks.y = element_blank(),
-          axis.title = element_text(size = 18),
-          axis.text.x = element_text(size = 10),
-          plot.title =element_text(size = 18,
-                                   margin =margin(0,0, .5,0, 'cm')),
-          strip.text = element_text(size = 16),
-          legend.text = element_text(size = 16)) +
-    labs(title = TeX(custom_title,bold=TRUE),
-         subtitle =paste0("Number of Samples: ", nsamp),
-         fill = "",
-         y = "Density") +
-    scale_fill_manual(values = c("#5670BF", "#418F6A","#B28542")) +
-    guides(fill = guide_legend(keyheight = 2,  keywidth = 2))
-  
-  p2 <- melded %>%
-    filter(name == "$P(S_0|test+,untested)$") %>%
-    ggplot(aes(x = value, fill = type)) +
-    geom_density(alpha = .5) +
-    facet_wrap(~name,
-               labeller = as_labeller(
-                 TeX,   default = label_parsed),
-               ncol = 3,
-               scales = "fixed") +
-    theme_bw() +
-    theme(
-          # axis.text.y = element_blank(),
-          # axis.ticks.y = element_blank(),
-          axis.title = element_text(size = 18),
-          axis.text.x = element_text(size = 10),
-          plot.title =element_text(size = 18,
-                                   margin =margin(0,0, .5,0, 'cm')),
-          strip.text = element_text(size = 16),
-          legend.text = element_text(size = 18)) +
-    labs(
-      #title = paste0("Number of Samples: ", nsamp),
-         fill = "",
-         y = "Density") +
-    scale_fill_manual(values = c("#5670BF", "#418F6A","#B28542")) +
-    guides(fill = guide_legend(keyheight = 2,  keywidth = 2)) +
-    xlim(0,1)
-  
-  
-  p1 / p2 +  plot_layout(nrow =2, widths = c(4,1))
-  
-}
-
-
-
-plot_corrected <- function(corrected_df) {
-  
-  corrected_original  %>%
-    bind_rows(corrected_df) %>%
-    ggplot(aes(x = date,
-               ymin = exp_cases_lb,
-               ymax= exp_cases_ub,
-               fill = version)) +
-    geom_ribbon(alpha = .6) +
-    labs(x = "Date",
-         y = "Estimated Total Cases\nfor 2-week Interval",
-         fill = "",
-         title = "Corrected Estimates for Suffolk County") +
-    theme_bw() +
-    theme(axis.text.x = element_text(angle = 30,
-                                     vjust = .5,
-                                     size = 12),
-          axis.title = element_text(size = 16,
-                                    face = "bold"),
-          legend.text = element_text(size = 16),
-          legend.position = "right",
-          plot.title = element_text(face = "bold",
-                                    hjust = .5,
-                                    size =22)) +
-    scale_y_continuous(labels = scales::comma) +
-    scale_x_date(date_breaks = "2 months", date_labels = "%b %Y") +
-    scale_fill_manual(values = c("#C94136", "#4297F8")) +
-    guides(fill = guide_legend(keyheight = 2, keywidth = 2))
-
-  
-}
-
-
 
 
 ```
