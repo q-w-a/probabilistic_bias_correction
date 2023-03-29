@@ -130,33 +130,7 @@
 }
 \makeatother
 
-\newlength{\csllabelwidth}
-\setlength{\csllabelwidth}{3em}
-\newlength{\cslhangindent}
-\setlength{\cslhangindent}{1.5em}
-% for Pandoc 2.8 to 2.10.1
-\newenvironment{cslreferences}%
-  {}%
-  {\par}
-% For Pandoc 2.11+
-% As noted by @mirh [2] is needed instead of [3] for 2.12
-\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
- {% don't indent paragraphs
-\setlength{\parindent}{0pt}
-% turn on hanging indent if param 1 is 1
-\ifodd #1 \everypar{\setlength{\hangindent}{\cslhangindent}}\ignorespaces\fi
-% set entry spacing
-\ifnum #2 > 0
-\setlength{\parskip}{#2\baselineskip}
-  \fi
-}%
-{}
-\usepackage{calc} % for calculating minipage widths
-\newcommand{\CSLBlock}[1]{#1\hfill\break}
-  \newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
-    \newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}}
-      \newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
-        \renewcommand{\contentsname}{Table of Contents}
+\renewcommand{\contentsname}{Table of Contents}
 % End of CII addition
 
 \setlength{\parskip}{0pt}
@@ -179,20 +153,6 @@ You can have a dedication here if you wish.
 As we have navigated the COVID-19 pandemic, case counts have been a central source of information for understanding transmission dynamics and the effect of public health interventions. However, because the number of cases we observe is limited by the testing effort in a given location, the case counts presented on local or national dashboards are only a fraction of the true infections. Variations in testing rate by time and location impacts the number of cases that go unobserved, which can cloud our understanding of the true COVID-19 incidence at a given time point and can create biases in downstream analyses. Additionally, the number of cases we observe is impacted by the sensitivity and specificity of the diagnostic test. To quantify the number of true infections given incomplete testing and diagnostic test inaccuracy, this work implements probabilistic bias analysis at a biweekly time scale from January 1, 2021 through February 2022. In doing so, we can estimate a range of possible true infections for a given time interval and location. This approach can be applied at the state level across the United States, as well as in some counties where the needed data are available.
 }
 
-	\usepackage{booktabs}
-\usepackage{longtable}
-\usepackage{array}
-\usepackage{multirow}
-\usepackage{wrapfig}
-\usepackage{float}
-\usepackage{colortbl}
-\usepackage{pdflscape}
-\usepackage{tabu}
-\usepackage{threeparttable}
-\usepackage{threeparttablex}
-\usepackage[normalem]{ulem}
-\usepackage{makecell}
-\usepackage{xcolor}
 % End of CII addition
 %%
 %% End Preamble
@@ -234,313 +194,40 @@ Placeholder
 \hypertarget{background}{%
 \chapter{Background}\label{background}}
 
+Placeholder
+
 \hypertarget{probabalistic-bias-analysis}{%
 \section{Probabalistic Bias Analysis}\label{probabalistic-bias-analysis}}
-
-Often the focus of quantifying error about an effect estimate focuses on random error rather than the systematic error. For example, typical frequentist confidence intervals are frequent in medical and epidemiological literature, although they have faced rising criticism (Greenland et al., 2016). These confidence intervals quantify the fraction of the times we expect the true value to fall in this interval under the assumption that our model is correct. That is, if we ran an experiment 100 times and computed the effect size each time, we would expect the 95\% confidence interval to contain the true value to 95 of those times, on average. Neyman stressed this in his original publication formalizing the concept of a confidence interval in 1937 (Neyman, 1937). The nuance that the confidence interval is not the probability that the true value falls within this interval, however, is often lost in the discussion of results, in part because the true meaning of a confidence interval is less intuitive.
-
-The aim of quantitative bias analysis is to estimate systematic error to give a range of possible values for the true quantity of interest. In this sense, it is a type of sensitivity analysis. It can be used to estimate various kinds of biases, from misclassification, as is implemented in this work, as well as selection bias and unmeasured confounding (Petersen, Ranker, Barnard-Mayers, MacLehose, \& Fox, 2021). Often, the goal of performing such an analysis is to see how these sources of bias affect our estimates; in particular, under what situations of bias the observed effect would be null.
-
-There are multiple different forms of bias analysis (Lash, Fox, \& Fink, 2009). The most simple case, simple bias analysis, is correcting a point estimate for a single source of error. Multidimensional bias analysis extends this to consider sets of bias parameters, but still provides a corrected point estimate rather than a range of plausible estimates. Probabilistic bias analysis, meanwhile, defines probability distributions for bias parameters to generate a distribution of corrected estimates by repeatedly correcting estimates for bias under different combinations of the parameter values. Then, via Monte Carlo we obtain a distribution of corrected estimates that reflect the corrected values under different scenarios of bias, that is, under different combinations of the bias parameters. This can give us a better idea for the extent of uncertainty about the corrected estimates, although this uncertainty does depend on the specification of the bias parameter distributions. Inherent in bias analysis is the dependence of our results on the specification of bias parameters, which reflect what is known from available data, literature, or theory on the extent of bias that may occur. There is uncertainty about how we define these distributions or values; otherwise, if the precise values of the bias parameters were known, we could simply correct the estimates and probabilistic bias analysis would not be useful.
-
-Although some forms of probabilistic bias analysis can be applied to summarized data, for example, frequencies in a contingency table, the methods are most often implemented with unsummarized data in its original form, as implemented here.
-
-In choosing specific distributions for the bias parameters, different specifications may yield density functions where most of the density is within a similar interval, which means the choice of the specific distribution will not be sensitive to the particular choice of density.
 
 \hypertarget{background-for-the-approach}{%
 \section{Background for the Approach}\label{background-for-the-approach}}
 
-The Bayesian melding approach was proposed by Poole et al. (Poole \& Raftery, 2000).
-
-This approach enables us to account for both uncertainty from inputs and outputs of a deterministic model. The initial motivation for the approach was to study the population dynamics of whales in the presence of substantial uncertainty around model inputs for population growth (Poole \& Raftery, 2000). However, the framework provided by Poole et al.~can applied in any circumstance where we have uncertainty around some quantities \(\theta\) and \(\phi\) where there is a deterministic function \(M:\theta \to\phi\). Due the utility of Bayesian melding in various contexts, since this deterministic model \(M\) could take on a wide range of forms, the approach has since been applied in various fields, including urban simulations (Ševčíková, Raftery, \& Waddell, 2007), ecology (Robson, 2014), and infectious disease (Powers et al., 2011).
-
-Let \(M: \theta \to \phi\) be the deterministic model defined by the function relating a vector of input parameters \(\theta\) to an output vector \(\phi\), and suppose we have a prior on \(\theta\) denoted \(f_\theta(\theta)\) and a prior on \(\phi\) denoted \(f_\phi^{direct}(\phi)\).
-
-However, note that we actually have two distinct priors on \(\phi\). There is the prior formed by the distribution induced on \(\phi\) by the prior for \(\theta\) and the function \(M\), where we denote this induced prior \(f_\phi^{induced}(\phi)\). Generally, these priors are based on different sources of information.
-
-If \(M^{-1}\) exists, we can write this induced prior \(f_\phi^{induced}(\phi) = f_\theta(M^{-1}(\phi)) |J(\phi)|\)\footnote{In the continuous case we need to multiply by \(|J(\phi)|\), but not in the discrete case (Blitzstein \& Hwang, 2019).}. This result follows from the fact \(M(\theta) = \phi\), so we apply a change of variables to obtain the distribution of \(\phi\) from the distribution of \(M(\theta)\).
-
-In practice, \(M^{-1}\) rarely exists exists since \(\theta\) is often of higher dimensionality then \(\phi\), in which cases \(M\) is not invertible. This means we generally approximate \(f_\phi^{induced}\) without acquiring its analytical form.
-
-In addition to this induced prior, we have the prior \(f_\phi^{direct}(\phi)\), which does not involve \(M\) nor the inputs \(\theta\). Since these priors are based on different sources of information and may reflect different uncertainties, often it useful to use both sources of information to inform our estimates. To do so, we need to combine the distributions for \(f_\phi^{induced}\) and \(f_\phi^{direct}\) to create a pooled distribution.
-
-Multiple pooling strategies exist for distinct distributions, but one requirement for a Bayesian analysis is that the distribution should be independent of the order in which the prior is updated and the combining of the prior distribution. That is, updating the prior distributions using Bayes' theorem and then combining distributions should yield the same result as combining distributions and then updating this combined distribution; pooling methods that have this property are deemed externally Bayesian. Logarithmic pooling has been shown to be externally Bayesian under some conditions, which are likely to hold in most settings. Furthermore, logarithmic pooling has actually been shown to be the only pooling method where this holds (Genest, McConway, \& Schervish, 1986). For this reason, Poole \emph{et al.} recommend proceeding with logarithmic pooling for Bayesian melding.
-
-The logarithmically pooled prior for \(\phi\) by pooling \(f_\phi^{induced}\) and \(f_\phi^{direct}\) is
-
-\[f_\phi^{pooled} (\phi) = t(\boldsymbol{\alpha}) (f_\phi^{induced}(\phi))^{\alpha} (f_\phi^{direct}(\phi))^{1-\alpha}\]
-
-where \(\alpha \in [0,1]\) is a pooling weight and \(t(\boldsymbol{\alpha})\) is the normalizing constant. Commonly, a choice of \(\alpha = 0.5\) is used to give the priors equal weight. In this case, logarithmic pooling may be referred to as geometric pooling since it is equivalent to taking a geometric mean.
-
-If \(M\) is invertible, we can obtain the contrained distributions for the model inputs by simply inverting \(M\). However, \(M\) is rarely invertible, so we have to think about how to proceed in the noninvertible case.
-
 \hypertarget{simple-discrete-example}{%
 \subsection{Simple Discrete Example}\label{simple-discrete-example}}
-
-To get intuition for a valid strategy Poole et al.~recommend, we consider a mapping \(M: \theta \to \phi\) for \(\theta \in \mathbb{R}\) and \(\phi \in \mathbb{R}\)
-defined as follows (Figure \ref{fig:dex}). Note the choice of \(f_\theta,f_\phi^{direct}\) does not matter here as long as they are valid densities.
-\begin{multicols}{2}
-\begin{figure}
-
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-4-1} 
-
-}
-
-\caption{\label{fig:dex}A simple discrete example where $M$ is not invertible.}\label{fig:unnamed-chunk-4}
-\end{figure}
-\columnbreak
-\begin{table}[H]
-\centering
-\begin{tabular}[t]{r|r|r|r}
-\hline
-$\theta$ & $f_\theta(\theta)$ & $M(\theta)=\phi$ & $f_\phi^{direct}(\phi)$\\
-\hline
-1 & 0.3 & 1 & 0.4\\
-\hline
-2 & 0.2 & 2 & 0.6\\
-\hline
-3 & 0.5 & 2 & 0.6\\
-\hline
-\end{tabular}
-\end{table}
-\end{multicols}
-We see that \(M\) is not invertible since \(\theta=1\) and \(\theta = 2\) both map to \(\phi=2\), which implies the inverse \(M^{-1}\) would not be well defined.
-
-We can generate a sample from the density \(f_\phi^{induced}\) by sampling from \(f_\theta\) and computing \(M(\theta)\).
-
-So we have
-\begin{align*}
-f_\phi^{induced}(1) &= f_{\theta}(1) = 0.3 & \text{ (since $\theta = 1$ maps $\phi = 1$) } \\
-f_\phi^{induced}(2) &= f_{\theta}(2) +  f_{\theta}(3) = 0.2 + 0.5=  0.7 & \text{ (since $\theta = 2$ and $\theta=3$ both map to $\phi = 2$) }
-\end{align*}
-Then, we can compute the logarithmically pooled pooled prior with \(\alpha=0.5\) by taking \(f_\phi^{induced}(\phi)^{\alpha} f_\phi^{direct}(\phi)^{1-\alpha}\).
-
-This gives us
-\begin{align*}
-f_\phi^{induced}(\phi)^{\alpha} f_\phi^{direct}(\phi)^{1-\alpha} &= (0.3)^{0.5}(0.4)^{0.5} = 0.3464\\
-f_\phi^{induced}(\phi)^{\alpha} f_\phi^{direct}(\phi)^{1-\alpha} &= (0.7)^{0.5}(0.6)^{0.5} = 0.6481.
-\end{align*}
-To make this a valid density, however, these probabilities must sum to 1, so we renormalize by dividing by (0.3464 + 0.6481). Denoting the pooled prior in phi-space as \(f_\phi^{pooled}(\phi)\), this gives us
-\begin{align*}
-f_\phi^{pooled}(1) &= \frac{ 0.3464  }  { 0.3464 + 0.6481 } = 0.3483 \\
-f_\phi^{pooled}(2) &= \dfrac{ 0.6481 } { 0.3464 + 0.6481}  =0.6517.
-\end{align*}
-We summarize these results and compare \(f_\phi^{induced}, f_\phi^{direct}\), and \(f_\phi^{pooled}\) in Figure \ref{fig:comp}.
-\begin{multicols}{2}
-\begin{table}[H]
-\centering
-\begin{tabular}[t]{r|r|r|r}
-\hline
-$\phi$ & $f_\phi^{direct}(\phi)$ & $f_\phi^{induced}(\phi)$ & $f_\phi^{pooled}(\phi)$\\
-\hline
-1 & 0.4 & 0.3 & 0.3483\\
-\hline
-2 & 0.6 & 0.7 & 0.6517\\
-\hline
-\end{tabular}
-\end{table}
-\columnbreak
-\begin{figure}
-
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-7-1} 
-
-}
-
-\caption{\label{fig:comp}}\label{fig:unnamed-chunk-7}
-\end{figure}
-\end{multicols}
-However, we also want the pooled prior on the inputs \(\theta\), that is, \(f_\theta^{pooled}(\theta)\).
-
-Poole et al.~reasoned as follows. Since \(M\) uniquely maps \(\theta=1\) to \(\phi =1\), the probability that \(\theta=1\) should be equal to the probability \(\phi = 1\). That is, we should have \(f_\theta^{pooled}(1) = f_\phi^{pooled}(1)\).
-
-However, the relationship for \(\theta=2\) or \(\theta=3\) to \(\phi\) is not one to one. Since \(M(2)=2\) and \(M(3)=2\), the sum of the probabilities for \(\theta=1\) and \(\theta=2\) should be equal to that for \(\phi=2\), that is, \(f_\theta^{pooled}(2) + f_\theta^{pooled}(3) = f_\phi^{pooled}(2) = 0.6517\).
-
-The challenge here is how we divide the probability for \(f_\phi^{pooled}(2)\), which is defined, among \(f_\theta^{pooled}(2)\) and \(f_\theta^{pooled}(3)\). The prior for \(\phi\) yields no information to assist in this choice, because knowing which value \(\phi\) takes on does not give us any information about whether \(\theta=2\) or \(\theta=3\). Thus, the information we have about \(\theta\) must be taken from \(f_\theta(\theta)\).
-
-That is, we can assign a probability for \(f_\theta^{pooled}(2)\) by considering the probability that \(\theta = 2\) relative to the probability \(\theta =3\), computing
-
-\[f_\theta^{pooled}(2) = f_\phi^{pooled}(2) \Big( \frac{f_\theta(2)}{f_\theta(2) + f_\theta(3)}\Big).\]
-
-That is, if the probability \(\theta\) takes on the value \(2\) is lower in this case than the probability \(\theta=3\) which we know from the prior on \(\theta\), \(f_\theta(\theta)\), then the pooled prior on \(\theta\), \(f_\theta^{pooled}(2)\), should reflect this.
-
-Using this reasoning, we have
-\begin{align*} f_\theta^{pooled}(2) &= (0.7) \frac{0.2}{0.2+0.5} = 0.1862\\
-f_\theta^{pooled}(3) &= (0.7) \frac{0.5}{0.2+0.5} = 0.4655.
-\end{align*}
-The result in this simple example, using \(f_\theta(\theta)\) to determine how to distribute the probability for values of \(\phi\) where multiple \(\theta\) map to \(\phi\), can be used to derive general formulas to compute \(f_\theta^{pooled}(\theta)\) for discrete and continuous distributions (Poole \& Raftery, 2000).
 
 \hypertarget{general-solution-for-the-discrete-case}{%
 \subsection{General Solution for the Discrete Case}\label{general-solution-for-the-discrete-case}}
 
-Denote the possible values of \(\theta\) as \(A_1, A_2, \dots\), the possible values of \(\phi\) as \(B_1, B_2, \dots\), and a mapping \(m: \mathbb{N} \to \mathbb{N}\) such that \(M(A_i) = B_{m(i)}\) and \(C_j = M^{-1}(B_j) = \{A_i : M(A_i) = B_j\}\). Then
-
-\[f_\theta^{pooled}(A_i) = f_\phi^{pooled}(B_{m(i)}) \left( \frac{f_\theta(A_i)}{f_\phi^{induced}(B_{m(i)})} \right).\]
-
 \hypertarget{general-solution-for-the-continuous-case}{%
 \subsection{General Solution for the Continuous Case}\label{general-solution-for-the-continuous-case}}
-
-We denote \(B = M(A) = \{M(\theta) : \theta \in A \}\) and \(C = M^{-1}(B) = \{\theta: M(\theta) \in B \}\).
-
-Then
-
-\[
-f_\phi^{pooled} (M(\theta)) =t({\alpha}) f_\theta(\theta) \left( \frac{f_\phi^{direct}(M(\theta))}{f_\phi^{induced}(M(\theta))} \right)^{1-\alpha} \tag{2}
-\]
-where \(t({\alpha})\) is a renormalizing constant for the choice of \(\alpha\).
 
 \hypertarget{implementation-through-the-sampling-importance-resampling-algorithm}{%
 \subsection{Implementation through the Sampling-Importance-Resampling Algorithm}\label{implementation-through-the-sampling-importance-resampling-algorithm}}
 
-We can obtain the pooled distributions \(f^{pooled}_\theta\) and \(f^{pooled}_\phi\) by using the Sampling-Importance-Resampling Algorithm.
-
-The steps are as follows.
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\tightlist
-\item
-  We draw \(\theta\) from its prior distribution \(f_\theta(\theta)\).
-\item
-  For every \(\theta_i\) we compute \(\phi_i = M(\theta_i)\) to obtain a sample from the induced distribution.
-\item
-  Since the density \(f_\phi^{induced}(\phi)\) is unlikely to have an analytical form, we can compute it via a density approximation such as kernel density estimation.
-\item
-  Construct weights proportional to the ratio of the prior on \(\phi\) evaluated at \(M(\theta_i)\) to the induced prior \(f_\phi^{induced}\) evaluated at \(M(\theta_i)\). If a likelihood \(L_1(\theta)\) for the inputs and \(L_2(\phi)\) is available, the weights are
-  \[w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}.\]
-  However, in this work, no likelihood is available for the variables of interest, so the likelihood is left out of the weights, leaving us with
-  \[w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}.\]
-\item
-  Sample \(\theta\) and \(\phi\) from step (1) with probabilities proportional to the weights from (4).
-\end{enumerate}
-\newpage
-
 \hypertarget{bayesian-melding-applied-to-covid-19-misclassification}{%
 \section{Bayesian Melding Applied to COVID-19 Misclassification}\label{bayesian-melding-applied-to-covid-19-misclassification}}
-
-~~~In this work, we can relate the inputs \(\theta = \{P(S_1|\text{untested}), \alpha, \beta \}\) and \(\phi = P(S_0|\text{test}_+,\text{untested})\) by the deterministic model \(M: \theta \to \phi\) given by \(P(S_0|\text{test}_+, \text{untested}) = \dfrac{\beta(1 - P(S_1|\text{untested}))}{\beta(1-P(S_1|\text{untested})) + \alpha P(S_1|\text{untested})}.\) The derivation of \(M\) is in the \protect\hyperlink{derivation}{following section.}
-
-Now, we have two distributions on \(\phi\): the distribution based on data on the asymptomatic rate of infection of COVID-19, and the distribution formed by taking \(M(\theta)\) where \(\theta\) represents the values from the defined distributions of \(\alpha,\beta,\) and \(P(S_1|\text{untested}\). With Bayesian melding, we pool these distributions using logarithmic pooling, and then implement the sampling-importance-resampling algorithm to obtain constrained distributions of the inputs \(\theta\) that are in accordance with information about the asymptomatic rate of the virus.
-
-Due to the uncertainty around our definitions of \(\alpha\) and \(\beta\), it is particularly useful to leverage the information we have about the asymptomatic rate of the virus \(P(S_0|\text{test}_+,\text{untested})\) because a large collection of studies has been published in this area. In a meta-analysis pooling data from 95 studies, the pooled estimate among the confirmed population that was asymptomatic was 40.50\% {[}95\% CI, 33.50\%-47.50\%{]} (Ma et al., 2021). Another meta-analysis including 350 studies estimated the asymptomatic percentage to be 36.9\% {[}95\% CI: 31.8 to 42.4\%{]}, and, when restricting to screening studies, 47.3\% (95\% CI: 34.0\% -61.0\%) (Sah et al., 2021).
-
-This means we have two priors on the asymptomatic rate \(\phi\), that by taking \(M(\theta)\) for sampled values of \(\theta\), denoted \(f_\phi^{induced}\) in the previous section, and that based on data about the asymptomatic rate, \(f_\phi^{direct}\).
-
-\newpage
 
 \hypertarget{distribution-of-theta-alpha-beta-ps_1textuntested}{%
 \subsection{\texorpdfstring{Distribution of \(\theta = \{\alpha, \beta, P(S_1|\text{untested}) \}\)}{Distribution of \textbackslash theta = \textbackslash\{\textbackslash alpha, \textbackslash beta, P(S\_1\textbar\textbackslash text\{untested\}) \textbackslash\}}}\label{distribution-of-theta-alpha-beta-ps_1textuntested}}
 
-First, we obtain a sample \(\theta_1, \theta_2, \dots, \theta_k\) from \(\theta\) (Figure \ref{fig:theta}).
-\begin{figure}[H]
-
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-9-1} 
-
-}
-
-\caption{\label{fig:theta}}\label{fig:unnamed-chunk-9}
-\end{figure}
 \hypertarget{direct-prior-and-induced-prior-distributions-for-ps_0texttest_textuntested}{%
 \subsection{\texorpdfstring{Direct Prior and Induced Prior Distributions for \(P(S_0|\text{test}_+,\text{untested})\)}{Direct Prior and Induced Prior Distributions for P(S\_0\textbar\textbackslash text\{test\}\_+,\textbackslash text\{untested\})}}\label{direct-prior-and-induced-prior-distributions-for-ps_0texttest_textuntested}}
-
-Then, taking \(M(\theta)\), we can compute the induced distribution \(f_\phi^{induced}(M(\theta))\) and compare it to our prior on \(\phi\) from meta-analyses on the asymptomatic rate, \(f_\phi^{direct}(\phi)\) (\ref{fig:prior-induced}).
-\begin{figure}
-
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-10-1} 
-
-}
-
-\caption{\label{fig:prior-induced}}\label{fig:unnamed-chunk-10}
-\end{figure}
-\newpage
 
 \hypertarget{pooling}{%
 \subsection{Pooling}\label{pooling}}
 
-At this point, we want to obtain the logarithmically pooled distribution, denoted \(f^{pooled}\).
-
-Now, as described in greater detail in the section on the \protect\hyperlink{logpooled}{Sampling-Importance-Resampling algorithm}, the weights are \(w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}.\)
-
-We perform a kernel density estimation to approximate the density of \(f_\phi^{induced}(\phi)\) at the coordinates \(\phi_1, \dots, \phi_M\). To compute \(f_\phi^{direct}(\phi)\), we can use the density function \(f_\phi^{direct}\).
-
-Once we have these weights, we resample the \(\phi_1,\dots,\phi_M\) to obtain a sample from the target distribution \(t(\alpha) \Big( f^{induced}(M(\theta)) \Big)^{0.5} \Big( f^{direct} (M(\theta)) \Big)^{0.5}\), where \(t(\alpha)\) is the normalizing constant needed to make the pooled density valid. We resample \(\theta_1, \dots, \theta_k\) with the same weights to obtain the constrained distributions for the inputs.
-
-We see the melded distributions and pre-melding distributions in Figure \ref{fig:melded}.
-\begin{figure}
-
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-12-1} 
-
-}
-
-\caption{\label{fig:melded}}\label{fig:unnamed-chunk-12}
-\end{figure}
-Comparing the induced and direct priors on \(P(S_0| \text{test}_+, \text{untested})\) above, we see that although they have shared support, some values from the induced distribution we acquire by using \(M\) to generate values of \(\phi\) from sampled values of \(\theta\) are very unlikely to be in accordance with the information we know about the prevalence of SARS-CoV-2 asymptomatic infection. This is where Bayesian melding comes into play. Pooling these distributions enable us to take both the prior on \(f^{direct}\) from published analyses on asymptomatic infection, and the induced prior, \(f^{induced}\), into account to constrain the distributions of both the model inputs \(\theta = \{ \alpha, \beta, P(S_1 | \text{untested})\}\) and model output \(\phi = P(S_0|\text{test}_+, \text{untested})\) to be in accordance with both prior distributions. We then use these constrained distributions as inputs in the probabilistic bias analysis.
-
-\newpage
-
 \hypertarget{derivation}{%
 \subsection{\texorpdfstring{Derivation of \(M\)}{Derivation of M}}\label{derivation}}
-
-\indent We define \(\theta\) as the set of bias parameters \(\{P(S_1|\text{untested}), \alpha, \beta \}\). The parameters \(\alpha\) and \(\beta\) relate the observed overall test positivity rate to the test positivity rate we would obtain if we tested the asymptomatic and symptomatic partitions of the untested population. We define:
-\begin{itemize}
-\tightlist
-\item
-  \(\alpha = \dfrac{P(\text{test}_+|S_1,\text{untested})}{P(\text{test}_+|\text{tested})}\)
-\item
-  \(\beta = \dfrac{P(\text{test}_+|S_0,\text{untested})}{P(\text{test}_+|\text{tested})}\).
-\end{itemize}
-The parameter \(P(S_1|\text{untested})\) reflects the probability someone among the untested population has moderate to severe COVID-like symptoms.
-
-We relate this set of parameters to the asymptomatic infection rate \(\phi = P(S_0|\text{test}_+, \text{untested})\) by the function \(M: \theta \to \phi\):
-\begin{tcolorbox}
-\vspace{2 mm}
-\begin{align*}   
- M(\theta)  = \dfrac{\beta (1- P(S_1|\text{untested}))}{\beta(1- P(S_1|\text{untested})) + \alpha(P(S_1|\text{untested})} = P(S_0|\text{test}_+, \text{untested}).\\
-\end{align*}
-\end{tcolorbox}
-In what follows, we show this equality holds.
-
-\noindent Since we have \(\alpha = \frac{P(\text{test}_+|S_1, \text{untested})}{P(\text{test}_+|tested)}\) and \(\beta = \dfrac{P(\text{test}_+|S_0, \text{untested})}{P(\text{test}_+|tested)}\), we can write
-\begin{align*}  &= \dfrac{\dfrac{P(\text{test}_+|S_0, \text{untested})}{P(\text{test}_+|tested)}(1 - P(S_1|\text{untested}))}{\dfrac{P(\text{test}_+|S_0, \text{untested})}{P(\text{test}_+|tested)}(1-P(S_1|\text{untested})) + \dfrac{P(\text{test}_+|S_1, \text{untested})}{P(\text{test}_+|tested)} P(S_1|\text{untested})}
-\end{align*}
-and cancelling out the term \(P(\text{test}_+|tested)\) we have
-
-\[ = \dfrac{{P(\text{test}_+|S_0, \text{untested})}(1 - P(S_1|\text{untested}))}{P(\text{test}_+|S_0, \text{untested})(1-P(S_1|\text{untested})) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})}.\]
-
-\noindent Since \(P(S_0|\text{untested}) = 1 - P(S_1|\text{untested})\),
-\begin{align*} 
-&=  \dfrac{{P(\text{test}_+|S_0, \text{untested})}P(S_0|\text{untested})}{P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested}) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})}.
-\end{align*}
-Applying the definition of conditional probability to the term
-\(P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested})\) in the numerator,
-\begin{align*}
-&=
-    \dfrac{\Big( \dfrac{P(\text{test}_+,S_0, \text{untested})}{P(S_0, \text{untested})} \Big) \Big(\dfrac{P(S_0, \text{untested})}{P(\text{untested})}\Big)}{P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested}) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})}\\ 
-    &= \dfrac{\Big( \dfrac{P(\text{test}_+,S_0, \text{untested})}{P(S_0, \text{untested})} \Big) \Big(\dfrac{P(S_0, \text{untested})}{P(\text{untested})}\Big)}{P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested}) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})}\\
-    &=  \dfrac{\dfrac{P(\text{test}_+,S_0, \text{untested})}{P(\text{untested})}}{P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested}) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})}\\
-    &=  \dfrac{{P(\text{test}_+,S_0|\text{untested})}}{P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested}) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})}.
-\end{align*}
-\noindent We can substitute this result in for the \(P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested})\) term in the denominator to yield
-\begin{align*}
-  &=  \dfrac{{P(\text{test}_+,S_0|\text{untested})}}{P(\text{test}_+,S_0|\text{untested}) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})} \hspace{ 20 mm }
-\end{align*}
-With same reasoning, we can simplify
-\begin{align*}
-P(\text{test}_+|S_1, \text{untested})P(S_1|\text{untested}) = P(S_1, \text{test}_+|\text{untested}),
-\end{align*} giving us
-\begin{align*}
-  &=  \dfrac{{P(\text{test}_+,S_0|\text{untested})}}{P(\text{test}_+,S_0|\text{untested}) +  P(S_1, \text{test}_+|\text{untested})} \hspace{45 mm }\\ 
-   &=  \dfrac{{P(\text{test}_+,S_0|\text{untested})}}{P(\text{test}_+|\text{untested}) } \\
-   &= \dfrac{\dfrac{P(S_0, \text{test}_+, \text{untested})}{P(\text{untested})}}{ \dfrac{P(\text{test}_+,\text{untested})}{P(\text{untested})}} \\ 
-  &=\dfrac{P(S_0, \text{test}_+, \text{untested})}{P(\text{test}_+,\text{untested})} \\
-  &= P(S_0 |\text{test}_+, \text{untested}).
-\end{align*}
-\noindent Hence, we have
-\begin{align*}
-P(S_0 |\text{test}_+, \text{untested}) = \dfrac{\beta (1- P(S_1|\text{untested}))}{\beta(1- P(S_1|\text{untested})) + \alpha(P(S_1|\text{untested})}
-\end{align*}
-\noindent as desired.
-\qed
-
-\newpage
 
 \hypertarget{sampling-importance-resampling-algorithm}{%
 \section{\texorpdfstring{Sampling-Importance-Resampling Algorithm \label{sampling}}{Sampling-Importance-Resampling Algorithm }}\label{sampling-importance-resampling-algorithm}}
@@ -548,150 +235,17 @@ P(S_0 |\text{test}_+, \text{untested}) = \dfrac{\beta (1- P(S_1|\text{untested})
 \hypertarget{overview}{%
 \subsection{Overview}\label{overview}}
 
-~~~The Sampling-Importance-Resampling Algorithm, introduced in Rubin (1987), is a non-iterative method for approximating a sample from a target probability density function \(f\).
-
-The two main steps are the sampling step and importance resampling step. We have two (generally distinct) sample sizes, where \(m\) is the initial sample size and \(r\) is the posterior sample size.
-
-In the sampling step, we draw an independent and identically distributed sample of size \(m\) from \(g\), \(Y_1, Y_2, \dots, Y_m\). Then, we compute weights \(h(Y)\) such that \(g \cdot h \propto f\). That is, we set the weights
-
-\(w_i = h(Y_i) = \dfrac{\frac{f(Y_i) } {g(Y_i)} }{\sum_{i=1}^m\frac{f(Y_i) } {g(Y_i)} }.\)
-
-We resample with these defined weights to obtain a sample of size \(r\) from \(Y_1, Y_2, \dots, Y_m\). We denote this resample \(Z_1,\dots, Z_r\).
-
-The method is most efficient when \(g\) is a good approximation of \(f\). Also of interest is setting the sampling size and posterior sample size. The algorithm generates independent and identically distributed samples as \(m/r \to \infty\), but in most applications \(m/r\) between 10 and 20 is appropriate (Rubin, Gelman, \& Meng, 2004).
-
-Sometimes the resulting distribution will have a closed form, which we can see in the following two examples.
-
-\newpage
-
 \hypertarget{example-1}{%
 \subsubsection{Example 1:}\label{example-1}}
-
-Suppose \(Y \sim Exp(\lambda)\), so we have the PDF \(f_Y(y) = \lambda e^{-\lambda y}\), and we sample \(Z_1,\dots,Z_r\) from \(Y_1, \dots, Y_m\) with weights direction proportional to \(X\), that is, \(h(Y) = Y\).
-
-Then \(Z_1,\dots Z_r\) is approximately a sample from \(h(x) \; f_Y(y) = y \; \lambda e^{-\lambda y}\).
-
-From the PDF of the gamma distribution, \(\dfrac{\beta^\alpha}{\Gamma(\alpha) }y^{\alpha - 1} e^{-\beta y}\) we can recognize that \(y \cdot e^{-\lambda y}\) corresponds to the gamma distribution with \(\alpha = 2\) and \(\beta = \lambda\).
-
-We can see this result by considering \(Y\) before and after resampling below (Figure \ref{fig:ex1}).
-\begin{figure}
-
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-13-1} 
-
-}
-
-\caption{\label{fig:ex1}}\label{fig:unnamed-chunk-13}
-\end{figure}
-Then, we can see that the PDF of the the gamma distribution with \(\alpha = 2\) and \(\beta = \lambda\) corresponds to the post-sampling distribution as expected (Figure \ref{fig:ex12}).
-\begin{figure}
-
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-14-1} 
-
-}
-
-\caption{\label{fig:ex12}}\label{fig:unnamed-chunk-14}
-\end{figure}
-\newpage
 
 \hypertarget{example-2}{%
 \subsubsection{Example 2:}\label{example-2}}
 
-Similarly, again suppose \(Y \sim Exp(\lambda)\), so \(f_Y(y) = \lambda e^{-\lambda y}\). However, now we sample with weights defined by \(h(y)= e^{-\lambda y}\).
-Then our sample \(Z_1,\dots,Z_r\) is approximately a sample from
-\begin{align*} 
-h(y) \; f_Y(y) &=   e^{-\lambda y} \cdot \lambda e^{-\lambda y}\\
-&= \ e^{-2 \lambda y}  
-\end{align*}
-which is proportional to the exponential distribution with parameter \(2\lambda\).
-
-The distributions before and after resampling are shown in Figure \ref{fig:ex2}.
-\begin{figure}
-
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-15-1} 
-
-}
-
-\caption{\label{fig:ex2}}\label{fig:unnamed-chunk-15}
-\end{figure}
-and then plotting the PDF of the exponential distribution with parameter \(2\lambda\) we can see the correspondence to the post-sampling distribution (Figure \ref{fig:ex22}).
-\begin{figure}
-
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-16-1} 
-
-}
-
-\caption{\label{fig:ex22}}\label{fig:unnamed-chunk-16}
-\end{figure}
-\newpage
-
 \hypertarget{proof}{%
 \subsection{Proof that Algorithm Obtains Approximate Sample from Target Distribution}\label{proof}}
 
-The Sampling-Importance-Resampling is fundamental to the implementation of Bayesian melding. To gain further insight into how sampling with weights
-\(w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{0.5}\)
-approximates a sample from the target distribution the logarithmically pooled distribution \(f^{pooled}\), we first prove a more general result.
-\begin{tcolorbox}
-Suppose we sample $Y_1, Y_2, \dots, Y_m$ independently and identically distributed with probability density function  $g$ and compute the weights
-\[ w_i =\dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) }\]
-for some nonnegative function $h$ defined on the support of $Y$.
-% \[ w_i = h(Y_i) = \dfrac{\frac{f(Y_i)}{g(Y_i)}}{\sum_{j=1}^m \frac{f(Y_j)}{g(Y_j)}}\]
-
-If  we sample $Z_1, \dots, Z_r$ from the discrete distribution $Y_1,\dots, Y_m$ such that 
-
-\[ P(Z = Y_i) = \dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) } = w_i ,\]
-then $Z_1, \dots, Z_r$ is approximately a sample with density proportional to $h \cdot g$.
-
-\end{tcolorbox}
-\vspace{5 mm}
-
-Since \(Z\) is sampled from \(Y\), we have
-\[ P(Z \leq x ) = \sum_{z_i \leq x} P(Z=z_i) = \sum_{Y_i \leq x} P(Z=Y_i) .\]
-
-We can take this sum to be over all possible values of \(Y\) by including the indicator function \(\mathbb{I} (Y_i \leq x)\), yielding
-\[  = \sum_{i = 1}^m P(Z=y_i)\;\;\mathbb{I} (Y_i \leq x).  \]
-and since \(P(Z=Y_i) = \dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) }\) by definition we have
-\begin{align*} 
-&= \sum_{i = 1}^m \dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x)   \\
-&=  \left( \dfrac{1}{ {\sum_{i=1}^mh(Y_i) }} \right) {\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x)   \\
-&=   \dfrac{ {\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x) }{\sum_{i=1}^mh(Y_i) } \\
-&=   \dfrac{ \frac 1m {\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x) }{\frac 1m \sum_{i=1}^mh(Y_i) }. \\
-\end{align*}
-Now, we need the Weak Law of Large Numbers. That is, if we have a sequence of random variables \(X_1, X_2, \dots\) with finite variance, then,
-\[ \lim_{n \to \infty} \left( \frac{1}{n} \sum_{i=1}^n X_i \right)  = E(X_i). \]
-
-Applying this law to both the numerator and denominator, we obtain
-\begin{align*}  \lim_{m \to \infty} \left( \dfrac{ \frac 1m {\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x) }{\frac 1m \sum_{i=1}^mh(Y_i) } \right) &= \dfrac{ E_g[ h(Y) \;\; \mathbb I (Y \leq x) ]  }{ E_g[ h(Y) ]  }\\
-&= \dfrac{\int_{-\infty}^\infty h(y) \;\; \mathbb I (y \leq x) \; g(y) \; dy}{\int_{-\infty}^\infty h(y) \, g(y) \;dy}\\
-&= \dfrac{\int_{-\infty}^x h(y) \, g(y) dy}{\int_{-\infty}^\infty h(y) \, g(y) \;dy}\\
-&\propto \int_{-\infty}^x h(y) \, g(y) dy. 
-\end{align*}
-It follows that the probability density function of \(Z\) is proportional to \(h \cdot g\).
-
-\vspace{3 mm}
-
-\qed
-
 \hypertarget{logpooled}{%
 \subsection{Obtaining Logarithmic Pooled Distribution with the Sampling-Importance-Resampling Algorithm}\label{logpooled}}
-
-As outlined in Carvalho, Villela, Coelho, \& Bastos (2023), we can formally define logarithmic pooling as follows.
-
-If we have a set of densities \(\{ f_1(\phi), f_2(\phi), \ldots, f_n(\phi)\}\) and corresponding pooling weights \(\boldsymbol{\alpha}=\{\alpha_1, \alpha_2, \ldots, \alpha_n\}\), then the pooled density is
-
-\[ t(\boldsymbol{\alpha}) \prod_{i=0}^n f_i(\phi)^{\alpha_i}\] where \(t(\boldsymbol{\alpha})\) is the normalizing constant \(t(\boldsymbol{\alpha}) = \dfrac{1}{ \int_{\Phi}\prod_{i=0}^n f_i(\phi)^{\alpha_i} d\phi}\) to ensure the pooled density is a valid probability density.
-
-The case for this work is more simple: we only have two densities we wish to pool, \(f_\phi^{induced}\) and \(f_\phi^{direct}\), and we assign them equal weights by letting \(\boldsymbol{\alpha} = \{.5, .5\}\). This yields
-
-\[f^{pooled}(\phi) = t(\boldsymbol \alpha) \left( f^{induced} (\phi) \right)^{0.5} \left( f^{direct} (\phi) \right)^{0.5}.\]
-
-Since our target distribution is \(t(\boldsymbol \alpha) \left( f^{induced} (\phi) \right)^{0.5} \left( f^{direct} (\phi) \right)^{0.5}\), and we have a sample from \(f^{induced}\), we compute the weights such that
-\begin{align*} w_i &\propto \dfrac{ \left( f^{induced} (\phi_i) \right)^{0.5} \left( f^{direct} (\phi_i) \right)^{0.5} } {f^{induced}(\phi_i)} \\
-&=  \dfrac{ \left( f^{direct} (\phi_i) \right)^{0.5} } {\left( f^{induced} (\phi_i) \right)^{0.5} } \\
-&=   \left( \dfrac{  f^{direct} (\phi_i) } { f^{induced} (\phi_i) }  \right)^{0.5}. \\
-\end{align*}
-Sampling from \(f^{induced}\) with these weights will yield a sample with approximately the target density \(t(\alpha) \left(f^{induced} (\phi) \right)^{0.5} \left( f^{direct} (\phi)\right)^{0.5}\) from the result in the \protect\hyperlink{proof}{previous section}.
-
-\newpage
 
 \hypertarget{loess-smoothing}{%
 \section{LOESS Smoothing}\label{loess-smoothing}}
@@ -699,100 +253,17 @@ Sampling from \(f^{induced}\) with these weights will yield a sample with approx
 \hypertarget{introduction}{%
 \subsection{Introduction}\label{introduction}}
 
-Locally estimated scatterplot smoothing (LOESS) fits a collection of local regression models to obtain a smooth curve through the observed data (Figure \ref{fig:loess}). It is highly flexible in the sense that we do not have to specify the functional relationship between the predictor and response variable for the entire range of the predictor, which may be impossible in various settings. It is particularly useful when working with time series data with substantial noise.
-\begin{figure}
-
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-18-1} 
-
-}
-
-\caption{\label{fig:loess}}\label{fig:unnamed-chunk-18}
-\end{figure}
-To perform LOESS smoothing, we estimate a set of local regressions (Chambers, 1997). To do this, we must specify the span; this smoothing parameter is the fraction of the data that is used for the local polynomial fit. With a smaller span, the resulting curve will fit the trends more closely, while a larger span reflects broader trends (Figure \ref{fig:smooth-spans}).
-\begin{figure}
-
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-19-1} 
-
-}
-
-\caption{\label{fig:smooth-spans}}\label{fig:unnamed-chunk-19}
-\end{figure}
 \hypertarget{fitting-the-loess-curve}{%
 \subsection{Fitting the LOESS Curve}\label{fitting-the-loess-curve}}
 
-To introduce some notation for the model at hand, we have a dependent variable \(\mathbf y\) and independent variable \(\mathbf x\), where \(\mathbf y\) and \(\mathbf x\) are related by some unknown function \(g\), that is, \(y = g(x) + \boldsymbol \epsilon\)\footnote{Recall we use bold type for vectors, e.g., \(\mathbf x \in \mathbb R^n\) is a vector with observations \(x_i \in \mathbb R\).}. When we want to use LOESS smoothing to estimate \(g\), often this function is complex, so we break up the problem into estimating a set of local regressions.
-
-To obtain a predicted value \(\hat g(x^*)\) for a particular value of the independent variable \(x^*\), we fit a polynomial with greatest weight placed on points in the neighborhood of \(x^*\), where the width of this neighborhood is defined by the choice of smoothing span. Let \(\alpha \in (0,1]\) denote the chosen smoothing span.
-
-For a particular value of \(x^*\), we estimate the predicted value \(\hat g(x^*)\) by fitting a local regression. We first compute the weights by computing the vector of distances from this point \(x^*\), that is,
-
-\[\Delta (x^*) = |\mathbf x -x^* | \]
-
-We define \(q = \text{floor}(\alpha n)\), and take \(\Delta_q(x^*) \in \mathbb R\) to be the \(q^th\) smallest distance of \(\Delta (x^*)\).
-
-The vector of weights is then
-\[T(\Delta(x^*), \Delta_q(x^*))\]
-
-where \(T\) is the tricube weight function given by
-
-\[
-T(x) = \begin{cases} (1-(x)^3)^3 \hspace{9 mm}  \text{ for } |x| < 1\\
-0  \hspace{25 mm} \text{ for |x| } \geq 1 \end{cases}.
-\]
-Essentially, this process gives weight to points in the neighborhood of \(x^*\). Consider \(x^* = 500\) and \(\text{smoothing span} = \alpha = .2\).
-
-Then the weights we obtain are given in Figure \ref{fig:weights}.
-\begin{figure}
-
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-20-1} 
-
-}
-
-\caption{\label{fig:weights} The only values with nonzero weights are those within the interval $(500 - \alpha (n), 500 - \alpha (n))$. That is, the proportion $\alpha$ of the data points closest to $x^*$ will have nonzero weights.}\label{fig:unnamed-chunk-20}
-\end{figure}
-\newpage
-
-We fit a linear regression with polynomial terms, typically with degree up to 2, with these weights. For example, fitting the model for this same \(x^*=500\), we obtain the polynomial in Figure \ref{fig:ex-poly}.
-\begin{flushleft}
-\begin{figure}
-
-{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-21-1} 
-
-}
-
-\caption{\label{fig:ex-poly}}\label{fig:unnamed-chunk-21}
-\end{figure}
-\end{flushleft}
-By fitting the model for every point in \(\mathbf x\), we obtain the smoothed line shown in red in Figure \ref{fig:loess-all}.
-\begin{figure}
-
-{\centering \includegraphics{thesis_files/figure-latex/loess-all-1} 
-
-}
-
-\caption{\label{loess-all}}\label{fig:loess-all}
-\end{figure}
-Smoothing methods are sensitive to the choice of smoothing parameter \(h\), which represents the fraction of the data that is used for the local polynomial fit.
-
-Methods exist for picking the smoothing parameter \(h\) that minimizes the mean squared error between the predicted values from the estimated line and observed values of the dependent variable, for example, leave-one-out cross-validation or generalized cross-validation.
-
-However, for this work, we used LOESS smoothing to smooth survey data from the COVID-19 Trends and Impact Survey (Reinhart et al., 2021).
-We choose the smoothing parameter for each variable based on domain knowledge regarding the level of noise present for each variable of interest. For example, there is substantial noise in the screening test positivity data that reflect trends that do not represent meaningful differences in the screening test positivity. Some trends in the screening sensitivity may be due to scheduled workplace screenings happening at regular time intervals, and some of the variation may be due to the frequency of screening testing due to other variables, such as the access and cost of testing.
-
-Since the ratio \(\frac{\text{screening test positivity}}{\text{overall test positivity}}\) is used to estimate \(\beta = \frac{P(\text{test}_+| S_0, untested)}{P(\text{test}_+|tested)}\), the variability in the screening positivity creates substantial variability in our estimates of \(\beta\).
-
-In light of this variability and the presence of other trends regarding the screening test positivity, we set the span to \(\frac{4}{12} = 0.33\) to fit the local regressions for 4-month intervals with the aim to capture the broader trends over time.
-
-INCLUDE FIGURE OF SMOOTHED ESTIMATES HERE
-
-There was less variabiity in the smoothing span for the weighted percentage of COVID-like Illness, the estimate of \(P(S_1|untested)\). Hence, we set the smoothing parameter to \(0.2\) detect trends at a finer time scale.
-
-Sensitivity analyses with modified versions of the smoothing span of \(\beta\) are included in the appendix in the section INCLUDE SECTION.
-
-\newpage
-
 \hypertarget{kernel-density-estimation}{%
 \section{Kernel Density Estimation}\label{kernel-density-estimation}}
+
+\hypertarget{overview-1}{%
+\subsection{Overview}\label{overview-1}}
+
+\hypertarget{bounded-density-estimation}{%
+\subsection{Bounded Density Estimation}\label{bounded-density-estimation}}
 
 \hypertarget{definition-of-prior-distributions-for-bias-parameters}{%
 \chapter{Definition of Prior Distributions for Bias Parameters}\label{definition-of-prior-distributions-for-bias-parameters}}
@@ -850,10 +321,11 @@ Placeholder
 \item
   Mention reproducible workflow with make
 \end{itemize}
+\hypertarget{reproducible-workflow}{%
+\section{Reproducible Workflow}\label{reproducible-workflow}}
+
 \hypertarget{results}{%
 \chapter{Results}\label{results}}
-
-Placeholder
 
 \hypertarget{county-level}{%
 \section{County-level}\label{county-level}}
@@ -864,20 +336,173 @@ Placeholder
 \hypertarget{comparison-to-the-covidestim-model}{%
 \section{Comparison to the Covidestim Model}\label{comparison-to-the-covidestim-model}}
 
-\hypertarget{overview-1}{%
-\subsection{Overview}\label{overview-1}}
+\hypertarget{overview-2}{%
+\subsection{Overview}\label{overview-2}}
+
+One challenge in correcting for biases in general is that although we may have some information about the influence of possible biases, we do not have a ground truth for comparison. However, one approach to handle the fact that the true cases are unobserved is comparing our estimates to those from other approaches seeking to estimate a similar quantity. In particular, if other approaches make different assumptions and come to a similar result, this can give us more confidence in our estimates.
+
+The most notable project seeking to estimate the true infection burden at the county-level over time is the COVIDestim project. In this work, Chitwood et al.~proposed a mechanistic model that includes states for asymptomatic/pre-symptomatic infection, symptomatic but mild infection, severe COVID-19 presentations, and death. This approach also enables the estimation of \(R_t\), the number of secondary infections a single infected individual causes at time \(t\).\\
+This is a useful quantity to estimate, but is sensitive to reporting delays and changes in testing practices (\url{https://academic.oup.com/aje/article/190/9/1908/6217341}).
 
 \hypertarget{the-covidestim-model}{%
 \subsection{The Covidestim Model}\label{the-covidestim-model}}
 
+Chitwood \emph{et al.} propose a Bayesian evidence synthesis model to correct for reporting delays and time varying case ascertainment testing rate in the estimation of incident infections and \(R_t\).
+
+To estimate the expected cases and deaths at a particular point in time, the model uses a convolution of the time series of observed cases and deaths and reporting delay distributions that are specific to the health state categories. This enables the model to account for the fact that reporting delay is different For any health state, for example, asymptomatic, the individual can either transition to the next health state (symptomatic) or recover. Thus, with each transition between a defined health state, for example, asymptomatic, there is a probability of transitioning to the next health state (in this case, asymptomatic → symptomatic); the complement of this probability is the probability of recovery.
+
+Each of these transitions is defined by a delay distribution. For example, the distribution for moving from asymptomatic to symptomatic represents the probability an individual moves to the symptomatic state at a point in time. The probabilities asymptomatic to symptomatic and symptomatic to severe are modeled as not varying with time. Meanwhile, the probability of transitioning from severe to death was defined to be higher in 2020 due to higher case fatalities early in the pandemic. The infection fatality rates, adjusted to be specific to a given state or county based on age distributions and the prevalence of risk factors for COVID-19, are used to inform the probability of moving from the severe category to the death category.
+
+The change in daily infections from the previous day (i.e., the new infections) is calculated as a function of the estimated effective reproductive number \(R_t\) and the mean serial interval, where serial interval is the time from the onset of infection of a primary case to the time of onset of infection in the secondary case. \(R_t\) is estimated using a log-transformed cubic spline, under the assumption individuals can only be infected once.
+
+They also defined a distribution for the delay to diagnosis, which was distinct by health state category to reflect differences in diagnosis delays that occur depending on the disease severity.
+The probability of diagnosis among different health states was allowed to vary by time to reflect changing testing rates throughout the pandemic.
+
+A separate distribution models the reporting delay to correct the total number of diagnoses on a given day for the fact that these diagnoses correspond to past infections.
+
+The observed cases and death data for each state to the model were fitted using negative binomial likelihood functions.
+
 \hypertarget{assumptions}{%
 \subsection{Assumptions}\label{assumptions}}
+
+This approach relies on infection fatality ratios and death counts to estimate the true case counts. Thus, it is sensitive to estimates of infection fatality rate, with higher infection fatality ratio estimates resulting in lower estimated infections. The infection fatality ratio is defined as the proportion of COVID-19 infections that lead to death, which means there is uncertainty in estimating both the numerator and the denominator of the ratio. The true cumulative incidence depends on the same uncertainties in estimating the true case burden at any point in time. Estimating the infection fatality ratio itself is a challenging task.
+
+The COVIDestim model uses age-specific estimates of IFR produced by O'Driscoll et al (\url{https://www.nature.com/articles/s41586-020-2918-0}). This group used national-level age-stratified, and when possible sex-stratified, COVID-19 death counts and cumulative infection estimates from seroprevalence studies. Of note, the estimates of infection fatality ratio are assumed to be constant over time, which may not be the case due to improving treatments (FIND EXAMPLE) or different variants leading to less severe presentations (FIND PAPER ON OMICRON SEVERITY).
+
+One thing to consider is that infection fatality rate may vary over time, as treatments may vary, as well as the demographics of individuals being infected. For example, during the school year, more students may test positive but will be less likely to die on average than adults (PROVIDE SOURCE FOR THIS). However, these estimates are difficult to acquire; COVIDestim assumed a higher case fatality in 2020 given the novelty of the virus and consequent lack of available treatments.
 
 \hypertarget{comparison-to-other-indicators}{%
 \section{Comparison to Other Indicators}\label{comparison-to-other-indicators}}
 
+There are known issues with seroprevalence estimates. For one, these samples are drawn from a convenience (i.e.~nonrandom) sample of individuals with blood specimens taken for purposes other than COVID-19 antibody detection (\url{https://www.cdc.gov/coronavirus/2019-ncov/cases-updates/commercial-lab-surveys.html}). Secondly, while a positive serological test is evidence for infection, a negative serological test is less clear to interpret. The person may have been infected but not yet have developed antibodies, or their immune system may not have produced antibodies at a detectable level (\url{https://www.cdc.gov/coronavirus/2019-ncov/covid-data/serology-surveillance/index.html}).
+
+Indeed, Chitwood et al.~found limited concordance between their estimates and seroprevalence data. However, there was a stronger correlation between estimates of cumulative infection and cumulative hospitalizations and cumulative deaths \textbackslash footnote\{ The correlation employed here is the Spearman rank correlation, which measures the strength of the monotonic relationship rather than the strength of the linear relationship, in which case the Pearson correlation coefficient is the usual choice. The Spearman rank correlation is equivalent to the Pearson correlation of the rank values rather than the values themselves (\url{https://en.wikipedia.org/wiki/Spearman\%27s_rank_correlation_coefficient}). This distinction is important here since we are interested in the strength of the monotonic relationship rather than the linear relationship between these values. \}.
+
+\newpage
+
+\hypertarget{limitations-of-this-comparison}{%
+\section{Limitations of this Comparison}\label{limitations-of-this-comparison}}
+
+At this point in the pandemic, there is no true gold standard to compare to. Covidestim is one model, among many, that makes key assumptions about aspects of the virus. Another note is that estimates from the Covidestim model are reported on the daily timescale for counties, while the probabilistic approach we implemented here is at the biweekly time scale. For the comparison, we summed the corresponding 2-week intervals for
+
+To ensure the comparisons are on the same time scale, we sum the reported 95\% credible intervals for the days in each 2-week interval. These intervals do not represent a 95\% credible interval for the 2-week interval, and while such an interval would be ideal for the comparison, computation of a 95\% credible interval for the two-week interval is not feasible because of the model structure. Due to the correlation between observations for each day for a given location, summing the intervals yields an estimate that is likely to be more conservative than a true 95\% credible interval for the two-week interval would be.
+
+\newpage
+
+\hypertarget{simulation-bivariate-normal}{%
+\subsection{Simulation: Bivariate Normal}\label{simulation-bivariate-normal}}
+
+We can see this in a concrete example. Let \((X,Y)\) be bivariate normal with \(\boldsymbol \mu = \begin{pmatrix} 0\\0\end{pmatrix}\) and correlation matrix \(\boldsymbol \Sigma = \begin{pmatrix} 1 & \rho \\ \rho & 1 \end{pmatrix}\), and hence where \(X, Y\) are marginally standard normal random variables.
+
+We let the subscript \(\alpha\) denote the \(\alpha^{th}\) and the subscript \(1-\alpha\) denote the \((1-\alpha)^{th}\) quantile of the distribution.
+
+In Figure \ref{fig:simmvn}, in each panel, we increase the correlation \(\rho\) between \(X\) and \(Y\) by 0.25 units and plot the sum \(X +Y\) against \(X\). The vertical lines represent quantiles \(X_{0.025}\) and \(X_{0.975}\), and the horizontal lines represent the quantiles \((X+Y)_{0.025}\) and \((X+Y)_{0.975}\).
+
+We see in Figure \ref{fig:simmvn} that when we increase the correlation between \(X\) and \(Y\), the width of the interval \(\Big((X+Y)_\alpha, (X+Y)_{1-\alpha}\Big)\) increases.
+\begin{figure}
+
+{\centering \includegraphics[width=0.96\linewidth]{thesis_files/figure-latex/unnamed-chunk-3-1} \includegraphics[width=0.96\linewidth]{thesis_files/figure-latex/unnamed-chunk-3-2} \includegraphics[width=0.96\linewidth]{thesis_files/figure-latex/unnamed-chunk-3-3} \includegraphics[width=0.96\linewidth]{thesis_files/figure-latex/unnamed-chunk-3-4} \includegraphics[width=0.96\linewidth]{thesis_files/figure-latex/unnamed-chunk-3-5} 
+
+}
+
+\caption{\label{fig:simmvn}}\label{fig:unnamed-chunk-3}
+\end{figure}
+In Figure \ref{fig:comp-intervals}, we compare the intervals defined by taking the quantiles of the sum, \(\Big((X+Y)_\alpha, (X+Y)_{1-\alpha}\Big)\), to the intervals taken by summing the quantiles individually, \(\Big(X_\alpha +Y_\alpha, \; X_{1-\alpha} +Y_{1-\alpha}\Big)\). We notice that, as we saw in Figure \ref{fig:simmvn}, increasing the correlation increases the width of the interval \(\Big((X+Y)_\alpha, (X+Y)_{1-\alpha}\Big)\), while the interval \(\Big(X_\alpha +Y_\alpha, \; X_{1-\alpha} +Y_{1-\alpha}\Big)\) is constant since changing the correlation does not change the marginal quantiles \(X_\alpha, X_{1-\alpha}\).,
+\begin{figure}
+
+{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-4-1} 
+
+}
+
+\caption{\label{fig:comp-intervals}}\label{fig:unnamed-chunk-4}
+\end{figure}
+As we see in Figure \ref{fig:comp-intervals}, the intervals are identical when \(X,Y\) are perfectly correlated. This result is not dependent on the choice of distribution, as we can show by considering CDFs and quantile functions of a general distribution.
+\begin{tcolorbox}[title = Quantiles of the Sum of Perfectly Correlated Random Variables]
+When two random variables $X$ and $Y$ are perfectly correlated,
+$$X_\alpha + Y_\alpha = (X+Y)_\alpha.$$
+\end{tcolorbox}
+When \(X\) and \(Y\) are perfectly correlated, \(Y\) must be a linear combination of \(X\), so we can write \(X+Y= X+bX=(1+b)X\).
+
+Then, let the \(\alpha^{th}\) quantile of \((1+b)X\) be \(x_\alpha\). By definition of the quantile function, we have
+
+\[F^{-1}_{(1+b) X } (\alpha) = x_\alpha \implies P((1+b) X \leq x_\alpha) = \alpha.\]
+Since \((1+b)\) is just a constant, we can divide to yield
+
+\[P\Big( X \leq x_\alpha/(1+b) \Big) = \alpha.\]
+To optain hte quantile for \(bX\), we can multiply each side by \(b\) to yield
+\[P\Big( bX \leq bx_\alpha/(1+b) \Big) = \alpha.\]
+Putting these results together, we have
+\begin{align*}
+F^{-1}_{bX} (\alpha) + F^{-1}_{X} (\alpha) = \frac{bx_\alpha } { 1+b} + \frac{x_\alpha}{1+b}
+&= x_\alpha 
+&= F^{-1}_{(1+b)X}(\alpha) \end{align*}
+
+\hypertarget{derivation-of-the-distribution-of-xy-for-bivariate-normal}{%
+\subsection{Derivation of the Distribution of X+Y for Bivariate Normal}\label{derivation-of-the-distribution-of-xy-for-bivariate-normal}}
+
+We can see why we observe this relationship between intervals based on the the sum of the \(\alpha^{th}\) quantiles of the individual distributions, \(X_\alpha + Y_\alpha\), and the intervals based on the \(\alpha^{th}\) quantile of the distribution of \(X+Y\) by considering the definition of the quantile function of the normal distribution.
+
+Defining \(Z=g(X,Y) = X+Y\), we can obtain the density function by a change of variables. Notice if \(g(X,Y) = X+Y\), \(g^{-1}(X,Z) = Z-X\), so we have
+\begin{align*} f_{X,Z}(x,z) &= f_{X,Y}(x,g^{-1}(x,z)) \left|\frac{\partial g^{-1}(x,z)}{\partial z}\right| \\
+f_{X,Z}(x,z) &= f_{X,Y}(x,z-x) \left|\frac{\partial (x-z)}{\partial z}\right|\\
+f_{X,Z}(x,z) &= f_{X,Y}(x,z-x) \left|1\right|\\
+f_{X,Z}(x,z) &= f_{X,Y}(x,z-x) \\
+\end{align*}
+Then, we can marginalize out \(X\) to get the PDF of \(f_Z\) by taking
+
+\[f_Z(z) = \int_{\infty}^\infty f(x,z-x) \; dx.\]
+
+Since \((X,Y)\) is bivariate normal with correlation \(\rho\), the PDF is given by
+
+\[f(x,y) = \dfrac{exp\left[\dfrac{-1}{2(1-\rho^2)} \left( \dfrac{(x-\bar x)^2}{\sigma_x^2}+\dfrac{(y-\bar y)^2}{\sigma_x^2} - \dfrac{2 \rho (x-\bar x)(y-\bar y)}{\sigma_x\sigma_y} \right)\right]}{2\pi \sigma_x \sigma_y \sqrt{1- \rho^2}}\]
+
+Integrating with respect to \(x\)\footnote{This integration is extremely long and technical, so we do not include it here.}, we have
+
+\[f_Z(z)  = \int_{-\infty}^\infty \dfrac{\exp\left[\dfrac{-1}{2(1-\rho^2)} \left( \dfrac{(x-\bar x)^2}{\sigma_x^2}+\dfrac{(y-\bar y)^2}{\sigma_x^2} - \dfrac{2 \rho (x-\bar x)(z-x-\bar y)}{\sigma_x\sigma_y} \right)\right]}{2\pi \sigma_x \sigma_y \sqrt{1- \rho^2}} dx \]
+\[=\dfrac{\exp\left[-\dfrac{(z-(\bar x + \bar y ))^2}{2(\sigma^2_x+\sigma^2_y + 2\rho \sigma_x \sigma_y)}\right]}{\sqrt{2\pi(\sigma_x^2 + \sigma_y^2 + 2\rho \sigma_x \sigma_y)}}.\]
+It follows that \(Z\) is a normal random variable with mean \(\bar x + \bar y\) and standard deviation \(\sqrt{\sigma_x^2 +\sigma_y^2 + 2 \rho \sigma_x \sigma_y }\).
+
+In Figure \ref{fig:ex-sim-normal}, we plot the density estimate of the distribution of \(X+Y\) for \((X,Y) \sim MVN\left( \begin{pmatrix} 0\\0 \end{pmatrix}, \begin{pmatrix} 1 & 0.2 \\0.2 & 1 \end{pmatrix}\right)\) and plot the density of the random variable \(X+Y = Z \sim N\left(\bar x + \bar y,\sqrt{\sigma_x^2 +\sigma_y^2 + 2 \rho \sigma_x \sigma_y }\right)\) and see they are in close alignment, as expected.
+\begin{figure}
+
+{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-7-1} 
+
+}
+
+\caption{\label{fig:ex-sim-normal} The theoretical density of $N\left(\bar x + \bar y,\sqrt{\sigma_x^2 +\sigma_y^2 + 2 \rho \sigma_x \sigma_y }\right)$ is plotted in red over the kernel density estimate of the observed distribution of $X+Y$.}\label{fig:unnamed-chunk-7}
+\end{figure}
+Since we now know \(Z \sim N\left(\bar x + \bar y,\sqrt{\sigma_x^2 +\sigma_y^2 + 2 \rho \sigma_x \sigma_y }\right)\), we can consider the quantile function of the normal distribution, which is defined as
+
+\[F_Z^{-1}(\alpha)=\mu +\sigma_Z \; \text{erf}^{-1}(2\alpha - 1).\]
+and since \(\sigma_Z=\sqrt{\sigma_x^2 +\sigma_y^2 + 2 \rho \sigma_x \sigma_y }\) we have
+\[F_Z^{-1}(\alpha)=\mu + \left(\sqrt{\sigma_x^2 +\sigma_y^2 + 2 \rho \sigma_x \sigma_y } \right) \; \text{erf}^{-1}(2\alpha - 1).\]
+Now, we note the inverse error function \(\text{erf}^{-1}\) is increasing (Figure \ref{fig:erf}).
+
+This means if \(\alpha > 0.5\), \(F_Z^{-1}\) is increasing with increasing values of \(\rho\), and if \(\alpha < 0.5\), \(F_Z^{-1}\) is decreasing with increasing values of \(\rho\).
+
+This if we have a pair of correlated random variables \((X_1,Y_1)\) and \((X_2,Y_2)\) and \(\rho_{X_1,Y_1} > \rho_{X_2,Y_2}\) and consider \(\alpha < 0.5\),
+
+\[(X_1+Y_1)_\alpha <(X_2+Y_2)_\alpha\]
+
+and
+
+\[(X_1+Y_1)_{1-\alpha} > (X_2+Y_2)_{1-\alpha}.\]
+This is exactly what we observed in Figure \ref{fig:comp-intervals}.
+\begin{figure}
+
+{\centering \includegraphics{thesis_files/figure-latex/unnamed-chunk-8-1} 
+
+}
+
+\caption{\label{fig:erf}}\label{fig:unnamed-chunk-8}
+\end{figure}
 \hypertarget{seropositivity-data}{%
 \section{Seropositivity Data}\label{seropositivity-data}}
+
+To add
+
+\hypertarget{results-1}{%
+\chapter{Results}\label{results-1}}
 
 \hypertarget{county-level-1}{%
 \section{County-level}\label{county-level-1}}
@@ -905,60 +530,6 @@ Placeholder
 
 Placeholder
 
-\hypertarget{refs}{}
-\begin{CSLReferences}{1}{0}
-\leavevmode\vadjust pre{\hypertarget{ref-blitzsteinIntroductionProbability2019}{}}%
-Blitzstein, J. K., \& Hwang, J. (2019). \emph{Introduction to probability} (Second edition). Boca Raton: CRC Press.
-
-\leavevmode\vadjust pre{\hypertarget{ref-carvalho2023}{}}%
-Carvalho, L. M., Villela, D. A. M., Coelho, F. C., \& Bastos, L. S. (2023). Bayesian Inference for the Weights in Logarithmic Pooling. \emph{Bayesian Analysis}, \emph{18}(1). http://doi.org/\href{https://doi.org/10.1214/22-BA1311}{10.1214/22-BA1311}
-
-\leavevmode\vadjust pre{\hypertarget{ref-chambers1997}{}}%
-Chambers, J. M. (Ed.). (1997). \emph{Statistical models in S} (Reprint). London: Chapman \& Hall.
-
-\leavevmode\vadjust pre{\hypertarget{ref-genest1986}{}}%
-Genest, C., McConway, K. J., \& Schervish, M. J. (1986). Characterization of Externally Bayesian Pooling Operators. \emph{The Annals of Statistics}, \emph{14}(2), 487--501. Retrieved from \url{https://www.jstor.org/stable/2241231}
-
-\leavevmode\vadjust pre{\hypertarget{ref-greenland2016}{}}%
-Greenland, S., Senn, S. J., Rothman, K. J., Carlin, J. B., Poole, C., Goodman, S. N., \& Altman, D. G. (2016). Statistical tests, P values, confidence intervals, and power: a guide to misinterpretations. \emph{European Journal of Epidemiology}, \emph{31}(4), 337--350. http://doi.org/\href{https://doi.org/10.1007/s10654-016-0149-3}{10.1007/s10654-016-0149-3}
-
-\leavevmode\vadjust pre{\hypertarget{ref-lash2009}{}}%
-Lash, T. L., Fox, M. P., \& Fink, A. K. (2009). \emph{Applying Quantitative Bias Analysis to Epidemiologic Data}. New York, NY: Springer New York. http://doi.org/\href{https://doi.org/10.1007/978-0-387-87959-8}{10.1007/978-0-387-87959-8}
-
-\leavevmode\vadjust pre{\hypertarget{ref-ma2021}{}}%
-Ma, Q., Liu, J., Liu, Q., Kang, L., Liu, R., Jing, W., \ldots{} Liu, M. (2021). Global Percentage of Asymptomatic SARS-CoV-2 Infections Among the Tested Population and Individuals With Confirmed COVID-19 Diagnosis: A Systematic Review and Meta-analysis. \emph{JAMA Network Open}, \emph{4}(12), e2137257. http://doi.org/\href{https://doi.org/10.1001/jamanetworkopen.2021.37257}{10.1001/jamanetworkopen.2021.37257}
-
-\leavevmode\vadjust pre{\hypertarget{ref-neyman1937}{}}%
-Neyman, J. (1937). Outline of a Theory of Statistical Estimation Based on the Classical Theory of Probability. \emph{Philosophical Transactions of the Royal Society of London. Series A, Mathematical and Physical Sciences}, \emph{236}(767), 333--380. http://doi.org/\href{https://doi.org/10.1098/rsta.1937.0005}{10.1098/rsta.1937.0005}
-
-\leavevmode\vadjust pre{\hypertarget{ref-petersen2021}{}}%
-Petersen, J. M., Ranker, L. R., Barnard-Mayers, R., MacLehose, R. F., \& Fox, M. P. (2021). A systematic review of quantitative bias analysis applied to epidemiological research. \emph{International Journal of Epidemiology}, \emph{50}(5), 1708--1730. http://doi.org/\href{https://doi.org/10.1093/ije/dyab061}{10.1093/ije/dyab061}
-
-\leavevmode\vadjust pre{\hypertarget{ref-poole2000}{}}%
-Poole, D., \& Raftery, A. E. (2000). Inference for Deterministic Simulation Models: The Bayesian Melding Approach. \emph{Journal of the American Statistical Association}, \emph{95}(452), 1244--1255. http://doi.org/\href{https://doi.org/10.1080/01621459.2000.10474324}{10.1080/01621459.2000.10474324}
-
-\leavevmode\vadjust pre{\hypertarget{ref-powers2011}{}}%
-Powers, K. A., Ghani, A. C., Miller, W. C., Hoffman, I. F., Pettifor, A. E., Kamanga, G., \ldots{} Cohen, M. S. (2011). The role of acute and early HIV infection in the spread of HIV and implications for transmission prevention strategies in Lilongwe, Malawi: a modelling study. \emph{The Lancet}, \emph{378}(9787), 256--268. http://doi.org/\href{https://doi.org/10.1016/S0140-6736(11)60842-8}{10.1016/S0140-6736(11)60842-8}
-
-\leavevmode\vadjust pre{\hypertarget{ref-reinhart2021}{}}%
-Reinhart, A., Brooks, L., Jahja, M., Rumack, A., Tang, J., Agrawal, S., \ldots{} Tibshirani, R. J. (2021). An open repository of real-time COVID-19 indicators. \emph{Proceedings of the National Academy of Sciences}, \emph{118}(51), e2111452118. http://doi.org/\href{https://doi.org/10.1073/pnas.2111452118}{10.1073/pnas.2111452118}
-
-\leavevmode\vadjust pre{\hypertarget{ref-robson2014}{}}%
-Robson, B. J. (2014). When do aquatic systems models provide useful predictions, what is changing, and what is next? \emph{Environmental Modelling \& Software}, \emph{61}, 287--296. http://doi.org/\href{https://doi.org/10.1016/j.envsoft.2014.01.009}{10.1016/j.envsoft.2014.01.009}
-
-\leavevmode\vadjust pre{\hypertarget{ref-rubin1987}{}}%
-Rubin, D. B. (1987). The Calculation of Posterior Distributions by Data Augmentation: Comment: A Noniterative Sampling/Importance Resampling Alternative to the Data Augmentation Algorithm for Creating a Few Imputations When Fractions of Missing Information Are Modest: The SIR Algorithm. \emph{Journal of the American Statistical Association}, \emph{82}(398), 543. http://doi.org/\href{https://doi.org/10.2307/2289460}{10.2307/2289460}
-
-\leavevmode\vadjust pre{\hypertarget{ref-rubin2004}{}}%
-Rubin, D. B., Gelman, A., \& Meng, X.-L. (Eds.). (2004). \emph{Applied Bayesian modeling and causal inference from incomplete-data perspectives: an essential journey with Donald Rubin's statistical family}. Chichester, West Sussex, England\,; Hoboken, NJ: Wiley.
-
-\leavevmode\vadjust pre{\hypertarget{ref-sah2021}{}}%
-Sah, P., Fitzpatrick, M. C., Zimmer, C. F., Abdollahi, E., Juden-Kelly, L., Moghadas, S. M., \ldots{} Galvani, A. P. (2021). Asymptomatic SARS-CoV-2 infection: A systematic review and meta-analysis. \emph{Proceedings of the National Academy of Sciences}, \emph{118}(34), e2109229118. http://doi.org/\href{https://doi.org/10.1073/pnas.2109229118}{10.1073/pnas.2109229118}
-
-\leavevmode\vadjust pre{\hypertarget{ref-sevcikova2007}{}}%
-Ševčíková, H., Raftery, A. E., \& Waddell, P. A. (2007). Assessing uncertainty in urban simulations using Bayesian melding. \emph{Transportation Research Part B: Methodological}, \emph{41}(6), 652--669. http://doi.org/\href{https://doi.org/10.1016/j.trb.2006.11.001}{10.1016/j.trb.2006.11.001}
-
-\end{CSLReferences}
 
 % Index?
 

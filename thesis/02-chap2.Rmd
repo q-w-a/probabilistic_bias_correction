@@ -5,7 +5,9 @@ knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE,
                       warning = FALSE,
                       cache = FALSE,
-                      fig.align ='center')
+                      fig.align ='center',
+                      fig.width = 6,
+                      fig.height = 3 )
 ```
 
 
@@ -1610,7 +1612,554 @@ Sensitivity analyses with modified versions of the smoothing span of $\beta$ are
 
 
 
+
 ## Kernel Density Estimation
 
+### Overview 
+
+When we have a random sample $X_1,\dots X_n$ drawn from the density $f_X$ and we want to estimate $f_X$ at some set of points, we can use kernel density estimation. This is relevant in this work for estimating $f^{induced}$.
+
+We define a kernel function as follows [@wasserman2006].
+
+\begin{tcolorbox}[title=Definition: Kernel Function]
+
+A kernel function $K$ is a smooth nonnegative function such that 
+
+$$\int K(x) \; dx = 1, \int x K(x) dx = 0, \sigma^2_k \equiv \int x^2 K(x) dx > 0.$$ 
+\end{tcolorbox}
+
+The Gaussian kernel $K(x) = \frac{1}{\sqrt{2\pi}}e^{-x^2/2}$ is commonly used in practice; the tricube kernel, as discussed in the LOESS smoothing section, is another valid kernel function.
+
+The kernel density estimator is 
+
+$$\hat f_n(x) = \frac 1n \sum_{i=1}^n \frac 1h K\left(\dfrac{x-X_i}{h} \right)$$
+
+where $h$ is the smoothing parameter or bandwidth. In Figure \ref{fig:kernel}, we see the effect of increasing the bandwidth $h$: larger values result in smoother curves, while smaller values result in curves that follow the histogram more closely.
+
+
+```{r, fig.cap="\\label{fig:kernel}"}
+
+objs <- ls()
+rm(objs)
+
+set.seed(999)
+sim <- rnorm(1e3, mean = 0, sd = 1)
+sim_data <- tibble(sim =sim)
+
+kernel <- function(x) {
+  (1 / sqrt(2*pi))*exp(-(x^2)/2)
+}
+
+
+
+get_density <- function(x, h) {
+  map_dbl(x, ~{
+  (1/length(sim)) * sum((1/h) * kernel((sim - .x)/h))
+})
+}
+
+
+df <- map_df(c(.1,.3,.5,.7),
+       ~{
+         tibble(x = seq(-3,3, length = 1e4)) %>%
+  mutate(density = get_density(x, h = .x),
+         h= .x)
+       })
+
+# 
+# df <- tibble(x = seq(-3,3, length = 1e4)) %>%
+#   mutate(density = get_density(x, h = .2))
+# 
+# adj <- max(sim) / max(df$density)
+
+df %>% 
+  mutate(h = as.factor(h)) %>%
+  ggplot() +
+  stat_function(fun =dnorm,
+                args = list(mean = 0, sd =1),
+                color = "darkred",
+                size = 1.2) +
+  geom_line(aes(x =x ,y =density, color = h)) +
+  geom_histogram(data = sim_data,
+                 aes(x= sim, y = ..density..),
+                 alpha = .5) +
+  theme_bw() +
+  scale_color_viridis(begin = .2, end = .9, 
+                      discrete=TRUE,
+                      direction = -1)
+
+
+
+
+```
+
+### Bounded Density Estimation
+
+A question warranting investigation is the choice of kernel given we are working with a bounded variable -- the density we seek to estimate, $f^{induced}$ is the density of $P(S_0|\text{untested}, \text{test}_+)$ and hence is bounded between 0 and 1. 
+
+One way to handle density estimation for a bounded variable $X$ is by performing a transformation
+$X=g(Y)$ and then using the change of variables for a probability density to obtain $f_X(x)$ [@aurelienpelissier2022]. 
+
+Since $X \in [0,1]$ and we want to transform it to the range $(-\infty,\infty)$, we can let $Y = \text{logit}(X) = \log \left( \frac{X}{1-X} \right)$.
+
+We know if we have $X = g(Y)$, then we can acquire the distribution of $X$ from that of $Y$ by considering the change of variables of the probability density functions $f_X$ and $f_y$ given by 
+$$f_X(x) = f_Y(g^{-1}(X)) \;\; \left| \frac{d}{dx} g^{-1}(X) \right|. \tag{1}$$ 
+
+Thus, in this case, we have $Y = \text{logit}(X)$, so $g^{-1}$ is the logit function. By definition of the change of variables formula (1), we have
+$$f_X(x) = f_Y(\text{logit}(X)) \;\; \left| \frac{d}{dx} \text{logit}(X) \right|.$$ 
+Computing the derivative and simplifying, we have
+
+\begin{align*} = f_Y(logit(X)) \;\; \left| \frac{d}{dx}log(\frac{x}{1-x}) \right|\\
+&= f_Y(logit(X)) \;\; \left| \left(\frac{1-x}{x} \right) (x(1-x)^{-1})' \right|\\ 
+&= f_Y(logit(X)) \;\; \left| \left(\frac{1-x}{x} \right) ((1-x)^{-1} + x(1-x)^{-2} ) \right|\\
+&= f_Y(logit(X)) \;\; \left| \left(\frac{1-x}{x} \right) \left(\frac{(1-x) + x }{ (1-x)^{2} }\right) \right|\\
+&= f_Y(logit(X)) \;\; \left| \left(\frac{1-x}{x} \right) \left(\frac{1 }{ (1-x)^{2} }\right) \right|\\
+&= f_Y(logit(X)) \;\; \left|  \frac{1 }{ x (1-x) } \right|.
+\end{align*}
+
+
+This means that we compute $Y = logit(X)$ and then estimate the density of the unbounded variable $Y$, and then we can recover the density $f_X$ by multiplying by $\frac{1 }{ x (1-x) }$.
+
+In some cases, this approach works well. In Figure \ref{fig:trans}, we simulate a variable $X \sim Beta(3,2)$ and estimate the density with the transformation approach.
+
+
+```{r}
+
+library(latex2exp)
+
+logit <- function(x) log(x/ (1-x))
+invlogit <- function(x) exp(x)/(1+exp(x))
+
+# ggplot() +
+#   stat_function(fun = dbeta, 
+#                 args = list(shape1=3, shape2=2),
+#                 geom="area",
+#                 alpha = .7) +
+#   theme_bw() +
+#   theme(axis.title = element_text(size = 18),
+#         plot.title = element_text(size = 20, hjust = .5)) +
+#   labs(x = TeX("$x$"),
+#        y = TeX("$f_X(x)"),
+#        title = TeX("$X \\sim \\beta(\\alpha=3, \\beta = 2)$"))
+
+
+nsamp <- 1e4
+# sample of X
+X_sample <- rbeta(nsamp, shape1 = 3, shape2 = 2)
+
+
+```
+
+
+
+```{r, fig.cap = "\\label{fig:trans}"}
+
+# Y = logit(X)
+Y <- logit(X_sample)
+
+
+# estimate density of Y
+dens <- density(x = Y, n = nsamp, adjust = 2, kernel = "gaussian")
+
+
+density_coordinates_Y <- dens$x
+density_Y <- dens$y
+
+# transform back with inverse logit function
+density_coordinates_X <- invlogit(dens$x)
+
+# according to change of variables formula
+density_X <- density_Y / (density_coordinates_X * (1 - density_coordinates_X))
+
+
+
+##################################
+# estimated density
+##################################
+
+tibble(x=density_coordinates_X, y = density_X) %>%
+  ggplot(aes(x= x, y=y)) +
+  geom_area(alpha = .8) +
+  labs(title = TeX("Estimating $f_X(x)$ from $f_Y(y)$"),
+       y = TeX("Estimated $f_X(x)$"),
+       subtitle = TeX("$X \\sim$ Beta(2,3)")) +
+  theme_bw()+
+  theme(axis.title = element_text(size = 12),
+        plot.title = element_text(size = 14, hjust = .5),
+        plot.subtitle = element_text(hjust = .5, size = 14))  +
+  stat_function(fun = dbeta, 
+                args = list(shape1=3, shape2=2),
+               # geom="area",
+                alpha = .7,
+               color = "red") +
+  geom_line(aes(x = density_coordinates_X, 
+                y = dbeta(density_coordinates_X,
+                          shape1 = 3, shape2 = 2),
+                color = 'r')) +
+  scale_color_manual(values = c('r' = 'red'),
+                     labels = c('Theoretical Density'),
+                     name='')
+
+```
+
+We see the difference between using the transformation approach versus estimating the density of $X$ without first transforming it to be unbounded in Figure \ref{fig:original}.
+
+```{r, fig.cap = "\\label{fig:original}"}
+
+##################################
+# compare to original approach
+##################################
+
+ density_original <- density(x = X_sample,
+                            n = nsamp, 
+                            adjust = 2,
+                            kernel = "gaussian")
+
+tibble(x=density_coordinates_X,
+         y = density_X,
+         approach = "Transformation\nApproach") %>%
+    bind_rows(
+      tibble(
+        x = density_original$x,
+        y = density_original$y,
+        approach = "Direct Estimation"
+      )
+    ) %>%
+    ggplot() +
+    geom_area(alpha = .5, 
+              aes( x=x, y = y, 
+                   fill = approach)) +
+    geom_line(alpha = .5, 
+              aes( x=x, y = y, 
+                   color = approach),
+              show.legend=FALSE) +
+    stat_function(fun=dbeta,
+                  args =list(shape1 = 3, shape2=2),
+                  xlim=c(0, 1),
+                  color = "red") +
+    geom_vline(aes(xintercept = 0), color = "darkred", 
+               size = .4, alpha = .6) +
+    geom_vline(aes(xintercept = 1), color = "darkred", 
+               size = .4, , alpha = .6) +
+    scale_x_continuous(n.breaks = 6) +
+    labs(title = TeX("Comparing Approaches for Estimating $f_X(x)$"),
+         y = TeX("Estimated $f_X(x)$"),
+         subtitle = TeX(paste0("$X \\sim $ Beta(", 
+                               3, ", ", 2, ")")),
+         fill = "") +
+    theme_bw() +
+    theme(axis.title = element_text(size = 12),
+          plot.title = element_text(size = 14, hjust = .5),
+          plot.subtitle = element_text(size = 12, hjust = .5),
+          legend.text = element_text(size = 16)) +
+    viridis::scale_fill_viridis(discrete = TRUE, 
+                                begin = .3, end = .8) +
+    viridis::scale_color_viridis(discrete = TRUE, 
+                                begin = .3, end = .8)
+
+ 
+```
+
+
+However, when we simulate densities that have greater mass toward the boundaries 0 or 1, we see that boundary bias becomes problematic (Figure \ref{fig:compare-beta-params}). This is evident in panels B, C, D, and G of Figure \ref{fig:compare-beta-params}, where the estimated density near the boundaries is a poor estimate of the true density.
+
+
+```{r functions for transformation density estimation}
+
+compare_density <- function(shape1, shape2, cap) {
+  
+  set.seed(123)
+  X_sample <- rbeta(1e3, shape1, shape2)
+  
+  Y <- logit(X_sample)
+
+  # estimate density of Y
+  dens <- density(x = Y, n = nsamp, adjust = 2, kernel = "gaussian")
+  
+  
+  density_coordinates_Y <- dens$x
+  density_Y <- dens$y
+  
+  # transform back with inverse logit function
+  density_coordinates_X <- invlogit(dens$x)
+  
+  # according to change of variables formula
+  density_X <- density_Y / (density_coordinates_X * (1 - density_coordinates_X))
+  
+  
+  # estimated density
+  
+  density_original <- density(x = X_sample,
+                            n = nsamp, 
+                            adjust = 2,
+                            kernel = "gaussian")
+  
+  yupper <- max(dbeta(density_coordinates_X, 
+                      shape1 =shape1, 
+                      shape2 = shape2))
+
+  tibble(x=density_coordinates_X,
+         y = density_X,
+         approach = "Transformation\nApproach") %>%
+    bind_rows(
+      tibble(
+        x = density_original$x,
+        y = density_original$y,
+        approach = "Direct Estimation"
+      )
+    ) %>%
+    ggplot() +
+    geom_area(alpha = .5, 
+              aes( x=x, y = y, 
+                   fill = approach)) +
+    geom_line(alpha = .5, 
+              aes( x=x, y = y, 
+                   color = approach),
+              size = 1.03,
+              show.legend=FALSE) +
+    stat_function(fun=dbeta,
+                  args =list(shape1 = shape1, shape2=shape2),
+                  xlim=c(0, 1),
+                  color = "red",
+                  size = 1.05) +
+    geom_vline(aes(xintercept = 0), color = "darkred", 
+               size = .4, alpha = .6) +
+    geom_vline(aes(xintercept = 1), color = "darkred", 
+               size = .4, , alpha = .6) +
+    scale_x_continuous(n.breaks = 6) +
+    labs(title = TeX("Comparing Approaches for Estimating $f_X(x)$"),
+         y = TeX("Estimated $f_X(x)$"),
+         subtitle = TeX(paste0("$X \\sim $ Beta(", 
+                               shape1, ", ", shape2, ")")),
+         fill = "",
+         caption = cap) +
+    theme_bw() +
+    theme(axis.title = element_text(size = 12),
+          plot.title = element_text(size = 12, hjust = .5),
+          plot.subtitle = element_text(size = 12, hjust = .5),
+          legend.text = element_text(size = 16),
+          plot.caption = element_text(hjust = 0, size = 12, face = "bold")) +
+    viridis::scale_fill_viridis(discrete = TRUE, 
+                                begin = .3, end = .8) +
+    viridis::scale_color_viridis(discrete = TRUE, 
+                                begin = .3, end = .8) +
+    ylim(0, yupper+2)
+
+ 
+}
+
+```
+
+```{r, fig.show='hold', out.width="49%", fig.cap = "\\label{fig:compare-beta-params}" }
+
+
+shapes <- expand.grid(seq(1 ,5, by = 1.5),
+            seq(1, 5, by= 1.5)) %>%
+  mutate(fig = LETTERS[1:nrow(.)])
+
+
+pwalk(shapes, ~{
+  plt <- compare_density(shape1 = ..1, shape2 = ..2, cap = ..3)
+  print(plt)
+} )
+
+
+```
+
+
+An alternative to the transformation approach for density estimation of bounded variables by using beta kernel estimators, which resolves the issue of boundary bias.
+
+As defined in @chen1999, the most simple beta kernel estimator would be 
+$$\hat f_1(x) = \dfrac{\sum_{i=1}^n K_{x/b + 1, \; (1-x)/b + 1} (X_i)}{n}$$
+
+where $K_{\text{shape1}, \text{shape2}}$ is the density function $Beta(shape1, \; shape2)$.
+
+However, @chen1999 show that the modified beta kernel estimator $\hat f_2(x)$ has lower variance and bias than $\hat f_1$, where we define $\hat f_2$ as follows:
+
+$$
+\hat f_2(x)  = \dfrac{\sum_{i=1}^n K_{x,b}^*(X_i)}{n},$$
+
+
+$$K^*_{x,b} = \begin{cases}K_{x/b, \; (1-x)/b }(t)  & \text{if }x \in [2b,1-2b] \\
+K_{\rho(x), \; (1-x)/b } (t)  & \text{if } x \in [0,2b) \\
+K_{x/b, \; \rho(1-x)}(t) & \text{if } x\in(1-2b,1]
+\end{cases},
+$$
+$$\rho(x,b) = 2b^2 + 2.5 - \sqrt{b^2 + 6b^2 +2.25-x^2 -x/b}.$$
+
+
+Notably, for beta kernel estimators, the shape of the kernel depends on $x$ (Figure \ref{fig:depends-on-x}). 
+
+```{r}
+
+rho <- function(x,b) {
+  root <- 4*b^4 + 6*b^2 + 2.25 -x^2 -x/b
+  # message(paste0("\n\nx:", x, "\nroot: ", root))
+  ifelse(root >= 0, 2*b^2 + 2.5 - sqrt(root), 0) 
+}
+
+# by definition of f_2 in Chen 1999
+beta_kernel <- function(t, x,b) {
+  case_when(
+  (x >= 2*b) & (x <= ( 1-2*b)) ~ dbeta(t, x/b, (1-x)/b),
+  x >= 0 & x < 2*b ~ dbeta(t, rho(x,b), (1-x)/b),
+  x > (1 - 2*b) & x <= 1 ~ dbeta(t,x/b, rho((1-x),b)))
+}
+
+
+f2 <- function(coords, sample, b) {
+  n <- length(sample)
+  dens <- map_dbl(coords, ~sum(beta_kernel(t=sample, x=.x, b= b)))
+  dens/n
+}
+
+```
+
+```{r, fig.cap = "\\label{fig:depends-on-x}"}
+
+t_vec <- seq(0, 1, length = 1e3)
+
+b0 <- .2
+
+df <- map_df(seq(0,1, by = .1), 
+       ~ {
+         tibble(t = t_vec, 
+       density = dbeta(t_vec, shape1= (.x/b0 + 1),
+                             shape2 = ((1-.x)/b0 + 1)),
+        x = .x)
+       }
+)
+
+
+
+df %>%
+  mutate(x=as.factor(x)) %>%
+  ggplot(aes(x=t, y =density, color = x)) +
+  geom_line() +
+  labs(y = TeX("$K(t)$"),
+       title = TeX(paste0("Beta Kernel with Shape 1 = ",
+       "$\\frac{x}{b} +1$",
+       " and Shape 2 =  $\\frac{(1-x)}{b+1}$")),
+       subtitle = "b = 0.2") +
+  theme_bw() +
+  scale_color_viridis(option = "mako",
+                      discrete = TRUE,
+                      direction = -1,
+                      end = .95) +
+  theme(plot.title = element_text(hjust = .5, size = 10),
+        plot.subtitle = element_text(hjust = .5))
+
+  
+```
+
+
+
+
+```{r simple-example, include = FALSE,eval=FALSE}
+X_sample <- rbeta(1e3, shape1, shape2)
+
+
+
+dat <- tibble(coords = seq(0,1,length =100),
+       density = f2(coords, X_sample, b=.2)) 
+
+dat %>%
+  ggplot() +
+  geom_area(aes(x=coords, y =density),
+            fill = "#51928D",
+            alpha = .8) +
+  stat_function(fun =dbeta, args =list(shape1=shape1,
+                                       shape2=shape2),
+                xlim=c(0,1),
+                color = "red",
+                size = 1.05) +
+  ylim(0,1.3) +
+  labs(title = TeX("Density Estimation Using Beta Kernel Estimator $\\widehat{f_2}(x)$"),
+       x = "x",
+       y = TeX("$\\widehat{f_2}(x)$"),
+      subtitle = TeX(paste0("$X \\sim $ Beta(", 
+                               shape1, ", ", shape2, ")"))) +
+    theme_bw() +
+    theme(axis.title = element_text(size = 14),
+          plot.title = element_text(size = 12, hjust = .5),
+          plot.subtitle = element_text(size = 12, hjust = .5),
+          legend.text = element_text(size = 16),
+          plot.caption = element_text(hjust = 0, size = 12, face = "bold")) 
+
+
+```
+
+
+As we did in Figure \ref{fig:compare-beta-params}, we can compare the performance of the beta kernel $\hat f_2$ for estimating the density of samples from different beta distributions (Figure \ref{fig:comp-beta}).
+
+
+```{r, fig.show = 'hold', out.width = '48%', fig.cap = "\\label{fig:comp-beta}"}
+
+beta_kernel_est_plot <- function(shape1,
+                                 shape2, 
+                                 panel_name,
+                                 nsamp = 1e4,
+                                 b = NULL) {
+  
+  b <- ifelse(is.null(b), nsamp^(-2/5), b)
+  
+  X_sample <- rbeta(nsamp, shape1 = shape1 , shape2 = shape2)
+
+  dat <- tibble(coords = seq(0,1,length =100),
+         density = f2(coords, X_sample, b=b)) 
+  yupper <- max(max(dat$density),
+                max(dbeta(dat$coords,
+                          shape1=shape1,
+                          shape2=shape2))) 
+  yupper <- yupper + .2
+
+  plt <- dat %>%
+    ggplot() +
+    geom_area(aes(x=coords, y =density),
+              fill = "#51928D",
+              alpha = .8) +
+    stat_function(fun =dbeta, args =list(shape1=shape1,
+                                         shape2=shape2),
+                  xlim=c(0,1),
+                  color = "red",
+                  size = 1.05) +
+    labs(title = TeX("Density Estimation Using Beta Kernel Estimator $\\widehat{f_2}(x)$"),
+         x = "x",
+         y = TeX("$\\widehat{f_2}(x)$"),
+         subtitle = TeX(paste0("$X \\sim $ Beta(", 
+                               shape1, ", ", shape2, "), b = ", round(b,3))),
+         caption = panel_name) +
+      theme_bw() +
+      theme(axis.title = element_text(size = 14),
+            plot.title = element_text(size = 12, hjust = .5),
+            plot.subtitle = element_text(size = 12, hjust = .5),
+            legend.text = element_text(size = 16),
+            plot.caption = element_text(hjust = 0, size = 12, face = "bold")) +
+      ylim(0,yupper)
+  
+}
+
+pwalk(shapes, ~{
+  
+  plt <- beta_kernel_est_plot(shape1 = ..1, 
+                              shape2 = ..2, 
+                              panel_name = ..3)
+  print(plt)
+  
+} )
+
+# check correspondence with bde implementation
+# X_sample <- rbeta(1e4, shape1 = 4 , shape2 = 2.5)
+# 
+# dens <- bde::bde(dataPoints = X_sample,
+#          dataPointsCache = seq(0,1,length =100),
+#          estimator = "betakernel")
+# 
+# tibble(x = dens@dataPointsCache,
+#        y = dens@densityCache) %>% 
+#   ggplot(aes(x=x, y = y)) +
+#   geom_line()
+
+```
 
 
