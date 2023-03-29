@@ -7,6 +7,7 @@ output:
     df_print: paged
     code_folding: hide
     css: ../../css/template.css
+    toc-depth: 4
 ---
 
 ```{r setup, include=FALSE}
@@ -358,9 +359,9 @@ tibble(lag = res$lag[,,1], corr=res$acf[,,1])
 
 ## Additional Simulations
 
-## By Noise Added
+### By Noise Added
 
-### No Noise Term
+#### No Noise Term
 
 
 ```{r plot_corr function}
@@ -464,7 +465,7 @@ plot_corr(mean = 0, sd = 0, lagged =3, title = "No Noise")
 
 ```
 
-### Changing SD of Noise Term
+#### Changing SD of Noise Term
 
 ```{r, fig.width = 14, fig.height =4}
 
@@ -480,9 +481,10 @@ walk(c(1:5), ~ {
 
 ```
 
-### Changing Mean of Noise Term
+```{r, include = FALSE, eval= FALSE}
+#### Changing Mean of Noise Term
 
-```{r, fig.width = 14, fig.height =4 }
+# ```{r, fig.width = 14, fig.height =4 }
 
 
 
@@ -496,7 +498,7 @@ walk(c(0:5), ~ {
 
 ```
 
-## Different Models
+### Different Models
 
 
 
