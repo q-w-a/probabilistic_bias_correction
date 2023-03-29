@@ -24,6 +24,9 @@ theme_c <- function(...) {
           plot.title =element_text(size = 16,
                                    face="bold",
                                    hjust = .5),
+        plot.subtitle =element_text(size = 14,
+                                   face="italic",
+                                   hjust = .5),
           strip.text = element_text(size = 13),
           legend.text = element_text(size = 14))
 }
@@ -353,4 +356,337 @@ tibble(lag = res$lag[,,1], corr=res$acf[,,1])
 ```
 
 
-## 
+## Additional Simulations
+
+## By Noise Added
+
+### No Noise Term
+
+
+```{r plot_corr function}
+
+library(cowplot)
+
+
+plot_ccf <- function(ccf_df, differencing = FALSE) {
+  ccf_df %>%
+    mutate(max = ifelse(correlation == max(correlation), 
+                        lag, NA)) %>%
+    ggplot(aes(x=lag, y = correlation)) +
+    geom_point() +
+    geom_linerange(aes(ymin = 0, ymax=correlation)) +
+    theme_c() +
+    labs(title =TeX("Cross Correlation between $(Y_t)$ and $(Z_t)$"),
+                    subtitle = ifelse(differencing, "With Differencing", "")) +
+    geom_label(aes(x = max, y = correlation,
+                   label = paste0("Max Correlation at Lag: ", max)),
+               hjust = -.1) +
+    ylim(-1,1)
+  
+}
+
+plot_corr <- function(mean, sd, lagged, title ="") {
+  
+  set.seed(999)
+  y <-  as.numeric(arima.sim(list(order = c(1,1,0), ar = 0.7),
+                           n = nsamp+lagged-1))
+  z <- lag(y,lagged)
+  z <- z[which(!is.na(z))]
+  z <- z + rnorm(length(z), mean = mean, sd = sd)
+  y <- y[(lagged+1):length(y)]
+  
+
+  
+  sim_diff <- tibble(y = y -lag(y,1),
+              z=  z - lag(z,1),
+              x = 1:length(y)) %>%
+  filter(!is.na(y))
+  
+
+  sim <- tibble(y = y,
+                z= z,
+                x = 1:length(y))
+
+  
+  plt1 <- sim %>% 
+    pivot_longer(c(y,z)) %>%
+    ggplot(aes(x=x, y = value, color = name)) +
+    geom_point() +
+    geom_line() +
+    viridis::scale_color_viridis(discrete=TRUE, begin = .2, end = .8) +
+    theme_bw() +
+    labs(color = "") +
+    guides(color = guide_legend(override.aes = list(size = 2)))
+  
+  
+  res <- ccf(sim$y, sim$z, plot=FALSE)
+  res_diff <- ccf(sim_diff$y, sim_diff$z, plot=FALSE)
+
+  
+  ccf_res <- tibble(lag = res$lag[,,1], 
+                    correlation=res$acf[,,1]) 
+  ccf_res_diff <- tibble(lag = res_diff$lag[,,1],
+                         correlation=res_diff$acf[,,1]) 
+
+  shared_title <- ggdraw() + 
+  draw_label(
+    title,
+    fontface = 'bold',
+    x = 0,
+    hjust =0
+  ) +
+  theme(
+    plot.margin = margin(0, 0, 5, 10)
+  )
+
+  
+  plt2 <- ccf_res %>%
+    plot_ccf(differencing=FALSE)
+  
+  plt3 <- ccf_res_diff %>%
+    plot_ccf(differencing=TRUE)
+  
+  plot_row <- plot_grid(plt1, plt2, plt3, nrow =1)
+  plot_grid(shared_title, plot_row, ncol=1, rel_heights = c(0.1, 1))
+
+  
+}
+
+
+
+
+
+```
+
+```{r,fig.width = 14, fig.height =4}
+# no noise
+plot_corr(mean = 0, sd = 0, lagged =3, title = "No Noise")
+
+```
+
+### Changing SD of Noise Term
+
+```{r, fig.width = 14, fig.height =4}
+
+
+
+# no noise term
+walk(c(1:5), ~ { 
+  plt <- plot_corr(mean = 0, sd = .x, lagged = 3, 
+                   title = paste0("SD of Noise Term: ", .x, ", Mean = 0"))
+  print(plt)
+  })
+
+
+```
+
+### Changing Mean of Noise Term
+
+```{r, fig.width = 14, fig.height =4 }
+
+
+
+# no noise term
+walk(c(0:5), ~ { 
+  plt <- plot_corr(mean = .x, sd = 1, lagged = 3, 
+                   title = paste0("Mean of Noise Term: ", .x, ", SD = 1"))
+  print(plt)
+  })
+
+
+```
+
+## Different Models
+
+
+
+```{r}
+plot_sim <- function(y, lagged, 
+                     title ="",
+                     mean = 5,
+                     sd = .5) {
+  
+   set.seed(999)
+
+  z <- lag(y,lagged)
+  z <- z[which(!is.na(z))]
+  z <- z + rnorm(length(z), mean = mean, sd = sd)
+  y <- y[(lagged+1):length(y)]
+  
+
+  
+  sim_diff <- tibble(y = y -lag(y,1),
+              z=  z - lag(z,1),
+              x = 1:length(y)) %>%
+  filter(!is.na(y))
+  
+
+  sim <- tibble(y = y,
+                z= z,
+                x = 1:length(y))
+
+  
+  plt1 <- sim %>% 
+    pivot_longer(c(y,z)) %>%
+    ggplot(aes(x=x, y = value, color = name)) +
+    geom_point() +
+    geom_line() +
+    viridis::scale_color_viridis(discrete=TRUE, begin = .2, end = .8) +
+    theme_bw()
+  
+  
+  res <- ccf(sim$y, sim$z, plot=FALSE)
+  res_diff <- ccf(sim_diff$y, sim_diff$z, plot=FALSE)
+
+  
+  ccf_res <- tibble(lag = res$lag[,,1], 
+                    correlation=res$acf[,,1]) 
+  ccf_res_diff <- tibble(lag = res_diff$lag[,,1],
+                         correlation=res_diff$acf[,,1]) 
+
+  shared_title <- ggdraw() + 
+  draw_label(
+    title,
+    fontface = 'bold',
+    x = 0,
+    hjust =0
+  ) +
+  theme(
+    plot.margin = margin(0, 0, 5, 10)
+  )
+
+  
+  plt2 <- ccf_res %>%
+    plot_ccf(differencing=FALSE)
+  
+  plt3 <- ccf_res_diff %>%
+    plot_ccf(differencing=TRUE)
+  
+  plot_row <- plot_grid(plt1, plt2, plt3, nrow =1)
+  plot_grid(shared_title, plot_row, ncol=1, rel_heights = c(0.1, 1))
+
+  
+}
+```
+
+```{r, fig.width = 16, fig.height =4}
+
+
+walk(seq(0,.99, by = .1), ~{
+  set.seed(999)
+  y_sim <- as.numeric(arima.sim(list(order = c(1,1,1), ar=.x, ma=10),
+                           n = nsamp+lagged-1))
+  plt <- plot_sim(y_sim, lagged=3)
+  print(plt)
+
+} )
+
+
+
+walk(seq(0,.99, by = .1), ~{ 
+  set.seed(999)
+  y_sim <- as.numeric(arima.sim(list(order = c(1,1,0), ar=.x),
+                           n = nsamp+lagged-1))
+  plt <- plot_sim(y_sim, lagged=3)
+  print(plt)
+
+} )
+
+```
+
+```{r, include=FALSE,eval=FALSE}
+
+plot_corr(mean = 0, sd = 0, lagged = 3)
+
+# y is lagged 3 units behind z
+set.seed(999)
+
+dat <- map_df(seq(0.1, .99, length = 10), ~{
+  set.seed(999)
+  tibble(y = as.numeric(arima.sim(list(order = c(1,1,1), ar =.x),
+                           n = nsamp+lagged-1)),
+                           x = 1:length(y),
+         ar = .x)})
+
+dat %>%
+  mutate(ar=factor(ar)) %>%
+  ggplot(aes(x=x, y =y, color = ar)) +
+  geom_line() 
+
+
+tibble(y = as.numeric(arima.sim(list(order = c(1,1,1), ma = 2),
+                           n = nsamp+lagged-1)),
+                           x = 1:length(y)) %>%
+  ggplot(aes(x=x, y =y)) +
+  geom_line() 
+
+
+set.seed(999)
+y <-  as.numeric(arima.sim(list(order = c(1,1,1), ar=.1, ma=10),
+                           n = nsamp+lagged-1))
+tibble(x=1:length(y),
+       y = y) %>%
+  ggplot(aes(x=x, y =y)) +
+  geom_line() 
+
+
+walk(seq(0,1.5, by = .1), ~{ 
+  y_sim <- as.numeric(arima.sim(list(order = c(1,1,1), ar=.x, ma=10),
+                           n = nsamp+lagged-1))
+  plt <- plot_sim(y_sim, lagged=3)
+  print(plt)
+
+} )
+
+```
+
+```{r,include=FALSE,eval=FALSE}
+
+z <- lag(y,lagged)
+z <- z[which(!is.na(z))]
+z <- z + rnorm(length(z), -5, .5)
+y <- y[(lagged+1):length(y)]
+
+sim <- tibble(y = y,
+              z= z,
+              x = 1:length(y))
+
+sim %>% 
+  pivot_longer(c(y,z)) %>%
+  ggplot(aes(x=x, y = value, color = name)) +
+  geom_point() +
+  geom_line() +
+  viridis::scale_color_viridis(discrete=TRUE, begin = .2, end = .8) +
+  theme_bw()
+
+
+res <- ccf(sim$y, sim$z, plot=FALSE)
+
+
+ccf_res <- tibble(lag = res$lag[,,1], correlation=res$acf[,,1]) 
+
+ccf_res %>%
+  mutate(max = ifelse(correlation == max(correlation), 
+                      lag, NA)) %>%
+  ggplot(aes(x=lag, y = correlation)) +
+  geom_point() +
+  geom_linerange(aes(ymin = 0, ymax=correlation)) +
+  theme_c() +
+  labs(title =TeX("Cross Correlation between $(Y_t)$ and $(Z_t)$")) +
+  geom_label(aes(x = max, y = correlation,
+                 label = paste0("Max Correlation at Lag: ", max)),
+             hjust = -.1)
+
+
+
+tibble(x = 1:length(y),
+       y = y) %>%
+  ggplot()
+```
+
+
+```{r, include=FALSE}
+
+# https://www.bbk.ac.uk/ms/brooms/teaching/TSF/SMTS-06.pdf
+```
+
