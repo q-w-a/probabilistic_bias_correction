@@ -42,307 +42,7 @@ $f_\\phi^{post} (\\phi_i) = \\left({f_\\phi^{direct}(\\phi_i)}\\right)^{0.5} \\;
 
 
 
-# County Correction Functions -----------
-
-#' Add sensitivity and specificity
-process_priors_per_county <-  function(priors, df){
-  dist_Se <- truncdist::rtrunc(n = 1e5,spec = "beta",a = 0.65,b = 1,
-                               shape1 = get_beta_params(mu = 0.8,
-                                                        sd = (0.4)^2)$alpha,
-                               shape2 = get_beta_params(mu = 0.8,
-                                                        sd = (0.4)^2)$beta)
-  dist_Sp <- truncdist::rtrunc(n = 1e5,spec = "beta",a = 0.9998,b = 1,
-                               shape1 = get_beta_params(mu = 0.99995,
-                                                        sd = (0.01)^2)$alpha,
-                               shape2 = get_beta_params(mu = 0.99995,
-                                                        sd = (0.01)^2)$beta)
-  priors_out <- priors %>%
-    mutate(
-      # calculate P(+|S_1, untested) and P(+|S_0, untested)
-      P_testpos_S = priors$Z_S  * df$posrate,
-      P_testpos_A = priors$Z_A  * df$posrate,
-      empirical_testpos = df$posrate,
-      population = df$population,
-      total = df$total,
-      positive = df$positive,
-      negative = df$negative) %>%
-    mutate(Se = dist_Se,
-           Sp = dist_Sp,
-           biweek = df$biweek,
-           fips = df$fips) %>%
-    # compute with constrained priors
-    mutate(P_A_testpos = est_P_A_testpos(
-      P_S_untested = priors$P_S_untested,
-      alpha = priors$Z_S,
-      beta = priors$Z_A))
-  return(priors_out)
-}
-
-
-#' correct for test inaccuracy
-calc_A_star <- function(N, N_tested,
-                        N_pos_obs,
-                        P_testpos_est,
-                        P_S_untested,
-                        P_A_testpos,
-                        Z_S,
-                        Z_A,
-                        Se,
-                        Sp){
-
-  N_untested = N - N_tested
-
-  # number symptomatic and asymptomatic among tested
-  Npos_tested_S = N_pos_obs * (1 - P_A_testpos)
-  Npos_tested_A = N_pos_obs - Npos_tested_S
-
-  #  prob testpos among untested
-  P_testpos_S = P_testpos_est * Z_S
-  P_testpos_A = P_testpos_est * Z_A
-
-  # estimate number of positives among untested
-  Npos_untested_S = P_S_untested * N_untested * P_testpos_S
-  Npos_untested_A = (1 - P_S_untested) * N_untested * P_testpos_A
-
-  A_star = Npos_tested_S   + Npos_tested_A +
-    Npos_untested_S + Npos_untested_A
-
-  # correct for imperfect sensitivity and specificity
-  A = (A_star - ((1 - Sp) * N)) / (Se + Sp - 1)
-
-  return(max(A,0))
-
-}
-
-#' compute corrected counts for randomly sampled combination of parameters
-correct_bias <- function(priors_by_county_df){
-  # N, N_tested, N_pos_obs, P_testpos_est,
-
-  # sample index to draw from distribution
-  sample_ind = sample(1:nrow(priors_by_county_df),
-                      size = 1,
-                      replace=TRUE)
-
-  # randomly sample from each distribution
-  sampled_priors = priors_by_county_df[sample_ind,]
-
-  # corrected case count
-  Astar = calc_A_star(N = sampled_priors$population,
-                      N_tested =sampled_priors$total,
-                      N_pos_obs = sampled_priors$positive,
-                      P_testpos_est = sampled_priors$empirical_testpos,
-                      P_S_untested = sampled_priors$P_S_untested,
-                      P_A_testpos = sampled_priors$P_A_testpos,
-                      Z_S = sampled_priors$Z_S,
-                      Z_A = sampled_priors$Z_A,
-                      Se = sampled_priors$Se,
-                      Sp = sampled_priors$Sp
-  )
-
-  out = cbind(sampled_priors, exp_cases=Astar)
-
-  return(out)
-}
-
-
-#' generate distribution of corrected counts
-generate_corrected_sample = function(priors_by_county_df,
-                                     num_reps){
-
-  # Obtain corrected case estimates
-  reps = num_reps
-
-  # need to set seed here to ensure that the same random draws are
-  # used for a given time period / location with same priors
-  set.seed(123)
-
-  # perform probabilistic bias analysis
-  result = replicate(reps, correct_bias(priors_by_county_df ), simplify=FALSE) %>%
-    bind_rows()
-
-  return(result)
-
-}
-
-
-#' summarize distribution of corrected counts
-summarize_corrected_sample <- function(priors_by_county_df_exp_cases) {
-
-  summarized <-  tibble(
-    exp_cases_median = median(priors_by_county_df_exp_cases$exp_cases),
-    exp_cases_lb = quantile(priors_by_county_df_exp_cases$exp_cases,
-                            prob = 0.025) %>% unlist(),
-    exp_cases_ub = quantile(priors_by_county_df_exp_cases$exp_cases,
-                            prob = 0.975) %>% unlist(),
-    biweek = unique(priors_by_county_df_exp_cases$biweek),
-    fips = unique(priors_by_county_df_exp_cases$fips),
-    empirical_testpos = unique(priors_by_county_df_exp_cases$empirical_testpos),
-    population = unique(priors_by_county_df_exp_cases$population),
-    negative = unique(priors_by_county_df_exp_cases$negative),
-    positive = unique(priors_by_county_df_exp_cases$positive),
-    total = unique(priors_by_county_df_exp_cases$total))
-
-  return(summarized)
-
-}
-
-
-get_corrected_counts <- function(county_df, melded_df) {
-
-  melded_df <- melded_df %>%
-    rename(Z_S = alpha,
-           Z_A = beta)
-
-  corrected <- pmap_df(county_df, ~ {
-    incProgress(.66/nrow(county_df),
-                detail = paste("Biweek ",
-                               unique(list(...)$biweek)))
-    process_priors_per_county(
-      priors = melded_df,
-      df = list(...)) %>%
-      generate_corrected_sample(., num_reps = 1e3) %>%
-      summarize_corrected_sample() })
-
-  corrected %>%
-    left_join(dates)
-}
-
-
-
-
-# Base Functions ---------------------------------------------------------------
-
-
-#' BETA PARAMETERS FROM DESIRED MEAN AND VARIANCE
-get_beta_params <- function(mu, sd) {
-    var = sd^2
-    alpha <- ((1 - mu) / var - 1 / mu) * mu ^ 2
-    beta <- alpha * (1 / mu - 1)
-    return(params = list(alpha = alpha,
-                         beta = beta))
-}
-
-
-#' GAMMA PARAMETERS FROM DESIRED MEAN AND VARIANCE
-get_gamma_params <- function(mu, sd) {
-    var = (mu/sd)^2
-    shape = (mu/sd)^2
-    scale = sd^2/mu
-    return(params = list(shape = shape,
-                         scale = scale))
-}
-
-
-
-
-
-#' BETA DENSITY WITH DESIRED MEAN AND VARIANCE
-beta_density <- function(x, mean, sd, bounds=NA) {
-    shape_params <-  get_beta_params(
-        mu = mean,
-        sd = sd)
-
-    if(!length(bounds) == 1){
-        # message("here")
-        dtrunc(x,
-               spec = "beta",
-               a = bounds[1],
-               b = bounds[2],
-              shape1 = shape_params$alpha,
-              shape2 = shape_params$beta) %>%
-            return()
-    }else{
-        dbeta(x,
-          shape1 = shape_params$alpha,
-          shape2 = shape_params$beta)  %>%
-            return()
-        }
-}
-
-
-
-
-#' SAMPLE FROM BETA DENSITY WITH DESIRED MEAN AND VARIANCE
-sample_beta_density <- function(n, mean, sd, bounds = NA) {
-
-    shape_params <-  get_beta_params(
-        mu = mean,
-        sd = sd)
-
-    rbeta(n,
-          shape1 = shape_params$alpha,
-          shape2 = shape_params$beta)
-
-    if(!length(bounds) == 1){
-        # message("here")
-        rtrunc(n,
-               spec = "beta",
-               a = bounds[1],
-               b = bounds[2],
-               shape1 = shape_params$alpha,
-               shape2 = shape_params$beta) %>%
-            return()
-    }else{
-        rbeta(n,
-              shape1 = shape_params$alpha,
-              shape2 = shape_params$beta)  %>%
-            return()
-    }
-}
-
-
-
-#' GAMMA DENSITY WITH DESIRED MEAN AND VARIANCE
-gamma_density <- function(x, mean, sd, bounds=NA) {
-
-    shape_params <-  get_gamma_params(
-        mu = mean,
-        sd = sd)
-
-    if(!length(bounds) == 1){
-        #message("here")
-        dtrunc(x,
-               spec = "gamma",
-               a = bounds[1],
-               b = bounds[2],
-               shape = shape_params$shape,
-               scale = shape_params$scale) %>%
-            return()
-    }else{
-        dgamma(x,
-               shape = shape_params$shape,
-               scale = shape_params$scale) %>%
-            return()
-    }
-}
-
-
-#' SAMPLE FROM GAMMA DENSITY WITH DESIRED MEAN AND VARIANCE
-sample_gamma_density <- function(n, mean, sd, bounds = NA) {
-
-    shape_params <-  get_gamma_params(
-        mu = mean,
-        sd = sd)
-
-    if(!length(bounds) == 1){
-        #message("here")
-        rtrunc(n,
-               spec = "gamma",
-               a = bounds[1],
-               b = bounds[2],
-               shape = shape_params$shape,
-               scale = shape_params$scale) %>%
-            return()
-    }else{
-        rgamma(n,
-               shape = shape_params$shape,
-               scale = shape_params$scale) %>%
-            return()
-    }
-}
-
-
-
+source("./base_functions.R")
 
 
 
@@ -350,7 +50,7 @@ sample_gamma_density <- function(n, mean, sd, bounds = NA) {
 #' INDUCED PRIOR ON ASYMPTOMATIC RATE  P(S_0|test+,untested)
 #' input sampled values of theta and compute M(\theta)
 est_P_A_testpos = function(P_S_untested, alpha, beta){
-    beta * (1 - P_S_untested) / (( beta * (1 - P_S_untested)) + (alpha * P_S_untested))
+  beta * (1 - P_S_untested) / (( beta * (1 - P_S_untested)) + (alpha * P_S_untested))
 }
 
 
@@ -368,94 +68,102 @@ get_melded <- function(alpha_mean = 0.9,
                        p_s0_pos_bounds = NA,
                        nsamp = 1e3,
                        include_corrected = TRUE) {
-
+  
   progress_denominator = ifelse(include_corrected, 3, 1)
-
+  
   given_args <- as.list(environment())
   cat("Arguments to get_melded:\n")
   print(given_args)
+  
+  
+  theta <- tibble(alpha = sample_gamma_density(nsamp,
+                                               mean = alpha_mean,
+                                               sd = alpha_sd,
+                                               bounds = alpha_bounds),
+                  beta= sample_beta_density(nsamp,
+                                            mean = beta_mean,
+                                            sd = beta_sd,
+                                            bounds = beta_bounds),
+                  P_S_untested = sample_beta_density(nsamp,
+                                                     mean = s_untested_mean,
+                                                     sd = s_untested_sd,
+                                                     bounds = s_untested_bounds)) %>%
+    mutate(phi_induced = est_P_A_testpos(P_S_untested = P_S_untested,
+                                         alpha = alpha,
+                                         beta=beta))
+  
+  # theta contains values sampled from alpha, beta, P_S_untested, and M(theta) = phi_induced
+  # induced phi
+  phi <- theta$phi_induced
+  
+  # approximate induced distribution via a density approximation
+  phi_induced_density <- density(x = phi, n = nsamp, adjust = 2, kernel = "gaussian")
+  
+  
+  incProgress(.2/progress_denominator, detail = paste("Computing induced density of phi..."))
+  
+ 
+  indexes <- findInterval(phi, phi_induced_density$x)
+  
+  
+  phi_sampled_density <- phi_induced_density$y[indexes]
+  
+  dp_s0_pos <- function(x) {
+    
+    beta_density(x,
+                 mean=p_s0_pos_mean,
+                 sd = p_s0_pos_sd,
+                 bounds=p_s0_pos_bounds)
+  }
+  
 
-
-    theta <- tibble(alpha = sample_gamma_density(nsamp,
-                                                mean = alpha_mean,
-                                                sd = alpha_sd,
-                                                bounds = alpha_bounds),
-                    beta= sample_beta_density(nsamp,
-                                              mean = beta_mean,
-                                              sd = beta_sd,
-                                              bounds = beta_bounds),
-                    P_S_untested = sample_beta_density(nsamp,
-                                                       mean = s_untested_mean,
-                                                       sd = s_untested_sd,
-                                                       bounds = s_untested_bounds)) %>%
-        mutate(phi_induced = est_P_A_testpos(P_S_untested = P_S_untested,
-                                             alpha = alpha,
-                                             beta=beta))
-
-    # theta contains values sampled from alpha, beta, P_S_untested, and M(theta) = phi_induced
-    # induced phi
-    phi <- theta$phi_induced
-
-    # approximate induced distribution via a density approximation
-    phi_induced_density <- density(x = phi, n = nsamp, adjust = 2, kernel = "gaussian")
-
-
-    incProgress(.2/progress_denominator, detail = paste("Computing induced density of phi..."))
-
-    # future::plan(multisession, workers = 3)
-    # tictoc::tic()
-    # indexes <- furrr::future_map(phi, ~{
-    #     which(phi_induced_density$x > .x)[1] }) %>%
-    #     unlist()
-    # tictoc::toc()
-
-    # FASTER IMPLEMENTATION
-    indexes <- findInterval(phi, phi_induced_density$x)
-
-
-    phi_sampled_density <- phi_induced_density$y[indexes]
-
-    dp_s0_pos <- function(x) {
-
-      beta_density(x,
-                   mean=p_s0_pos_mean,
-                   sd = p_s0_pos_sd,
-                   bounds=p_s0_pos_bounds)
-    }
-
-  #  message("CLASS----", class(dp_s0_pos))
-
-    incProgress(.4/progress_denominator, detail = paste("Calculating weights..."))
-
-
-    # weights <- purrr::map2_dbl(
-    #     phi_sampled_density,
-    #     phi,
-    #     function(phi_sampled_density_i, phi_i) {
-    #         # pooling weight
-    #         alpha = .5
-    #         (phi_sampled_density_i/ dp_s0_pos(phi_i))^(1-alpha)
-    #     }
-    # )
-
-    weights <- (phi_sampled_density/ dp_s0_pos(phi))^(.5)
-
-
-    post_samp_ind <-sample.int(n=nsamp,
-                               size=nsamp,
-                               prob=1/weights,
-                               replace=TRUE)
-
-
-    pi_samp <- cbind(theta[post_samp_ind,],
-                     P_A_testpos =  phi[post_samp_ind]) %>%
-        select(-phi_induced)
-
-
-    return(list(post_melding = pi_samp, pre_melding = theta))
-
-
+  incProgress(.4/progress_denominator, detail = paste("Calculating weights..."))
+  
+  weights <- (phi_sampled_density/ dp_s0_pos(phi))^(.5)
+  
+  
+  post_samp_ind <-sample.int(n=nsamp,
+                             size=nsamp,
+                             prob=1/weights,
+                             replace=TRUE)
+  
+  
+  pi_samp <- cbind(theta[post_samp_ind,],
+                   P_A_testpos =  phi[post_samp_ind]) %>%
+    select(-phi_induced)
+  
+  
+  return(list(post_melding = pi_samp, pre_melding = theta))
+  
+  
 }
+
+
+
+get_corrected_counts <- function(county_df, 
+                                 melded_df, 
+                                 nsamp,
+                                 num_reps_counts = 1e3) {
+  
+  # melded_df <- melded_df %>%
+  #   rename(Z_S = alpha,
+  #          Z_A = beta)
+  
+  corrected <- pmap_df(county_df, ~ {
+    incProgress(.66/nrow(county_df),
+                detail = paste("Biweek ",
+                               unique(list(...)$biweek)))
+    process_priors_per_county(
+      priors = melded_df,
+      county_df = list(...),
+      nsamp = nsamp) %>%
+      generate_corrected_sample(., num_reps = num_reps_counts) %>%
+      summarize_corrected_sample() })
+  
+  corrected %>%
+    left_join(dates)
+}
+
 
 
 
@@ -468,15 +176,15 @@ reformat_melded <- function(melded_df,
                             p_s0_pos_sd,
                             p_s0_pos_bounds,
                             include_corrected = TRUE) {
-
+  
   progress_denominator= ifelse(include_corrected, 3, 1)
   incProgress(.4/progress_denominator, detail = paste("Generating plot..."))
-
+  
   melded_df_long <- melded_df %>%
     pivot_longer(cols=everything()) %>%
     mutate(type = "After Melding")
-
-
+  
+  
   melded <- theta_df %>%
     mutate(P_A_testpos = sample_beta_density(nsamp,
                                              mean = p_s0_pos_mean,
@@ -502,8 +210,11 @@ reformat_melded <- function(melded_df,
                            "$\\beta$",
                            "$P(S_1|untested)$",
                            "$P(S_0|test+,untested)$")))
-
+  
 }
+
+
+
 
 
 
@@ -645,7 +356,7 @@ ui <- fluidPage(
                         max = 0.5,
                         value =  0.0225,
                         step = .0001),
-            p("$$\\text{ Truncation Bounds for } P(S_1|untested)$$"),
+            p("$$\\text{ Truncation Bounds for } \\\\P(S_1|untested)$$"),
 
             checkboxInput(inputId = "trunc_s_untested", label = "Truncate", value = TRUE),
             sliderInput(inputId = "s_untested_bounds",
@@ -793,7 +504,7 @@ server <- function(input, output, session) {
             ggplot(aes(x = Value)) +
             geom_density(fill = "#4F4B68",
                          color = "#4F4B68",
-                         size = .2) +
+                         linewidth = .2) +
             theme_bw() +
             theme(plot.title = element_text(hjust = .5, size = 16),
                   plot.subtitle = element_text(hjust = .5, size = 11),
@@ -1107,7 +818,8 @@ server <- function(input, output, session) {
 
                             corrected <- get_corrected_counts(
                               county_df = covid_county,
-                              melded_df = melded$post_melding) %>%
+                              melded_df = melded$post_melding,
+                              nsamp = input$nsamp) %>%
                               mutate(version = "User-specified Priors")
 
 
