@@ -1165,6 +1165,8 @@ $$P(X \leq z | U = 1) = \dfrac{1}{ P(U=1)} \int^z h(x) \; f_X(x) \; dx.$$
 $$ \propto \int^z h(x) \; f_X(x) \; dx.$$
 
 ```
+
+
 \newpage 
 
 ## LOESS Smoothing 
