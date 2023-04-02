@@ -1221,7 +1221,7 @@ dat %>%
 
 In the implementation of Bayesian melding, we sample values of $\theta = \{ \alpha, \beta, P(S_1|untested)\}$. Then, we use the function $M: \theta \to \phi$ defined by $M(\theta) = \dfrac{\beta(1- P(S_1|\text{untested}))}{\beta(1-P(S_1|untested)) + \alpha P(S_1|untested)}$, yielding the induced distribution $f_\phi^{induced}$. Because we do not have an analytical form for $f_\phi^{induced}$, we must estimate it using some density estimation approach. Kernel density estimation is standard for this step. 
 
-Then, we compute the sampling weights $\left(\dfrac{f_\phi^{direct}(\phi_i)}{f_{\phi}^{induced}(\phi_i)}\right)^{0.5}$. Here, ${f_\phi^{direct}(\phi_i)$ is calculated using the density function $f_\phi^{direct}$, which is defined based on information from meta-analyses on the asymptomatic rate, and $f_{\phi}^{induced}(\phi_i)$ is based on kernel density estimates. Sampling with these weights from our sample of $M(\theta) = \phi$ and our sample of $\theta$ yields the post-melding distributions, where the post-melding density of $\phi$ is the the logarithmic pool of $f_\phi^{direct}$ and $f_\phi^{induced}$, that is, $f_\phi^{post} (\phi_i) = \left({f_\phi^{direct}(\phi_i)}\right)^{0.5} \; \left( f_{\phi}^{induced}(\phi_i)\right)^{0.5}.$ 
+Then, we compute the sampling weights $\left(\dfrac{f_\phi^{direct}(\phi_i)}{f_{\phi}^{induced}(\phi_i)}\right)^{0.5}$. Here, $f_\phi^{direct}(\phi_i)$ is calculated using the density function $f_\phi^{direct}$, which is defined based on information from meta-analyses on the asymptomatic rate, and $f_{\phi}^{induced}(\phi_i)$ is based on kernel density estimates. Sampling with these weights from our sample of $M(\theta) = \phi$ and our sample of $\theta$ yields the post-melding distributions, where the post-melding density of $\phi$ is the the logarithmic pool of $f_\phi^{direct}$ and $f_\phi^{induced}$, that is, $f_\phi^{post} (\phi_i) = \left({f_\phi^{direct}(\phi_i)}\right)^{0.5} \; \left( f_{\phi}^{induced}(\phi_i)\right)^{0.5}.$ 
 
 
 
@@ -1329,7 +1329,11 @@ approx_target <- function(pre_nsamp, post_nsamp, input_rate) {
 }
 
 
-compare_theoretical <- function(melded, input_rate, pre_nsamp, post_nsamp) {
+compare_theoretical <- function(melded,
+                                input_rate,
+                                pre_nsamp, 
+                                post_nsamp,
+                                title_size = 18) {
   color_lab <-  paste0("PDF of Gamma(2, ", input_rate, ")")
 
   melded %>% 
@@ -1344,13 +1348,14 @@ compare_theoretical <- function(melded, input_rate, pre_nsamp, post_nsamp) {
                          input_rate,
                          ") in <span style = 'color:darkred'>Red</span>",
                       ", Sample Size: ", pre_nsamp,
-                      ", Posterior Sample Size:", post_nsamp)),
+                      ",<br>Posterior Sample Size:", post_nsamp)),
     fill = "",
     y = "Density") +
     theme_bw() +
-    theme(plot.title = element_text(hjust = .5, size = 18),
-          plot.subtitle = element_markdown(hjust = .5, size = 16),
-          legend.text = element_text(size = 18)) +
+    theme(axis.title = element_text(size = title_size - 2),
+          plot.title = element_text(hjust = .5, size = title_size),
+          plot.subtitle = element_markdown(hjust = .5, size = title_size-2),
+          legend.text = element_text(size = title_size)) +
     stat_function(fun = dgamma, 
                   args=list(shape=2,
                             scale=1/input_rate), 
@@ -1383,6 +1388,9 @@ walk(c(1e4, 5e4, 1e5, 1e6),~{
   print(plt)
 })
 
+```
+
+```{r,fig.show='hold', out.width='50%'}
 walk(c(1e4, 5e4, 1e5, 1e6),~{
 
   melded_df <- approx_target(pre_nsamp = .x,
@@ -1397,7 +1405,43 @@ walk(c(1e4, 5e4, 1e5, 1e6),~{
   print(plt)
 })
 
+plots <- map(c(1e4, 5e4, 1e5, 1e6),~{
+
+  melded_df <- approx_target(pre_nsamp = .x,
+                        post_nsamp = 1e4, 
+                        input_rate = rate) %>%
+    filter(name == "After Sampling")
+  plt <- compare_theoretical(melded_df, input_rate = rate, 
+                             pre_nsamp = .x,
+                             post_nsamp = 1e4,
+                             title_size = 8) +
+    xlim(0,55) +
+    ylim(0, .075) })
+
+
+  
 ```
+
+```{r prepost_sampling, include = FALSE}
+
+cowplot::plot_grid(plots[[1]],
+                   plots[[2]],
+                   plots[[3]],
+                   plots[[4]],
+                   ncol = 2)
+
+# 
+ggsave(filename = "prepost_sampling.png",
+       path = here::here('thesis', 'figure/' ),
+       units = "px",
+       dpi = 200, width = 1600, height =800)
+# 
+# png(filename = paste0(  here::here('thesis', 'figure/' ), "prepost_sampling.png"),
+#        units = "px", width = 900, height = 400)
+
+
+```
+
 
 ```{r,eval=FALSE}
 
@@ -1663,6 +1707,7 @@ prior_params <- list(
 
 ```{r get_melded functions}
 
+
 # needed for plot_melded
 library(patchwork)
 
@@ -1726,12 +1771,13 @@ get_melded <- function(alpha_mean = 0.9,
     }
 
 
-    weights <- (phi_sampled_density/ dp_s0_pos(phi))^(.5)
-
+    # weights <- (phi_sampled_density/ dp_s0_pos(phi))^(.5)
+    weights <- (dp_s0_pos(phi)/phi_sampled_density)^(0.5)
 
     post_samp_ind <-sample.int(n=pre_nsamp,
                                size=post_nsamp,
-                               prob=1/weights,
+                              # prob=1/weights,
+                              prob = weights,
                                replace=TRUE)
 
 
@@ -1788,7 +1834,7 @@ reformat_melded <- function(melded_df,
 }
 
 
-plot_melded <- function(melded, custom_title="", nsamp) {
+plot_melded <- function(melded, custom_title="", pre_nsamp, post_nsamp) {
   
   
   p1 <- melded %>%
@@ -1809,9 +1855,11 @@ plot_melded <- function(melded, custom_title="", nsamp) {
           plot.title =element_text(size = 18,
                                    margin =margin(0,0, .5,0, 'cm')),
           strip.text = element_text(size = 16),
-          legend.text = element_text(size = 16)) +
+          legend.text = element_text(size = 16),
+          plot.subtitle = element_text(face = "bold", size = 18)) +
     labs(title = TeX(custom_title,bold=TRUE),
-         subtitle =paste0("Number of Samples: ", nsamp),
+         subtitle =paste0("Sample Size: ", pre_nsamp,
+                          "\nPosterior Sample Size:", post_nsamp),
          fill = "",
          y = "Density") +
     scale_fill_manual(values = c("#5670BF", "#418F6A","#B28542")) +
@@ -1854,6 +1902,7 @@ plot_melded <- function(melded, custom_title="", nsamp) {
 
 ```{r plot melded results}
 
+
 params <- prior_params
 
 melded <- do.call(get_melded, params)
@@ -1866,10 +1915,52 @@ melded_long <- reformat_melded(melded_df =  melded$post_melding,
                                p_s0_pos_bounds = params$p_s0_pos_bounds,
                                pre_nsamp = params$pre_nsamp)
 
-plot_melded(melded_long, nsamp = params$post_nsamp)
+plot_melded(melded_long, pre_nsamp = params$post_nsamp, post_nsamp = )
        
 ```
 
+```{r}
+
+
+# set prior parameters
+prior_params <- list(
+  alpha_mean = .95,
+  alpha_sd = 0.08,
+  alpha_bounds = NA,
+ # alpha_bounds = c(.8,1),
+  beta_mean = .15,
+  beta_sd =.09,
+  beta_bounds = NA,
+#  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .03,
+  s_untested_sd = .0225,
+#  s_untested_bounds = c(0.0018, Inf),
+  s_untested_bounds = NA,
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+# p_s0_pos_bounds = NA,
+  p_s0_pos_bounds = c(.25, .7),
+  pre_nsamp = 1e4,
+  post_nsamp = 1e4)
+
+
+walk(c(1e4, 1e5, 1e6), ~{
+  params <- prior_params
+  params$pre_nsamp <- .x
+  melded <- do.call(get_melded, params)
+  melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                 theta_df =  melded$pre_melding,
+                                 p_s0_pos_mean = params$p_s0_pos_mean,
+                                 p_s0_pos_sd = params$p_s0_pos_sd,
+                                 p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                 pre_nsamp = params$pre_nsamp)
+  
+  plt <- plot_melded(melded_long, pre_nsamp = params$pre_nsamp, post_nsamp = params$post_nsamp)
+  print(plt)
+})
+
+
+```
 
 ```{r, fig.height = 6, fig.width = 6,eval=FALSE, include=FALSE}
 
