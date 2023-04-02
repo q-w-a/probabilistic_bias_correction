@@ -9,6 +9,7 @@ library(shinyscreenshot)
 library(shinyjs)
 library(patchwork)
 
+
 # Read Data -----------
 state_name <- "ma"
 covid_county <- "./example_county_data/ma_county_biweekly.RDS" %>%
@@ -27,7 +28,9 @@ dates <- readRDS( "./example_county_data/date_to_biweek.RDS")
 
 
 
-background <- "<b></i><span style='font-size:120%;' >Background:</b></i> </span>:In the implementation of Bayesian melding, we sample values of $\\theta = \\{ \\alpha, \\beta, P(S_1|untested)\\}$.
+background <- "<b></i><span style='font-size:120%;' >Background:</b></i> </span> In the implementation of Bayesian melding,
+we sample values of $\\theta = \\{ \\alpha, \\beta, P(S_1|untested)\\}$, where the sample size here is selected via the 
+<i>Sample Size</i> option.
 Then, we use the function $M: \\theta \\to \\phi$ defined by
 $M(\\theta) = \\dfrac{\\beta(1- P(S_1|\\text{untested}))}{\\beta(1-P(S_1|untested)) + \\alpha P(S_1|untested)}$,
 yielding the induced distribution $f_\\phi^{induced}$. Because we do not have an analytical form for $f_\\phi^{induced}$,
@@ -36,9 +39,13 @@ we estimate it using kernel density estimation.
 Then, we compute the sampling weights $\\left(\\dfrac{f_\\phi^{direct}(\\phi_i)}{f_{\\phi}^{induced}(\\phi_i)}\\right)^{0.5}$.
 Here, $f_\\phi^{direct}(\\phi_i)$ is calculated using the density function $f_\\phi^{direct}$, which is defined based on
 information from meta-analyses on the asymptomatic rate, and $f_{\\phi}^{induced}(\\phi_i)$ is from the kernel density estimation.
+
 Sampling with these weights from our sample of $M(\\theta) = \\phi$ and our sample of $\\theta$ yields the post-melding distributions,
 where the post-melding density of $\\phi$ is the the logarithmic pool of $f_\\phi^{direct}$ and $f_\\phi^{induced}$, that is,
-$f_\\phi^{post} (\\phi_i) = \\left({f_\\phi^{direct}(\\phi_i)}\\right)^{0.5} \\; \\left( f_{\\phi}^{induced}(\\phi_i)\\right)^{0.5}.$"
+$f_\\phi^{post} (\\phi_i) = \\left({f_\\phi^{direct}(\\phi_i)}\\right)^{0.5} \\; \\left( f_{\\phi}^{induced}(\\phi_i)\\right)^{0.5}.$
+The number of samples we draw from the pooled distribution is defined by the <i>Resample Size</i> option. The resample size should always
+be smaller than the sample size, and a higher ratio of sample size to resample size will lead to less irregularities in the estimated melded 
+distribution." 
 
 
 
@@ -66,8 +73,10 @@ get_melded <- function(alpha_mean = 0.9,
                        p_s0_pos_mean = .4,
                        p_s0_pos_sd = .1225,
                        p_s0_pos_bounds = NA,
-                       nsamp = 1e3,
-                       include_corrected = TRUE) {
+                       pre_nsamp = 1e4,
+                       post_nsamp = 1e3,
+                       include_corrected = TRUE,
+                       bde = FALSE) {
   
   progress_denominator = ifelse(include_corrected, 3, 1)
   
@@ -76,15 +85,15 @@ get_melded <- function(alpha_mean = 0.9,
   print(given_args)
   
   
-  theta <- tibble(alpha = sample_gamma_density(nsamp,
+  theta <- tibble(alpha = sample_gamma_density(pre_nsamp,
                                                mean = alpha_mean,
                                                sd = alpha_sd,
                                                bounds = alpha_bounds),
-                  beta= sample_beta_density(nsamp,
+                  beta= sample_beta_density(pre_nsamp,
                                             mean = beta_mean,
                                             sd = beta_sd,
                                             bounds = beta_bounds),
-                  P_S_untested = sample_beta_density(nsamp,
+                  P_S_untested = sample_beta_density(pre_nsamp,
                                                      mean = s_untested_mean,
                                                      sd = s_untested_sd,
                                                      bounds = s_untested_bounds)) %>%
@@ -97,17 +106,25 @@ get_melded <- function(alpha_mean = 0.9,
   phi <- theta$phi_induced
   
   # approximate induced distribution via a density approximation
-  phi_induced_density <- density(x = phi, n = nsamp, adjust = 2, kernel = "gaussian")
+   phi_induced_density <- density(x = phi, n = pre_nsamp, adjust = 2, kernel = "gaussian")
+ 
+  #phi_induced_density <- bde::bde(dataPoints = phi, dataPointsCache = phi, estimator = "betakernel")
+  #phi_sampled_density <- phi_induced_densityy@densityCache
   
   
   incProgress(.2/progress_denominator, detail = paste("Computing induced density of phi..."))
   
+  # approximate induced distribution via a density approximation
+  if(bde) {
+    phi_induced_density <- bde::bde(dataPoints = phi, dataPointsCache = phi, estimator = "betakernel")
+    phi_sampled_density <- phi_induced_densityy@densityCache
+   }
+  else {
+    phi_induced_density <- density(x = phi, n = pre_nsamp, adjust = 2, kernel = "gaussian")
+    indexes <- findInterval(phi, phi_induced_density$x)
+    phi_sampled_density <- phi_induced_density$y[indexes]
+  }
  
-  indexes <- findInterval(phi, phi_induced_density$x)
-  
-  
-  phi_sampled_density <- phi_induced_density$y[indexes]
-  
   dp_s0_pos <- function(x) {
     
     beta_density(x,
@@ -122,8 +139,8 @@ get_melded <- function(alpha_mean = 0.9,
   weights <- (phi_sampled_density/ dp_s0_pos(phi))^(.5)
   
   
-  post_samp_ind <-sample.int(n=nsamp,
-                             size=nsamp,
+  post_samp_ind <-sample.int(n=pre_nsamp,
+                             size=post_nsamp,
                              prob=1/weights,
                              replace=TRUE)
   
@@ -142,7 +159,7 @@ get_melded <- function(alpha_mean = 0.9,
 
 get_corrected_counts <- function(county_df, 
                                  melded_df, 
-                                 nsamp,
+                                 post_nsamp,
                                  num_reps_counts = 1e3) {
   
   # melded_df <- melded_df %>%
@@ -156,7 +173,7 @@ get_corrected_counts <- function(county_df,
     process_priors_per_county(
       priors = melded_df,
       county_df = list(...),
-      nsamp = nsamp) %>%
+      nsamp = post_nsamp) %>%
       generate_corrected_sample(., num_reps = num_reps_counts) %>%
       summarize_corrected_sample() })
   
@@ -171,7 +188,7 @@ get_corrected_counts <- function(county_df,
 #' reformat for plot generation
 reformat_melded <- function(melded_df,
                             theta_df,
-                            nsamp,
+                            pre_nsamp,
                             p_s0_pos_mean,
                             p_s0_pos_sd,
                             p_s0_pos_bounds,
@@ -186,7 +203,7 @@ reformat_melded <- function(melded_df,
   
   
   melded <- theta_df %>%
-    mutate(P_A_testpos = sample_beta_density(nsamp,
+    mutate(P_A_testpos = sample_beta_density(pre_nsamp,
                                              mean = p_s0_pos_mean,
                                              sd = p_s0_pos_sd,
                                              bounds = p_s0_pos_bounds)) %>%
@@ -284,13 +301,20 @@ ui <- fluidPage(
         sidebarPanel(
 
 
-          selectInput("nsamp",
-                      label =  "$$\\textbf{Number of Samples for } \\\\ \\textbf{Bayesian Melding:}$$",
+          selectInput("pre_nsamp",
+                      label =  "$$\\textbf{Sample Size for } \\\\ \\textbf{Bayesian Melding:}$$",
                       choices = list(1e3,
                                      1e4,
                                      1e5,
                                      1e6),
                       selected = 1e5),
+          selectInput("post_nsamp",
+                      label =  "$$\\textbf{Resample Size for } \\\\ \\textbf{Bayesian Melding:}$$",
+                      choices = list(1e3,
+                                     1e4,
+                                     1e5,
+                                     1e6),
+                      selected = 1e4),
           h6("$$\\textbf{Include Corrected Estimates} \\\\ \\textbf{Using Melded Distributions:}$$"),
           checkboxInput(label =  "",
                         inputId = "include_corrected", value = FALSE),
@@ -712,7 +736,8 @@ server <- function(input, output, session) {
               "----------------")
 
             cat(paste0("-----\n",
-                       "Sample size:", input$nsamp, "\n",
+                       "Sample size (pre):", input$pre_nsamp, "\n",
+                       "Sample size (post):", input$post_nsamp, "\n",
                        "Alpha mean: ", input$alpha_mean, "\n",
                        "Alpha sd: ", input$alpha_sd, "\n",
                        "Beta mean: ", input$beta_mean, "\n",
@@ -741,13 +766,14 @@ server <- function(input, output, session) {
                                                   p_s0_pos_mean = input$p_s0_pos_mean,
                                                   p_s0_pos_sd = input$p_s0_pos_sd,
                                                   p_s0_pos_bounds = p_s0_pos_bounds,
-                                                  nsamp = as.numeric(input$nsamp),
+                                                  pre_nsamp = as.numeric(input$pre_nsamp),
+                                                  post_nsamp = as.numeric(input$post_nsamp),
                                                   include_corrected = input$include_corrected
                                                   )
 
                              melded_long <- reformat_melded(melded_df = melded$post_melding,
                                                             theta_df = melded$pre_melding,
-                                                            nsamp = input$nsamp,
+                                                            pre_nsamp = input$pre_nsamp,
                                                             p_s0_pos_mean = input$p_s0_pos_mean,
                                                             p_s0_pos_sd = input$p_s0_pos_sd,
                                                             p_s0_pos_bounds = p_s0_pos_bounds,
@@ -773,7 +799,8 @@ server <- function(input, output, session) {
                                        axis.text.y = element_text(size = 11),
                                        strip.text = element_text(size = 16),
                                        legend.text = element_text(size = 16)) +
-                                 labs(title = paste0("Number of Samples: ", input$nsamp),
+                                 labs(title = paste0("Sample Size: ", input$pre_nsamp,
+                                                    ", Resample Size: ", input$post_nsamp),
                                       fill = "",
                                       y = "Density") +
                                  scale_fill_manual(values = c("#5670BF",
@@ -819,7 +846,7 @@ server <- function(input, output, session) {
                             corrected <- get_corrected_counts(
                               county_df = covid_county,
                               melded_df = melded$post_melding,
-                              nsamp = input$nsamp) %>%
+                              post_nsamp = input$post_nsamp) %>%
                               mutate(version = "User-specified Priors")
 
 
@@ -880,73 +907,13 @@ server <- function(input, output, session) {
 } # end server function
 
 
-
-#  ) # end observe event
-# } # end server function
-#
-#
-# melded %>%
-#     ggplot(aes(x = value, fill = type)) +
-#     geom_density(alpha = .5) +
-#     facet_wrap(~name,
-#                labeller = as_labeller(
-#                    TeX,
-#                    default = label_parsed),
-#                ncol = 3) +
-#     theme_bw() +
-#     theme(axis.text.y = element_blank(),
-#           axis.ticks.y = element_blank(),
-#           axis.title = element_text(size = 18),
-#           axis.text.x = element_text(size = 12),
-#           plot.title =element_text(size = 25,
-#                                    margin =margin(.5,.5,.5,.5)),
-#           strip.text = element_text(size = 16),
-#           legend.text = element_text(size = 16)) +
-#     labs(title = paste0("Number of Samples: ", input$nsamp),
-#         fill = "",
-#         y = "Density") +
-#     scale_fill_manual(values = c("#5670BF",
-#                                  "#418F6A",
-#                                  "#B28542")) +
-#     guides(fill = guide_legend(keyheight = 2,
-#                                keywidth = 2))
-# # + coord_cartesian(xlim=c(0,2), ylim = c(0,2),
-# #                     clip = "off")
-
-#
-# tibble(Value = sample_gamma_density(1e5,
-#                                     mean = input$alpha_mean,
-#                                     sd = input$alpha_sd)) %>%
-#     ggplot(aes(x = Value)) +
-#     geom_density(fill = "black",
-#                  size = .8) +
-#     # stat_function(fun = gamma_density,
-#     #               geom="area",
-#     #               args = list("mean" = .9,
-#     #                           "sd" = .04),
-#     #               xlim = c(0,5)) +
-#     theme_bw() +
-#     theme(plot.title = element_text(hjust = .5, size = 16),
-#           plot.subtitle = element_text(hjust = .5, size = 11),
-#           axis.title = element_text(size = 16)) +
-#     labs(title = latex2exp::TeX("Prior for $\\alpha$"),
-#          subtitle = paste0("Mean = ",
-#                            input$alpha_mean,
-#                            ", Standard Deviation = ",
-#                            input$alpha_sd ),
-#          y = "Density",
-#          x = "Value") +
-#     # add point just to ensure axis starts at 0
-#     geom_point(aes(x=0, y = 0), size=0) +
-#     scale_x_continuous(n.breaks = 6, limits = c(0, input$alpha_mean + 8*input$alpha_sd))
-
 # Run the application
 shinyApp(ui = ui, server = server)
 
 
 
-
-
+# to update
+# library(rsconnect); rsconnect::deployApp(appTitle = "bayesian_melding_priors" )
 
 
 
