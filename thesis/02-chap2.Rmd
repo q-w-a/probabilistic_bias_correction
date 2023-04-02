@@ -818,20 +818,76 @@ P(S_0 |\text{test}_+, \text{untested}) = \dfrac{\beta (1- P(S_1|\text{untested})
 
 ### Overview 
 
-|    The Sampling-Importance-Resampling Algorithm, introduced in @rubin1987, is a non-iterative method for approximating a sample from a target probability density function $f$.
+|    The Sampling-Importance-Resampling Algorithm, introduced in @rubin1987, is a non-iterative method for approximating a sample from a target probability density function $f$. This algorithm is fundamental to the implementation of Bayesian melding.
 
 
-The two main steps are the sampling step and importance resampling step. We have two (generally distinct) sample sizes, where $m$ is the initial sample size and $r$ is the posterior sample size.
+The two main steps are the sampling step and importance resampling step. We have two (generally distinct) sample sizes, where $m$ is the initial sample size and $r$ is the resample size.
 
 In the sampling step, we draw an independent and identically distributed sample of size $m$ from $g$, $Y_1, Y_2, \dots, Y_m$. Then, we compute weights $h(Y)$ such that $g \cdot h \propto f$. That is, we set the weights
 
-$w_i = h(Y_i) = \dfrac{\frac{f(Y_i) } {g(Y_i)} }{\sum_{i=1}^m\frac{f(Y_i) } {g(Y_i)} }.$
+$$w_i = h(Y_i) = \dfrac{\frac{f(Y_i) } {g(Y_i)} }{\sum_{i=1}^m\frac{f(Y_i) } {g(Y_i)} }.$$
 
-We resample with these defined weights to obtain a sample of size $r$ from $Y_1, Y_2, \dots, Y_m$. We denote this resample $Z_1,\dots, Z_r$.
+We resample with these defined weights to obtain a sample of size $r$ from $Y_1, Y_2, \dots, Y_m$. We denote this resample $Z_1,\dots, Z_r$. With these weights, $Z_1,\dots, Z_r$ is approximately a sample from $f$.
 
-The method is most efficient when $g$ is a good approximation of $f$. Also of interest is setting the sampling size and posterior sample size. The algorithm generates independent and identically distributed samples as $m/r \to \infty$, but in most applications $m/r$ between 10 and 20 is appropriate [@rubin2004].   
+The method is most efficient when $g$ is a good approximation of $f$. The relationship between the sample size $m$ and resample size $r$ also has implications for the quality of the approximation. The algorithm generates independent and identically distributed samples as $m/r \to \infty$, but in most applications $m/r$ between 10 and 20 is appropriate [@rubin2004]. The practical implications of this choice are discussed [later in this section](#presamp).
 
-Sometimes the resulting distribution will have a closed form, which we can see in the following two examples.
+To better understand the use of this algorithm, we provide a proof that formally relates the choice of $g$, weights $h$, and the target distribution $f$. We then follow up with a couple concrete examples where there is a closed formed solution to visualize how the algorithm works in practice.
+
+### Proof that Algorithm Obtains Approximate Sample from Target Distribution {#proof}
+
+ To gain further insight into how sampling with weights
+$w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{0.5}$
+ approximates a sample from the target distribution the logarithmically pooled distribution $f^{pooled}$, we first prove a more general result. 
+
+
+
+\begin{tcolorbox}
+Suppose we sample $Y_1, Y_2, \dots, Y_m$ independently and identically distributed with probability density function  $g$ and compute the weights
+\[ w_i =\dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) }\]
+for some nonnegative function $h$ defined on the support of $Y$.
+
+If  we sample $Z_1, \dots, Z_r$ from the discrete distribution $Y_1,\dots, Y_m$ such that 
+
+\[ P(Z = Y_i) = \dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) } = w_i ,\]
+then $Z_1, \dots, Z_r$ is approximately a sample with density proportional to $h \cdot g$.
+
+\end{tcolorbox}
+\vspace{5 mm}
+
+Since $Z$ is sampled from $Y$, we have
+\[ P(Z \leq x ) = \sum_{z_i \leq x} P(Z=z_i) = \sum_{Y_i \leq x} P(Z=Y_i) .\]
+
+We can take this sum to be over all possible values of $Y$ by including the indicator function $\mathbb{I} (Y_i \leq x)$, yielding
+\[  = \sum_{i = 1}^m P(Z=y_i)\;\;\mathbb{I} (Y_i \leq x).  \]
+and since $P(Z=Y_i) = \dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) }$ by definition we have
+
+\begin{align*} 
+&= \sum_{i = 1}^m \dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x)   \\
+&=  \left( \dfrac{1}{ {\sum_{i=1}^mh(Y_i) }} \right) {\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x)   \\
+&=   \dfrac{ {\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x) }{\sum_{i=1}^mh(Y_i) } \\
+&=   \dfrac{ \frac 1m {\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x) }{\frac 1m \sum_{i=1}^mh(Y_i) }. \\
+\end{align*} 
+
+
+Now, we need the Weak Law of Large Numbers. That is, if we have a sequence of random variables $X_1, X_2, \dots$ with finite variance, then,
+\[ \lim_{n \to \infty} \left( \frac{1}{n} \sum_{i=1}^n X_i \right)  = E(X_i). \]
+
+Applying this law to both the numerator and denominator, we obtain
+\begin{align*}  \lim_{m \to \infty} \left( \dfrac{ \frac 1m {\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x) }{\frac 1m \sum_{i=1}^mh(Y_i) } \right) &= \dfrac{ E_g[ h(Y) \;\; \mathbb I (Y \leq x) ]  }{ E_g[ h(Y) ]  }\\
+&= \dfrac{\int_{-\infty}^\infty h(y) \;\; \mathbb I (y \leq x) \; g(y) \; dy}{\int_{-\infty}^\infty h(y) \, g(y) \;dy}\\
+&= \dfrac{\int_{-\infty}^x h(y) \, g(y) dy}{\int_{-\infty}^\infty h(y) \, g(y) \;dy}\\
+&\propto \int_{-\infty}^x h(y) \, g(y) dy. 
+\end{align*}
+
+It follows that the probability density function of $Z$ is proportional to $h \cdot g$.
+
+\vspace{3 mm}
+
+
+\qed
+
+
+It is easiest to understand the Sampling-Importance-Resampling Algorithm  when the resampled distribution has a closed form, which we can see in the following two examples.
 
 \newpage 
 
@@ -1053,61 +1109,6 @@ dat %>%
 \newpage
 
 
-### Proof that Algorithm Obtains Approximate Sample from Target Distribution {#proof}
-
-
-The Sampling-Importance-Resampling is fundamental to the implementation of Bayesian melding. To gain further insight into how sampling with weights
-$w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{0.5}$
- approximates a sample from the target distribution the logarithmically pooled distribution $f^{pooled}$, we first prove a more general result. 
-
-
-
-\begin{tcolorbox}
-Suppose we sample $Y_1, Y_2, \dots, Y_m$ independently and identically distributed with probability density function  $g$ and compute the weights
-\[ w_i =\dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) }\]
-for some nonnegative function $h$ defined on the support of $Y$.
-% \[ w_i = h(Y_i) = \dfrac{\frac{f(Y_i)}{g(Y_i)}}{\sum_{j=1}^m \frac{f(Y_j)}{g(Y_j)}}\]
-
-If  we sample $Z_1, \dots, Z_r$ from the discrete distribution $Y_1,\dots, Y_m$ such that 
-
-\[ P(Z = Y_i) = \dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) } = w_i ,\]
-then $Z_1, \dots, Z_r$ is approximately a sample with density proportional to $h \cdot g$.
-
-\end{tcolorbox}
-\vspace{5 mm}
-
-Since $Z$ is sampled from $Y$, we have
-\[ P(Z \leq x ) = \sum_{z_i \leq x} P(Z=z_i) = \sum_{Y_i \leq x} P(Z=Y_i) .\]
-
-We can take this sum to be over all possible values of $Y$ by including the indicator function $\mathbb{I} (Y_i \leq x)$, yielding
-\[  = \sum_{i = 1}^m P(Z=y_i)\;\;\mathbb{I} (Y_i \leq x).  \]
-and since $P(Z=Y_i) = \dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) }$ by definition we have
-
-\begin{align*} 
-&= \sum_{i = 1}^m \dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x)   \\
-&=  \left( \dfrac{1}{ {\sum_{i=1}^mh(Y_i) }} \right) {\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x)   \\
-&=   \dfrac{ {\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x) }{\sum_{i=1}^mh(Y_i) } \\
-&=   \dfrac{ \frac 1m {\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x) }{\frac 1m \sum_{i=1}^mh(Y_i) }. \\
-\end{align*} 
-
-
-Now, we need the Weak Law of Large Numbers. That is, if we have a sequence of random variables $X_1, X_2, \dots$ with finite variance, then,
-\[ \lim_{n \to \infty} \left( \frac{1}{n} \sum_{i=1}^n X_i \right)  = E(X_i). \]
-
-Applying this law to both the numerator and denominator, we obtain
-\begin{align*}  \lim_{m \to \infty} \left( \dfrac{ \frac 1m {\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x) }{\frac 1m \sum_{i=1}^mh(Y_i) } \right) &= \dfrac{ E_g[ h(Y) \;\; \mathbb I (Y \leq x) ]  }{ E_g[ h(Y) ]  }\\
-&= \dfrac{\int_{-\infty}^\infty h(y) \;\; \mathbb I (y \leq x) \; g(y) \; dy}{\int_{-\infty}^\infty h(y) \, g(y) \;dy}\\
-&= \dfrac{\int_{-\infty}^x h(y) \, g(y) dy}{\int_{-\infty}^\infty h(y) \, g(y) \;dy}\\
-&\propto \int_{-\infty}^x h(y) \, g(y) dy. 
-\end{align*}
-
-It follows that the probability density function of $Z$ is proportional to $h \cdot g$.
-
-\vspace{3 mm}
-
-
-\qed
-
 
 ### Obtaining Logarithmic Pooled Distribution with the Sampling-Importance-Resampling Algorithm {#logpooled}
 
@@ -1166,6 +1167,496 @@ $$ \propto \int^z h(x) \; f_X(x) \; dx.$$
 
 ```
 
+### Implications of the Sample Size and Resample Size {#presamp}
+
+When we have an initial sample of size $m$ from $g$, denoted $Y_1,\dots,Y_m$, and take a weighted sample of size $r$, $Z_1,\dots,Z_r$, the choices of $m$ and $r$ can have notable effects on the estimated distribution of the resample. In particular, when the sample size and resample size do not differ substantially, it becomes more likely that we will sample some element of $Y_1,\dots,Y_m$ more than once. This can result in irregularities in the estimated distribution of  $Z_1,\dots,Z_r$. We see this in \ref{fig:prepostsamp} when the ratio of $m/r$ is closer to 1, while the problem reduces as we increase the sample size $m$ compared to the posterior (resample) size $r$.
+
+```{r, fig.cap ="\\label{fig:prepostsamp}", out.width="45%", fig.show='hold'}
+##########################################
+# EXAMPLE 1
+##########################################
+
+nsamp <- 1e4
+
+
+approx_target <- function(pre_nsamp, post_nsamp, input_rate) {
+  
+  set.seed(123)
+  phi_sim <- rexp(pre_nsamp, rate = input_rate)
+  # weights proportional to random variable itself
+  set.seed(123)
+  post_samp_ind <- sample.int(n = pre_nsamp, size = post_nsamp, replace=TRUE, prob=phi_sim)
+  message(paste0("Post: ", length(post_samp_ind), ", Pre: ", length(phi_sim)))
+  
+  tibble(name = "Before Sampling",
+         value = phi_sim) %>%
+    bind_rows(
+      tibble(name = "After Sampling",
+             value = phi_sim[post_samp_ind])
+    )
+
+}
+
+
+compare_theoretical <- function(melded,
+                                input_rate,
+                                pre_nsamp, 
+                                post_nsamp,
+                                title_size = 18) {
+  color_lab <-  paste0("PDF of Gamma(2, ", input_rate, ")")
+
+  melded %>% 
+    ggplot()  +
+    geom_density(aes(x=value, fill = name),
+                 alpha = .6,
+                 color = NA) +
+    labs(title = TeX(
+      paste0("Sampling from $X \\sim Exp(\\lambda =  ",
+             input_rate, ")$ with Weights $h(x) =x$")),
+    subtitle =(paste0("PDF of Gamma(2, ",
+                         input_rate,
+                         ") in <span style = 'color:darkred'>Red</span>",
+                      ", Sample Size: ", pre_nsamp,
+                      ",<br>Posterior Sample Size:", post_nsamp)),
+    fill = "",
+    y = "Density") +
+    theme_bw() +
+    theme(axis.title = element_text(size = title_size - 2),
+          plot.title = element_text(hjust = .5, size = title_size),
+          plot.subtitle = element_markdown(hjust = .5, size = title_size-2),
+          legend.text = element_text(size = title_size)) +
+    stat_function(fun = dgamma, 
+                  args=list(shape=2,
+                            scale=1/input_rate), 
+                  aes(color = color_lab),
+                  size = .9) +
+    scale_color_manual(name = "", 
+                       values = c("darkred")) +
+    scale_fill_manual(values = c("#0C2B67", "#DE8600")) +
+    guides(color = guide_legend(
+      override.aes = list(size = 4)))
+
+}
+
+rate <- .2
+
+walk(c(1e4, 5e4, 1e5, 1e6),~{
+
+  melded_df <- approx_target(pre_nsamp = .x,
+                        post_nsamp = 1e4, 
+                        input_rate = rate) %>%
+    filter(name == "After Sampling")
+  plt <- compare_theoretical(melded_df, input_rate = rate, 
+                             pre_nsamp = .x,
+                             post_nsamp = 1e4) +
+    xlim(0,55) +
+    ylim(0, .075)
+  print(plt)
+})
+```
+
+
+When using the Sampling-Importance-Resampling algorithm to obtain the logarithmically pooled distribution, see the effect of this choice has a major impact when we are melding truncated distributions. The pooled distribution is only defined on the intersection of the supports of the distributions being pooled. Truncation, then, can limit the choices of  $Y_1,\dots, Y_m$ we take when resampling, which can lead to substantial irregularities in the resulting estimated pooled distribution (Figure {fig:trunc}).
+```{r base functions}
+
+library(truncdist)
+
+###############################################################
+# BETA PARAMETERS FROM DESIRED MEAN AND VARIANCE
+###############################################################
+get_beta_params <- function(mu, sd) {
+    var = sd^2
+    alpha <- ((1 - mu) / var - 1 / mu) * mu ^ 2
+    beta <- alpha * (1 / mu - 1)
+    return(params = list(alpha = alpha,
+                         beta = beta))
+}
+
+
+
+
+###############################################################
+# BETA DENSITY WITH DESIRED MEAN AND VARIANCE
+###############################################################
+beta_density <- function(x, mean, sd, bounds=NA) {
+    shape_params <-  get_beta_params(
+        mu = mean,
+        sd = sd)
+
+    if(!length(bounds) == 1){
+        # message("here")
+        dtrunc(x,
+               spec = "beta",
+               a = bounds[1],
+               b = bounds[2],
+              shape1 = shape_params$alpha,
+              shape2 = shape_params$beta) %>%
+            return()
+    }else{
+        dbeta(x,
+          shape1 = shape_params$alpha,
+          shape2 = shape_params$beta)  %>%
+            return()
+        }
+}
+
+
+
+
+###############################################################
+# SAMPLE FROM BETA DENSITY WITH DESIRED MEAN AND VARIANCE
+###############################################################
+
+sample_beta_density <- function(n, mean, sd, bounds = NA) {
+
+    shape_params <-  get_beta_params(
+        mu = mean,
+        sd = sd)
+
+    rbeta(n,
+          shape1 = shape_params$alpha,
+          shape2 = shape_params$beta)
+
+    if(!length(bounds) == 1){
+        # message("here")
+        rtrunc(n,
+               spec = "beta",
+               a = bounds[1],
+               b = bounds[2],
+               shape1 = shape_params$alpha,
+               shape2 = shape_params$beta) %>%
+            return()
+    }else{
+        rbeta(n,
+              shape1 = shape_params$alpha,
+              shape2 = shape_params$beta)  %>%
+            return()
+    }
+}
+
+
+
+
+###############################################################
+# GAMMA PARAMETERS FROM DESIRED MEAN AND VARIANCE
+###############################################################
+get_gamma_params <- function(mu, sd) {
+    var = (mu/sd)^2
+    shape = (mu/sd)^2
+    scale = sd^2/mu
+    return(params = list(shape = shape,
+                         scale = scale))
+}
+
+
+###############################################################
+# GAMMA DENSITY WITH DESIRED MEAN AND VARIANCE
+###############################################################
+gamma_density <- function(x, mean, sd, bounds=NA) {
+
+    shape_params <-  get_gamma_params(
+        mu = mean,
+        sd = sd)
+
+    if(!length(bounds) == 1){
+        #message("here")
+        dtrunc(x,
+               spec = "gamma",
+               a = bounds[1],
+               b = bounds[2],
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }else{
+        dgamma(x,
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }
+}
+
+
+sample_gamma_density <- function(n, mean, sd, bounds = NA) {
+
+    shape_params <-  get_gamma_params(
+        mu = mean,
+        sd = sd)
+
+    if(!length(bounds) == 1){
+        #message("here")
+        rtrunc(n,
+               spec = "gamma",
+               a = bounds[1],
+               b = bounds[2],
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }else{
+        rgamma(n,
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }
+}
+
+
+
+
+
+###############################################################
+# INDUCED PRIOR ON ASYMPTOMATIC RATE  P(S_0|test+,untested)
+###############################################################
+
+# input sampled values of theta and compute M(\theta)
+est_P_A_testpos = function(P_S_untested, alpha, beta){
+    (beta * (1 - P_S_untested)) / (( beta * (1 - P_S_untested)) + (alpha * P_S_untested))
+}
+
+
+
+###############################################################
+# GET MELDED
+###############################################################
+
+# needed for plot_melded
+library(patchwork)
+
+get_melded <- function(alpha_mean = 0.9,
+                       alpha_sd = 0.04,
+                       alpha_bounds = NA,
+                       beta_mean = .15,
+                       beta_sd =.09,
+                       beta_bounds = NA,
+                       s_untested_mean = .025,
+                       s_untested_sd = .0225,
+                       s_untested_bounds = NA,
+                       p_s0_pos_mean = .4,
+                       p_s0_pos_sd = .1225,
+                       p_s0_pos_bounds = NA,
+                       pre_nsamp = 1e6,
+                       post_nsamp = 1e5) {
+
+  given_args <- as.list(environment())
+   cat("Arguments to get_melded:\n")
+   print(given_args)
+
+
+    theta <- tibble(alpha = sample_gamma_density(pre_nsamp,
+                                                mean = alpha_mean,
+                                                sd = alpha_sd,
+                                                bounds = alpha_bounds),
+                    beta= sample_beta_density(pre_nsamp,
+                                              mean = beta_mean,
+                                              sd = beta_sd,
+                                              bounds = beta_bounds),
+                    P_S_untested = sample_beta_density(pre_nsamp,
+                                                       mean = s_untested_mean,
+                                                       sd = s_untested_sd,
+                                                       bounds = s_untested_bounds)) %>%
+        mutate(phi_induced = est_P_A_testpos(P_S_untested = P_S_untested,
+                                             alpha = alpha,
+                                             beta=beta))
+    
+   # message(paste0("nrows of theta: ", nrow(theta)))
+
+    # theta contains values sampled from alpha, beta, P_S_untested, and M(theta) = phi_induced
+    # induced phi
+    phi <- theta$phi_induced
+
+    # approximate induced distribution via a density approximation
+    phi_induced_density <- density(x = phi, n = pre_nsamp, adjust = 2, kernel = "gaussian")
+
+
+    indexes <- findInterval(phi, phi_induced_density$x)
+
+
+    phi_sampled_density <- phi_induced_density$y[indexes]
+
+    dp_s0_pos <- function(x) {
+
+      beta_density(x,
+                   mean=p_s0_pos_mean,
+                   sd = p_s0_pos_sd,
+                   bounds=p_s0_pos_bounds)
+    }
+
+
+    # weights <- (phi_sampled_density/ dp_s0_pos(phi))^(.5)
+    weights <- (dp_s0_pos(phi)/phi_sampled_density)^(0.5)
+
+    post_samp_ind <-sample.int(n=pre_nsamp,
+                               size=post_nsamp,
+                              # prob=1/weights,
+                              prob = weights,
+                               replace=TRUE)
+
+
+    post_melding <- bind_cols(theta[post_samp_ind,],
+                     P_A_testpos =  phi[post_samp_ind]) %>%
+        select(-phi_induced)
+
+
+     return(list(post_melding = post_melding, pre_melding = theta))
+  #  return(post_melding)
+}
+
+
+
+#' reformat for plot generation
+reformat_melded <- function(melded_df,
+                            theta_df,
+                            pre_nsamp,
+                            p_s0_pos_mean,
+                            p_s0_pos_sd,
+                            p_s0_pos_bounds) {
+
+  melded_df_long <- melded_df %>%
+    pivot_longer(cols=everything()) %>%
+    mutate(type = "After Melding")
+
+
+  melded <- theta_df %>%
+    mutate(P_A_testpos = sample_beta_density(pre_nsamp,
+                                             mean = p_s0_pos_mean,
+                                             sd = p_s0_pos_sd,
+                                             bounds = p_s0_pos_bounds)) %>%
+    pivot_longer(cols=everything()) %>%
+    mutate(type = ifelse(
+      name == "phi_induced",
+      "Induced", "Before Melding")) %>%
+    mutate(name = ifelse(name == "phi_induced",
+                         "P_A_testpos",
+                         name)) %>%
+    bind_rows(melded_df_long) %>%
+    mutate(name = case_when(
+      name == "alpha" ~"$\\alpha$",
+      name == "beta" ~"$\\beta$",
+      name == "P_A_testpos" ~ "$P(S_0|test+,untested)$",
+      name == "P_S_untested" ~ "$P(S_1|untested)$")
+    ) %>%
+    mutate(name = factor(name,
+                         levels = c(
+                           "$\\alpha$",
+                           "$\\beta$",
+                           "$P(S_1|untested)$",
+                           "$P(S_0|test+,untested)$")))
+
+}
+
+
+plot_melded <- function(melded, custom_title="", pre_nsamp, post_nsamp) {
+  
+  
+  p1 <- melded %>%
+    filter(name != "$P(S_0|test+,untested)$") %>%
+    ggplot(aes(x = value, fill = type)) +
+    geom_density(alpha = .5, show.legend=FALSE) +
+    facet_wrap(~name,
+               labeller = as_labeller(
+                 TeX,   default = label_parsed),
+               ncol = 3,
+               scales = "fixed") +
+    theme_bw() +
+    theme(
+          # axis.text.y = element_blank(),
+          # axis.ticks.y = element_blank(),
+          axis.title = element_text(size = 14),
+          axis.text.x = element_text(size = 10),
+          plot.title =element_text(size = 14,
+                                   margin =margin(0,0, .5,0, 'cm')),
+          strip.text = element_text(size = 14),
+          legend.text = element_text(size = 14),
+          plot.subtitle = element_text(face = "bold", size = 12)) +
+    labs(title = TeX(custom_title,bold=TRUE),
+         subtitle =paste0("Sample Size: ", pre_nsamp,
+                          "\nPosterior Sample Size:", post_nsamp),
+         fill = "",
+         y = "Density") +
+    scale_fill_manual(values = c("#5670BF", "#418F6A","#B28542")) +
+    guides(fill = guide_legend(keyheight = 2,  keywidth = 2))
+  
+  p2 <- melded %>%
+    filter(name == "$P(S_0|test+,untested)$") %>%
+    ggplot(aes(x = value, fill = type)) +
+    geom_density(alpha = .5) +
+    facet_wrap(~name,
+               labeller = as_labeller(
+                 TeX,   default = label_parsed),
+               ncol = 3,
+               scales = "fixed") +
+    theme_bw() +
+    theme(
+          # axis.text.y = element_blank(),
+          # axis.ticks.y = element_blank(),
+          axis.title = element_text(size = 14),
+          axis.text.x = element_text(size = 10),
+          plot.title =element_text(size = 16,
+                                   margin =margin(0,0, .5,0, 'cm')),
+          strip.text = element_text(size = 14),
+          legend.text = element_text(size = 14)) +
+    labs(
+      #title = paste0("Number of Samples: ", nsamp),
+         fill = "",
+         y = "Density") +
+    scale_fill_manual(values = c("#5670BF", "#418F6A","#B28542")) +
+    guides(fill = guide_legend(keyheight = 2,  keywidth = 2)) +
+    xlim(0,1)
+  
+  
+  p1 / p2 +  plot_layout(nrow =2, widths = c(4,1))
+  
+}
+
+```
+
+
+
+```{r, fig.cap = "\\label{fig:trunc}", fig.show='hold', out.width='50%'}
+
+
+# set prior parameters
+prior_params <- list(
+  alpha_mean = .95,
+  alpha_sd = 0.08,
+  alpha_bounds = NA,
+ # alpha_bounds = c(.8,1),
+  beta_mean = .15,
+  beta_sd =.09,
+  beta_bounds = NA,
+#  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .03,
+  s_untested_sd = .0225,
+#  s_untested_bounds = c(0.0018, Inf),
+  s_untested_bounds = NA,
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+# p_s0_pos_bounds = NA,
+  p_s0_pos_bounds = c(.25, .7),
+  pre_nsamp = 1e4,
+  post_nsamp = 1e4)
+
+
+walk(c(1e4, 1e5, 1e6), ~{
+  params <- prior_params
+  params$pre_nsamp <- .x
+  melded <- do.call(get_melded, params)
+  melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                 theta_df =  melded$pre_melding,
+                                 p_s0_pos_mean = params$p_s0_pos_mean,
+                                 p_s0_pos_sd = params$p_s0_pos_sd,
+                                 p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                 pre_nsamp = params$pre_nsamp)
+  
+  plt <- plot_melded(melded_long, pre_nsamp = params$pre_nsamp, post_nsamp = params$post_nsamp)
+  print(plt)
+})
+
+
+```
+
+
+
+
 
 \newpage 
 
@@ -1176,7 +1667,7 @@ $$ \propto \int^z h(x) \; f_X(x) \; dx.$$
 Locally estimated scatterplot smoothing (LOESS) fits a collection of local regression models to obtain a smooth curve through the observed data (Figure \ref{fig:loess}). It is highly flexible in the sense that we do not have to specify the functional relationship between the predictor and response variable for the entire range of the predictor, which may be impossible in various settings. It is particularly useful when working with time series data with substantial noise.
 
 
-```{r, fig.cap="\\label{fig:loess}", echo = FALSE, fig.asp = .6}
+```{r, fig.cap="\\label{fig:loess}LOESS curve fitted with  a span of 0.2. ", echo = FALSE, fig.asp = .6}
 
 set.seed(123)
 smoothing_span <- .2
