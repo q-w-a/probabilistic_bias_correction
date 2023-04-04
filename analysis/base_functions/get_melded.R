@@ -12,9 +12,12 @@ get_melded <- function(alpha_mean = 0.9,
                        p_s0_pos_mean = .4,
                        p_s0_pos_sd = .1225,
                        p_s0_pos_bounds = NA,
-                       pre_nsamp = 1e6,
-                       post_nsamp = 1e5) {
+                       pre_nsamp = 1e4,
+                       post_nsamp = 1e3,
+                       include_corrected = TRUE,
+                       bde = FALSE) {
   
+
   given_args <- as.list(environment())
   cat("Arguments to get_melded:\n")
   print(given_args)
@@ -36,20 +39,21 @@ get_melded <- function(alpha_mean = 0.9,
                                          alpha = alpha,
                                          beta=beta))
   
-  # message(paste0("nrows of theta: ", nrow(theta)))
-  
   # theta contains values sampled from alpha, beta, P_S_untested, and M(theta) = phi_induced
   # induced phi
   phi <- theta$phi_induced
-  
+
   # approximate induced distribution via a density approximation
-  phi_induced_density <- density(x = phi, n = pre_nsamp, adjust = 2, kernel = "gaussian")
-  
-  
-  indexes <- findInterval(phi, phi_induced_density$x)
-  
-  
-  phi_sampled_density <- phi_induced_density$y[indexes]
+  if(bde) {
+    message("Beta Kernel Density Estimation")
+    phi_induced_density <- kdensity::kdensity(x = phi,  bw="SJ", adjust = 1, start = "beta", kernel = "beta", support = c(0,1))
+    phi_sampled_density <- phi_induced_density(phi) 
+  }
+  else {
+    phi_induced_density <- density(x = phi, n = pre_nsamp, adjust = 2, kernel = "gaussian")
+    indexes <- findInterval(phi, phi_induced_density$x)
+    phi_sampled_density <- phi_induced_density$y[indexes]
+  }
   
   dp_s0_pos <- function(x) {
     
@@ -60,6 +64,7 @@ get_melded <- function(alpha_mean = 0.9,
   }
   
   
+
   weights <- (phi_sampled_density/ dp_s0_pos(phi))^(.5)
   
   
@@ -69,14 +74,39 @@ get_melded <- function(alpha_mean = 0.9,
                              replace=TRUE)
   
   
-  post_melding <- bind_cols(theta[post_samp_ind,],
-                            P_A_testpos =  phi[post_samp_ind]) %>%
+  pi_samp <- cbind(theta[post_samp_ind,],
+                   P_A_testpos =  phi[post_samp_ind]) %>%
     select(-phi_induced)
   
   
-  return(list(post_melding = post_melding, pre_melding = theta))
-  #  return(post_melding)
+  return(list(post_melding = pi_samp, pre_melding = theta))
+  
+  
 }
+
+
+
+get_corrected_counts <- function(county_df, 
+                                 melded_df, 
+                                 post_nsamp,
+                                 num_reps_counts = 1e3) {
+  
+  # melded_df <- melded_df %>%
+  #   rename(Z_S = alpha,
+  #          Z_A = beta)
+  
+  corrected <- pmap_df(county_df, ~ {
+    process_priors_per_county(
+      priors = melded_df,
+      county_df = list(...),
+      nsamp = post_nsamp) %>%
+      generate_corrected_sample(., num_reps = num_reps_counts) %>%
+      summarize_corrected_sample() })
+  
+  corrected %>%
+    left_join(dates)
+}
+
 
 
 

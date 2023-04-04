@@ -1,0 +1,2785 @@
+---
+title: 'Estimating Unobserved COVID-19 Infections in the United States'
+author: 'Quinn White'
+date: 'May 2023'
+institution: 'Smith College'
+division: 'Mathematics and Natural Sciences'
+advisor: 'Ben Baumer'
+altadvisor: 'Nicholas Reich'
+department: 'Statistical and Data Sciences'
+degree: 'Bachelor of Arts'
+knit: bookdown::render_book
+site: bookdown::bookdown_site
+params:
+  'Install needed packages for {pioneerdown}': True
+output:
+  pioneerdown::thesis_pdf: default 
+  pioneerdown::thesis_gitbook: default 
+abstract: '`r if(knitr:::is_latex_output()) paste(readLines(here::here("thesis/prelims", "00-abstract.Rmd")), collapse = "\n  ")`'
+acknowledgements: |
+  Will add
+dedication: |
+  You can have a dedication here if you wish. 
+bibliography: "bibliography.json"
+csl: csl/apa.csl
+lot: false
+lof: false
+urlcolor: blue
+linkcolor: blue
+---
+
+
+
+<!--chapter:end:index.Rmd-->
+
+
+# Motivation  
+
+Placeholder
+
+
+
+<!--chapter:end:01-chap1.Rmd-->
+
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      eval = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      cache = FALSE,
+                      fig.align ='center',
+                      fig.width = 6,
+                      fig.height = 3 )
+```
+
+
+```{r,eval=FALSE, include = FALSE}
+rbbt::bbt_update_bib(path_rmd = "./02-chap2.Rmd", path_bib = "./bib/references.bib")
+rbbt::bbt_insert()
+```
+
+
+
+# Background 
+
+```{r, echo = FALSE }
+
+library(tidyverse)
+
+library(latex2exp)
+
+theme_c <- function(...){ 
+   # font <- "Helvetica"   #assign font family up front
+  #  font <- "Arial"
+    theme_bw() %+replace%    #replace elements we want to change
+    
+    theme(
+      
+      
+      #text elements
+      plot.title = element_text(             #title
+                 #  family = font,            #set font family
+                   size = 14,                #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = .5,
+                   vjust = 3),               
+      
+      plot.subtitle = element_text(          #subtitle
+                #   family = font,            #font family
+                   size = 14,
+                   hjust = .5,
+                   face = 'italic',
+                   vjust = 3),               #font size
+      
+      axis.title = element_text(             #axis titles
+                #   family = font,            #font family
+                   size = 12),               #font size
+      
+      axis.text = element_text(              #axis text
+                #   family = font,            #axis famuly
+                   size = 9),
+      # t, r, b, l
+      plot.margin = unit(c(1,.5,.5,.5), "cm")
+      ) %+replace%
+      theme(...)
+   
+}
+```
+
+
+
+## Probabalistic Bias Analysis 
+
+Often the focus of quantifying error about an effect estimate focuses on random error rather than the systematic error. For example, typical frequentist confidence intervals are frequent in medical and epidemiological literature, although they have faced rising criticism [@greenland2016]. These confidence intervals quantify the fraction of the times we expect the true value to fall in this interval under the assumption that our model is correct. That is, if we ran an experiment 100 times and computed the effect size each time, we would expect the 95% confidence interval to contain the true value to 95 of those times, on average. Neyman stressed this in his original publication formalizing the concept of a confidence interval in 1937 [@neyman1937]. The nuance that the confidence interval is not the probability that the true value falls within this interval, however, is often lost in the discussion of results, in part because the true meaning of a confidence interval is less intuitive.
+
+The aim of quantitative bias analysis is to estimate systematic error to give a range of possible values for the true quantity of interest. In this sense, it is a type of sensitivity analysis. It can be used to estimate various kinds of biases, from misclassification, as is implemented in this work, as well as selection bias and unmeasured confounding [@petersen2021]. Often, the goal of performing such an analysis is to see how these sources of bias affect our estimates; in particular, under what situations of bias the observed effect would be null. 
+
+There are multiple different forms of bias analysis [@lash2009]. The most simple case, simple bias analysis, is correcting a point estimate for a single source of error. Multidimensional bias analysis extends this to consider sets of bias parameters, but still provides a corrected point estimate rather than a range of plausible estimates. Probabilistic bias analysis, meanwhile, defines probability distributions for bias parameters to generate a distribution of corrected estimates by repeatedly correcting estimates for bias under different combinations of the parameter values. Then, via Monte Carlo we obtain a distribution of corrected estimates that reflect the corrected values under different scenarios of bias, that is, under different combinations of the bias parameters. This can give us a better idea for the extent of uncertainty about the corrected estimates, although this uncertainty does depend on the specification of the bias parameter distributions. Inherent in bias analysis is the dependence of our results on the specification of bias parameters, which reflect what is known from available data, literature, or theory on the extent of bias that may occur. There is uncertainty about how we define these distributions or values; otherwise, if the precise values of the bias parameters were known, we could simply correct the estimates and probabilistic bias analysis would not be useful.
+
+Although some forms of probabilistic bias analysis can be applied to summarized data, for example, frequencies in a contingency table, the methods are most often implemented with unsummarized data in its original form, as implemented here. 
+
+In choosing specific distributions for the bias parameters, different specifications may yield density functions where most of the density is within a similar interval, which means the choice of the specific distribution will not be sensitive to the particular choice of density. 
+
+
+
+##  Background for the Approach 
+
+The Bayesian melding approach was proposed by Poole et al. [@poole2000].
+
+This approach enables us to account for both uncertainty from inputs and outputs of a deterministic model. The initial motivation for the approach was to study the population dynamics of whales in the presence of substantial uncertainty around model inputs for population growth [@poole2000]. However, the framework provided by Poole et al. can applied in any circumstance where we have uncertainty around some quantities $\theta$ and $\phi$ where there is a deterministic function $M:\theta \to\phi$. Due the utility of Bayesian melding in various contexts, since this deterministic model $M$ could take on a wide range of forms, the approach has since been applied in various fields, including urban simulations [@sevcikova2007], ecology [@robson2014], and infectious disease [@powers2011].  
+
+Let $M: \theta \to \phi$ be the deterministic model defined by the function relating a vector of input parameters $\theta$ to an output vector $\phi$, and suppose we have a prior on $\theta$ denoted $f_\theta(\theta)$ and  a prior on $\phi$ denoted $f_\phi^{direct}(\phi)$.
+
+However, note that we actually have two distinct priors on $\phi$. There is the prior formed by the distribution induced on $\phi$ by the prior for $\theta$ and the function $M$, where we denote this induced prior $f_\phi^{induced}(\phi)$. Generally, these priors are based on different sources of information.
+
+
+If $M^{-1}$ exists, we can write this induced prior $f_\phi^{induced}(\phi) = f_\theta(M^{-1}(\phi)) |J(\phi)|$^[In the continuous case we need to multiply by $|J(\phi)|$, but not in the discrete case [@blitzsteinIntroductionProbability2019].]. This result follows from the fact $M(\theta) = \phi$, so we apply a change of variables to obtain the distribution of $\phi$ from the distribution of $M(\theta)$. 
+
+In practice,  $M^{-1}$ rarely exists exists since $\theta$ is often of higher dimensionality then $\phi$, in which cases $M$ is not invertible. This means we generally approximate $f_\phi^{induced}$ without acquiring its analytical form. 
+
+
+ In addition to this induced prior, we have the prior $f_\phi^{direct}(\phi)$, which does not involve $M$ nor the inputs $\theta$. Since these priors are based on different sources of information and may reflect different uncertainties, often it useful to use both sources of information to inform our estimates. To do so, we need to combine the distributions for $f_\phi^{induced}$ and $f_\phi^{direct}$ to create a pooled distribution.
+
+Multiple pooling strategies exist for distinct distributions, but one requirement for a Bayesian analysis is that the distribution should be independent of the order in which the prior is updated and the combining of the prior distribution. That is, updating the prior distributions using Bayes’ theorem and then combining distributions should yield the same result as combining distributions and then updating this combined distribution; pooling methods that have this property are deemed externally Bayesian. Logarithmic pooling has been shown to be externally Bayesian under some conditions, which are likely to hold in most settings. Furthermore, logarithmic pooling has actually been shown to be the only pooling method where this holds [@genest1986]. For this reason, Poole *et al.* recommend proceeding with logarithmic pooling for Bayesian melding.
+
+The logarithmically pooled prior for $\phi$ by pooling $f_\phi^{induced}$ and $f_\phi^{direct}$ is
+
+$$f_\phi^{pooled} (\phi) = t(\boldsymbol{\alpha}) (f_\phi^{induced}(\phi))^{\alpha} (f_\phi^{direct}(\phi))^{1-\alpha}$$
+
+where $\alpha \in [0,1]$ is a pooling weight and $t(\boldsymbol{\alpha})$ is the normalizing constant. Commonly, a choice of $\alpha = 0.5$ is used to give the priors equal weight. In this case, logarithmic pooling may be referred to as geometric pooling since it is equivalent to taking a geometric mean.
+
+If $M$ is invertible, we can obtain the contrained distributions for the model inputs by simply inverting $M$. However, $M$ is rarely invertible, so we have to think about how to proceed in the noninvertible case.
+
+### Simple Discrete Example 
+
+To get intuition for a valid strategy Poole et al. recommend, we consider a mapping $M: \theta \to \phi$ for $\theta \in \mathbb{R}$ and $\phi \in \mathbb{R}$ 
+defined as follows (Figure \ref{fig:dex}). Note the choice of $f_\theta,f_\phi^{direct}$ does not matter here as long as they are valid densities.
+
+\begin{multicols}{2}
+
+```{r, fig.width=2.5,fig.height =1.5, fig.cap = "\\label{fig:dex}A simple discrete example where $M$ is not invertible."}
+
+library(gridExtra)
+library(grid)
+
+# plot(mpg ~ hp, data = mtcars)
+
+
+library(kableExtra)
+df <- tibble::tibble(
+             `$\\theta$` = c(1,2,3),
+             `$f_\\theta(\\theta)$` = c(.3,.2,.5),
+             `$M(\\theta)=\\phi$` = c(1,2,2),
+             `$f_\\phi^{direct}(\\phi)$` = c(0.4,0.6,0.6))
+
+df %>%
+  ggplot(aes(x = `$\\theta$`, y = `$M(\\theta)=\\phi$`)) +
+  geom_point(size = 2, color = "darkblue") +
+  labs(x = TeX("$\\theta$"), y = TeX("$M(\\theta)$")) +
+  theme_bw() +
+  theme(axis.title = element_text(size = 10),
+        axis.text = element_text(size = 7)) +
+  scale_y_continuous(breaks = c(1,1.5,2), limits = c(.8,2.2)) 
+
+```
+\columnbreak
+```{r}
+kbl(df, escape=FALSE) %>%
+  kable_classic()%>%
+  kable_styling(latex_options = "HOLD_position") 
+
+
+```
+
+\end{multicols}
+
+We see that $M$ is not invertible since $\theta=1$ and $\theta = 2$ both map to $\phi=2$, which implies the inverse $M^{-1}$ would not be well defined.
+
+We can generate a sample from the density $f_\phi^{induced}$ by sampling from $f_\theta$ and computing $M(\theta)$.
+
+
+So we have
+
+
+\begin{align*}
+f_\phi^{induced}(1) &= f_{\theta}(1) = 0.3 & \text{ (since $\theta = 1$ maps $\phi = 1$) } \\
+f_\phi^{induced}(2) &= f_{\theta}(2) +  f_{\theta}(3) = 0.2 + 0.5=  0.7 & \text{ (since $\theta = 2$ and $\theta=3$ both map to $\phi = 2$) }
+\end{align*}
+
+
+Then, we can compute the logarithmically pooled pooled prior with $\alpha=0.5$ by taking $f_\phi^{induced}(\phi)^{\alpha} f_\phi^{direct}(\phi)^{1-\alpha}$.
+
+This gives us 
+
+\begin{align*}
+f_\phi^{induced}(\phi)^{\alpha} f_\phi^{direct}(\phi)^{1-\alpha} &= (0.3)^{0.5}(0.4)^{0.5} = 0.3464\\
+f_\phi^{induced}(\phi)^{\alpha} f_\phi^{direct}(\phi)^{1-\alpha} &= (0.7)^{0.5}(0.6)^{0.5} = 0.6481.
+\end{align*}
+
+To make this a valid density, however, these probabilities must sum to 1, so we renormalize by dividing by (0.3464 + 0.6481). Denoting the pooled prior in phi-space as $f_\phi^{pooled}(\phi)$, this gives us
+
+\begin{align*}
+f_\phi^{pooled}(1) &= \frac{ 0.3464  }  { 0.3464 + 0.6481 } = 0.3483 \\
+f_\phi^{pooled}(2) &= \dfrac{ 0.6481 } { 0.3464 + 0.6481}  =0.6517.
+\end{align*}
+
+
+We summarize these results and compare $f_\phi^{induced}, f_\phi^{direct}$, and $f_\phi^{pooled}$ in Figure \ref{fig:comp}.
+
+\begin{multicols}{2}
+
+```{r}
+df <- tibble::tibble(
+             # `$\\theta$` = c(1,2,3),
+             # `$f_\theta(\\theta)$` = c(.3,.2,.5),
+             `$\\phi$` = c(1,2),
+             `$f_\\phi^{direct}(\\phi)$` = c(0.4,0.6),
+            `$f_\\phi^{induced}(\\phi)$` = c(0.3, 0.7),
+            `$f_\\phi^{pooled}(\\phi)$` = c(0.3483,0.6517 ))
+
+
+
+
+kbl(df, escape=FALSE) %>%
+  kable_classic()%>%
+  kable_styling(latex_options = "HOLD_position")
+
+```
+
+\columnbreak
+
+```{r, fig.height = 2, fig.width = 4, fig.cap = "\\label{fig:comp}"}
+df %>% 
+  select(`$\\phi$`,
+         `$f_\\phi^{induced}(\\phi)$`,
+         `$f_\\phi^{direct}(\\phi)$`,
+         `$f_\\phi^{pooled}(\\phi)$`) %>%
+  pivot_longer(cols=c(`$f_\\phi^{induced}(\\phi)$`,
+                      `$f_\\phi^{direct}(\\phi)$`,
+                      `$f_\\phi^{pooled}(\\phi)$`)) %>%
+  mutate(name = factor(name, levels = c("$f_\\phi^{induced}(\\phi)$",
+                                        "$f_\\phi^{pooled}(\\phi)$",
+                                        "$f_\\phi^{direct}(\\phi)$"
+                                        ))) %>%
+  ggplot(aes(x = `$\\phi$`, ymin = 0, ymax = value, color = name)) +
+  geom_linerange(position=position_dodge(width = .2)) +
+  geom_point(aes(y=value), size =2,position=position_dodge(width = .2)) +
+  theme_bw() +
+  theme(axis.title.y = element_text(size = 10),
+        axis.text = element_text(size = 7),
+        axis.title.x = element_text(size = 14),
+       # legend.position = "none",
+        strip.text = element_text(size = 10),
+       legend.text = element_text(size = 10)) +
+  viridis::scale_color_viridis(discrete = TRUE, end = .8, begin = .2,
+                               labels = c(`$f_\\phi^{induced}(\\phi)$` =TeX("$f_\\phi^{induced}(\\phi)$"),
+                                   `$f_\\phi^{direct}(\\phi)$`= TeX("$f_\\phi^{direct}(\\phi)$"), 
+                                  `$f_\\phi^{pooled}(\\phi)$`= TeX("$f_\\phi^{pooled}(\\phi)$"))) +
+  scale_x_continuous(breaks = c(1,1.5,2)) +
+  labs(x = TeX("$\\phi$"),
+       y = "Probability Mass",
+       color = "")
+
+```
+
+\end{multicols}
+
+
+However, we also want the pooled prior on the inputs $\theta$, that is, $f_\theta^{pooled}(\theta)$.
+
+Poole et al. reasoned as follows. Since $M$ uniquely maps $\theta=1$ to $\phi =1$, the probability that $\theta=1$ should be equal to the probability $\phi = 1$. That is, we should have $f_\theta^{pooled}(1) = f_\phi^{pooled}(1)$.
+
+However, the relationship for $\theta=2$ or $\theta=3$ to $\phi$ is not one to one. Since $M(2)=2$ and $M(3)=2$, the sum of the probabilities for $\theta=1$ and $\theta=2$ should be equal to that for $\phi=2$, that is, $f_\theta^{pooled}(2) + f_\theta^{pooled}(3) = f_\phi^{pooled}(2) = 0.6517$. 
+
+The challenge here is how we divide the probability for $f_\phi^{pooled}(2)$, which is defined, among $f_\theta^{pooled}(2)$ and $f_\theta^{pooled}(3)$. The prior for $\phi$ yields no information to assist in this choice, because knowing which value $\phi$ takes on does not give us any information about whether $\theta=2$ or $\theta=3$. Thus, the information we have about $\theta$ must be taken from $f_\theta(\theta)$.
+
+That is, we can assign a probability for $f_\theta^{pooled}(2)$ by considering the probability that $\theta = 2$ relative to the probability $\theta =3$, computing
+
+
+$$f_\theta^{pooled}(2) = f_\phi^{pooled}(2) \Big( \frac{f_\theta(2)}{f_\theta(2) + f_\theta(3)}\Big).$$ 
+
+That is, if the probability $\theta$ takes on the value $2$ is lower in this case than the probability $\theta=3$ which we know from the prior on $\theta$, $f_\theta(\theta)$, then the pooled prior on $\theta$,  $f_\theta^{pooled}(2)$, should reflect this.
+
+Using this reasoning, we have 
+\begin{align*} f_\theta^{pooled}(2) &= (0.7) \frac{0.2}{0.2+0.5} = 0.1862\\
+f_\theta^{pooled}(3) &= (0.7) \frac{0.5}{0.2+0.5} = 0.4655.
+\end{align*}
+
+The result in this simple example, using $f_\theta(\theta)$ to determine how to distribute the probability for values of $\phi$ where multiple $\theta$ map to $\phi$, can be used to derive general formulas to compute $f_\theta^{pooled}(\theta)$ for discrete and continuous distributions [@poole2000]. 
+
+### General Solution for the Discrete Case
+
+Denote the possible values of $\theta$ as $A_1, A_2, \dots$, the possible values of $\phi$ as $B_1, B_2, \dots$, and a mapping $m: \mathbb{N} \to \mathbb{N}$ such that $M(A_i) = B_{m(i)}$ and $C_j = M^{-1}(B_j) = \{A_i : M(A_i) = B_j\}$. Then
+
+$$f_\theta^{pooled}(A_i) = f_\phi^{pooled}(B_{m(i)}) \left( \frac{f_\theta(A_i)}{f_\phi^{induced}(B_{m(i)})} \right).$$
+
+### General Solution for the Continuous Case
+
+
+We denote $B = M(A) = \{M(\theta) : \theta \in A \}$ and $C = M^{-1}(B) = \{\theta: M(\theta) \in B \}$.
+
+
+Then 
+
+$$
+f_\phi^{pooled} (M(\theta)) =t({\alpha}) f_\theta(\theta) \left( \frac{f_\phi^{direct}(M(\theta))}{f_\phi^{induced}(M(\theta))} \right)^{1-\alpha} \tag{2}
+$$
+where $t({\alpha})$ is a renormalizing constant for the choice of $\alpha$.
+
+### Implementation through the Sampling-Importance-Resampling Algorithm 
+
+We can obtain the pooled distributions $f^{pooled}_\theta$ and $f^{pooled}_\phi$ by using the Sampling-Importance-Resampling Algorithm.
+
+The steps are as follows.
+
+1. We draw $\theta$ from its prior distribution $f_\theta(\theta)$.
+2. For every $\theta_i$ we compute $\phi_i = M(\theta_i)$ to obtain a sample from the induced distribution.
+3. Since the density $f_\phi^{induced}(\phi)$ is unlikely to have an analytical form, we can compute it via a density approximation such as kernel density estimation.
+4. Construct weights proportional to the ratio of the prior on $\phi$ evaluated at $M(\theta_i)$ to the induced prior $f_\phi^{induced}$ evaluated at $M(\theta_i)$. If a likelihood $L_1(\theta)$ for the inputs and $L_2(\phi)$ is available, the weights are 
+$$w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}.$$
+However, in this work, no likelihood is available for the variables of interest, so the likelihood is left out of the weights, leaving us with
+$$w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}.$$
+5. Sample $\theta$ and $\phi$ from step (1) with probabilities proportional to the weights from (4).
+
+
+\newpage
+
+## Bayesian Melding Applied to COVID-19 Misclassification
+
+
+|    In this work, we can relate the inputs $\theta =  \{P(S_1|\text{untested}), \alpha, \beta \}$ and  $\phi = P(S_0|\text{test}_+,\text{untested})$ by the deterministic model $M: \theta \to \phi$ given by
+ $P(S_0|\text{test}_+, \text{untested}) = \dfrac{\beta(1 - P(S_1|\text{untested}))}{\beta(1-P(S_1|\text{untested})) + \alpha P(S_1|\text{untested})}.$ 
+ The derivation of $M$ is in the [following section.](#derivation)
+
+Now, we have two distributions on $\phi$: the distribution based on data on the asymptomatic rate of infection of COVID-19, and the distribution formed by taking $M(\theta)$ where $\theta$ represents the values from the defined distributions of $\alpha,\beta,$ and $P(S_1|\text{untested}$. With Bayesian melding, we pool these distributions using logarithmic pooling, and then implement the sampling-importance-resampling algorithm to obtain constrained distributions of the inputs $\theta$ that are in accordance with information about the asymptomatic rate of the virus. 
+
+Due to the uncertainty around our definitions of $\alpha$ and $\beta$, it is particularly useful to leverage the information we have about the asymptomatic rate of the virus $P(S_0|\text{test}_+,\text{untested})$ because a large collection of studies has been published in this area. In a meta-analysis pooling data from 95 studies, the pooled estimate among the confirmed population that was asymptomatic was 40.50% [95% CI, 33.50%-47.50%] [@ma2021]. Another meta-analysis including 350 studies estimated the asymptomatic percentage to be 36.9% [95% CI: 31.8 to 42.4%], and, when restricting to screening studies, 47.3% (95% CI: 34.0% -61.0%) [@sah2021].
+
+This means we have two priors on the asymptomatic rate $\phi$, that by taking $M(\theta)$ for sampled values of $\theta$, denoted $f_\phi^{induced}$ in the previous section, and that based on data about the asymptomatic rate, $f_\phi^{direct}$. 
+
+\newpage 
+
+### Distribution of $\theta = \{\alpha, \beta, P(S_1|\text{untested}) \}$
+
+First, we obtain a sample $\theta_1, \theta_2, \dots, \theta_k$ from $\theta$ (Figure \ref{fig:theta}). 
+
+```{r, include = FALSE}
+library(latex2exp)
+
+
+
+###############################################################
+# BETA PARAMETERS FROM DESIRED MEAN AND VARIANCE
+###############################################################
+get_beta_params <- function(mu, sd) {
+    var = sd^2
+    alpha <- ((1 - mu) / var - 1 / mu) * mu ^ 2
+    beta <- alpha * (1 / mu - 1)
+    return(params = list(alpha = alpha,
+                         beta = beta))
+}
+
+
+
+
+###############################################################
+# BETA DENSITY WITH DESIRED MEAN AND VARIANCE
+###############################################################
+beta_density <- function(x, mean, sd, bounds=NA) {
+    shape_params <-  get_beta_params(
+        mu = mean,
+        sd = sd)
+
+    if(!length(bounds) == 1){
+        # message("here")
+        dtrunc(x,
+               spec = "beta",
+               a = bounds[1],
+               b = bounds[2],
+              shape1 = shape_params$alpha,
+              shape2 = shape_params$beta) %>%
+            return()
+    }else{
+        dbeta(x,
+          shape1 = shape_params$alpha,
+          shape2 = shape_params$beta)  %>%
+            return()
+        }
+}
+
+
+
+
+###############################################################
+# SAMPLE FROM BETA DENSITY WITH DESIRED MEAN AND VARIANCE
+###############################################################
+
+sample_beta_density <- function(n, mean, sd, bounds = NA) {
+
+    shape_params <-  get_beta_params(
+        mu = mean,
+        sd = sd)
+
+    rbeta(n,
+          shape1 = shape_params$alpha,
+          shape2 = shape_params$beta)
+
+    if(!length(bounds) == 1){
+        # message("here")
+        rtrunc(n,
+               spec = "beta",
+               a = bounds[1],
+               b = bounds[2],
+               shape1 = shape_params$alpha,
+               shape2 = shape_params$beta) %>%
+            return()
+    }else{
+        rbeta(n,
+              shape1 = shape_params$alpha,
+              shape2 = shape_params$beta)  %>%
+            return()
+    }
+}
+
+
+
+
+###############################################################
+# GAMMA PARAMETERS FROM DESIRED MEAN AND VARIANCE
+###############################################################
+get_gamma_params <- function(mu, sd) {
+    var = (mu/sd)^2
+    shape = (mu/sd)^2
+    scale = sd^2/mu
+    return(params = list(shape = shape,
+                         scale = scale))
+}
+
+
+###############################################################
+# GAMMA DENSITY WITH DESIRED MEAN AND VARIANCE
+###############################################################
+gamma_density <- function(x, mean, sd, bounds=NA) {
+
+    shape_params <-  get_gamma_params(
+        mu = mean,
+        sd = sd)
+
+    if(!length(bounds) == 1){
+        #message("here")
+        dtrunc(x,
+               spec = "gamma",
+               a = bounds[1],
+               b = bounds[2],
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }else{
+        dgamma(x,
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }
+}
+
+
+sample_gamma_density <- function(n, mean, sd, bounds = NA) {
+
+    shape_params <-  get_gamma_params(
+        mu = mean,
+        sd = sd)
+
+    if(!length(bounds) == 1){
+        #message("here")
+        rtrunc(n,
+               spec = "gamma",
+               a = bounds[1],
+               b = bounds[2],
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }else{
+        rgamma(n,
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }
+}
+
+
+
+
+
+###############################################################
+# INDUCED PRIOR ON ASYMPTOMATIC RATE  P(S_0|test+,untested)
+###############################################################
+
+# input sampled values of theta and compute M(\theta)
+est_P_A_testpos = function(P_S_untested, alpha, beta){
+    (beta * (1 - P_S_untested)) / (( beta * (1 - P_S_untested)) + (alpha * P_S_untested))
+}
+
+
+
+
+```
+
+```{r, fig.width =6.5, fig.height = 3, fig.align='center', fig.cap = "\\label{fig:theta}", fig.pos = "H"}
+
+# set prior parameters
+alpha_mean = .95
+alpha_sd = 0.08
+alpha_bounds = NA
+ # alpha_bounds = c(.8,1),
+beta_mean = .15
+beta_sd =.09
+beta_bounds = NA
+#  beta_bounds = c(0.002, 0.4),
+s_untested_mean = .03
+s_untested_sd = .0225
+#  s_untested_bounds = c(0.0018, Inf),
+s_untested_bounds = NA
+p_s0_pos_mean = .4
+p_s0_pos_sd = .1225
+p_s0_pos_bounds = NA
+#  p_s0_pos_bounds = c(.25, .7),
+pre_nsamp = 1e5
+post_nsamp = 1e4
+
+theta <- tibble(alpha = sample_gamma_density(pre_nsamp,
+                                                mean = alpha_mean,
+                                                sd = alpha_sd,
+                                                bounds = alpha_bounds),
+                    beta= sample_beta_density(pre_nsamp,
+                                              mean = beta_mean,
+                                              sd = beta_sd,
+                                              bounds = beta_bounds),
+                    P_S_untested = sample_beta_density(pre_nsamp,
+                                                       mean = s_untested_mean,
+                                                       sd = s_untested_sd,
+                                                       bounds = s_untested_bounds)) %>%
+        mutate(phi_induced = est_P_A_testpos(P_S_untested = P_S_untested,
+                                             alpha = alpha,
+                                             beta=beta))
+
+
+
+theta %>% select(-phi_induced) %>%
+  rename( "$\\alpha$" = alpha,
+          "$\\beta$" = beta,
+         "$P(S_1|untested)$" = P_S_untested ) %>%
+  pivot_longer(cols= everything()) %>%
+  ggplot(aes(x=value)) +
+  geom_density(alpha = .8, fill = "black") +
+  theme_bw() +
+   theme(plot.title = element_text(size = 16, 
+                                   face="bold",
+                                   hjust = .5),
+          strip.text = element_text(size = 14),
+         axis.title = element_text(size = 14)
+          )  +
+   labs(x = "Value",
+        y = "Density",
+        title = TeX("Sampling from $\\theta = \\alpha,\\beta, P(S_1|untested)$")
+       ) +
+  facet_wrap(~name,
+             labeller=  as_labeller(TeX,
+                                    default = label_parsed)
+             )
+
+# ggsave("./img/theta.png", dpi = 800)
+
+```
+
+### Direct Prior and Induced Prior Distributions for $P(S_0|\text{test}_+,\text{untested})$ 
+
+Then, taking $M(\theta)$, we can compute the induced distribution $f_\phi^{induced}(M(\theta))$ and compare it to our prior on $\phi$ from meta-analyses on the asymptomatic rate, $f_\phi^{direct}(\phi)$ (\ref{fig:prior-induced}).
+
+```{r, fig.cap ="\\label{fig:prior-induced}", fig.width = 6.5, fig.height = 3}
+
+
+
+########################################################################################
+# COMPARING DIRECT AND INDUCED PRIORS ON ASYMPTOMATIC RATE  P(S_0|test+,untested)
+########################################################################################
+
+
+theta %>%
+  mutate(phi_prior = sample_beta_density(pre_nsamp, 
+                                         mean = p_s0_pos_mean, 
+                                         sd =p_s0_pos_sd,
+                                         bounds = p_s0_pos_bounds)) %>%
+  pivot_longer(c(phi_prior, 
+                 phi_induced), names_to = "density") %>%
+  mutate(density = ifelse(density == "phi_induced", 
+                          "Induced Prior Distribution", 
+                          "Original Prior Distribution")) %>%
+  ggplot(aes(x=value, fill = density)) +
+  geom_density(alpha = .8) +
+  theme_bw() + 
+  theme(legend.position = "right",
+          legend.text = element_text(size = 14),
+          plot.title = element_text(size = 16),
+          axis.text.y = element_blank()) +
+  scale_fill_manual(values = c("#577C9C", "#56BFA8")) +
+  labs(title = TeX("Direct and Induced Distributions on $P(S_0|untested, +)$"),
+       fill = "",
+       y = "Density",
+       x = "Value")
+
+```
+
+\newpage 
+
+### Pooling
+
+At this point, we want to obtain the logarithmically pooled distribution, denoted $f^{pooled}$.
+
+
+Now, as described in greater detail in the section on the [Sampling-Importance-Resampling algorithm](#logpooled), the weights are $w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}.$
+
+We perform a kernel density estimation to approximate the density of $f_\phi^{induced}(\phi)$ at the coordinates $\phi_1, \dots, \phi_M$. To compute $f_\phi^{direct}(\phi)$, we can use the density function $f_\phi^{direct}$.
+
+
+
+```{r}
+
+
+# theta contains values sampled from alpha, beta, P_S_untested, and M(theta) = phi_induced
+# induced phi
+phi <- theta$phi_induced
+
+# approximate $f_\phi^{induced}(\phi)$ via a density approximation
+phi_induced_density <- density(x = phi, n = pre_nsamp, adjust = 2, kernel = "gaussian")
+
+
+
+
+indexes <- findInterval(phi, phi_induced_density$x)
+
+
+phi_sampled_density <- phi_induced_density$y[indexes]
+
+
+dp_s0_pos <- function(x) {
+
+      beta_density(x,
+                   mean=p_s0_pos_mean,
+                   sd = p_s0_pos_sd,
+                   bounds=p_s0_pos_bounds)
+}
+
+
+weights <- (phi_sampled_density/ dp_s0_pos(phi))^(.5)
+
+
+```
+
+
+Once we have these weights, we resample the $\phi_1,\dots,\phi_M$ to obtain a sample from the target distribution $t(\alpha) \Big( f^{induced}(M(\theta)) \Big)^{0.5} \Big( f^{direct} (M(\theta)) \Big)^{0.5}$, where $t(\alpha)$ is the normalizing constant needed to make the pooled density valid. We resample $\theta_1, \dots, \theta_k$ with the same weights to obtain the constrained distributions for the inputs. 
+
+We see the melded distributions and pre-melding distributions in Figure \ref{fig:melded}. 
+
+
+```{r, fig.cap = "\\label{fig:melded}", fig.height =5, fig.width = 6.5}
+
+# resample the posterior
+post_samp_ind <-sample.int(n=pre_nsamp,
+                           size=post_nsamp, 
+                           prob=1/weights,
+                           replace=T)
+
+
+pi_samp <- cbind(theta[post_samp_ind,], 
+                 P_A_testpos =  phi[post_samp_ind]) %>%
+  select(-phi_induced)
+
+pi_samp_long <- pi_samp %>%
+  pivot_longer(cols=everything()) %>%
+  mutate(type = "After Melding")
+
+compare_melded <- theta %>%
+  mutate(P_A_testpos = sample_beta_density(pre_nsamp, 
+                                         mean = p_s0_pos_mean, 
+                                         sd =p_s0_pos_sd,
+                                         bounds = p_s0_pos_bounds)) %>%
+  pivot_longer(cols=everything()) %>%
+  mutate(type = ifelse(
+    name == "phi_induced",
+  "Induced", "Before Melding")) %>%
+  mutate(name = ifelse(name == "phi_induced", "P_A_testpos", name)) %>%
+  bind_rows(pi_samp_long) %>%
+  mutate(name = case_when(
+    name == "alpha" ~"$\\alpha$",
+    name == "beta" ~"$\\beta$",
+    name == "P_A_testpos" ~ "$P(S_0|test+,untested)$",
+    name == "P_S_untested" ~ "$P(S_1|untested)$")
+  ) %>%
+  mutate(name = factor(name,
+                       levels = c(
+                         "$\\alpha$",
+                         "$\\beta$",
+                         "$P(S_1|untested)$",
+                         "$P(S_0|test+,untested)$"))) 
+
+library(cowplot)
+
+
+p <- compare_melded %>%
+  ggplot(aes(x = value, fill = type)) +
+  geom_density(alpha = .5) +
+  facet_wrap(~name,
+             labeller = as_labeller(
+               TeX,
+               default = label_parsed), ncol = 3) + 
+  theme_c(
+    # axis.text.y = element_blank(),
+       #   axis.ticks.y = element_blank(),
+          axis.title = element_text(size = 12),
+          axis.text.x = element_text(size = 12),
+          plot.title =element_text(size = 14, margin =margin(.5,.5,.5,.5)),
+          strip.text = element_text(size = 12),
+          legend.text = element_text(size = 12)) +
+  labs(
+       fill = "",
+       y = "Density") +
+  scale_fill_manual(values = c("#5670BF", "#418F6A", "#B28542"))
+
+
+
+p1 <- p %+% subset(compare_melded, 
+                   name %in% c( "$\\alpha$",
+                         "$\\beta$",
+                         "$P(S_1|untested)$")) %+%
+  theme(legend.position = "none")
+
+p2 <-   p %+% subset(compare_melded, 
+                     name == "$P(S_0|test+,untested)$")
+
+legend <- get_legend(
+  p1
+)
+
+cowplot::plot_grid(
+  p1,
+  p2,
+  nrow = 2
+)
+
+
+
+# ggsave("./img/melded.png", dpi = 700)
+
+```
+
+Comparing the induced and direct priors on $P(S_0| \text{test}_+, \text{untested})$ above, we see that although they have shared support, some values from the induced distribution we acquire by using $M$ to generate values of $\phi$ from sampled values of $\theta$ are very unlikely to be in accordance with the information we know about the prevalence of SARS-CoV-2 asymptomatic infection. This is where Bayesian melding comes into play. Pooling these distributions enable us to take both the prior on  $f^{direct}$ from published analyses on asymptomatic infection, and the induced prior, $f^{induced}$, into account to constrain the distributions of both the model inputs $\theta = \{ \alpha, \beta, P(S_1 | \text{untested})\}$ and model output $\phi = P(S_0|\text{test}_+, \text{untested})$ to be in accordance with both prior distributions. We then use these constrained distributions as inputs in the probabilistic bias analysis.
+
+\newpage 
+
+### Derivation of $M$ {#derivation}
+
+
+\indent We define $\theta$ as the set of bias parameters $\{P(S_1|\text{untested}), \alpha, \beta \}$. The parameters $\alpha$ and $\beta$ relate the observed overall test positivity rate to the test positivity rate we would obtain if we tested the asymptomatic and symptomatic partitions of the untested population. We define:
+
+* $\alpha = \dfrac{P(\text{test}_+|S_1,\text{untested})}{P(\text{test}_+|\text{tested})}$
+* $\beta = \dfrac{P(\text{test}_+|S_0,\text{untested})}{P(\text{test}_+|\text{tested})}$.
+
+The parameter $P(S_1|\text{untested})$ reflects the probability someone among the untested population has moderate to severe COVID-like symptoms.
+
+We relate this set of parameters to the asymptomatic infection rate $\phi = P(S_0|\text{test}_+, \text{untested})$ by the function $M: \theta \to \phi$: 
+
+\begin{tcolorbox}
+\vspace{2 mm}
+\begin{align*}   
+ M(\theta)  = \dfrac{\beta (1- P(S_1|\text{untested}))}{\beta(1- P(S_1|\text{untested})) + \alpha(P(S_1|\text{untested})} = P(S_0|\text{test}_+, \text{untested}).\\
+\end{align*}
+\end{tcolorbox}
+
+
+In what follows, we show this equality holds.
+
+\noindent Since we have $\alpha = \frac{P(\text{test}_+|S_1, \text{untested})}{P(\text{test}_+|tested)}$ and $\beta = \dfrac{P(\text{test}_+|S_0, \text{untested})}{P(\text{test}_+|tested)}$, we can write 
+
+\begin{align*}  &= \dfrac{\dfrac{P(\text{test}_+|S_0, \text{untested})}{P(\text{test}_+|tested)}(1 - P(S_1|\text{untested}))}{\dfrac{P(\text{test}_+|S_0, \text{untested})}{P(\text{test}_+|tested)}(1-P(S_1|\text{untested})) + \dfrac{P(\text{test}_+|S_1, \text{untested})}{P(\text{test}_+|tested)} P(S_1|\text{untested})}
+\end{align*}
+and cancelling out the term $P(\text{test}_+|tested)$ we have
+
+
+$$ = \dfrac{{P(\text{test}_+|S_0, \text{untested})}(1 - P(S_1|\text{untested}))}{P(\text{test}_+|S_0, \text{untested})(1-P(S_1|\text{untested})) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})}.$$
+
+\noindent Since $P(S_0|\text{untested}) = 1 - P(S_1|\text{untested})$,
+
+\begin{align*} 
+&=  \dfrac{{P(\text{test}_+|S_0, \text{untested})}P(S_0|\text{untested})}{P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested}) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})}.
+\end{align*}
+
+Applying the definition of conditional probability to  the term 
+$P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested})$ in the numerator,
+
+\begin{align*}
+&=
+    \dfrac{\Big( \dfrac{P(\text{test}_+,S_0, \text{untested})}{P(S_0, \text{untested})} \Big) \Big(\dfrac{P(S_0, \text{untested})}{P(\text{untested})}\Big)}{P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested}) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})}\\ 
+    &= \dfrac{\Big( \dfrac{P(\text{test}_+,S_0, \text{untested})}{P(S_0, \text{untested})} \Big) \Big(\dfrac{P(S_0, \text{untested})}{P(\text{untested})}\Big)}{P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested}) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})}\\
+    &=  \dfrac{\dfrac{P(\text{test}_+,S_0, \text{untested})}{P(\text{untested})}}{P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested}) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})}\\
+    &=  \dfrac{{P(\text{test}_+,S_0|\text{untested})}}{P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested}) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})}.
+\end{align*}
+
+\noindent We can substitute this result in for the $P(\text{test}_+|S_0, \text{untested})P(S_0|\text{untested})$ term in the denominator to yield
+\begin{align*}
+  &=  \dfrac{{P(\text{test}_+,S_0|\text{untested})}}{P(\text{test}_+,S_0|\text{untested}) + P(\text{test}_+|S_1, \text{untested}) P(S_1|\text{untested})} \hspace{ 20 mm }
+\end{align*}
+
+With same reasoning, we can simplify 
+\begin{align*}
+P(\text{test}_+|S_1, \text{untested})P(S_1|\text{untested}) = P(S_1, \text{test}_+|\text{untested}),
+\end{align*} giving us
+
+\begin{align*}
+  &=  \dfrac{{P(\text{test}_+,S_0|\text{untested})}}{P(\text{test}_+,S_0|\text{untested}) +  P(S_1, \text{test}_+|\text{untested})} \hspace{45 mm }\\ 
+   &=  \dfrac{{P(\text{test}_+,S_0|\text{untested})}}{P(\text{test}_+|\text{untested}) } \\
+   &= \dfrac{\dfrac{P(S_0, \text{test}_+, \text{untested})}{P(\text{untested})}}{ \dfrac{P(\text{test}_+,\text{untested})}{P(\text{untested})}} \\ 
+  &=\dfrac{P(S_0, \text{test}_+, \text{untested})}{P(\text{test}_+,\text{untested})} \\
+  &= P(S_0 |\text{test}_+, \text{untested}).
+\end{align*}
+
+\noindent Hence, we have 
+
+
+\begin{align*}
+P(S_0 |\text{test}_+, \text{untested}) = \dfrac{\beta (1- P(S_1|\text{untested}))}{\beta(1- P(S_1|\text{untested})) + \alpha(P(S_1|\text{untested})}
+\end{align*}
+
+\noindent as desired. 
+\qed
+
+
+\newpage
+
+
+## Sampling-Importance-Resampling Algorithm \label{sampling}
+
+### Overview 
+
+|    The Sampling-Importance-Resampling Algorithm, introduced in @rubin1987, is a non-iterative method for approximating a sample from a target probability density function $f$. This algorithm is fundamental to the implementation of Bayesian melding.
+
+
+The two main steps are the sampling step and importance resampling step. We have two (generally distinct) sample sizes, where $m$ is the initial sample size and $r$ is the resample size.
+
+In the sampling step, we draw an independent and identically distributed sample of size $m$ from $g$, $Y_1, Y_2, \dots, Y_m$. Then, we compute weights $h(Y)$ such that $g \cdot h \propto f$. That is, we set the weights
+
+$$w_i = h(Y_i) = \dfrac{\frac{f(Y_i) } {g(Y_i)} }{\sum_{i=1}^m\frac{f(Y_i) } {g(Y_i)} }.$$
+
+We resample with these defined weights to obtain a sample of size $r$ from $Y_1, Y_2, \dots, Y_m$. We denote this resample $Z_1,\dots, Z_r$. With these weights, $Z_1,\dots, Z_r$ is approximately a sample from $f$.
+
+The method is most efficient when $g$ is a good approximation of $f$. The relationship between the sample size $m$ and resample size $r$ also has implications for the quality of the approximation. The algorithm generates independent and identically distributed samples as $m/r \to \infty$, but in most applications $m/r$ between 10 and 20 is appropriate [@rubin2004]. The practical implications of this choice are discussed [later in this section](#presamp).
+
+To better understand the use of this algorithm, we provide a proof that formally relates the choice of $g$, weights $h$, and the target distribution $f$. We then follow up with a couple concrete examples where there is a closed formed solution to visualize how the algorithm works in practice.
+
+### Proof that Algorithm Obtains Approximate Sample from Target Distribution {#proof}
+
+ To gain further insight into how sampling with weights
+$w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{0.5}$
+ approximates a sample from the target distribution the logarithmically pooled distribution $f^{pooled}$, we first prove a more general result. 
+
+
+
+\begin{tcolorbox}
+Suppose we sample $Y_1, Y_2, \dots, Y_m$ independently and identically distributed with probability density function  $g$ and compute the weights
+\[ w_i =\dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) }\]
+for some nonnegative function $h$ defined on the support of $Y$.
+
+If  we sample $Z_1, \dots, Z_r$ from the discrete distribution $Y_1,\dots, Y_m$ such that 
+
+\[ P(Z = Y_i) = \dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) } = w_i ,\]
+then $Z_1, \dots, Z_r$ is approximately a sample with density proportional to $h \cdot g$.
+
+\end{tcolorbox}
+\vspace{5 mm}
+
+Since $Z$ is sampled from $Y$, we have
+\[ P(Z \leq x ) = \sum_{z_i \leq x} P(Z=z_i) = \sum_{Y_i \leq x} P(Z=Y_i) .\]
+
+We can take this sum to be over all possible values of $Y$ by including the indicator function $\mathbb{I} (Y_i \leq x)$, yielding
+\[  = \sum_{i = 1}^m P(Z=y_i)\;\;\mathbb{I} (Y_i \leq x).  \]
+and since $P(Z=Y_i) = \dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) }$ by definition we have
+
+\begin{align*} 
+&= \sum_{i = 1}^m \dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x)   \\
+&=  \left( \dfrac{1}{ {\sum_{i=1}^mh(Y_i) }} \right) {\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x)   \\
+&=   \dfrac{ {\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x) }{\sum_{i=1}^mh(Y_i) } \\
+&=   \dfrac{ \frac 1m {\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x) }{\frac 1m \sum_{i=1}^mh(Y_i) }. \\
+\end{align*} 
+
+
+Now, we need the Weak Law of Large Numbers. That is, if we have a sequence of random variables $X_1, X_2, \dots$ with finite variance, then,
+\[ \lim_{n \to \infty} \left( \frac{1}{n} \sum_{i=1}^n X_i \right)  = E(X_i). \]
+
+Applying this law to both the numerator and denominator, we obtain
+\begin{align*}  \lim_{m \to \infty} \left( \dfrac{ \frac 1m {\sum_{i=1}^mh(Y_i) }  \;\;\mathbb{I} (Y_i \leq x) }{\frac 1m \sum_{i=1}^mh(Y_i) } \right) &= \dfrac{ E_g[ h(Y) \;\; \mathbb I (Y \leq x) ]  }{ E_g[ h(Y) ]  }\\
+&= \dfrac{\int_{-\infty}^\infty h(y) \;\; \mathbb I (y \leq x) \; g(y) \; dy}{\int_{-\infty}^\infty h(y) \, g(y) \;dy}\\
+&= \dfrac{\int_{-\infty}^x h(y) \, g(y) dy}{\int_{-\infty}^\infty h(y) \, g(y) \;dy}\\
+&\propto \int_{-\infty}^x h(y) \, g(y) dy. 
+\end{align*}
+
+It follows that the probability density function of $Z$ is proportional to $h \cdot g$.
+
+\vspace{3 mm}
+
+
+\qed
+
+
+It is easiest to understand the Sampling-Importance-Resampling Algorithm  when the resampled distribution has a closed form, which we can see in the following two examples.
+
+\newpage 
+
+#### Example 1:
+
+Suppose $Y \sim Exp(\lambda)$, so we have the PDF $f_Y(y) = \lambda e^{-\lambda y}$, and we sample $Z_1,\dots,Z_r$ from $Y_1, \dots, Y_m$ with weights direction proportional to $X$, that is, $h(Y) = Y$.
+
+Then  $Z_1,\dots Z_r$ is approximately a sample from $h(x) \; f_Y(y)  =  y  \; \lambda e^{-\lambda y}$.
+
+From the PDF of the gamma distribution, $\dfrac{\beta^\alpha}{\Gamma(\alpha) }y^{\alpha - 1} e^{-\beta y}$ we can recognize that $y \cdot e^{-\lambda y}$ corresponds to the gamma distribution with $\alpha = 2$ and $\beta = \lambda$. 
+
+We can see this result by considering $Y$ before and after resampling below (Figure \ref{fig:ex1}).
+
+
+```{r, fig.width = 6, fig.height = 2.5, fig.cap = "\\label{fig:ex1}"}
+library(latex2exp)
+library(viridis)
+
+pre_nsamp <- 1e6
+post_nsamp <- 1e5
+
+
+
+##########################################
+# EXAMPLE 1
+##########################################
+
+# weights are proportional to random variable itself
+input_rate = .2
+phi_sim <- rexp(pre_nsamp, rate = input_rate)
+post_samp_ind <- sample.int(n = pre_nsamp, size = post_nsamp, replace=TRUE, prob=phi_sim)
+
+
+dat <- tibble(name = "Before Resampling",
+              value = phi_sim) %>%
+  bind_rows( tibble(
+    name = "After Sampling",
+    value = phi_sim[post_samp_ind]
+  )) %>%
+  mutate(name = factor(name, 
+                       levels = c("Before Resampling", 
+                                  "After Sampling")))
+
+
+
+##########################################
+# PLOT *NOT* INCLUDING THEORETICAL DENSITY
+##########################################
+dat %>% 
+  # filter(name == "post_melding") %>%
+  ggplot()  +
+  geom_density(aes(x=value, fill = name),
+               alpha = .6,
+               color = NA) +
+  labs(title = TeX(
+    paste0("Sampling from $Y \\sim Exp(\\lambda =  ",
+           input_rate, ")$ with Weights $h(y) =y$")),
+  # subtitle =TeX(paste0("PDF of Gamma$(2, \\lambda)$ in red")),
+  fill = "",
+  y= "Density") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = .5, size = 12),
+        plot.subtitle = element_text(hjust = .5, size = 12),
+        legend.text = element_text(size = 12)) +
+  scale_fill_manual(values = c("#0C2B67", "#DE8600")) 
+
+
+```
+
+Then, we can see that the PDF of the the gamma distribution with $\alpha = 2$ and $\beta = \lambda$ corresponds to the post-sampling distribution as expected (Figure \ref{fig:ex12}). 
+
+
+```{r,fig.width = 6, fig.height = 2.5, fig.cap = "\\label{fig:ex12}" }
+
+library(ggtext)
+
+##########################################
+# PLOT INCLUDING THEORETICAL DENSITY
+##########################################
+color_lab <-  paste0("PDF of Gamma(2, ", input_rate, ")")
+
+dat %>% 
+  ggplot()  +
+  geom_density(aes(x=value, fill = name),
+               alpha = .6,
+               color = NA) +
+  labs(title = TeX(
+    paste0("Sampling from $Y \\sim Exp(\\lambda =  ",
+           input_rate, ")$ with Weights $h(y) =y$")),
+  subtitle =(paste0("PDF of Gamma(2, ",
+                       input_rate,
+                       ") in <span style = 'color:darkred'>Red</span>")),
+  fill = "",
+  y = "Density") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = .5, size = 12),
+        plot.subtitle = element_markdown(hjust = .5, size = 12),
+        legend.text = element_text(size = 12)) +
+  stat_function(fun = dgamma, 
+                args=list(shape=2,
+                          scale=1/input_rate), 
+                aes(color = color_lab),
+                size = 1.2) +
+  scale_color_manual(name = "", 
+                     values = c("darkred")) +
+  scale_fill_manual(values = c("#0C2B67", "#DE8600")) +
+  guides(color = guide_legend(
+    override.aes = list(size = 4)))
+
+
+```
+
+\newpage 
+
+#### Example 2:
+
+Similarly, again suppose $Y \sim Exp(\lambda)$, so $f_Y(y) = \lambda e^{-\lambda y}$. However, now we sample with weights defined by $h(y)= e^{-\lambda y}$. 
+Then our sample $Z_1,\dots,Z_r$ is approximately a sample from 
+\begin{align*} 
+h(y) \; f_Y(y) &=   e^{-\lambda y} \cdot \lambda e^{-\lambda y}\\
+&= \ e^{-2 \lambda y}  
+\end{align*}
+which is proportional to the exponential distribution with parameter $2\lambda$. 
+
+The distributions before and after resampling are shown in Figure \ref{fig:ex2}.
+
+
+```{r,fig.width = 6, fig.height = 2.5, fig.cap = "\\label{fig:ex2}"}
+
+################################################################
+# EXAMPLE 2
+################################################################
+
+# weights are proportional to exp(-rate * random_variable)
+input_rate = .2
+phi_sim <- rexp(pre_nsamp, rate = input_rate)
+post_samp_ind <- sample.int(n = pre_nsamp, size = post_nsamp, replace=TRUE, prob=exp(phi_sim*-1*input_rate))
+
+
+dat <-  tibble(name = "Before Resampling",
+              value = phi_sim) %>%
+  bind_rows( tibble(
+    name = "After Sampling",
+    value = phi_sim[post_samp_ind]
+  )) %>%
+  mutate(name = factor(name, 
+                       levels = c("Before Resampling", 
+                                  "After Sampling")))
+
+library(latex2exp)
+
+##########################################
+# PLOT *NOT* INCLUDING THEORETICAL DENSITY
+##########################################
+dat %>% 
+  ggplot()  +
+  geom_density(aes(x=value, fill = name),
+               alpha = .6,
+               color = NA) +
+  # stat_function(fun = dexp, 
+  #               args=list(rate = 2*input_rate), 
+  #               color = "red") +
+  labs(title = TeX(
+    paste0("Sampling from $Y \\sim Exp(\\lambda=", input_rate, ") $ with Weights ",
+  "$e^{-\\lambda \\; y}$")),
+  #subtitle =TeX("PDF of $Exp(2*\\lambda)$ in Red"),
+  fill = "",
+  y = "Density") +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = .5, size = 12),
+        plot.subtitle = element_text(hjust = .5, size = 12),
+        legend.text = element_text(size = 12)) +
+  scale_fill_manual(values = c("#0C2B67", "#DE8600"))
+
+```
+
+and then plotting the PDF of the exponential distribution with parameter $2\lambda$ we can see the correspondence to the post-sampling distribution (Figure \ref{fig:ex22}).
+
+```{r, fig.width =6, fig.height = 2.5, fig.cap = "\\label{fig:ex22}"}
+
+color_lab <-  paste0("PDF of Exp(2 * ", input_rate, ")")
+
+##########################################
+# PLOT INCLUDING THEORETICAL DENSITY
+##########################################
+dat %>% 
+  ggplot()  +
+  geom_density(aes(x=value, fill = name),
+               alpha = .6,
+               color = NA) +
+  stat_function(fun = dexp,
+                args=list(rate = 2*input_rate),
+           #     color = "darkred",
+                size=1.2,
+                aes(color = color_lab)) +
+  labs(title = TeX(
+    paste0("Sampling from $Y \\sim Exp(\\lambda=", 
+           input_rate, 
+           ") $ with Weights ",
+  "$e^{-\\lambda \\; y}$")),
+  subtitle =TeX("PDF of $Exp(2*\\lambda)$ in Red"),
+  fill = "",
+  y = "Density") +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = .5, size = 12),
+        plot.subtitle = element_text(hjust = .5, size = 12),
+        legend.text = element_text(size = 12)) +
+  scale_fill_manual(values = c("#0C2B67", "#DE8600"))  +
+  scale_color_manual(name = "", 
+                     values = c("darkred")) +
+  guides(color = guide_legend(
+    override.aes = list(size = 4)))
+
+
+
+```
+
+
+\newpage
+
+
+
+### Obtaining Logarithmic Pooled Distribution with the Sampling-Importance-Resampling Algorithm {#logpooled}
+
+
+As outlined in @carvalho2023, we can formally define logarithmic pooling as follows.
+
+
+If we have a set of densities $\{ f_1(\phi), f_2(\phi), \ldots, f_n(\phi)\}$ and corresponding pooling weights $\boldsymbol{\alpha}=\{\alpha_1, \alpha_2, \ldots, \alpha_n\}$, then the pooled density is 
+
+$$ t(\boldsymbol{\alpha}) \prod_{i=0}^n f_i(\phi)^{\alpha_i}$$ where $t(\boldsymbol{\alpha})$ is the normalizing constant $t(\boldsymbol{\alpha}) = \dfrac{1}{ \int_{\Phi}\prod_{i=0}^n f_i(\phi)^{\alpha_i} d\phi}$ to ensure the pooled density is a valid probability density. 
+
+
+The case for this work is more simple: we only have two densities we wish to pool, $f_\phi^{induced}$ and $f_\phi^{direct}$, and we assign them equal weights by letting $\boldsymbol{\alpha} = \{.5, .5\}$. This  yields
+
+$$f^{pooled}(\phi) = t(\boldsymbol \alpha) \left( f^{induced} (\phi) \right)^{0.5} \left( f^{direct} (\phi) \right)^{0.5}.$$
+
+Since our target distribution is $t(\boldsymbol \alpha) \left( f^{induced} (\phi) \right)^{0.5} \left( f^{direct} (\phi) \right)^{0.5}$, and we have a sample from $f^{induced}$, we compute the weights such that 
+
+\begin{align*} w_i &\propto \dfrac{ \left( f^{induced} (\phi_i) \right)^{0.5} \left( f^{direct} (\phi_i) \right)^{0.5} } {f^{induced}(\phi_i)} \\
+&=  \dfrac{ \left( f^{direct} (\phi_i) \right)^{0.5} } {\left( f^{induced} (\phi_i) \right)^{0.5} } \\
+&=   \left( \dfrac{  f^{direct} (\phi_i) } { f^{induced} (\phi_i) }  \right)^{0.5}. \\
+\end{align*} 
+
+Sampling from $f^{induced}$ with these weights will yield a sample with approximately the target density $t(\alpha) \left(f^{induced} (\phi) \right)^{0.5} \left( f^{direct} (\phi)\right)^{0.5}$ from the result in the [previous section](#proof). 
+
+
+
+```{r,eval=FALSE,include=FALSE}
+### Theorem 1: Distribution After Resampling with Sampling Weights 
+
+
+After some searching, I found a formulation of this problem [here](https://stats.stackexchange.com/questions/599440/density-of-sampled-exponential-data-with-sampling-weights-proportional-to-x-its). 
+
+Suppose we have a random variable $X$ with PDF $f_X$ and are sampling with weights $h(x)$ for a nonnegative function $h$. We are interested in determining the distribution after sampling.
+
+Letting $U$ denote the event that $X$ was sampled, the probability that a given value of $X$ is sampled is $P(U=1|X=x) = h(x)$. We want the post-sampling distribution, that is, $P(X \leq z | U = 1)$. 
+
+By the definition of conditional probability we have $P(X \leq z | U = 1) = \dfrac{P(X \leq z , U = 1)}{ P(U=1)}$,
+
+and since we will always be sampling at least some values, $P(U=1)$ will always be a nonzero constant.
+
+This gives us 
+
+$$P(X \leq z | U = 1) = \dfrac{1}{ P(U=1)} P(X \leq z , U = 1) \tag{1}.$$
+Since the joint probability is $$P(X \leq z, U= 1) = P(U=1|X\leq z) \; P(X\leq z),$$  we write it as the integral $$P(X \leq z, U = 1) = \int^z P(U=1|X=x) \; f_X(x) \; dx.$$
+
+Substituting this expression of the joint probability into (1), we have
+
+
+$$P(X \leq z | U = 1) = \dfrac{1}{ P(U=1)} \int^z P(U=1|X=x) \; f_X(x) \; dx.$$
+
+As defined, $h(x) = P(U=1|X=x)$, so we have 
+
+$$P(X \leq z | U = 1) = \dfrac{1}{ P(U=1)} \int^z h(x) \; f_X(x) \; dx.$$
+$$ \propto \int^z h(x) \; f_X(x) \; dx.$$
+
+```
+
+### Implications of the Sample Size and Resample Size {#presamp}
+
+When we have an initial sample of size $m$ from $g$, denoted $Y_1,\dots,Y_m$, and take a weighted sample of size $r$, $Z_1,\dots,Z_r$, the choices of $m$ and $r$ can have notable effects on the estimated distribution of the resample. In particular, when the sample size and resample size do not differ substantially, it becomes more likely that we will sample some element of $Y_1,\dots,Y_m$ more than once. This can result in irregularities in the estimated distribution of  $Z_1,\dots,Z_r$. We see this in \ref{fig:prepostsamp} when the ratio of $m/r$ is closer to 1, while the problem reduces as we increase the sample size $m$ compared to the posterior (resample) size $r$.
+
+```{r, fig.cap ="\\label{fig:prepostsamp}", out.width="45%", fig.show='hold'}
+##########################################
+# EXAMPLE 1
+##########################################
+
+nsamp <- 1e4
+
+
+approx_target <- function(pre_nsamp, post_nsamp, input_rate) {
+  
+  set.seed(123)
+  phi_sim <- rexp(pre_nsamp, rate = input_rate)
+  # weights proportional to random variable itself
+  set.seed(123)
+  post_samp_ind <- sample.int(n = pre_nsamp, size = post_nsamp, replace=TRUE, prob=phi_sim)
+  message(paste0("Post: ", length(post_samp_ind), ", Pre: ", length(phi_sim)))
+  
+  tibble(name = "Before Sampling",
+         value = phi_sim) %>%
+    bind_rows(
+      tibble(name = "After Sampling",
+             value = phi_sim[post_samp_ind])
+    )
+
+}
+
+
+compare_theoretical <- function(melded,
+                                input_rate,
+                                pre_nsamp, 
+                                post_nsamp,
+                                title_size = 15) {
+  color_lab <-  paste0("PDF of Gamma(2, ", input_rate, ")")
+
+  melded %>% 
+    ggplot()  +
+    geom_density(aes(x=value, fill = name),
+                 alpha = .6,
+                 color = NA) +
+    labs(title = TeX(
+      paste0("Sampling from $X \\sim Exp(\\lambda =  ",
+             input_rate, ")$ with Weights $h(x) =x$")),
+    subtitle =(paste0("PDF of Gamma(2, ",
+                         input_rate,
+                         ") in <span style = 'color:darkred'>Red</span>",
+                      ", Sample Size: ", pre_nsamp,
+                      ",<br>Posterior Sample Size:", post_nsamp)),
+    fill = "",
+    y = "Density") +
+    theme_bw() +
+    theme(axis.title = element_text(size = title_size - 2),
+          plot.title = element_text(hjust = .5, size = title_size),
+          plot.subtitle = element_markdown(hjust = .5, size = title_size-2),
+          legend.text = element_text(size = title_size-4)) +
+    stat_function(fun = dgamma, 
+                  args=list(shape=2,
+                            scale=1/input_rate), 
+                  aes(color = color_lab),
+                  size = .9) +
+    scale_color_manual(name = "", 
+                       values = c("darkred")) +
+    scale_fill_manual(values = c("#0C2B67", "#DE8600")) +
+    guides(color = guide_legend(
+      override.aes = list(size = 4)))
+
+}
+
+rate <- .2
+
+walk(c(1e4, 5e4, 1e5, 1e6),~{
+
+  melded_df <- approx_target(pre_nsamp = .x,
+                        post_nsamp = 1e4, 
+                        input_rate = rate) %>%
+    filter(name == "After Sampling")
+  plt <- compare_theoretical(melded_df, input_rate = rate, 
+                             pre_nsamp = .x,
+                             post_nsamp = 1e4) +
+    xlim(0,55) +
+    ylim(0, .075)
+  print(plt)
+})
+```
+
+
+When using the Sampling-Importance-Resampling algorithm to obtain the logarithmically pooled distribution, see the effect of this choice has a major impact when we are melding truncated distributions. The pooled distribution is only defined on the intersection of the supports of the distributions being pooled. Truncation, then, can limit the choices of  $Y_1,\dots, Y_m$ we take when resampling, which can lead to substantial irregularities in the resulting estimated pooled distribution (Figure {fig:trunc}).
+```{r base functions}
+
+library(truncdist)
+
+###############################################################
+# BETA PARAMETERS FROM DESIRED MEAN AND VARIANCE
+###############################################################
+get_beta_params <- function(mu, sd) {
+    var = sd^2
+    alpha <- ((1 - mu) / var - 1 / mu) * mu ^ 2
+    beta <- alpha * (1 / mu - 1)
+    return(params = list(alpha = alpha,
+                         beta = beta))
+}
+
+
+
+
+###############################################################
+# BETA DENSITY WITH DESIRED MEAN AND VARIANCE
+###############################################################
+beta_density <- function(x, mean, sd, bounds=NA) {
+    shape_params <-  get_beta_params(
+        mu = mean,
+        sd = sd)
+
+    if(!length(bounds) == 1){
+        # message("here")
+        dtrunc(x,
+               spec = "beta",
+               a = bounds[1],
+               b = bounds[2],
+              shape1 = shape_params$alpha,
+              shape2 = shape_params$beta) %>%
+            return()
+    }else{
+        dbeta(x,
+          shape1 = shape_params$alpha,
+          shape2 = shape_params$beta)  %>%
+            return()
+        }
+}
+
+
+
+
+###############################################################
+# SAMPLE FROM BETA DENSITY WITH DESIRED MEAN AND VARIANCE
+###############################################################
+
+sample_beta_density <- function(n, mean, sd, bounds = NA) {
+
+    shape_params <-  get_beta_params(
+        mu = mean,
+        sd = sd)
+
+    rbeta(n,
+          shape1 = shape_params$alpha,
+          shape2 = shape_params$beta)
+
+    if(!length(bounds) == 1){
+        # message("here")
+        rtrunc(n,
+               spec = "beta",
+               a = bounds[1],
+               b = bounds[2],
+               shape1 = shape_params$alpha,
+               shape2 = shape_params$beta) %>%
+            return()
+    }else{
+        rbeta(n,
+              shape1 = shape_params$alpha,
+              shape2 = shape_params$beta)  %>%
+            return()
+    }
+}
+
+
+
+
+###############################################################
+# GAMMA PARAMETERS FROM DESIRED MEAN AND VARIANCE
+###############################################################
+get_gamma_params <- function(mu, sd) {
+    var = (mu/sd)^2
+    shape = (mu/sd)^2
+    scale = sd^2/mu
+    return(params = list(shape = shape,
+                         scale = scale))
+}
+
+
+###############################################################
+# GAMMA DENSITY WITH DESIRED MEAN AND VARIANCE
+###############################################################
+gamma_density <- function(x, mean, sd, bounds=NA) {
+
+    shape_params <-  get_gamma_params(
+        mu = mean,
+        sd = sd)
+
+    if(!length(bounds) == 1){
+        #message("here")
+        dtrunc(x,
+               spec = "gamma",
+               a = bounds[1],
+               b = bounds[2],
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }else{
+        dgamma(x,
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }
+}
+
+
+sample_gamma_density <- function(n, mean, sd, bounds = NA) {
+
+    shape_params <-  get_gamma_params(
+        mu = mean,
+        sd = sd)
+
+    if(!length(bounds) == 1){
+        #message("here")
+        rtrunc(n,
+               spec = "gamma",
+               a = bounds[1],
+               b = bounds[2],
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }else{
+        rgamma(n,
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }
+}
+
+
+
+
+
+###############################################################
+# INDUCED PRIOR ON ASYMPTOMATIC RATE  P(S_0|test+,untested)
+###############################################################
+
+# input sampled values of theta and compute M(\theta)
+est_P_A_testpos = function(P_S_untested, alpha, beta){
+    (beta * (1 - P_S_untested)) / (( beta * (1 - P_S_untested)) + (alpha * P_S_untested))
+}
+
+
+
+###############################################################
+# GET MELDED
+###############################################################
+
+# needed for plot_melded
+library(patchwork)
+
+get_melded <- function(alpha_mean = 0.9,
+                       alpha_sd = 0.04,
+                       alpha_bounds = NA,
+                       beta_mean = .15,
+                       beta_sd =.09,
+                       beta_bounds = NA,
+                       s_untested_mean = .025,
+                       s_untested_sd = .0225,
+                       s_untested_bounds = NA,
+                       p_s0_pos_mean = .4,
+                       p_s0_pos_sd = .1225,
+                       p_s0_pos_bounds = NA,
+                       pre_nsamp = 1e6,
+                       post_nsamp = 1e5) {
+
+  given_args <- as.list(environment())
+   cat("Arguments to get_melded:\n")
+   print(given_args)
+
+
+    theta <- tibble(alpha = sample_gamma_density(pre_nsamp,
+                                                mean = alpha_mean,
+                                                sd = alpha_sd,
+                                                bounds = alpha_bounds),
+                    beta= sample_beta_density(pre_nsamp,
+                                              mean = beta_mean,
+                                              sd = beta_sd,
+                                              bounds = beta_bounds),
+                    P_S_untested = sample_beta_density(pre_nsamp,
+                                                       mean = s_untested_mean,
+                                                       sd = s_untested_sd,
+                                                       bounds = s_untested_bounds)) %>%
+        mutate(phi_induced = est_P_A_testpos(P_S_untested = P_S_untested,
+                                             alpha = alpha,
+                                             beta=beta))
+    
+   # message(paste0("nrows of theta: ", nrow(theta)))
+
+    # theta contains values sampled from alpha, beta, P_S_untested, and M(theta) = phi_induced
+    # induced phi
+    phi <- theta$phi_induced
+
+    # approximate induced distribution via a density approximation
+    phi_induced_density <- density(x = phi, n = pre_nsamp, adjust = 2, kernel = "gaussian")
+
+
+    indexes <- findInterval(phi, phi_induced_density$x)
+
+
+    phi_sampled_density <- phi_induced_density$y[indexes]
+
+    dp_s0_pos <- function(x) {
+
+      beta_density(x,
+                   mean=p_s0_pos_mean,
+                   sd = p_s0_pos_sd,
+                   bounds=p_s0_pos_bounds)
+    }
+
+
+    # weights <- (phi_sampled_density/ dp_s0_pos(phi))^(.5)
+    weights <- (dp_s0_pos(phi)/phi_sampled_density)^(0.5)
+
+    post_samp_ind <-sample.int(n=pre_nsamp,
+                               size=post_nsamp,
+                              # prob=1/weights,
+                              prob = weights,
+                               replace=TRUE)
+
+
+    post_melding <- bind_cols(theta[post_samp_ind,],
+                     P_A_testpos =  phi[post_samp_ind]) %>%
+        select(-phi_induced)
+
+
+     return(list(post_melding = post_melding, pre_melding = theta))
+  #  return(post_melding)
+}
+
+
+
+#' reformat for plot generation
+reformat_melded <- function(melded_df,
+                            theta_df,
+                            pre_nsamp,
+                            p_s0_pos_mean,
+                            p_s0_pos_sd,
+                            p_s0_pos_bounds) {
+
+  melded_df_long <- melded_df %>%
+    pivot_longer(cols=everything()) %>%
+    mutate(type = "After Melding")
+
+
+  melded <- theta_df %>%
+    mutate(P_A_testpos = sample_beta_density(pre_nsamp,
+                                             mean = p_s0_pos_mean,
+                                             sd = p_s0_pos_sd,
+                                             bounds = p_s0_pos_bounds)) %>%
+    pivot_longer(cols=everything()) %>%
+    mutate(type = ifelse(
+      name == "phi_induced",
+      "Induced", "Before Melding")) %>%
+    mutate(name = ifelse(name == "phi_induced",
+                         "P_A_testpos",
+                         name)) %>%
+    bind_rows(melded_df_long) %>%
+    mutate(name = case_when(
+      name == "alpha" ~"$\\alpha$",
+      name == "beta" ~"$\\beta$",
+      name == "P_A_testpos" ~ "$P(S_0|test+,untested)$",
+      name == "P_S_untested" ~ "$P(S_1|untested)$")
+    ) %>%
+    mutate(name = factor(name,
+                         levels = c(
+                           "$\\alpha$",
+                           "$\\beta$",
+                           "$P(S_1|untested)$",
+                           "$P(S_0|test+,untested)$")))
+
+}
+
+
+plot_melded <- function(melded, custom_title="", pre_nsamp, post_nsamp) {
+  
+  
+  p1 <- melded %>%
+    filter(name != "$P(S_0|test+,untested)$") %>%
+    ggplot(aes(x = value, fill = type)) +
+    geom_density(alpha = .5, show.legend=FALSE) +
+    facet_wrap(~name,
+               labeller = as_labeller(
+                 TeX,   default = label_parsed),
+               ncol = 3,
+               scales = "fixed") +
+    theme_bw() +
+    theme(
+          # axis.text.y = element_blank(),
+          # axis.ticks.y = element_blank(),
+          axis.title = element_text(size = 14),
+          axis.text.x = element_text(size = 10),
+          plot.title =element_text(size = 14,
+                                   margin =margin(0,0, .5,0, 'cm')),
+          strip.text = element_text(size = 14),
+          legend.text = element_text(size = 14),
+          plot.subtitle = element_text(face = "bold", size = 12)) +
+    labs(title = TeX(custom_title,bold=TRUE),
+         subtitle =paste0("Sample Size: ", pre_nsamp,
+                          "\nPosterior Sample Size:", post_nsamp),
+         fill = "",
+         y = "Density") +
+    scale_fill_manual(values = c("#5670BF", "#418F6A","#B28542")) +
+    guides(fill = guide_legend(keyheight = 2,  keywidth = 2))
+  
+  p2 <- melded %>%
+    filter(name == "$P(S_0|test+,untested)$") %>%
+    ggplot(aes(x = value, fill = type)) +
+    geom_density(alpha = .5) +
+    facet_wrap(~name,
+               labeller = as_labeller(
+                 TeX,   default = label_parsed),
+               ncol = 3,
+               scales = "fixed") +
+    theme_bw() +
+    theme(
+          # axis.text.y = element_blank(),
+          # axis.ticks.y = element_blank(),
+          axis.title = element_text(size = 14),
+          axis.text.x = element_text(size = 10),
+          plot.title =element_text(size = 16,
+                                   margin =margin(0,0, .5,0, 'cm')),
+          strip.text = element_text(size = 14),
+          legend.text = element_text(size = 14)) +
+    labs(
+      #title = paste0("Number of Samples: ", nsamp),
+         fill = "",
+         y = "Density") +
+    scale_fill_manual(values = c("#5670BF", "#418F6A","#B28542")) +
+    guides(fill = guide_legend(keyheight = 2,  keywidth = 2)) +
+    xlim(0,1)
+  
+  
+  p1 / p2 +  plot_layout(nrow =2, widths = c(4,1))
+  
+}
+
+```
+
+
+
+```{r, fig.cap = "\\label{fig:trunc}", fig.show='hold', out.width='45%', fig.height = 4}
+
+
+# set prior parameters
+prior_params <- list(
+  alpha_mean = .95,
+  alpha_sd = 0.08,
+  alpha_bounds = NA,
+ # alpha_bounds = c(.8,1),
+  beta_mean = .15,
+  beta_sd =.09,
+  beta_bounds = NA,
+#  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .03,
+  s_untested_sd = .0225,
+#  s_untested_bounds = c(0.0018, Inf),
+  s_untested_bounds = NA,
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+# p_s0_pos_bounds = NA,
+  p_s0_pos_bounds = c(.25, .7),
+  pre_nsamp = 1e4,
+  post_nsamp = 1e4)
+
+
+walk(c(1e4, 1e5, 1e6), ~{
+  params <- prior_params
+  params$pre_nsamp <- .x
+  melded <- do.call(get_melded, params)
+  melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                 theta_df =  melded$pre_melding,
+                                 p_s0_pos_mean = params$p_s0_pos_mean,
+                                 p_s0_pos_sd = params$p_s0_pos_sd,
+                                 p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                 pre_nsamp = params$pre_nsamp)
+  
+  plt <- plot_melded(melded_long, pre_nsamp = params$pre_nsamp, post_nsamp = params$post_nsamp)
+  print(plt)
+})
+
+
+```
+
+
+
+
+
+\newpage 
+
+## LOESS Smoothing 
+
+### Introduction
+
+Locally estimated scatterplot smoothing (LOESS) fits a collection of local regression models to obtain a smooth curve through the observed data (Figure \ref{fig:loess}). It is highly flexible in the sense that we do not have to specify the functional relationship between the predictor and response variable for the entire range of the predictor, which may be impossible in various settings. It is particularly useful when working with time series data with substantial noise.
+
+
+```{r, fig.cap="\\label{fig:loess}LOESS curve fitted with  a span of 0.2. ", echo = FALSE, fig.asp = .6}
+
+set.seed(123)
+smoothing_span <- .2
+y<- rnorm(1e3, mean = 10, sd = 80)
+div <- seq(1,5, length = 1000)
+y <- cumsum(y)
+y <- y /div
+
+data <- tibble(x = 1:1000, y = y)
+
+
+smoothed <- loess(y ~ x, data = data, span = smoothing_span) %>%
+  predict()
+
+data %>%
+  ggplot(aes(x = x, y = y)) +
+  geom_point(size = .7, alpha = .5) +
+  geom_line(aes(y= smoothed), 
+            color = "darkred",
+            size = 1.2) +
+  labs(title = "Locally Estimated Scatterplot (LOESS)\nSmoothing Curve",
+       subtitle = paste0("Span = ", smoothing_span)) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = .5, face="bold", size = 14),
+        plot.subtitle = element_text(hjust = .5, face="italic", size = 14),
+        axis.title = element_text(size = 14))
+
+
+```
+
+
+To perform LOESS smoothing, we estimate a set of local regressions [@chambers1997]. To do this, we must specify the span; this smoothing parameter is the fraction of the data that is used for the local polynomial fit. With a smaller span, the resulting curve will fit the trends more closely, while a larger span reflects broader trends (Figure \ref{fig:smooth-spans}).
+
+```{r, fig.cap="\\label{fig:smooth-spans}", fig.asp = .67}
+
+
+smoothed_all <- map_df(c(.1,.3, .5,.7, .9), ~
+                         {
+                          smoothed <- loess(y ~ x, 
+                                            data = data, 
+                                            span = .x) %>%
+                            predict()
+                          
+                           data %>%
+                             mutate(span = .x,
+                                    smoothed = smoothed)
+                         })
+
+
+smoothed_all %>%
+  mutate(span = as.factor(span)) %>%
+  ggplot(aes(x=x, y = y))+
+  geom_point(size = .5, alpha = .4) +
+  geom_line(aes(y= smoothed, color = span), 
+            size = 1) +
+  viridis::scale_color_viridis(discrete=TRUE, 
+                               direction = -1, end = .9)+
+  labs(title = "Locally Estimated Scatterplot (LOESS)\nSmoothing Curve",
+       subtitle = paste0("By Span")) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = .5, face="bold", size = 14),
+        plot.subtitle = element_text(hjust = .5, face="italic", size = 14),
+        axis.title = element_text(size = 14))
+
+  
+
+
+
+```
+
+### Fitting the LOESS Curve
+
+To introduce some notation for the model at hand, we have a dependent variable $\mathbf y$ and independent variable $\mathbf  x$, where $\mathbf  y$ and $\mathbf x$ are related by some unknown function $g$, that is,  $y = g(x) + \boldsymbol \epsilon$^[Recall we use bold type for vectors, e.g., $\mathbf x \in \mathbb R^n$ is a vector with observations $x_i \in \mathbb R$.]. When we want to use LOESS smoothing to estimate $g$, often this function is complex, so we break up the problem into estimating a set of local regressions.
+
+To obtain a predicted value $\hat g(x^*)$ for a particular value of the independent variable $x^*$,  we fit a polynomial with greatest weight placed on points in the neighborhood of $x^*$, where the width of this neighborhood is defined by the choice of smoothing span. Let $\alpha \in (0,1]$ denote the chosen smoothing span.
+
+For a particular value of $x^*$, we estimate the predicted value $\hat g(x^*)$ by fitting a local regression. We first compute the weights by computing the vector of distances from this point $x^*$, that is,
+
+$$\Delta (x^*) = |\mathbf x -x^* | $$
+
+We define $q = \text{floor}(\alpha n)$, and take  $\Delta_q(x^*) \in \mathbb R$  to be the $q^th$ smallest distance of $\Delta (x^*)$.
+
+The vector of weights is then 
+$$T(\Delta(x^*), \Delta_q(x^*))$$
+
+where $T$ is the tricube weight function given by
+
+$$
+T(x) = \begin{cases} (1-(x)^3)^3 \hspace{9 mm}  \text{ for } |x| < 1\\
+0  \hspace{25 mm} \text{ for |x| } \geq 1 \end{cases}.
+$$
+Essentially, this process gives weight to points in the neighborhood of $x^*$. Consider $x^* = 500$ and $\text{smoothing span} = \alpha = .2$.
+
+Then the weights we obtain are given in Figure \ref{fig:weights}.
+
+```{r, warning = FALSE, fig.cap = "\\label{fig:weights} The only values with nonzero weights are those within the interval $(500 - \\alpha (n), 500 - \\alpha (n))$. That is, the proportion $\\alpha$ of the data points closest to $x^*$ will have nonzero weights.", fig.width =6, fig.asp = .6}
+
+
+
+tricube <- function(x) {
+  ifelse(abs(x) < 1, (1-(abs(x))^3)^3, 0) 
+}
+
+
+
+alpha <- 0.2
+x_star <- 500
+width <- alpha*length(data$x)
+
+delta_q <- sort(abs(x_star-data$x), decreasing = FALSE)[floor(alpha*1000)]
+weights <- tricube( abs(x_star - data$x )/(delta_q))
+
+
+data %>%
+  mutate(Weight = weights,
+         lower = x_star -width/2,
+         upper = x_star + width/2) %>%
+  ggplot(aes(x = x, y =weights)) +
+  geom_point(size = .8) +
+  geom_vline(aes(xintercept = upper),
+             color = "darkred", alpha = .6) +
+  geom_vline(aes(xintercept = lower),
+                 color = "darkred", alpha = .6) +
+  annotate(x = 280, geom= "text", y = .5, 
+           label = TeX("$500 - (\\alpha)(n)$"), parse =TRUE) +
+  annotate(x = 700, geom= "text", y = .5, 
+           label = TeX("$500 + (\\alpha)(n)$"), parse =TRUE) +
+  theme_bw()+
+  theme(plot.title = element_text(hjust = .5, face="bold", size = 14),
+        plot.subtitle = element_text(hjust = .5, face="italic", size = 14),
+        axis.title = element_text(size = 14)) +
+  labs(title = TeX("Weights Computed for $x^* = 500$"))
+
+
+
+
+```
+
+\newpage 
+
+We fit a linear regression with polynomial terms, typically with degree up to 2, with these weights. For example, fitting the model for this same $x^*=500$, we obtain the polynomial in Figure \ref{fig:ex-poly}.
+
+\begin{flushleft}
+
+```{r, fig.cap = "\\label{fig:ex-poly}", fig.asp = .52, fig.width = 5}
+
+model <- lm(y ~ x + I(x^2), weights = weights, data = data)
+
+data %>%
+  mutate(Weight = weights,
+         predicted = predict(model)) %>%
+  ggplot(aes(x = x, y =y)) +
+  geom_point(size = .5, alpha = .6) +
+  geom_line(aes(y = predicted), size = 1.3, color = "#728BC8") +
+  geom_point(x =500, 
+             y = data[data$x==x_star,]$y,
+             size =4,
+             color = "orange") +
+  theme_bw()+
+  theme(plot.title = element_text(hjust = .5, face="bold", size = 12),
+        plot.subtitle = element_text(hjust = .5, face="italic", size = 12),
+        axis.title = element_text(size = 12)) +
+  labs(title = TeX("Local Model Estimated for Neighborhood about $x^* = 500$")) +
+  ylim(min(data$y)- 50, max(data$y) + 50)
+
+
+```
+
+\end{flushleft}
+
+By fitting the model for every point in $\mathbf x$, we obtain the smoothed line shown in red in Figure \ref{fig:loess-all}.
+
+```{r, fig.cap = "\\label{smooth-functions}"}
+
+get_predicted <- function(x_i, all = FALSE) {
+
+  delta_q <- sort((abs(x_i-data$x)), decreasing = FALSE)[floor(alpha*1000)]
+
+  weights <- tricube( abs(x_i - data$x )/(delta_q))
+  
+  model <- lm(y ~ x + I(x^2), weights = weights, data = data)
+  
+  if(all) predict(model) 
+  else predict(model, newdata = list(x=x_i))
+}
+
+
+
+get_predicted_all <- function(x_i) {
+
+
+  delta_q <- sort(abs(x_i-data$x), decreasing = FALSE)[floor(alpha*1000)]
+ # message(delta_q)
+  
+  weights <- tricube((data$x -x_i)/(delta_q))
+  
+  # message(head(weights))
+  model <- lm(y ~ x + I(x^2), weights = weights, data = data)
+  
+   predict(model)
+  
+}
+
+```
+
+```{r loess-all, fig.cap = "\\label{loess-all}", fig.asp = .6}
+
+predicted_all <- map_df(data$x, ~tibble(fit = paste0("fit_", .x), 
+                                        x_pred = .x,
+                                        x = data$x,
+                                        y = data$y,
+                                        fitted = get_predicted(.x, all = TRUE)))
+
+
+predicted_all %>%
+  group_by(x_pred) %>%
+  # get smoothed line
+  mutate(fitted_star =  fitted[which(x==x_pred)]) %>%
+  ungroup() %>%
+  ggplot() +
+  geom_line(aes(x = x, y = fitted, 
+                color = fit, 
+                group = fit),
+            alpha = .5,
+            show.legend=FALSE) +
+  geom_line(aes(x = x_pred, y = fitted_star), color = "darkred", size = 1.2) +
+#  geom_point(alpha = .5, aes(x =x, y = y), show.legend = FALSE) +
+  ylim(min(data$y)-10, max(data$y) + 10) +
+  viridis::scale_color_viridis(option="mako", discrete = TRUE) +
+  theme_bw()+
+  theme(plot.title = element_text(hjust = .5, 
+                                  face="bold",
+                                  size = 12),
+        plot.subtitle = element_text(hjust = .5, 
+                                     face="italic",
+                                     size = 12),
+        axis.title = element_text(size = 12)) +
+  labs(title = TeX("All Local Models to Produce LOESS Curve"),
+       y  = TeX("$\\hat{y}$"))
+
+
+```
+
+```{r, include = FALSE, eval = FALSE}
+dat <- data %>%
+  mutate(pred = map_dbl(x, get_predicted))
+
+dat %>%
+  mutate(pred2 = predict(smoothed)) %>%
+  ggplot(aes(x=x,y=y)) +
+  geom_point() +
+  geom_line(aes(y= pred), color = "darkred") +
+  geom_line(aes(y = pred2))
+
+
+# predicted_all %>%
+#   filter(fit %in% paste0("fit_", c(500, 600, 700))) %>%
+#   ggplot(aes(x =x,y = fitted, color = fit, group = fit)) +
+#   geom_line(show.legend=FALSE) +
+#   geom_line(alpha = .5, aes(y = y)) +
+#   ylim(min(data$y)-10, max(data$y) + 10)
+
+
+
+
+y<- rnorm(1e3, mean = 10, sd = 80)
+div <- seq(1,5, length = 1000)
+y <- cumsum(y)
+y <- y /div
+
+data <- tibble(x = 1:1000, y = y)
+
+smoothed_1 <- loess(y ~ x, data = data[1:500,], span = 1) %>%
+  predict()
+smoothed_2 <- loess(y ~ x, data = data[501:1000,], span = 1) %>%
+  predict()
+
+smoothed_3 <-  loess(y ~ x, data = data[1:1000,], 
+                     span = .5, 
+                     model = TRUE,
+                     control = loess.control( surface = c("interpolate")),
+                     cell = 1) %>%
+  predict()
+
+
+alpha <- .2
+
+
+# compute fitted value for y_i
+
+x_i <- 1
+
+weights <- c()
+
+
+
+tricube <- function(x) {
+  ifelse((x) < 1, (1-((x))^3)^3, 0) 
+}
+
+# weights <- tricube( u = (x_i - data$x ), t = (min(x_i-data$x)))
+
+
+delta_q <- sort(x_i-data$x, decreasing = TRUE)[floor(alpha*1000)]
+
+
+weights <- tricube(abs(x_i - data$x )/(delta_q))
+
+
+
+model <- lm(y ~ x + I(x^2), weights = weights, data = data)
+
+data %>% mutate(predicted = predict(model)) %>%
+  filter(x==x_i)
+
+model$coefficients
+
+
+data %>% mutate(first_fit = predict(model)) %>%
+  ggplot(aes(x = x, y = first_fit)) +
+   geom_line() +
+  geom_point(aes(x=x,y=y)) +
+  ylim(min(NA), max(data$y))
+
+
+# automate 
+
+
+
+
+tricube <- function(x) {
+  ifelse(abs(x) < 1, (1-(abs(x))^3)^3, 0) 
+}
+
+
+get_predicted <- function(x_i, all = FALSE) {
+
+  delta_q <- sort((abs(x_i-data$x)), decreasing = FALSE)[floor(alpha*1000)]
+
+  weights <- tricube( abs(x_i - data$x )/(delta_q))
+  
+  model <- lm(y ~ x + I(x^2), weights = weights, data = data)
+  
+  if(all) predict(model) 
+  else predict(model, newdata = list(x=x_i))
+}
+
+
+
+get_predicted_all <- function(x_i) {
+
+
+  delta_q <- sort(abs(x_i-data$x), decreasing = FALSE)[floor(alpha*1000)]
+ # message(delta_q)
+  
+  weights <- tricube((data$x -x_i)/(delta_q))
+  
+  # message(head(weights))
+  model <- lm(y ~ x + I(x^2), weights = weights, data = data)
+  
+   predict(model)
+  
+}
+
+predicted_all <- map_df(data$x, ~tibble(fit = paste0("fit_", .x), 
+                                        x = data$x,
+                                        y = data$y,
+                                        fitted = get_predicted(.x, all = TRUE)))
+
+
+
+predicted_all %>%
+  filter(fit %in% paste0("fit_", c(500, 600, 700))) %>%
+  ggplot(aes(x =x,y = fitted, color = fit, group = fit)) +
+  geom_line(show.legend=FALSE) +
+  geom_line(alpha = .5, aes(y = y)) +
+  ylim(min(data$y)-10, max(data$y) + 10)
+
+predicted_all %>%
+#  filter(fit %in% paste0("fit_", c(500, 600, 700))) %>%
+  ggplot(aes(x =x,y = fitted, color = fit, group = fit)) +
+  geom_line(show.legend=FALSE) +
+  geom_line(alpha = .5, aes(y = y), show.legend = FALSE) +
+  ylim(min(data$y)-10, max(data$y) + 10) +
+  viridis::scale_color_viridis(option="mako", discrete = TRUE)
+
+dat <- data %>%
+  mutate(pred = map_dbl(x, get_predicted))
+
+dat %>%
+  mutate(pred2 = predict(smoothed)) %>%
+  ggplot(aes(x=x,y=y)) +
+  geom_point() +
+  geom_line(aes(y= pred), color = "darkred") +
+  geom_line(aes(y = pred2))
+
+
+```
+
+```{r, include = FALSE, eval = FALSE}
+smoothed <- loess(y ~ x, data =data, span = .2)
+
+# verify correspondence with loess function
+dat %>%
+  mutate(prediction_loess = predict(smoothed)) %>%
+  ggplot(aes(x=x,y=y)) +
+  geom_point() +
+  geom_line(aes(y= pred), color = "darkred") +
+  geom_line(aes(y = prediction_loess))
+
+
+```
+
+
+Smoothing methods are sensitive to the choice of smoothing parameter $h$, which represents the fraction of the data that is used for the local polynomial fit.
+
+
+Methods exist for picking the smoothing parameter $h$ that minimizes the mean squared error between the predicted values from the estimated line and observed values of the dependent variable, for example, leave-one-out cross-validation or generalized cross-validation. 
+
+However, for this work, we used LOESS smoothing to smooth survey data from the COVID-19 Trends and Impact Survey [@reinhart2021]. 
+We choose the smoothing parameter for each variable based on domain knowledge regarding the level of noise present for each variable of interest. For example, there is substantial noise in the screening test positivity data that reflect trends that do not represent meaningful differences in the screening test positivity. Some trends in the screening sensitivity may be due to scheduled workplace screenings happening at regular time intervals, and some of the variation may be due to the frequency of screening testing due to other variables, such as the access and cost of testing.
+
+Since the ratio  $\frac{\text{screening test positivity}}{\text{overall test positivity}}$ is used to estimate $\beta = \frac{P(\text{test}_+| S_0, untested)}{P(\text{test}_+|tested)}$, the variability in the screening positivity creates substantial variability in our estimates of $\beta$.
+
+In light of this variability and the presence of other trends regarding the screening test positivity, we set the span  to $\frac{4}{12} = 0.33$ to fit the local regressions for 4-month intervals with the aim to capture the broader trends over time.
+
+INCLUDE FIGURE OF SMOOTHED ESTIMATES HERE 
+
+There was less variabiity in the smoothing span for the weighted percentage of COVID-like Illness, the estimate of $P(S_1|untested)$. Hence, we set the smoothing parameter to $0.2$ detect trends at a finer time scale.
+
+Sensitivity analyses with modified versions of the smoothing span of $\beta$ are included in the appendix in the section INCLUDE SECTION. 
+
+
+\newpage
+
+
+
+
+## Kernel Density Estimation
+
+### Overview 
+
+When we have a random sample $X_1,\dots X_n$ drawn from the density $f_X$ and we want to estimate $f_X$ at some set of points, we can use kernel density estimation. This is relevant in this work for estimating $f^{induced}$.
+
+We define a kernel function as follows [@wasserman2006].
+
+\begin{tcolorbox}[title=Definition: Kernel Function]
+
+A kernel function $K$ is a smooth nonnegative function such that 
+
+$$\int K(x) \; dx = 1, \int x K(x) dx = 0, \sigma^2_k \equiv \int x^2 K(x) dx > 0.$$ 
+\end{tcolorbox}
+
+The Gaussian kernel $K(x) = \frac{1}{\sqrt{2\pi}}e^{-x^2/2}$ is commonly used in practice; the tricube kernel, as discussed in the LOESS smoothing section, is another valid kernel function.
+
+The kernel density estimator is 
+
+$$\hat f_n(x) = \frac 1n \sum_{i=1}^n \frac 1h K\left(\dfrac{x-X_i}{h} \right)$$
+
+where $h$ is the smoothing parameter or bandwidth. In Figure \ref{fig:kernel}, we see the effect of increasing the bandwidth $h$: larger values result in smoother curves, while smaller values result in curves that follow the histogram more closely.
+
+
+```{r, fig.cap="\\label{fig:kernel}"}
+
+objs <- ls()
+rm(objs)
+
+set.seed(999)
+sim <- rnorm(1e3, mean = 0, sd = 1)
+sim_data <- tibble(sim =sim)
+
+kernel <- function(x) {
+  (1 / sqrt(2*pi))*exp(-(x^2)/2)
+}
+
+
+
+get_density <- function(x, h) {
+  map_dbl(x, ~{
+  (1/length(sim)) * sum((1/h) * kernel((sim - .x)/h))
+})
+}
+
+
+df <- map_df(c(.1,.3,.5,.7),
+       ~{
+         tibble(x = seq(-3,3, length = 1e4)) %>%
+  mutate(density = get_density(x, h = .x),
+         h= .x)
+       })
+
+# 
+# df <- tibble(x = seq(-3,3, length = 1e4)) %>%
+#   mutate(density = get_density(x, h = .2))
+# 
+# adj <- max(sim) / max(df$density)
+
+df %>% 
+  mutate(h = as.factor(h)) %>%
+  ggplot() +
+  stat_function(fun =dnorm,
+                args = list(mean = 0, sd =1),
+                color = "darkred",
+                size = 1.2) +
+  geom_line(aes(x =x ,y =density, color = h)) +
+  geom_histogram(data = sim_data,
+                 aes(x= sim, y = ..density..),
+                 alpha = .5) +
+  theme_bw() +
+  scale_color_viridis(begin = .2, end = .9, 
+                      discrete=TRUE,
+                      direction = -1)
+
+
+
+
+```
+
+### Bounded Density Estimation
+
+A question warranting investigation is the choice of kernel given we are working with a bounded variable -- the density we seek to estimate, $f^{induced}$ is the density of $P(S_0|\text{untested}, \text{test}_+)$ and hence is bounded between 0 and 1. 
+
+One way to handle density estimation for a bounded variable $X$ is by performing a transformation
+$X=g(Y)$ and then using the change of variables for a probability density to obtain $f_X(x)$ [@aurelienpelissier2022]. 
+
+Since $X \in [0,1]$ and we want to transform it to the range $(-\infty,\infty)$, we can let $Y = \text{logit}(X) = \log \left( \frac{X}{1-X} \right)$.
+
+We know if we have $X = g(Y)$, then we can acquire the distribution of $X$ from that of $Y$ by considering the change of variables of the probability density functions $f_X$ and $f_y$ given by 
+$$f_X(x) = f_Y(g^{-1}(X)) \;\; \left| \frac{d}{dx} g^{-1}(X) \right|. \tag{1}$$ 
+
+Thus, in this case, we have $Y = \text{logit}(X)$, so $g^{-1}$ is the logit function. By definition of the change of variables formula (1), we have
+$$f_X(x) = f_Y(\text{logit}(X)) \;\; \left| \frac{d}{dx} \text{logit}(X) \right|.$$ 
+Computing the derivative and simplifying, we have
+
+\begin{align*} = f_Y(logit(X)) \;\; \left| \frac{d}{dx}log(\frac{x}{1-x}) \right|\\
+&= f_Y(logit(X)) \;\; \left| \left(\frac{1-x}{x} \right) (x(1-x)^{-1})' \right|\\ 
+&= f_Y(logit(X)) \;\; \left| \left(\frac{1-x}{x} \right) ((1-x)^{-1} + x(1-x)^{-2} ) \right|\\
+&= f_Y(logit(X)) \;\; \left| \left(\frac{1-x}{x} \right) \left(\frac{(1-x) + x }{ (1-x)^{2} }\right) \right|\\
+&= f_Y(logit(X)) \;\; \left| \left(\frac{1-x}{x} \right) \left(\frac{1 }{ (1-x)^{2} }\right) \right|\\
+&= f_Y(logit(X)) \;\; \left|  \frac{1 }{ x (1-x) } \right|.
+\end{align*}
+
+
+This means that we compute $Y = logit(X)$ and then estimate the density of the unbounded variable $Y$, and then we can recover the density $f_X$ by multiplying by $\frac{1 }{ x (1-x) }$.
+
+In some cases, this approach works well. In Figure \ref{fig:trans}, we simulate a variable $X \sim Beta(3,2)$ and estimate the density with the transformation approach.
+
+
+```{r}
+
+library(latex2exp)
+
+logit <- function(x) log(x/ (1-x))
+invlogit <- function(x) exp(x)/(1+exp(x))
+
+# ggplot() +
+#   stat_function(fun = dbeta, 
+#                 args = list(shape1=3, shape2=2),
+#                 geom="area",
+#                 alpha = .7) +
+#   theme_bw() +
+#   theme(axis.title = element_text(size = 18),
+#         plot.title = element_text(size = 20, hjust = .5)) +
+#   labs(x = TeX("$x$"),
+#        y = TeX("$f_X(x)"),
+#        title = TeX("$X \\sim \\beta(\\alpha=3, \\beta = 2)$"))
+
+
+nsamp <- 1e4
+# sample of X
+X_sample <- rbeta(nsamp, shape1 = 3, shape2 = 2)
+
+
+```
+
+
+
+```{r, fig.cap = "\\label{fig:trans}"}
+
+# Y = logit(X)
+Y <- logit(X_sample)
+
+
+# estimate density of Y
+dens <- density(x = Y, n = nsamp, adjust = 2, kernel = "gaussian")
+
+
+density_coordinates_Y <- dens$x
+density_Y <- dens$y
+
+# transform back with inverse logit function
+density_coordinates_X <- invlogit(dens$x)
+
+# according to change of variables formula
+density_X <- density_Y / (density_coordinates_X * (1 - density_coordinates_X))
+
+
+
+##################################
+# estimated density
+##################################
+
+tibble(x=density_coordinates_X, y = density_X) %>%
+  ggplot(aes(x= x, y=y)) +
+  geom_area(alpha = .8) +
+  labs(title = TeX("Estimating $f_X(x)$ from $f_Y(y)$"),
+       y = TeX("Estimated $f_X(x)$"),
+       subtitle = TeX("$X \\sim$ Beta(2,3)")) +
+  theme_bw()+
+  theme(axis.title = element_text(size = 12),
+        plot.title = element_text(size = 14, hjust = .5),
+        plot.subtitle = element_text(hjust = .5, size = 14))  +
+  stat_function(fun = dbeta, 
+                args = list(shape1=3, shape2=2),
+               # geom="area",
+                alpha = .7,
+               color = "red") +
+  geom_line(aes(x = density_coordinates_X, 
+                y = dbeta(density_coordinates_X,
+                          shape1 = 3, shape2 = 2),
+                color = 'r')) +
+  scale_color_manual(values = c('r' = 'red'),
+                     labels = c('Theoretical Density'),
+                     name='')
+
+```
+
+We see the difference between using the transformation approach versus estimating the density of $X$ without first transforming it to be unbounded in Figure \ref{fig:original}.
+
+```{r, fig.cap = "\\label{fig:original}"}
+
+##################################
+# compare to original approach
+##################################
+
+ density_original <- density(x = X_sample,
+                            n = nsamp, 
+                            adjust = 2,
+                            kernel = "gaussian")
+
+tibble(x=density_coordinates_X,
+         y = density_X,
+         approach = "Transformation\nApproach") %>%
+    bind_rows(
+      tibble(
+        x = density_original$x,
+        y = density_original$y,
+        approach = "Direct Estimation"
+      )
+    ) %>%
+    ggplot() +
+    geom_area(alpha = .5, 
+              aes( x=x, y = y, 
+                   fill = approach)) +
+    geom_line(alpha = .5, 
+              aes( x=x, y = y, 
+                   color = approach),
+              show.legend=FALSE) +
+    stat_function(fun=dbeta,
+                  args =list(shape1 = 3, shape2=2),
+                  xlim=c(0, 1),
+                  color = "red") +
+    geom_vline(aes(xintercept = 0), color = "darkred", 
+               size = .4, alpha = .6) +
+    geom_vline(aes(xintercept = 1), color = "darkred", 
+               size = .4, , alpha = .6) +
+    scale_x_continuous(n.breaks = 6) +
+    labs(title = TeX("Comparing Approaches for Estimating $f_X(x)$"),
+         y = TeX("Estimated $f_X(x)$"),
+         subtitle = TeX(paste0("$X \\sim $ Beta(", 
+                               3, ", ", 2, ")")),
+         fill = "") +
+    theme_bw() +
+    theme(axis.title = element_text(size = 12),
+          plot.title = element_text(size = 14, hjust = .5),
+          plot.subtitle = element_text(size = 12, hjust = .5),
+          legend.text = element_text(size = 16)) +
+    viridis::scale_fill_viridis(discrete = TRUE, 
+                                begin = .3, end = .8) +
+    viridis::scale_color_viridis(discrete = TRUE, 
+                                begin = .3, end = .8)
+
+ 
+```
+
+
+However, when we simulate densities that have greater mass toward the boundaries 0 or 1, we see that boundary bias becomes problematic (Figure \ref{fig:compare-beta-params}). This is evident in panels B, C, D, and G of Figure \ref{fig:compare-beta-params}, where the estimated density near the boundaries is a poor estimate of the true density.
+
+
+```{r functions for transformation density estimation}
+
+compare_density <- function(shape1, shape2, cap) {
+  
+  set.seed(123)
+  X_sample <- rbeta(1e3, shape1, shape2)
+  
+  Y <- logit(X_sample)
+
+  # estimate density of Y
+  dens <- density(x = Y, n = nsamp, adjust = 2, kernel = "gaussian")
+  
+  
+  density_coordinates_Y <- dens$x
+  density_Y <- dens$y
+  
+  # transform back with inverse logit function
+  density_coordinates_X <- invlogit(dens$x)
+  
+  # according to change of variables formula
+  density_X <- density_Y / (density_coordinates_X * (1 - density_coordinates_X))
+  
+  
+  # estimated density
+  
+  density_original <- density(x = X_sample,
+                            n = nsamp, 
+                            adjust = 2,
+                            kernel = "gaussian")
+  
+  yupper <- max(dbeta(density_coordinates_X, 
+                      shape1 =shape1, 
+                      shape2 = shape2))
+
+  tibble(x=density_coordinates_X,
+         y = density_X,
+         approach = "Transformation\nApproach") %>%
+    bind_rows(
+      tibble(
+        x = density_original$x,
+        y = density_original$y,
+        approach = "Direct Estimation"
+      )
+    ) %>%
+    ggplot() +
+    geom_area(alpha = .5, 
+              aes( x=x, y = y, 
+                   fill = approach)) +
+    geom_line(alpha = .5, 
+              aes( x=x, y = y, 
+                   color = approach),
+              size = 1.03,
+              show.legend=FALSE) +
+    stat_function(fun=dbeta,
+                  args =list(shape1 = shape1, shape2=shape2),
+                  xlim=c(0, 1),
+                  color = "red",
+                  size = 1.05) +
+    geom_vline(aes(xintercept = 0), color = "darkred", 
+               size = .4, alpha = .6) +
+    geom_vline(aes(xintercept = 1), color = "darkred", 
+               size = .4, , alpha = .6) +
+    scale_x_continuous(n.breaks = 6) +
+    labs(title = TeX("Comparing Approaches for Estimating $f_X(x)$"),
+         y = TeX("Estimated $f_X(x)$"),
+         subtitle = TeX(paste0("$X \\sim $ Beta(", 
+                               shape1, ", ", shape2, ")")),
+         fill = "",
+         caption = cap) +
+    theme_bw() +
+    theme(axis.title = element_text(size = 12),
+          plot.title = element_text(size = 12, hjust = .5),
+          plot.subtitle = element_text(size = 12, hjust = .5),
+          legend.text = element_text(size = 16),
+          plot.caption = element_text(hjust = 0, size = 12, face = "bold")) +
+    viridis::scale_fill_viridis(discrete = TRUE, 
+                                begin = .3, end = .8) +
+    viridis::scale_color_viridis(discrete = TRUE, 
+                                begin = .3, end = .8) +
+    ylim(0, yupper+2)
+
+ 
+}
+
+```
+
+```{r, fig.show='hold', out.width="49%", fig.cap = "\\label{fig:compare-beta-params}" }
+
+
+shapes <- expand.grid(seq(1 ,5, by = 1.5),
+            seq(1, 5, by= 1.5)) %>%
+  mutate(fig = LETTERS[1:nrow(.)])
+
+
+pwalk(shapes, ~{
+  plt <- compare_density(shape1 = ..1, shape2 = ..2, cap = ..3)
+  print(plt)
+} )
+
+
+```
+
+
+An alternative to the transformation approach for density estimation of bounded variables by using beta kernel estimators, which resolves the issue of boundary bias.
+
+As defined in @chen1999, the most simple beta kernel estimator would be 
+$$\hat f_1(x) = \dfrac{\sum_{i=1}^n K_{x/b + 1, \; (1-x)/b + 1} (X_i)}{n}$$
+
+where $K_{\text{shape1}, \text{shape2}}$ is the density function $Beta(shape1, \; shape2)$.
+
+However, @chen1999 show that the modified beta kernel estimator $\hat f_2(x)$ has lower variance and bias than $\hat f_1$, where we define $\hat f_2$ as follows:
+
+$$
+\hat f_2(x)  = \dfrac{\sum_{i=1}^n K_{x,b}^*(X_i)}{n},$$
+
+
+$$K^*_{x,b} = \begin{cases}K_{x/b, \; (1-x)/b }(t)  & \text{if }x \in [2b,1-2b] \\
+K_{\rho(x), \; (1-x)/b } (t)  & \text{if } x \in [0,2b) \\
+K_{x/b, \; \rho(1-x)}(t) & \text{if } x\in(1-2b,1]
+\end{cases},
+$$
+$$\rho(x,b) = 2b^2 + 2.5 - \sqrt{b^2 + 6b^2 +2.25-x^2 -x/b}.$$
+
+
+Notably, for beta kernel estimators, the shape of the kernel depends on $x$ (Figure \ref{fig:depends-on-x}). 
+
+```{r}
+
+rho <- function(x,b) {
+  root <- 4*b^4 + 6*b^2 + 2.25 -x^2 -x/b
+  # message(paste0("\n\nx:", x, "\nroot: ", root))
+  ifelse(root >= 0, 2*b^2 + 2.5 - sqrt(root), 0) 
+}
+
+# by definition of f_2 in Chen 1999
+beta_kernel <- function(t, x,b) {
+  case_when(
+  (x >= 2*b) & (x <= ( 1-2*b)) ~ dbeta(t, x/b, (1-x)/b),
+  x >= 0 & x < 2*b ~ dbeta(t, rho(x,b), (1-x)/b),
+  x > (1 - 2*b) & x <= 1 ~ dbeta(t,x/b, rho((1-x),b)))
+}
+
+
+f2 <- function(coords, sample, b) {
+  n <- length(sample)
+  dens <- map_dbl(coords, ~sum(beta_kernel(t=sample, x=.x, b= b)))
+  dens/n
+}
+
+```
+
+```{r, fig.cap = "\\label{fig:depends-on-x}"}
+
+t_vec <- seq(0, 1, length = 1e3)
+
+b0 <- .2
+
+df <- map_df(seq(0,1, by = .1), 
+       ~ {
+         tibble(t = t_vec, 
+       density = dbeta(t_vec, shape1= (.x/b0 + 1),
+                             shape2 = ((1-.x)/b0 + 1)),
+        x = .x)
+       }
+)
+
+
+
+df %>%
+  mutate(x=as.factor(x)) %>%
+  ggplot(aes(x=t, y =density, color = x)) +
+  geom_line() +
+  labs(y = TeX("$K(t)$"),
+       title = TeX(paste0("Beta Kernel with Shape 1 = ",
+       "$\\frac{x}{b} +1$",
+       " and Shape 2 =  $\\frac{(1-x)}{b+1}$")),
+       subtitle = "b = 0.2") +
+  theme_bw() +
+  scale_color_viridis(option = "mako",
+                      discrete = TRUE,
+                      direction = -1,
+                      end = .95) +
+  theme(plot.title = element_text(hjust = .5, size = 10),
+        plot.subtitle = element_text(hjust = .5))
+
+  
+```
+
+
+
+
+```{r simple-example, include = FALSE,eval=FALSE}
+X_sample <- rbeta(1e3, shape1, shape2)
+
+
+
+dat <- tibble(coords = seq(0,1,length =100),
+       density = f2(coords, X_sample, b=.2)) 
+
+dat %>%
+  ggplot() +
+  geom_area(aes(x=coords, y =density),
+            fill = "#51928D",
+            alpha = .8) +
+  stat_function(fun =dbeta, args =list(shape1=shape1,
+                                       shape2=shape2),
+                xlim=c(0,1),
+                color = "red",
+                size = 1.05) +
+  ylim(0,1.3) +
+  labs(title = TeX("Density Estimation Using Beta Kernel Estimator $\\widehat{f_2}(x)$"),
+       x = "x",
+       y = TeX("$\\widehat{f_2}(x)$"),
+      subtitle = TeX(paste0("$X \\sim $ Beta(", 
+                               shape1, ", ", shape2, ")"))) +
+    theme_bw() +
+    theme(axis.title = element_text(size = 14),
+          plot.title = element_text(size = 12, hjust = .5),
+          plot.subtitle = element_text(size = 12, hjust = .5),
+          legend.text = element_text(size = 16),
+          plot.caption = element_text(hjust = 0, size = 12, face = "bold")) 
+
+
+```
+
+
+As we did in Figure \ref{fig:compare-beta-params}, we can compare the performance of the beta kernel $\hat f_2$ for estimating the density of samples from different beta distributions (Figure \ref{fig:comp-beta}).
+
+
+```{r, fig.show = 'hold', out.width = '48%', fig.cap = "\\label{fig:comp-beta}"}
+
+beta_kernel_est_plot <- function(shape1,
+                                 shape2, 
+                                 panel_name,
+                                 nsamp = 1e4,
+                                 b = NULL) {
+  
+  b <- ifelse(is.null(b), nsamp^(-2/5), b)
+  
+  X_sample <- rbeta(nsamp, shape1 = shape1 , shape2 = shape2)
+
+  dat <- tibble(coords = seq(0,1,length =100),
+         density = f2(coords, X_sample, b=b)) 
+  yupper <- max(max(dat$density),
+                max(dbeta(dat$coords,
+                          shape1=shape1,
+                          shape2=shape2))) 
+  yupper <- yupper + .2
+
+  plt <- dat %>%
+    ggplot() +
+    geom_area(aes(x=coords, y =density),
+              fill = "#51928D",
+              alpha = .8) +
+    stat_function(fun =dbeta, args =list(shape1=shape1,
+                                         shape2=shape2),
+                  xlim=c(0,1),
+                  color = "red",
+                  size = 1.05) +
+    labs(title = TeX("Density Estimation Using Beta Kernel Estimator $\\widehat{f_2}(x)$"),
+         x = "x",
+         y = TeX("$\\widehat{f_2}(x)$"),
+         subtitle = TeX(paste0("$X \\sim $ Beta(", 
+                               shape1, ", ", shape2, "), b = ", round(b,3))),
+         caption = panel_name) +
+      theme_bw() +
+      theme(axis.title = element_text(size = 14),
+            plot.title = element_text(size = 12, hjust = .5),
+            plot.subtitle = element_text(size = 12, hjust = .5),
+            legend.text = element_text(size = 16),
+            plot.caption = element_text(hjust = 0, size = 12, face = "bold")) +
+      ylim(0,yupper)
+  
+}
+
+pwalk(shapes, ~{
+  
+  plt <- beta_kernel_est_plot(shape1 = ..1, 
+                              shape2 = ..2, 
+                              panel_name = ..3)
+  print(plt)
+  
+} )
+
+# check correspondence with bde implementation
+# X_sample <- rbeta(1e4, shape1 = 4 , shape2 = 2.5)
+# 
+# dens <- bde::bde(dataPoints = X_sample,
+#          dataPointsCache = seq(0,1,length =100),
+#          estimator = "betakernel")
+# 
+# tibble(x = dens@dataPointsCache,
+#        y = dens@densityCache) %>% 
+#   ggplot(aes(x=x, y = y)) +
+#   geom_line()
+
+```
+
+
+
+<!--chapter:end:02-chap2.Rmd-->
+
+
+# Definition of Prior Distributions for Bias Parameters
+
+Placeholder
+
+
+## Background on the Beta Distribution
+## Background on the Gamma Distribution
+## Definition of Prior Distributions for Incomplete Testing Correction
+### Defining $P(S_1|Untested)$
+### Defining $\alpha$
+### Defining $\beta$
+### Defining $P(S_0|test+,untested)$
+## Definition of Priors for Test Inaccuracy Correction
+### Defining Test Sensitivity ($S_e$)
+## Defining Test Specificity ($S_p$)
+## Summary Table of Bias Parameter Distributions
+## Correction for Incomplete Testing 
+## Correction for Diagnostic Test Inaccuracy
+### Derivation of Formula for Correction for Diagnostic Test Inaccuracy
+
+<!--chapter:end:03-chap3.Rmd-->
+
+# Details of Implementation
+
+- Describe each step here
+- Mention reproducible workflow with make 
+
+
+
+
+
+
+## Reproducible Workflow 
+
+
+<!--chapter:end:04-chap4.Rmd-->
+
+
+# Results
+
+Placeholder
+
+
+## County-level
+## State-level
+## Comparison to the Covidestim Model
+### Overview
+### The Covidestim Model
+### Assumptions
+## Comparison to Other Indicators
+## Limitations of this Comparison
+### Simulation: Bivariate Normal 
+### Derivation of the Distribution of X+Y for Bivariate Normal
+## Seropositivity Data
+## County-level
+## State-level
+
+<!--chapter:end:05-chap5.Rmd-->
+
+
+# Appendix
+
+Placeholder
+
+
+## Smoothing Span
+### Changing SPAN for LOESS Smoothing of $\beta$
+## Changing Mean and Variance for Prior Distribution Specifications 
+
+<!--chapter:end:08-appendix.Rmd-->
+
+
+# References {-}
+
+Placeholder
+
+
+
+<!--chapter:end:99-references.Rmd-->
+

@@ -105,13 +105,6 @@ get_melded <- function(alpha_mean = 0.9,
   # induced phi
   phi <- theta$phi_induced
   
-  # approximate induced distribution via a density approximation
-   phi_induced_density <- density(x = phi, n = pre_nsamp, adjust = 2, kernel = "gaussian")
- 
-  #phi_induced_density <- bde::bde(dataPoints = phi, dataPointsCache = phi, estimator = "betakernel")
-  #phi_sampled_density <- phi_induced_densityy@densityCache
-  
-  
   incProgress(.2/progress_denominator, detail = paste("Computing induced density of phi..."))
   
   # approximate induced distribution via a density approximation

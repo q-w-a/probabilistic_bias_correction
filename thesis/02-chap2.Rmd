@@ -1202,7 +1202,7 @@ compare_theoretical <- function(melded,
                                 input_rate,
                                 pre_nsamp, 
                                 post_nsamp,
-                                title_size = 18) {
+                                title_size = 15) {
   color_lab <-  paste0("PDF of Gamma(2, ", input_rate, ")")
 
   melded %>% 
@@ -1224,7 +1224,7 @@ compare_theoretical <- function(melded,
     theme(axis.title = element_text(size = title_size - 2),
           plot.title = element_text(hjust = .5, size = title_size),
           plot.subtitle = element_markdown(hjust = .5, size = title_size-2),
-          legend.text = element_text(size = title_size)) +
+          legend.text = element_text(size = title_size-4)) +
     stat_function(fun = dgamma, 
                   args=list(shape=2,
                             scale=1/input_rate), 
@@ -1611,7 +1611,7 @@ plot_melded <- function(melded, custom_title="", pre_nsamp, post_nsamp) {
 
 
 
-```{r, fig.cap = "\\label{fig:trunc}", fig.show='hold', out.width='50%'}
+```{r, fig.cap = "\\label{fig:trunc}", fig.show='hold', out.width='45%', fig.height = 4}
 
 
 # set prior parameters

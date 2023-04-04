@@ -10,7 +10,8 @@ output:
   html_document:
     df_print: paged
 params: 
-  state: ma
+  state: mi
+  bde: FALSE
 ---
 
 
@@ -71,6 +72,7 @@ theme_c <- function(...){
 library(tidyverse)
 library(latex2exp)
 library(patchwork)
+library(here)
 ```
 
 
@@ -79,12 +81,13 @@ library(patchwork)
 
 ```{r load functions, eval =TRUE}
 
-source(paste0(here::here(), "/analysis/base_functions/base_functions.R"))
+source(here('analysis','base_functions','base_functions.R'))
+source(here('analysis','base_functions','get_melded.R'))
 
 ```
 
 
-```{r get_melded, eval= TRUE}
+```{r get_melded, eval= FALSE}
 
 
 get_melded <- function(alpha_mean = 0.9,
@@ -349,9 +352,9 @@ Running analysis for `r params$state`.
 # include slow plots comparing melded distributions for modified priors to original melded distribution
 include_slow <- TRUE
 # only include subset of rows for testing 
-testing <- TRUE
+testing <- FALSE
 # whether to save results adj_v*.RDS (if testing, don't save results)
-save <- FALSE
+save <- TRUE
 
 set.seed(123)
 
@@ -373,14 +376,16 @@ prior_params <- list(
   p_s0_pos_sd = .1225,
  p_s0_pos_bounds = NA,
 #  p_s0_pos_bounds = c(.25, .7),
-  nsamp = 1e5)
+  pre_nsamp = 1e6,
+  post_nsamp = 1e5)
 
 corrected_sample_reps <- 1e3
 
 # relevant for versions 2,3
-beta_smoothing_span <- .15
+beta_smoothing_span <- .33
 # relevant for versions 3,4
 s_untested_smoothing_span <- .2
+prior_params$bde <- params$bde
 
 
 ```
@@ -719,7 +724,7 @@ corrected <- pmap_df(
     process_priors_per_county(
       priors = melded$post_melding,
       county_df = list(...),
-      nsamp = prior_params$nsamp) %>%
+      nsamp = prior_params$post_nsamp) %>%
       generate_corrected_sample(., num_reps = corrected_sample_reps) %>%
       summarize_corrected_sample()
     })
@@ -748,11 +753,11 @@ melded_long <- reformat_melded(
   p_s0_pos_mean = prior_params$p_s0_pos_mean,
   p_s0_pos_sd = prior_params$p_s0_pos_sd,
   p_s0_pos_bounds = prior_params$p_s0_pos_bounds,
-  nsamp = prior_params$nsamp)
+  pre_nsamp = prior_params$pre_nsamp)
 
 melded_long %>%
          plot_melded(custom_title = title,
-                     nsamp = prior_params$nsamp)
+                     nsamp = prior_params$pre_nsamp)
 
 
 
@@ -1007,7 +1012,7 @@ corrected <- pmap_df(
     process_priors_per_county(
       priors = priors_constrained_by_biweek[priors_constrained_by_biweek$biweek == input_df$biweek,],
       county_df = input_df,
-      nsamp = prior_params$nsamp) %>%
+      nsamp = prior_params$post_nsamp) %>%
       generate_corrected_sample(., 
                                 num_reps = corrected_sample_reps) %>%
       summarize_corrected_sample()
@@ -1232,7 +1237,7 @@ corrected <- pmap_df(
     process_priors_per_county(
       priors = priors_constrained_by_biweek[priors_constrained_by_biweek$biweek == input_df$biweek,],
       county_df = input_df,
-      nsamp = prior_params$nsamp) %>%
+      nsamp = prior_params$post_nsamp) %>%
       generate_corrected_sample(., 
                                 num_reps = corrected_sample_reps) %>%
       summarize_corrected_sample()
@@ -1427,7 +1432,7 @@ corrected <- pmap_df(
     process_priors_per_county(
       priors = priors_constrained_by_biweek[priors_constrained_by_biweek$biweek == input_df$biweek,],
       county_df = input_df,
-      nsamp = prior_params$nsamp) %>%
+      nsamp = prior_params$post_nsamp) %>%
       generate_corrected_sample(., 
                                 num_reps = corrected_sample_reps) %>%
       summarize_corrected_sample()
