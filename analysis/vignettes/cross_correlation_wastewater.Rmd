@@ -6,31 +6,298 @@ output:
   rmdformats::readthedown:
     df_print: paged
     code_folding: hide
-    css: ../../css/template.css
+    css: !expr here::here('css', 'template.css')
   html_document:
     df_print: paged
 ---
 
+
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message=FALSE,warning=FALSE)
+library(tidyverse)
+library(here)
+library(scales)
+
 ```
 
-## R Markdown
+```{r load data}
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+state <- "ma"
 
-```{r cars}
-summary(cars)
+priors_versions <- c("v1", "v2", "v3", "v4")
+
+
+versions <- tibble(
+  version = c("v1", "v2", "v3", "v4"),
+  vlabel = c("Priors Do Not Vary by County and Date", 
+             "Distr. for Beta Centered at Empirical Value",
+             "Distr. for P(S_1|untested) and Beta Centered at Empirical Values",
+             "Distr. for P(S_1|untested) Centered at Empirical Value")
+)
+
+
+state_corrected_path <- here("analysis/results/adj_biweekly_county/", state, "/")
+
+
+################################
+# ESTIMATED
+################################
+dates <- readRDS(here("data/date_to_biweek.RDS")) %>%
+  group_by(biweek) %>%
+  summarize(date=min(date))
+
+corrected <- map_df(priors_versions, ~readRDS(
+        paste0(state_corrected_path, "adj_",
+               .x, 
+               ".RDS")) %>% 
+          mutate(version = .x)) %>%
+  left_join(dates)
+
+corrected <- corrected %>%
+  left_join(versions)
+
+
+waste <- readRDS(here("data/county_level", "biobot_wastewater_county.RDS"))
+
+wjoined <- corrected %>%
+  left_join(waste)
+
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+# Wastewater
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+
+```{r}
+
+wjoined %>%
+  group_by(fips) %>%
+  summarize(obs_w_notna = sum(!is.na(mean_conc))) %>%
+  arrange(desc(obs_w_notna))
+
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+
+counties_with_waste <- wjoined %>%
+  group_by(fips) %>%
+  mutate(obs_w_notna = sum(!is.na(mean_conc))) %>%
+  filter(obs_w_notna != 0) %>%
+  pull(fips) %>%
+  unique()
+
+```
+
+# Relationship between Observed Cases and Effective Wastewater Concentration
+
+```{r, fig.width = 9, fig.height = 14}
+
+ma_observed <- readRDS(here("data/county_level/ma/ma_county_biweekly.RDS"))
+
+ma_observed <- ma_observed %>%
+  left_join(waste[,colnames(waste)!="date"]) %>%
+  filter(fips %in% counties_with_waste)  %>%
+  group_by(fips) %>%
+  mutate(positive = positive/population) %>%
+  ungroup()
+
+adj <- max(ma_observed$mean_conc, na.rm=TRUE)/ max(ma_observed$positive, na.rm=TRUE)  
+
+
+# trends in wastewater and observed cases 
+ma_observed %>%
+  group_by(fips) %>%
+ #  mutate(positive = positive/population) %>%
+  # mutate(adj = ifelse( max(positive, na.rm=TRUE) ==0, 0,
+  #                      max(mean_conc,na.rm = TRUE)/ max(positive, na.rm=TRUE))) %>%
+  ungroup() %>%
+  ggplot(aes(x=date, y = positive*adj)) +
+  geom_point(alpha = .3, size = .8) +
+  geom_line() + 
+  geom_line(aes(y=mean_conc), color = "darkred") +
+  geom_point(aes(y=mean_conc), color = "darkred",
+             alpha = .3,
+             size = .8) +
+  facet_wrap(~fips,
+             ncol = 1,
+             scales="free")   +
+  scale_y_continuous(sec.axis = sec_axis(trans = ~ . / (adj),
+                                         name = 'Positive Cases Normalized by Population Size')) +
+  theme_bw()
+
+  
+```
+
+Look at time windows on different scales to better see trends before Omicron.
+
+```{r, fig.width = 12, fig.height = 14}
+
+
+
+# trends in wastewater and observed cases  (split into time windows)
+ma_observed %>%
+  filter(!is.na(mean_conc)) %>%
+   mutate(before = ifelse(date <= mdy("08-01-2021"), "Before 08-01-2021", "After 08-01-2021"),
+          before = factor(before, levels = c("Before 08-01-2021","After 08-01-2021"))) %>%
+  # group_by(fips) %>%
+  # mutate(adj = ifelse( max(positive, na.rm=TRUE) ==0, 0,
+  #                      max(mean_conc,na.rm = TRUE)/ max(positive, na.rm=TRUE))) %>%
+  # ungroup() %>%
+  ggplot(aes(x=date, y = positive*adj)) +
+  geom_point(alpha = .3, size = .8) +
+  geom_line() + 
+  geom_line(aes(y=mean_conc), color = "darkred") +
+  geom_point(aes(y=mean_conc), color = "darkred", alpha = .3, size = .8) +
+  facet_wrap(fips~before,
+             ncol = 2,
+             scales="free")   +
+  scale_y_continuous(sec.axis = sec_axis(trans = ~ . / (adj),
+                                         name = 'Positive Cases')) +
+  theme_bw()
+
+
+```
+
+```{r,eval=FALSE}
+ w_data %>%
+    filter(fips == county_fips  & date >= begin_date & date <= end_date) %>%
+    ggplot() +
+    geom_ribbon(aes(x = date, 
+               ymin = exp_cases_lb*adj,
+               ymax = exp_cases_ub*adj,
+               fill = vlabel),
+               alpha = .7) +
+    geom_line(data = waste,
+              aes(x = date, y =mean_conc ),
+              color = "#DB4048",
+              size = 1.1) +
+    geom_point(data = waste,
+              aes(x = date, y =mean_conc ),
+              color = "#DB4048",
+              alpha = .5,
+              size = 1.2) +
+    facet_wrap(~vlabel) +
+    scale_fill_manual(values = pal) +
+    theme_bw() +
+    theme(
+      legend.position = "none",
+      plot.title = element_text(face = "bold", size = 16, hjust = .5),
+      axis.title = element_text(size = 18),
+      strip.text = element_text(size = 14)
+    )+
+    scale_y_continuous(sec.axis = sec_axis(~./adj,
+                                       name = "Corrected Infection Estimates",
+                                       labels = comma),
+                       labels = comma) +
+    labs(y = "Effective Concentration Rolling Average",
+         title = custom_title) +
+    scale_x_date(date_labels = "%b %Y")
+
+
+```
+
+
+
+```{r, eval=FALSE}
+
+
+pal <- c("#74A09F", "#A0748B", 
+         "#748BA0", "#A08974",
+         "#D49E9F", "#D4B89E", "#AFCFE5")
+
+
+
+
+compare_county_wastewater <- function(county_fips, 
+                                      end_date ="2022-02-12",
+                                      w_data) {
+  
+  county_name <- w_data %>% 
+    filter(fips == county_fips) %>%
+    pull(name) %>%
+    na.omit() %>%
+    unique()
+    
+  custom_title = paste0("Comparing Wastewater Concentration to Corrected Estimates for ",
+                 county_name, "\nFIPS: ", county_fips)
+  
+  end_date <- ymd(end_date)
+  
+  # w_data_for_county <- w_data %>%
+  #   filter(fips == county_fips & date <= end_date)
+  # 
+  # if(nrow(w_data_for_county) == 0) {
+  #   message(paste0("No wastewater data for FIPS: ", 
+  #                  county_fips));
+  #   return()}
+  
+  begin_date <- w_data %>%
+    filter(fips == county_fips & date <= end_date & !is.na(mean_conc)) %>%
+    pull(date) %>%
+    min()
+  
+  
+  adj <- w_data %>%filter(fips == county_fips & date <= end_date) %>% pull(exp_cases_ub) %>% max()
+  
+  conc_max <- w_data %>%filter(fips == county_fips & date <= end_date) %>% pull(mean_conc) %>% max(na.rm=TRUE)
+  
+  adj <- conc_max/adj
+  
+  waste <- w_data %>% 
+    filter(fips == county_fips & date >= begin_date & date <= end_date) %>%
+    select(fips, date, biweek, mean_conc) %>%
+    group_by(biweek, fips) %>%
+    summarize(date = min(date),
+              mean_conc = unique(mean_conc)) %>%
+    distinct()
+  
+  w_data %>%
+    filter(fips == county_fips  & date >= begin_date & date <= end_date) %>%
+    ggplot() +
+    geom_ribbon(aes(x = date, 
+               ymin = exp_cases_lb*adj,
+               ymax = exp_cases_ub*adj,
+               fill = vlabel),
+               alpha = .7) +
+    geom_line(data = waste,
+              aes(x = date, y =mean_conc ),
+              color = "#DB4048",
+              size = 1.1) +
+    geom_point(data = waste,
+              aes(x = date, y =mean_conc ),
+              color = "#DB4048",
+              alpha = .5,
+              size = 1.2) +
+    facet_wrap(~vlabel) +
+    scale_fill_manual(values = pal) +
+    theme_bw() +
+    theme(
+      legend.position = "none",
+      plot.title = element_text(face = "bold", size = 16, hjust = .5),
+      axis.title = element_text(size = 18),
+      strip.text = element_text(size = 14)
+    )+
+    scale_y_continuous(sec.axis = sec_axis(~./adj,
+                                       name = "Corrected Infection Estimates",
+                                       labels = comma),
+                       labels = comma) +
+    labs(y = "Effective Concentration Rolling Average",
+         title = custom_title) +
+    scale_x_date(date_labels = "%b %Y")
+}
+
+
+
+
+```
+
+```{r, eval=FALSE}
+
+compare_county_wastewater(county_fips = "25005", w_data =wjoined)
+
+
+```
+
