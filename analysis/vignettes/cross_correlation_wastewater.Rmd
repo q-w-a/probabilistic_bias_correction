@@ -116,8 +116,8 @@ ma_observed %>%
   ungroup() %>%
   ggplot(aes(x=date, y = positive*adj)) +
   geom_point(alpha = .3, size = .8) +
-  geom_line() + 
-  geom_line(aes(y=mean_conc), color = "darkred") +
+  geom_line(aes(color = 'Positive Cases Normalized by Population')) + 
+  geom_line(aes(y=mean_conc, color = 'Wastewater')) +
   geom_point(aes(y=mean_conc), color = "darkred",
              alpha = .3,
              size = .8) +
@@ -126,7 +126,14 @@ ma_observed %>%
              scales="free")   +
   scale_y_continuous(sec.axis = sec_axis(trans = ~ . / (adj),
                                          name = 'Positive Cases Normalized by Population Size')) +
-  theme_bw()
+  theme_bw()+
+  theme(axis.title = element_text(size = 18),
+        legend.position = "top") +
+  scale_color_manual(name = '',
+                    values=c('Wastewater'='darkred',
+                             'Positive Cases Normalized by Population' = 'black')) +
+  guides(color = guide_legend(override.aes = list(linewidth = 3))) +
+  labs(y = "Effective Concentration of SARS-CoV-2")
 
   
 ```
@@ -148,15 +155,22 @@ ma_observed %>%
   # ungroup() %>%
   ggplot(aes(x=date, y = positive*adj)) +
   geom_point(alpha = .3, size = .8) +
-  geom_line() + 
-  geom_line(aes(y=mean_conc), color = "darkred") +
+  geom_line(aes(color =  'Positive Cases Normalized by Population')) + 
+  geom_line(aes(y=mean_conc, color = 'Wastewater')) +
   geom_point(aes(y=mean_conc), color = "darkred", alpha = .3, size = .8) +
   facet_wrap(fips~before,
              ncol = 2,
              scales="free")   +
   scale_y_continuous(sec.axis = sec_axis(trans = ~ . / (adj),
                                          name = 'Positive Cases')) +
-  theme_bw()
+  theme_bw()+
+  theme(axis.title = element_text(size = 18),
+         legend.position = "top") +
+  scale_color_manual(name = '',
+                    values=c('Wastewater'='darkred',
+                             'Positive Cases Normalized by Population' = 'black')) +
+  guides(color = guide_legend(override.aes = list(linewidth = 3)))+
+  labs(y = "Effective Concentration of SARS-CoV-2")
 
 
 ```
