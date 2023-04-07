@@ -7,16 +7,43 @@ output:
     df_print: paged
     code_folding: hide
     css: !expr here::here('css', 'template.css')
+    toc-depth: 4
   html_document:
     df_print: paged
 ---
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message=FALSE,warning=FALSE)
+knitr::opts_chunk$set(echo = TRUE,
+                      message=FALSE,
+                      warning=FALSE)
 library(tidyverse)
 library(here)
 library(scales)
+library(latex2exp)
+
+
+theme_c <- function(...) {
+  theme_bw() + 
+    theme(
+          ...,
+          axis.title = element_text(size = 14),
+          axis.text.x = element_text(size = 10),
+          plot.title =element_text(size = 16,
+                                   face="bold",
+                                   hjust = .5),
+        plot.subtitle =element_text(size = 14,
+                                   face="italic",
+                                   hjust = .5),
+          strip.text = element_text(size = 13),
+          legend.text = element_text(size = 14))
+}
+
+eval_slow <- FALSE
+
+subset <- TRUE
+#subset <- FALSE
+
 
 ```
 
@@ -30,10 +57,11 @@ priors_versions <- c("v1", "v2", "v3", "v4")
 
 versions <- tibble(
   version = c("v1", "v2", "v3", "v4"),
-  vlabel = c("Priors Do Not Vary by County and Date", 
-             "Distr. for Beta Centered at Empirical Value",
-             "Distr. for P(S_1|untested) and Beta Centered at Empirical Values",
-             "Distr. for P(S_1|untested) Centered at Empirical Value")
+  vlabel = c(
+    "$Priors\\,Do\\,Not\\,Vary\\,by\\,County\\,and\\,Date$", 
+    "$\\beta$ Centered at Empirical Value",
+    "$P(S_1|untested)$ and $\\beta$ Centered at Empirical Values",
+    "$P(S_1|untested)$ Centered at Empirical Value")
 )
 
 
@@ -44,24 +72,66 @@ state_corrected_path <- here("analysis/results/adj_biweekly_county/", state, "/"
 # ESTIMATED
 ################################
 dates <- readRDS(here("data/date_to_biweek.RDS")) %>%
-  group_by(biweek) %>%
-  summarize(date=min(date))
+  group_by(biweek) 
 
 corrected <- map_df(priors_versions, ~readRDS(
         paste0(state_corrected_path, "adj_",
                .x, 
                ".RDS")) %>% 
           mutate(version = .x)) %>%
-  left_join(dates)
+  left_join(dates, relationship = "many-to-many")
 
 corrected <- corrected %>%
   left_join(versions)
 
+covidestim <- readRDS(here("data/covidestim/covidestim_biweekly_all_counties.RDS")) %>%
+  select(-c(date,week)) %>%
+  distinct() 
 
 waste <- readRDS(here("data/county_level", "biobot_wastewater_county.RDS"))
 
+# fill in missing values with rolling mean
+waste <- waste %>% 
+  group_by(fips) %>%
+  # keep track of min biweek make sure to not fill in values
+  # before first data point when using rolled mean
+  mutate(min_biweek = min(biweek)) %>%
+  ungroup() %>%
+  pivot_wider(names_from = biweek,
+              values_from = mean_conc) %>% 
+  pivot_longer(cols = -c(fips,state, name, min_biweek), 
+               names_to = "biweek", 
+               values_to = "mean_conc") %>%
+  mutate(biweek = as.numeric(biweek)) %>%
+  group_by(fips) %>%
+  arrange(biweek) %>%
+  mutate(rolled_mean = RcppRoll::roll_mean(mean_conc,
+                                           n = 4,
+                                           na.rm = TRUE,
+                                           fill = NA),
+         mean_conc = ifelse(is.na(mean_conc) & biweek >= min_biweek, 
+                            rolled_mean, mean_conc)) %>% ungroup()
+
 wjoined <- corrected %>%
-  left_join(waste)
+  inner_join(waste) %>%
+  inner_join(covidestim, relationship = "many-to-many") %>%
+  group_by(biweek) %>%
+  mutate(mindate = min(date),
+         maxdate = max(date)) %>%
+  ungroup()
+
+```
+
+
+
+```{r, eval = FALSE}
+
+waste %>% filter(fips %in% corrected$fips) %>%
+  ggplot(aes(x=biweek,y=mean_conc)) +
+  geom_point() +
+  geom_line() +
+  geom_line(aes(y = rolled_mean), color = "darkred") +
+  facet_wrap(~fips)
 
 ```
 
@@ -104,7 +174,8 @@ ma_observed <- ma_observed %>%
   mutate(positive = positive/population) %>%
   ungroup()
 
-adj <- max(ma_observed$mean_conc, na.rm=TRUE)/ max(ma_observed$positive, na.rm=TRUE)  
+adj <- max(ma_observed$mean_conc, na.rm=TRUE)/ 
+  max(ma_observed$positive, na.rm=TRUE)  
 
 
 # trends in wastewater and observed cases 
@@ -124,8 +195,9 @@ ma_observed %>%
   facet_wrap(~fips,
              ncol = 1,
              scales="free")   +
-  scale_y_continuous(sec.axis = sec_axis(trans = ~ . / (adj),
-                                         name = 'Positive Cases Normalized by Population Size')) +
+  scale_y_continuous(sec.axis = sec_axis(
+    trans = ~ . / (adj),
+    name = 'Positive Cases Normalized by Population Size')) +
   theme_bw()+
   theme(axis.title = element_text(size = 18),
         legend.position = "top") +
@@ -147,8 +219,10 @@ Look at time windows on different scales to better see trends before Omicron.
 # trends in wastewater and observed cases  (split into time windows)
 ma_observed %>%
   filter(!is.na(mean_conc)) %>%
-   mutate(before = ifelse(date <= mdy("08-01-2021"), "Before 08-01-2021", "After 08-01-2021"),
-          before = factor(before, levels = c("Before 08-01-2021","After 08-01-2021"))) %>%
+   mutate(before = ifelse(date <= mdy("10-01-2021"),
+                          "Before 10-01-2021", "After 10-01-2021"),
+          before = factor(before, levels = c(
+            "Before 10-01-2021","After 10-01-2021"))) %>%
   # group_by(fips) %>%
   # mutate(adj = ifelse( max(positive, na.rm=TRUE) ==0, 0,
   #                      max(mean_conc,na.rm = TRUE)/ max(positive, na.rm=TRUE))) %>%
@@ -176,8 +250,10 @@ ma_observed %>%
 ```
 
 ```{r,eval=FALSE}
- w_data %>%
-    filter(fips == county_fips  & date >= begin_date & date <= end_date) %>%
+
+
+wjoined %>%
+  #  filter(fips == county_fips  & date >= begin_date & date <= end_date) %>%
     ggplot() +
     geom_ribbon(aes(x = date, 
                ymin = exp_cases_lb*adj,
@@ -193,7 +269,7 @@ ma_observed %>%
               color = "#DB4048",
               alpha = .5,
               size = 1.2) +
-    facet_wrap(~vlabel) +
+    facet_wrap(~vlabel, labeller= as_labeller(TeX, default = label_parsed)) +
     scale_fill_manual(values = pal) +
     theme_bw() +
     theme(
@@ -215,19 +291,22 @@ ma_observed %>%
 
 
 
-```{r, eval=FALSE}
+```{r}
 
 
-pal <- c("#74A09F", "#A0748B", 
-         "#748BA0", "#A08974",
-         "#D49E9F", "#D4B89E", "#AFCFE5")
+pal <- c("#10BAC5", "#1B10C5", "#EFB719", "#900C3F")
 
-
+# pal <- c("#74A09F", "#A0748B", 
+#          "#748BA0", "#A08974",
+#          "#D49E9F", "#D4B89E", "#AFCFE5")
+# 
+# 
 
 
 compare_county_wastewater <- function(county_fips, 
                                       end_date ="2022-02-12",
-                                      w_data) {
+                                      w_data,
+                                      option = "ribbon") {
   
   county_name <- w_data %>% 
     filter(fips == county_fips) %>%
@@ -235,32 +314,33 @@ compare_county_wastewater <- function(county_fips,
     na.omit() %>%
     unique()
     
-  custom_title = paste0("Comparing Wastewater Concentration to Corrected Estimates for ",
-                 county_name, "\nFIPS: ", county_fips)
+  custom_title = paste0(
+    "Comparing Wastewater Concentration to Corrected Estimates:\n",
+                 county_name,
+    ", FIPS: ",
+    county_fips)
   
   end_date <- ymd(end_date)
-  
-  # w_data_for_county <- w_data %>%
-  #   filter(fips == county_fips & date <= end_date)
-  # 
-  # if(nrow(w_data_for_county) == 0) {
-  #   message(paste0("No wastewater data for FIPS: ", 
-  #                  county_fips));
-  #   return()}
+
   
   begin_date <- w_data %>%
     filter(fips == county_fips & date <= end_date & !is.na(mean_conc)) %>%
     pull(date) %>%
     min()
   
-  
-  adj <- w_data %>%filter(fips == county_fips & date <= end_date) %>% pull(exp_cases_ub) %>% max()
-  
+  if(option == "ribbon") { 
+    adj <- w_data %>%
+      filter(fips == county_fips & date <= end_date) %>%
+      pull(exp_cases_median) %>% max(na.rm = TRUE) }
+  else {
+     adj <- w_data %>%
+       filter(fips == county_fips & date <= end_date) %>% pull(exp_cases_median) %>% max(na.rm = TRUE)
+  }
   conc_max <- w_data %>%filter(fips == county_fips & date <= end_date) %>% pull(mean_conc) %>% max(na.rm=TRUE)
   
   adj <- conc_max/adj
   
-  waste <- w_data %>% 
+  waste_dat <- w_data %>% 
     filter(fips == county_fips & date >= begin_date & date <= end_date) %>%
     select(fips, date, biweek, mean_conc) %>%
     group_by(biweek, fips) %>%
@@ -268,50 +348,676 @@ compare_county_wastewater <- function(county_fips,
               mean_conc = unique(mean_conc)) %>%
     distinct()
   
+  if(option == "ribbon") {
+     w_data %>%
+        plot_ribbon(waste_df = waste_dat, adj, county_fips,
+                    begin_date, end_date, custom_title)
+  }
+  else if(option == "line") {
+     w_data %>%
+        plot_line(waste_df = waste_dat, adj,county_fips,
+                    begin_date, end_date, custom_title)
+  }
+ 
+}
+
+
+
+plot_ribbon <- function(w_data, waste_df,
+                        adj,   county_fips, 
+                        begin_date, end_date,
+                        custom_title) {
+ 
   w_data %>%
     filter(fips == county_fips  & date >= begin_date & date <= end_date) %>%
     ggplot() +
-    geom_ribbon(aes(x = date, 
-               ymin = exp_cases_lb*adj,
-               ymax = exp_cases_ub*adj,
-               fill = vlabel),
-               alpha = .7) +
-    geom_line(data = waste,
-              aes(x = date, y =mean_conc ),
-              color = "#DB4048",
-              size = 1.1) +
-    geom_point(data = waste,
-              aes(x = date, y =mean_conc ),
-              color = "#DB4048",
-              alpha = .5,
-              size = 1.2) +
-    facet_wrap(~vlabel) +
-    scale_fill_manual(values = pal) +
-    theme_bw() +
-    theme(
-      legend.position = "none",
-      plot.title = element_text(face = "bold", size = 16, hjust = .5),
-      axis.title = element_text(size = 18),
-      strip.text = element_text(size = 14)
-    )+
-    scale_y_continuous(sec.axis = sec_axis(~./adj,
-                                       name = "Corrected Infection Estimates",
-                                       labels = comma),
-                       labels = comma) +
-    labs(y = "Effective Concentration Rolling Average",
-         title = custom_title) +
-    scale_x_date(date_labels = "%b %Y")
+      geom_ribbon(aes(x = date, 
+                 ymin = exp_cases_lb*adj,
+                 ymax = exp_cases_ub*adj,
+                 fill = vlabel),
+                 alpha = .4) +
+      geom_line(data = waste_df,
+                aes(x = date, y =mean_conc ),
+                color = "#DB4048",
+                size = 1.1) +
+      geom_point(data = waste_df,
+                aes(x = date, y =mean_conc ),
+                color = "#DB4048",
+                alpha = .5,
+                size = 1.2) +
+      facet_wrap(~vlabel, labeller= as_labeller(TeX, default = label_parsed)) +
+      scale_fill_manual(values = pal) +
+      theme_bw() +
+      theme(
+        legend.position = "none",
+        plot.title = element_text(face = "bold", size = 16, hjust = .5),
+        axis.title = element_text(size = 18),
+        strip.text = element_text(size = 14)
+      )+
+      scale_y_continuous(sec.axis = sec_axis(~./adj,
+                                         name = "Corrected Infection Estimates",
+                                         labels = comma),
+                         labels = comma) +
+      labs(y = "Effective Concentration Rolling Average",
+           title = custom_title) +
+      scale_x_date(date_labels = "%b %Y") 
+  }
+
+
+
+##################
+# LINE PLOTS
+##################
+plot_line <- function(w_data, waste_df,
+                      adj, county_fips, 
+                      begin_date, end_date,
+                      custom_title) {
+  
+ 
+
+    w_data %>% 
+      group_by(fips, biweek, vlabel) %>%
+      summarize(date = min(date),
+                exp_cases_median = unique(exp_cases_median),
+                mean_conc = unique(mean_conc)) %>%
+      filter(fips == county_fips  & date >= begin_date & date <= end_date) %>%
+      ggplot() +
+      geom_point(aes(x = date, 
+                 y = exp_cases_median*adj,
+                 color = vlabel),
+                 alpha = .7) +
+      geom_line(aes(x = date, 
+                 y = exp_cases_median*adj,
+                 color = vlabel),
+                 alpha = 1,
+                linewidth = 1.1) +
+      geom_line(data = waste_df,
+                aes(x = date, y =mean_conc ),
+                color = "#DB4048",
+                size = 0.9) +
+      geom_point(data = waste_df,
+                aes(x = date, y =mean_conc ),
+                color = "#DB4048",
+                alpha = .5,
+                size = 1.1) +
+      facet_wrap(~vlabel, labeller = as_labeller(TeX, default = label_parsed)) +
+      scale_color_manual(values = pal) +
+      theme_bw() +
+      theme(
+        legend.position = "none",
+        plot.title = element_text(face = "bold", size = 16, hjust = .5),
+        axis.title = element_text(size = 18),
+        strip.text = element_text(size = 14)
+      )+
+      scale_y_continuous(sec.axis = sec_axis(~./adj,
+                                         name = "Corrected Infection Estimates",
+                                         labels = comma),
+                         labels = comma) +
+      labs(y = "Effective Concentration Rolling Average",
+           title = custom_title) +
+      scale_x_date(date_labels = "%b %Y")
 }
 
 
 
 
-```
-
-```{r, eval=FALSE}
-
-compare_county_wastewater(county_fips = "25005", w_data =wjoined)
-
 
 ```
+
+# Relationship Between Bias Corrected Counts and Wastewater Effective Concentrations
+
+## Initial Visualizations
+
+```{r, fig.width = 17, fig.height = 6}
+
+counties_with_waste <- if(subset) c("25001","25005") else counties_with_waste
+
+walk(counties_with_waste,
+     ~ {
+       plt1 <- compare_county_wastewater(county_fips =.x, w_data =wjoined, option = "ribbon")
+       plt2 <- compare_county_wastewater(county_fips = .x, w_data =wjoined, option = "line")
+       
+       plt <- cowplot::plot_grid(plt1, plt2, nrow =1)
+       print(plt)
+     })
+
+ # compare_county_wastewater(county_fips = "25005", w_data =wjoined, option="line")
+
+
+```
+
+
+```{r}
+
+compare_county_wastewater_covidestim <- function(county_fips, 
+                                      end_date ="2022-02-12",
+                                      w_data,
+                                      option = "ribbon") {
+  
+  county_name <- w_data %>% 
+    filter(fips == county_fips) %>%
+    pull(name) %>%
+    na.omit() %>%
+    unique()
+    
+  custom_title = paste0(
+    "Comparing Wastewater Concentration to Corrected Estimates:\n",
+                 county_name, ", FIPS: ", county_fips)
+  
+  end_date <- ymd(end_date)
+
+  
+  begin_date <- w_data %>%
+    filter(fips == county_fips & date <= end_date & !is.na(mean_conc)) %>%
+    pull(date) %>%
+    min()
+  
+  if(option == "ribbon") { 
+    adj <- w_data %>%filter(fips == county_fips & date <= end_date) %>%
+      pull(exp_cases_median) %>% max(na.rm = TRUE) }
+  else {
+     adj <- w_data %>%filter(fips == county_fips & date <= end_date) %>% pull(exp_cases_median) %>% max(na.rm = TRUE)
+  }
+  conc_max <- w_data %>%filter(fips == county_fips & date <= end_date) %>% pull(mean_conc) %>% max(na.rm=TRUE)
+  
+  adj <- conc_max/adj
+  
+  waste_dat <- w_data %>% 
+    filter(fips == county_fips & date >= begin_date & date <= end_date) %>%
+    select(fips, date, biweek, mean_conc) %>%
+    group_by(biweek, fips) %>%
+    summarize(date = min(date),
+              mean_conc = unique(mean_conc)) %>%
+    distinct()
+  
+  if(option == "ribbon") {
+     w_data %>%
+        plot_ribbon(waste_df = waste_dat, adj, county_fips,
+                    begin_date, end_date, custom_title)
+  }
+  else if(option == "line") {
+     w_data %>%
+        plot_line(waste_df = waste_dat, adj,county_fips,
+                    begin_date, end_date, custom_title)
+  }
+ 
+}
+
+
+
+plot_ribbon <- function(w_data, waste_df,
+                        adj,   county_fips, 
+                        begin_date, end_date,
+                        custom_title) {
+ 
+  w_data %>%
+    filter(fips == county_fips  & date >= begin_date & date <= end_date) %>%
+    ggplot() +
+      geom_ribbon(aes(x = date, 
+                 ymin = exp_cases_lb*adj,
+                 ymax = exp_cases_ub*adj,
+                 fill = vlabel),
+                 alpha = .5) +
+      geom_line(data = waste_df,
+                aes(x = date, y =mean_conc, color = 'waste'),
+               # color = "#DB4048",
+                size = 1.1) +
+      geom_linerange(aes(xmin = mindate, 
+                         xmax = maxdate, 
+                         y = infections*adj,
+                         color = 'covidestim')) + 
+      geom_point(data = waste_df,
+                aes(x = date, y =mean_conc ),
+                color = "#DB4048",
+                alpha = .5,
+                size = 1.2) +
+      facet_wrap(~vlabel, labeller= as_labeller(TeX, default = label_parsed)) +
+      scale_fill_manual(values = pal, labels = c('','','',''), 
+                        name = "Probabilistic Bias Intervals") +
+      theme_bw() +
+      theme(
+    #    legend.position = "none",
+        plot.title = element_text(face = "bold", size = 16, hjust = .5),
+        axis.title = element_text(size = 18),
+        strip.text = element_text(size = 14),
+        legend.text = element_text(size = 15),
+        legend.title = elementtext(size = 15)
+      )+
+      scale_y_continuous(sec.axis = sec_axis(~./adj,
+                                         name = "Corrected Infection Estimates",
+                                         labels = comma),
+                         labels = comma) +
+      labs(y = "Effective Concentration Rolling Average",
+           title = custom_title) +
+      scale_x_date(date_labels = "%b %Y") +
+    scale_color_manual(name = '', values = c('covidestim' = 'darkblue',
+                                             'waste' = '#DB4048')) +
+    guides(color = guide_legend(override.aes = list(size = 3)))
+  }
+
+
+```
+
+
+```{r, fig.width = 12, fig.height = 6}
+
+walk(counties_with_waste,
+     ~ {
+       plt <- compare_county_wastewater_covidestim(
+         county_fips =.x, w_data =wjoined, option = "ribbon")
+       print(plt)
+     })
+
+```
+
+
+
+## Cross Correlation
+
+
+```{r plot ccf functions}
+
+
+plot_all_ccf <- function(input_df_for_fips, 
+                         varnames= c("differenced_mean_conc",
+                                  "differenced_exp_median")) {
+  
+  versions <- input_df_for_fips %>% 
+    group_split(version)
+  
+  message(length(versions))
+  
+  plt1 <- plot_ccf(versions[[1]], varnames)
+  plt2 <- plot_ccf(versions[[2]], varnames)
+  plt3 <- plot_ccf(versions[[3]], varnames)
+  plt4 <- plot_ccf(versions[[4]], varnames)
+  
+  cowplot::plot_grid(plt1, plt2, plt3, plt4, nrow = 1)
+  
+}
+
+
+plot_ccf <- function(input_df_for_version,
+                     varnames = c("differenced_mean_conc",
+                                  "differenced_exp_median")) {
+  
+  var1 <- varnames[1]
+  var2 <-varnames[2]
+  lab <- unique(input_df_for_version$vlabel)
+  
+  cross_correlations <- ccf(
+    pull(input_df_for_version, var1),
+     pull(input_df_for_version, var2), 
+                            plot = FALSE)
+
+  ccf_res <- tibble(lag = cross_correlations$lag[,,1], 
+                  correlation=cross_correlations$acf[,,1]) 
+
+  
+  county_name <- gsub("County, MA", "", unique(input_df_for_version$name))
+  
+  ccf_res %>%  
+    mutate(max = ifelse(correlation == max(correlation), 
+                        lag, NA),
+           maxcorr = round(max(correlation),3)) %>%
+    ggplot(aes(x=lag, y = correlation)) +
+    geom_point() +
+    geom_linerange(aes(ymin = 0, ymax=correlation)) +
+    theme_c() +
+    theme(plot.title = element_text(size = 12, hjust = .5,
+                                    margin=margin(1,1,8,1)),
+          plot.margin = margin(10,1,1,1),
+            plot.subtitle = element_text(size = 12, hjust = .5, 
+                                         margin = margin(4,1,1,1))) +
+    labs(title =TeX(paste0(
+      "Cross Correlation between $(Y_t)$ and $(Z_t)$, County: ", 
+      county_name)),
+         subtitle = TeX(paste0("Version: ", lab))) +
+    geom_label(aes(x = max, y = correlation,
+                   label = paste0("Max Correlation: ",
+                                  maxcorr, "\n Lag: ",
+                                  max)),
+               hjust = -.1) +
+    ylim(-1,1) +
+    scale_x_continuous(n.breaks = 10)
+    
+}
+
+
+
+
+get_max_lag_by_version <- function(input_df_for_version,
+                                   varnames = c("differenced_mean_conc",
+                                  "differenced_exp_median"),
+                                  comparison = "bias corrected") {
+  
+  var1 <- varnames[1]
+  var2 <-varnames[2]
+  lab <- unique(input_df_for_version$vlabel)
+  
+  cross_correlations <- ccf(
+    pull(input_df_for_version, var1),
+     pull(input_df_for_version, var2), 
+                            plot = FALSE)
+  
+  
+  # cross_correlations <- ccf(input_df_for_version$differenced_mean_conc,
+  #                           input_df_for_version$differenced_exp_median, 
+  #                           plot = FALSE)
+
+  ccf_res <- tibble(lag = cross_correlations$lag[,,1], 
+                  correlation=cross_correlations$acf[,,1]) 
+  
+  m <- ccf_res %>% filter(correlation == max(correlation))
+  
+  tibble(vlabel = unique(input_df_for_version$vlabel),
+         fips = unique(input_df_for_version$fips),
+         max_lag = m$lag,
+         max_corr = m$correlation,
+         comparison = comparison,
+         county_name = unique(input_df_for_version$name))
+
+}
+
+
+
+```
+
+```{r generate differenced df}
+
+differenced_all <- wjoined %>%
+  filter(!is.na(mean_conc)) %>%
+  select(-date) %>%
+  distinct() %>%
+  group_by(vlabel, fips) %>%
+  arrange(biweek) %>%
+  mutate(differenced_exp_median = exp_cases_median -
+           lag(exp_cases_median, n =1),
+         differenced_mean_conc = mean_conc - lag(mean_conc, n = 1),
+         differenced_positive = positive - lag(positive, n = 1),
+         differenced_covidestim = infections - lag(infections, n = 1)) %>%
+  ungroup() %>%
+  filter(!is.na(differenced_exp_median) & !is.na(differenced_mean_conc)) %>%
+  ungroup()
+
+
+```
+
+
+
+### Cross Correlation (Wastewater and Covidestim Estimates)
+
+```{r wastewater covidestim, fig.width = 16}
+
+# glimpse(differenced_all)
+
+fips_sub <- if(subset) c("25001","25005") else unique(differenced_all$fips)
+
+differenced_all_sub <- differenced_all %>%
+  filter(fips %in% fips_sub)
+
+differenced_all_sub %>% 
+  filter(version == "v1" & !is.na(differenced_covidestim)) %>%
+  group_by(fips) %>%
+  group_split() %>% 
+  walk(~ { 
+    plt <- .x %>% plot_ccf(varnames= c("differenced_mean_conc",
+                                  "differenced_covidestim"))
+    print(plt)})
+
+
+```
+
+
+### Cross Correlation (Wastewater and Observed Cases)
+
+```{r, error = FALSE, out.width = "80%"}
+
+# cross correlation plots for each county
+differenced_all_sub %>% 
+  filter(version == "v1") %>%
+  group_by(fips) %>%
+  group_split() %>% 
+  walk(~ { 
+    plt <- .x %>% plot_ccf(varnames= c("differenced_mean_conc",
+                                  "differenced_positive"))
+    print(plt)})
+
+```
+
+
+
+
+
+### Cross Correlation (Wastewater and Bias-Corrected Cases)
+
+
+```{r, fig.width = 23}
+
+# cross correlation plots for each county
+differenced_all_sub %>% 
+  group_by(fips) %>%
+  group_split() %>%
+  walk(~ { 
+    plt <- .x %>% plot_all_ccf()
+    print(plt)})
+
+```
+
+
+# Compare Lags with Maximum Correlation Between Covidestim, Wastewater, and Bias Corrected Counts
+
+
+## Compare Lags Among versions of Bias Corrected Counts 
+
+For each county, lag with the maximum correlation:
+
+```{r, fig.width = 12, fig.height =5}
+
+# lags for bias-corrected counts
+lags_all_pb <- differenced_all %>%
+  group_by(fips, vlabel) %>%
+  group_split() %>%
+  map_df(get_max_lag_by_version)
+
+
+lags_all_pb %>%
+  group_by(fips) %>%
+  summarize(`Lags with Maximum Correlation in Some Version` =
+              paste0(unique(max_lag), collapse =", "))
+  
+
+
+# lags for observed counts
+lags_all_observed <- differenced_all %>% 
+  filter(version == "v1") %>%
+  group_by(fips) %>%
+  group_split()%>%
+  map_df(~get_max_lag_by_version(
+    input_df_for_version = .x,
+    varnames= c("differenced_mean_conc",
+                "differenced_positive"),
+   comparison = "observed" )) %>%
+  select(-vlabel)
+
+
+cols <- c("red", "#10BAC5", "#1B10C5", "#EFB719", "#900C3F")
+cols <- c("red",pal)
+names(cols ) <- c("observed", unique(lags_all_pb$vlabel))
+
+# compare pb max correlations to those for observed counts 
+lags_all_pb %>%
+  bind_rows(lags_all_observed) %>%
+   mutate(source = ifelse(!is.na(vlabel), vlabel, comparison)) %>%
+  group_by(fips) %>%
+  mutate(m = median(max_corr)) %>%
+  ungroup() %>%
+  mutate(max_lag=factor(max_lag)) %>%
+  ggplot(aes(x=fct_reorder(fips,m, 
+                           .desc = TRUE),
+             y = max_corr,
+             color = source, 
+             shape = max_lag,
+             size = comparison)) +
+  geom_point() +
+  scale_color_manual(values=cols,
+                      labels = TeX(c('$observed$',
+                                   lags_all_pb$vlabel))) +
+  theme_bw() +
+  theme_c() +
+  theme(axis.text.x = element_text(angle  = 60, vjust = .5),
+        legend.text = element_text(size = 11),
+        axis.text.y = element_text(size = 11)) +
+  labs(y = "Maximum Correlation") +
+  scale_size_discrete(breaks = c(1.5,2),
+                      range = c(1.5,2),
+                      labels = c("bias corrected", "observed")) +
+  labs(x = "County FIPS",
+       y = "Maximum Correlation",
+       title = "Comparing Maximum Correlation of Bias Corrected Counts with Wastewater\nto that Between Observed Cases and Wastewater",
+       shape = "Maximum Lag",
+       color = "Time Series Compared with Wastewater:") +
+  guides(shape = guide_legend(override.aes = list(size = 2)),
+         color= guide_legend(override.aes = list(size = 2)))
+
+
+
+
+
+ggsave(here("thesis/figure/correlation_observed_pb.jpeg"))
+
+
+
+# max series by rank; use for following comparison
+max_series_by_rank <- lags_all_pb %>%
+  group_by(fips) %>%
+  mutate(r = rank(max_corr),
+            series = vlabel[which.max(r)]) %>%
+  group_by(series) %>%
+  summarize(n=n()) %>%
+  filter(n==max(n)) %>%
+  pull(series)
+
+# lags_all_pb %>%
+#   mutate(max_lag=factor(max_lag)) %>%
+#   ggplot(aes(x=fips, y = max_corr,
+#              color = vlabel, 
+#              shape = max_lag)) +
+#   geom_point(size = 2) +
+#   viridis::scale_color_viridis(option ="magma", 
+#                                discrete=TRUE,
+#                                end=.95, 
+#                                labels = TeX(lags_all_pb$vlabel)) +
+#   theme_bw() +
+#   labs(y = "Maximum Correlation") 
+
+
+```
+
+
+```{r, fig.width = 12, fig.height =5}
+
+
+
+# max lags for covidestim
+lags_all_covidestim <- differenced_all %>% 
+  filter(version == "v1") %>%
+  group_by(fips) %>%
+  group_split()%>%
+  map_df(~get_max_lag_by_version(
+    input_df_for_version = .x,
+    varnames= c("differenced_mean_conc",
+                "differenced_covidestim"),
+    comparison = "Covidestim"))
+
+
+lags_all <- lags_all_pb %>%
+  filter(vlabel == max_series_by_rank) %>%
+  bind_rows(lags_all_observed) %>%
+  bind_rows(lags_all_covidestim) 
+
+
+pal <- c("red", "#EFB719", "#0C6B90")
+names(pal) <- c("observed", "bias corrected", "Covidestim")
+
+lags_all %>% 
+  group_by(fips) %>%
+  mutate(m= median(max_corr),
+         max_lag = as_factor(max_lag)) %>%
+  ungroup() %>%
+  ggplot(aes(x=fct_reorder(fips,m, .desc = TRUE),
+             y = max_corr,
+             color = comparison, 
+             shape = max_lag)) +
+ #  geom_point(size = 2, position=position_dodge(width =.5)) +
+  geom_jitter(height=0,width =.1, size =2) +
+  scale_color_manual(values=pal,
+                      labels = TeX(c('$observed$',
+                                     '$Covidestim$',
+                                   max_series_by_rank))) +
+  theme_bw() +
+  theme_c() +
+  theme(axis.text.x = element_text(angle  = 60, vjust = .4),
+        legend.text = element_text(size = 11),
+        axis.text.y = element_text(size = 11)) +
+  labs(y = "Maximum Correlation") +
+  labs(x = "County FIPS",
+       y = "Maximum Correlation",
+       title = paste0(
+         "Comparing Maximum Correlation of Bias Corrected, Covidestim, and Observed Counts\nwith Wasterwater Concentrations"),
+       shape = "Maximum Lag",
+       color = "Time Series Compared with Wastewater:") +
+  guides(shape = guide_legend(override.aes = list(size = 2)),
+         color= guide_legend(override.aes = list(size = 2)))
+
+
+
+ggsave(here("thesis/figure/correlation_observed_pb_covidestim.jpeg"))
+
+
+```
+
+Maximum at lag = -1 $\implies$ wastewater leads cases by 1 biweek.
+
+```{r, fig.height = 10}
+
+county_names <- wjoined %>%
+  select(name, fips) %>% 
+  distinct() %>%
+  filter(!is.na(name)) %>%
+  filter(fips %in% lags_all_pb$fips)
+
+  
+  
+lags_all_pb %>%
+  left_join(county_names) %>%
+  mutate(name = gsub(" County, MA", "", name)) %>%
+  mutate(
+         max_lag = paste0("Lag: ", max_lag)) %>%
+  ggplot(aes(x = name, y = max_corr, fill = max_lag)) +
+  geom_bar(stat="identity",
+           position = "dodge",
+           show.legend=FALSE) + 
+  facet_wrap(~vlabel+max_lag, 
+             labeller=as_labeller(
+               latex2exp::TeX, default = label_parsed),
+             ncol = 2,
+             scales= "free_x") +
+  theme_c() +
+  theme(axis.text.x = element_text(angle = 30, vjust = .6)) +
+  viridis::scale_fill_viridis(discrete=TRUE,
+                              option="mako",
+                              begin = .4,
+                              end = .8)
+
+
+
+
+```
+
+```{r}
+# Note on thesis - add a couple examples on why beta kernel and gaussian kernel perform relatively similarly in this case (i.e. induced distributions).
+
+```
+
 
