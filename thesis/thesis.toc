@@ -1,62 +1,66 @@
 \contentsline {chapter}{Chapter 1: Motivation}{1}{chapter.1}%
 \contentsline {chapter}{Chapter 2: Background}{3}{chapter.2}%
-\contentsline {section}{\numberline {2.1}Probabalistic Bias Analysis}{3}{section.2.1}%
-\contentsline {section}{\numberline {2.2}Background for the Approach}{4}{section.2.2}%
+\contentsline {section}{\numberline {2.1}Probabalistic Bias Analysis}{5}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Background for the Approach}{5}{section.2.2}%
 \contentsline {subsection}{\numberline {2.2.1}Simple Discrete Example}{5}{subsection.2.2.1}%
-\contentsline {subsection}{\numberline {2.2.2}General Solution for the Discrete Case}{7}{subsection.2.2.2}%
-\contentsline {subsection}{\numberline {2.2.3}General Solution for the Continuous Case}{7}{subsection.2.2.3}%
-\contentsline {subsection}{\numberline {2.2.4}Implementation through the Sampling-Importance-Resampling Algorithm}{8}{subsection.2.2.4}%
-\contentsline {section}{\numberline {2.3}Bayesian Melding Applied to COVID-19 Misclassification}{9}{section.2.3}%
-\contentsline {subsection}{\numberline {2.3.1}Distribution of \(\theta = \{\alpha , \beta , P(S_1|\text {untested}) \}\)}{10}{subsection.2.3.1}%
-\contentsline {subsection}{\numberline {2.3.2}Direct Prior and Induced Prior Distributions for \(P(S_0|\text {test}_+,\text {untested})\)}{10}{subsection.2.3.2}%
-\contentsline {subsection}{\numberline {2.3.3}Pooling}{11}{subsection.2.3.3}%
-\contentsline {subsection}{\numberline {2.3.4}Derivation of \(M\)}{13}{subsection.2.3.4}%
-\contentsline {section}{\numberline {2.4}Sampling-Importance-Resampling Algorithm }{15}{section.2.4}%
-\contentsline {subsection}{\numberline {2.4.1}Overview}{15}{subsection.2.4.1}%
-\contentsline {subsection}{\numberline {2.4.2}Proof that Algorithm Obtains Approximate Sample from Target Distribution}{15}{subsection.2.4.2}%
-\contentsline {subsubsection}{Example 1:}{18}{section*.13}%
-\contentsline {subsubsection}{Example 2:}{19}{section*.16}%
-\contentsline {subsection}{\numberline {2.4.3}Obtaining Logarithmic Pooled Distribution with the Sampling-Importance-Resampling Algorithm}{20}{subsection.2.4.3}%
-\contentsline {subsection}{\numberline {2.4.4}Implications of the Sample Size and Resample Size}{20}{subsection.2.4.4}%
-\contentsline {section}{\numberline {2.5}LOESS Smoothing}{26}{section.2.5}%
-\contentsline {subsection}{\numberline {2.5.1}Introduction}{26}{subsection.2.5.1}%
-\contentsline {subsection}{\numberline {2.5.2}Fitting the LOESS Curve}{27}{subsection.2.5.2}%
-\contentsline {section}{\numberline {2.6}Kernel Density Estimation}{31}{section.2.6}%
-\contentsline {subsection}{\numberline {2.6.1}Overview}{31}{subsection.2.6.1}%
-\contentsline {subsection}{\numberline {2.6.2}Bounded Density Estimation}{32}{subsection.2.6.2}%
-\contentsline {chapter}{Chapter 3: Definition of Prior Distributions for Bias Parameters}{37}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Background on the Beta Distribution}{38}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Background on the Gamma Distribution}{38}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Definition of Prior Distributions for Incomplete Testing Correction}{38}{section.3.3}%
-\contentsline {subsection}{\numberline {3.3.1}Defining \(P(S_1|Untested)\)}{38}{subsection.3.3.1}%
-\contentsline {subsection}{\numberline {3.3.2}Defining \(\alpha \)}{38}{subsection.3.3.2}%
-\contentsline {subsection}{\numberline {3.3.3}Defining \(\beta \)}{38}{subsection.3.3.3}%
-\contentsline {subsection}{\numberline {3.3.4}Defining \(P(S_0|test+,untested)\)}{38}{subsection.3.3.4}%
-\contentsline {section}{\numberline {3.4}Definition of Priors for Test Inaccuracy Correction}{38}{section.3.4}%
-\contentsline {subsection}{\numberline {3.4.1}Defining Test Sensitivity (\(S_e\))}{38}{subsection.3.4.1}%
-\contentsline {section}{\numberline {3.5}Defining Test Specificity (\(S_p\))}{38}{section.3.5}%
-\contentsline {section}{\numberline {3.6}Summary Table of Bias Parameter Distributions}{38}{section.3.6}%
-\contentsline {section}{\numberline {3.7}Correction for Incomplete Testing}{38}{section.3.7}%
-\contentsline {section}{\numberline {3.8}Correction for Diagnostic Test Inaccuracy}{38}{section.3.8}%
-\contentsline {subsection}{\numberline {3.8.1}Derivation of Formula for Correction for Diagnostic Test Inaccuracy}{38}{subsection.3.8.1}%
-\contentsline {chapter}{Chapter 4: Details of Implementation}{39}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Reproducible Workflow}{39}{section.4.1}%
-\contentsline {chapter}{Chapter 5: Results}{41}{chapter.5}%
-\contentsline {section}{\numberline {5.1}County-level}{41}{section.5.1}%
-\contentsline {section}{\numberline {5.2}State-level}{41}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Comparison to the Covidestim Model}{41}{section.5.3}%
-\contentsline {subsection}{\numberline {5.3.1}Overview}{41}{subsection.5.3.1}%
-\contentsline {subsection}{\numberline {5.3.2}The Covidestim Model}{41}{subsection.5.3.2}%
-\contentsline {subsection}{\numberline {5.3.3}Assumptions}{41}{subsection.5.3.3}%
-\contentsline {section}{\numberline {5.4}Comparison to Other Indicators}{41}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Limitations of this Comparison}{41}{section.5.5}%
-\contentsline {subsection}{\numberline {5.5.1}Simulation: Bivariate Normal}{41}{subsection.5.5.1}%
-\contentsline {subsection}{\numberline {5.5.2}Derivation of the Distribution of X+Y for Bivariate Normal}{41}{subsection.5.5.2}%
-\contentsline {section}{\numberline {5.6}Seropositivity Data}{41}{section.5.6}%
-\contentsline {section}{\numberline {5.7}County-level}{41}{section.5.7}%
-\contentsline {section}{\numberline {5.8}State-level}{41}{section.5.8}%
-\contentsline {chapter}{Chapter 6: Appendix}{43}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Smoothing Span}{43}{section.6.1}%
-\contentsline {subsection}{\numberline {6.1.1}Changing SPAN for LOESS Smoothing of \(\beta \)}{43}{subsection.6.1.1}%
-\contentsline {section}{\numberline {6.2}Changing Mean and Variance for Prior Distribution Specifications}{43}{section.6.2}%
-\contentsline {chapter}{References}{45}{chapter*.33}%
+\contentsline {subsection}{\numberline {2.2.2}General Solution for the Discrete Case}{5}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}General Solution for the Continuous Case}{5}{subsection.2.2.3}%
+\contentsline {subsection}{\numberline {2.2.4}Implementation through the Sampling-Importance-Resampling Algorithm}{5}{subsection.2.2.4}%
+\contentsline {section}{\numberline {2.3}Bayesian Melding Applied to COVID-19 Misclassification}{5}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Distribution of \(\theta = \{\alpha , \beta , P(S_1|\text {untested}) \}\)}{5}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Direct Prior and Induced Prior Distributions for \(P(S_0|\text {test}_+,\text {untested})\)}{5}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}Pooling}{5}{subsection.2.3.3}%
+\contentsline {subsection}{\numberline {2.3.4}Derivation of \(M\)}{5}{subsection.2.3.4}%
+\contentsline {section}{\numberline {2.4}Sampling-Importance-Resampling Algorithm }{5}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Overview}{5}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Proof that Algorithm Obtains Approximate Sample from Target Distribution}{5}{subsection.2.4.2}%
+\contentsline {subsubsection}{Example 1:}{5}{section*.5}%
+\contentsline {subsubsection}{Example 2:}{5}{section*.6}%
+\contentsline {subsection}{\numberline {2.4.3}Obtaining Logarithmic Pooled Distribution with the Sampling-Importance-Resampling Algorithm}{5}{subsection.2.4.3}%
+\contentsline {subsection}{\numberline {2.4.4}Implications of the Sample Size and Resample Size}{5}{subsection.2.4.4}%
+\contentsline {section}{\numberline {2.5}LOESS Smoothing}{5}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Introduction}{5}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}Fitting the LOESS Curve}{5}{subsection.2.5.2}%
+\contentsline {section}{\numberline {2.6}Kernel Density Estimation}{5}{section.2.6}%
+\contentsline {subsection}{\numberline {2.6.1}Overview}{5}{subsection.2.6.1}%
+\contentsline {subsection}{\numberline {2.6.2}Bounded Density Estimation}{5}{subsection.2.6.2}%
+\contentsline {chapter}{Chapter 3: Definition of Prior Distributions for Bias Parameters}{7}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Background on the Beta Distribution}{8}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Background on the Gamma Distribution}{8}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Definition of Prior Distributions for Incomplete Testing Correction}{8}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Defining \(P(S_1|Untested)\)}{8}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Defining \(\alpha \)}{8}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}Defining \(\beta \)}{8}{subsection.3.3.3}%
+\contentsline {subsection}{\numberline {3.3.4}Defining \(P(S_0|test+,untested)\)}{8}{subsection.3.3.4}%
+\contentsline {section}{\numberline {3.4}Definition of Priors for Test Inaccuracy Correction}{8}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Defining Test Sensitivity (\(S_e\))}{8}{subsection.3.4.1}%
+\contentsline {section}{\numberline {3.5}Defining Test Specificity (\(S_p\))}{8}{section.3.5}%
+\contentsline {section}{\numberline {3.6}Summary Table of Bias Parameter Distributions}{8}{section.3.6}%
+\contentsline {section}{\numberline {3.7}Correction for Incomplete Testing}{8}{section.3.7}%
+\contentsline {section}{\numberline {3.8}Correction for Diagnostic Test Inaccuracy}{8}{section.3.8}%
+\contentsline {subsection}{\numberline {3.8.1}Derivation of Formula for Correction for Diagnostic Test Inaccuracy}{8}{subsection.3.8.1}%
+\contentsline {chapter}{Chapter 4: Details of Implementation}{9}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Reproducible Workflow}{9}{section.4.1}%
+\contentsline {chapter}{Chapter 5: Results}{11}{chapter.5}%
+\contentsline {section}{\numberline {5.1}County}{11}{section.5.1}%
+\contentsline {section}{\numberline {5.2}State}{11}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Comparison to the Covidestim Model}{11}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Overview}{11}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}The Covidestim Model}{11}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}Assumptions}{11}{subsection.5.3.3}%
+\contentsline {subsection}{\numberline {5.3.4}The Model}{11}{subsection.5.3.4}%
+\contentsline {subsection}{\numberline {5.3.5}Comparison to Other Indicators}{11}{subsection.5.3.5}%
+\contentsline {subsection}{\numberline {5.3.6}Comparison to Other Indicators}{11}{subsection.5.3.6}%
+\contentsline {subsection}{\numberline {5.3.7}Limitations of this Comparison}{11}{subsection.5.3.7}%
+\contentsline {section}{\numberline {5.4}Seropositivity Data}{11}{section.5.4}%
+\contentsline {section}{\numberline {5.5}County-level}{11}{section.5.5}%
+\contentsline {section}{\numberline {5.6}State-level}{11}{section.5.6}%
+\contentsline {section}{\numberline {5.7}Cross Correlation Comparison}{11}{section.5.7}%
+\contentsline {chapter}{Appendix A: Appendix}{13}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Smoothing Span}{13}{section.A.1}%
+\contentsline {subsection}{\numberline {A.1.1}Changing SPAN for LOESS Smoothing of \(\beta \)}{13}{subsection.A.1.1}%
+\contentsline {section}{\numberline {A.2}Changing Mean and Variance for Prior Distribution Specifications}{13}{section.A.2}%
+\contentsline {section}{\numberline {A.3}Relationship Between \((X+Y)_\alpha \) and \(X_alpha\) +\(Y_\alpha \) for Dependent Variables \(X,Y\)}{13}{section.A.3}%
+\contentsline {subsection}{\numberline {A.3.1}Simulation: Bivariate Normal}{13}{subsection.A.3.1}%
+\contentsline {subsection}{\numberline {A.3.2}Derivation of the Distribution of X+Y for Bivariate Normal}{16}{subsection.A.3.2}%
+\contentsline {chapter}{References}{19}{appendix*.11}%

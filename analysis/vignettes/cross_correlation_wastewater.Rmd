@@ -581,7 +581,7 @@ plot_ribbon <- function(w_data, waste_df,
         axis.title = element_text(size = 18),
         strip.text = element_text(size = 14),
         legend.text = element_text(size = 15),
-        legend.title = elementtext(size = 15)
+        legend.title = element_text(size = 15)
       )+
       scale_y_continuous(sec.axis = sec_axis(~./adj,
                                          name = "Corrected Infection Estimates",

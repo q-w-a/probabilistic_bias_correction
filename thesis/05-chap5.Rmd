@@ -11,10 +11,9 @@ knitr::opts_chunk$set(echo = FALSE,
 
 # Results
 
+## County
 
-## County-level
-
-## State-level
+## State
 
 
 
@@ -24,7 +23,7 @@ knitr::opts_chunk$set(echo = FALSE,
 
 One challenge in correcting for biases in general is that although we may have some information about the influence of possible biases, we do not have a ground truth for comparison. However, one approach to handle the fact that the true cases are unobserved is comparing our estimates to those from other approaches seeking to estimate a similar quantity. In particular, if other approaches make different assumptions and come to a similar result, this can give us more confidence in our estimates. 
 
-The most notable project seeking to estimate the true infection burden at the county-level over time is the COVIDestim project. In this work, Chitwood et al. proposed a mechanistic model that includes states for asymptomatic/pre-symptomatic infection, symptomatic but mild infection, severe COVID-19 presentations, and death. This approach also enables the estimation of $R_t$, the number of secondary infections a single infected individual causes at time $t$.  
+One notable project seeking to estimate the true infection burden at the county-level over time is the COVIDestim project. In this work, Chitwood et al. proposed a mechanistic model that includes states for asymptomatic/pre-symptomatic infection, symptomatic but mild infection, severe COVID-19 presentations, and death. This approach also enables the estimation of $R_t$, the number of secondary infections a single infected individual causes at time $t$.  
 This is a useful quantity to estimate, but is sensitive to reporting delays and changes in testing practices (https://academic.oup.com/aje/article/190/9/1908/6217341).
 
 ### The Covidestim Model
@@ -53,497 +52,58 @@ The COVIDestim model uses age-specific estimates of IFR produced by O’Driscoll
 One thing to consider is that infection fatality rate may vary over time, as treatments may vary, as well as the demographics of individuals being infected. For example, during the school year, more students may test positive but will be less likely to die on average than adults (PROVIDE SOURCE FOR THIS). However, these estimates are difficult to acquire; COVIDestim assumed a higher case fatality in 2020 given the novelty of the virus and consequent lack of available treatments.
 
 
-## Comparison to Other Indicators
+
+
+One challenge in correcting for biases in general is that although we may have some information about the influence of possible biases, we do not have a ground truth for comparison. However, one approach to handle the fact that the true cases are unobserved is comparing our estimates to those from other approaches seeking to estimate a similar quantity. In particular, if other approaches make different assumptions and come to a similar result, this can give us more confidence in our estimates. 
+
+The most notable project seeking to estimate the true infection burden at the county-level over time is the COVIDestim project. In this work, Chitwood et al. proposed a mechanistic model that includes states for asymptomatic/pre-symptomatic infection, symptomatic but mild infection, severe COVID-19 presentations, and death. This approach also enables the estimation of $R_t$, the number of secondary infections a single infected individual causes at time $t$.  
+This is a useful quantity to estimate, but is sensitive to reporting delays and changes in testing practices (https://academic.oup.com/aje/article/190/9/1908/6217341).
+
+### The Model
+
+Chitwood et al. propose a Bayesian evidence synthesis model. To estimate the expected cases and deaths at a particular point in time, the model uses a convolution of the time series of observed cases and deaths and reporting delay distributions that are specific to the health state categories. This enables the model to account for the fact that reporting delay is different  For any health state, for example, asymptomatic, the individual can either transition to the next health state (symptomatic) or recover. Thus, with each transition between a defined health state, for example, asymptomatic, there is a probability of transitioning to the next health state (in this case, asymptomatic → symptomatic); the complement of this probability is the probability of recovery. 
+
+Each of these transitions is defined by a delay distribution. For example, the distribution for moving from asymptomatic to symptomatic represents the probability an individual moves to the symptomatic state at a point in time. The probabilities asymptomatic to symptomatic and symptomatic to severe are modeled as not varying with time. Meanwhile, the probability of transitioning from severe to death was defined to be higher in 2020 due to higher case fatalities early in the pandemic. The infection fatality rates, adjusted to be specific to a given state or county based on age distributions and the prevalence of risk factors for COVID-19, are used to inform the probability of moving from the severe category to the death category. 
+
+The change in daily infections from the previous day (i.e., the new infections) is calculated as a function of the estimated effective reproductive number $R_t$  and the mean serial interval, where serial interval is the time from the onset of infection of a primary case to the time of onset of infection in the secondary case. $R_t$ is estimated using a log-transformed cubic spline, under the assumption individuals can only be infected once.
+
+They also defined a distribution for the delay to diagnosis, which was distinct by health state category to reflect differences in diagnosis delays that occur depending on the disease severity. 
+The probability of diagnosis among different health states was allowed to vary by time to reflect changing testing rates throughout the pandemic.
+
+A separate distribution models the reporting delay to correct the total number of diagnoses on a given day for the fact that these diagnoses correspond to past infections. 
+
+The observed cases and death data for each state to the model were fitted using negative binomial likelihood functions. 
+Assumptions
+
+This approach relies on infection fatality ratios and death counts to estimate the true case counts. Thus, it is sensitive to estimates of infection fatality rate, with higher infection fatality ratio estimates resulting in lower estimated infections. The infection fatality ratio is defined as the proportion of COVID-19 infections that lead to death, which means there is uncertainty in estimating both the numerator and the denominator of the ratio. The true cumulative incidence depends on the same uncertainties in estimating the true case burden at any point in time. Estimating the infection fatality ratio itself is a challenging task. 
+
+The COVIDestim model uses age-specific estimates of IFR produced by O’Driscoll et al (https://www.nature.com/articles/s41586-020-2918-0).  This group used national-level age-stratified, and when possible sex-stratified, COVID-19 death counts and cumulative infection estimates from seroprevalence studies. Of note, the estimates of infection fatality ratio are assumed to be constant over time, which may not be the case due to improving treatments (FIND EXAMPLE) or different variants leading to less severe presentations (FIND PAPER ON OMICRON SEVERITY). 
+
+One thing to consider is that infection fatality rate may vary over time, as treatments may vary, as well as the demographics of individuals being infected. For example, during the school year, more students may test positive but will be less likely to die on average than adults (PROVIDE SOURCE FOR THIS). However, these estimates are difficult to acquire; COVIDestim assumed a higher case fatality in 2020 given the novelty of the virus and consequent lack of available treatments.
+
+
+### Comparison to Other Indicators
 
 There are known issues with seroprevalence estimates. For one, these samples are drawn from a convenience (i.e. nonrandom) sample of individuals with blood specimens taken for purposes other than COVID-19 antibody detection (https://www.cdc.gov/coronavirus/2019-ncov/cases-updates/commercial-lab-surveys.html). Secondly, while a positive serological test is evidence for infection, a negative serological test is less clear to interpret. The person may have been infected but not yet have developed antibodies, or their immune system may not have produced antibodies at a detectable level (https://www.cdc.gov/coronavirus/2019-ncov/covid-data/serology-surveillance/index.html). 
 
- Indeed, Chitwood et al. found limited concordance between their estimates and seroprevalence data. However, there was a stronger correlation between estimates of cumulative infection and cumulative hospitalizations and cumulative deaths \footnote{ The correlation employed here is the Spearman rank correlation, which measures the strength of the monotonic relationship rather than the strength of the linear relationship, in which case the Pearson correlation coefficient is the usual choice. The Spearman rank correlation is equivalent to the Pearson correlation of the rank values rather than the values themselves (https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient). This distinction is important here since we are interested in the strength of the monotonic relationship rather than the linear relationship between these values. }. 
-
-\newpage 
-## Limitations of this Comparison
-
-At this point in the pandemic, there is no true gold standard to compare to. Covidestim is one model, among many, that makes key assumptions about aspects of the virus. Another note is that estimates from the Covidestim model are reported on the daily timescale for counties, while the probabilistic approach we implemented here is at the biweekly time scale. For the comparison, we summed the corresponding 2-week intervals for 
-
-To ensure the comparisons are on the same time scale, we sum the reported 95% credible intervals for the days in each 2-week interval. These intervals do not represent a 95% credible interval for the 2-week interval, and while such an interval would be ideal for the comparison, computation of a 95% credible interval for the two-week interval is not feasible because of the model structure. Due to the correlation between observations for each day for a given location, summing the intervals yields an estimate that is likely to be more conservative than a true 95% credible interval for the two-week interval would be.
-
-```{r,eval=FALSE, include=FALSE}
-nsamp <- 1e3
-sigma <- matrix(c(1,.6^2, .6^2, 1), byrow = TRUE, nrow = 2)
-means <- c(.5, .8)
-
-X <- MASS::mvrnorm(n = nsamp, mu = means, Sigma = sigma)
+ Indeed, Chitwood et al. found limited concordance between their estimates and seroprevalence data. However, there was a stronger correlation between estimates of cumulative infection and cumulative hospitalizations and cumulative deaths \footnote{The correlation employed here is the Spearman rank correlation, which measures the strength of the monotonic relationship rather than the strength of the linear relationship, in which case the Pearson correlation coefficient is the usual choice. The Spearman rank correlation is equivalent to the Pearson correlation of the rank values rather than the values themselves (https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient). }. 
 
 
-sim_data <- X %>%
-  as_tibble()
 
-sim_data %>%
-  ggplot(aes(x = V1, y = V2)) +
-  geom_point(alpha = .5) +
-  geom_density_2d()
+### Comparison to Other Indicators
 
+There are known issues with seroprevalence estimates. For one, these samples are drawn from a convenience (i.e. nonrandom) sample of individuals with blood specimens taken for purposes other than COVID-19 antibody detection (https://www.cdc.gov/coronavirus/2019-ncov/cases-updates/commercial-lab-surveys.html). Secondly, while a positive serological test is evidence for infection, a negative serological test is less clear to interpret. The person may have been infected but not yet have developed antibodies, or their immune system may not have produced antibodies at a detectable level (https://www.cdc.gov/coronavirus/2019-ncov/covid-data/serology-surveillance/index.html). 
 
-nsamp <- 1e4
-sigma <- matrix(c(1,0, 0, 1), byrow = TRUE, nrow = 2)
-means <- c(.8, .8)
-
-X <- MASS::mvrnorm(n = nsamp, mu = means, Sigma = sigma)
-
-
-sim_data <- X %>%
-  as_tibble() %>%
-  mutate(lb_v1 = quantile(V1, 0.025),
-         ub_v1 = quantile(V1, 0.975),
-         lb_v2 = quantile(V2, 0.025),
-         ub_v2 = quantile(V2, 0.975)) 
-
-sim_data %>%
-  ggplot() +
-  geom_point(aes(x= V1,y=V2), alpha = .08) +
-  geom_point(color = "red", x = .8, y = .8) +
-  geom_density_2d(aes(x= V1,y=V2)) +
-  xlim(-2,3) +
-  ylim(-2,3) +
-  geom_density(aes(x = V1), fill = "black", alpha = .8)+
-  geom_density(aes(y = V2), fill = "black", alpha = .8) +
-  geom_vline(aes(xintercept = lb_v1), color = "darkred", size = .9) +
-  geom_vline(aes(xintercept = ub_v1), color = "darkred", size = .9)+
-  geom_hline(aes(yintercept = lb_v2), color = "darkred", size = .9) +
-  geom_hline(aes(yintercept = ub_v2), color = "darkred",, size = .9) +
-  theme_bw()
-
-```
+ Indeed, Chitwood et al. found limited concordance between their estimates and seroprevalence data. However, there was a stronger correlation between estimates of cumulative infection and cumulative hospitalizations and cumulative deaths \footnote{ The correlation employed here is the Spearman rank correlation, which measures the strength of the monotonic relationship rather than the strength of the linear relationship, in which case the Pearson correlation coefficient is the usual choice. The Spearman rank correlation is equivalent to the Pearson correlation of the rank values rather than the values themselves. This distinction is important here since we are interested in the strength of the monotonic relationship rather than the linear relationship between these values. }. 
 
 \newpage 
 
-### Simulation: Bivariate Normal 
+### Limitations of this Comparison
 
-We can see this in a concrete example. Let $(X,Y)$ be bivariate normal with $\boldsymbol \mu = \begin{pmatrix} 0\\0\end{pmatrix}$ and correlation matrix $\boldsymbol \Sigma = \begin{pmatrix} 1 & \rho \\ \rho & 1 \end{pmatrix}$, and hence where $X, Y$ are marginally standard normal random variables. 
+At this point in the pandemic, there is no true gold standard to compare to. Covidestim is one model, among many, that makes key assumptions about aspects of the virus. Another note is that estimates from the Covidestim model are reported on the daily timescale for counties, while the probabilistic approach we implemented here is at the biweekly time scale. 
 
-We let the subscript $\alpha$ denote the $\alpha^{th}$ and the subscript $1-\alpha$ denote the $(1-\alpha)^{th}$ quantile of the distribution. 
+To ensure the comparisons are on the same time scale, we sum the reported 95% credible intervals for the days in each 2-week interval. These intervals do not represent a 95% credible interval for the 2-week interval, and while such an interval would be ideal for the comparison, computation of a 95% credible interval for the two-week interval is not feasible because of the model structure. Due to the correlation between observations for each day for a given location, summing the intervals yields an estimate that is likely to be more conservative than a true 95% credible interval for the two-week interval would be. More detail on this assumption is in [the appendix](#conservativeintervals). 
 
-In Figure \ref{fig:simmvn}, in each panel, we increase the correlation $\rho$ between $X$ and $Y$ by 0.25 units and plot the sum $X +Y$ against $X$. The vertical lines represent quantiles $X_{0.025}$ and $X_{0.975}$, and the horizontal lines represent the quantiles  $(X+Y)_{0.025}$ and $(X+Y)_{0.975}$.
-
-We see in Figure \ref{fig:simmvn} that when we increase the correlation between $X$ and $Y$, the width of the interval $\Big((X+Y)_\alpha, (X+Y)_{1-\alpha}\Big)$ increases.
-
-```{r,fig.show = 'hold', out.width ="96%", fig.height = 2.5, fig.cap = "\\label{fig:simmvn}"}
-
-
-
-
-library(MASS)
-library(latex2exp)
-library(tidyverse)
-
-nsamp <- 1e4
-# corr = cov / sd_1 * sd_2
-# since both sd = 1
-
-
-sim <- function(corr, data = FALSE) {
-  sigma <- matrix(c(1,corr, corr, 1), byrow = TRUE, nrow = 2)
-  means <- c(0, 0)
-  X <- MASS::mvrnorm(n = nsamp, mu = means, Sigma = sigma)
-
-
-  sim_data <- X %>%
-    as_tibble() %>%
-    mutate(lb_v1 = quantile(V1, 0.025),
-           ub_v1 = quantile(V1, 0.975),
-           lb_v2 = quantile(V2, 0.025),
-           ub_v2 = quantile(V2, 0.975))  %>%
-    mutate(sum = V1 + V2,
-           lb = quantile(sum, .025),
-           ub = quantile(sum, .975))
-  
-  
-  plt1 <- sim_data %>%
-    ggplot(aes(x = sum)) +
-    geom_density(fill = "black", alpha = .8) +
-    geom_vline(aes(xintercept = lb),
-               color = "darkred", size = .9) +
-    geom_vline(aes(xintercept = ub),
-               color = "darkred", size = .9) +
-    labs(title =  TeX(paste0("$\\left( (X+Y)_\\alpha, (X+Y)_{1-\\alpha}\\right)$ =",
-                             " (",
-                      round(unique(sim_data$lb), 3),
-                      ",",
-                      round(unique(sim_data$ub), 3),
-                      ")"
-                      )),
-         x = "X+Y")+
-    theme_bw() +
-    theme(plot.title = element_text(size = 11, hjust = .5),
-          plot.subtitle = element_text(size = 11, hjust = .5)) +
-    xlim(-8,8) +
-    ylim(0,.3)
-
-  plt2 <- sim_data %>%
-    ggplot() +
-    geom_point(aes(x= V1,y=V1+V2), alpha = .08, size = .2) +
-    geom_point(color = "red", x = means[1], y = means[2]) +
-    geom_density_2d(aes(x= V1,y=V1+V2)) +
-   # geom_density_2d(aes(x= V1,y=V2)) +
-    xlim(-6,6) +
-    ylim(-6,6) +
-    geom_vline(aes(xintercept = lb_v1), color = "darkred", size = .9) +
-    geom_vline(aes(xintercept = ub_v1), color = "darkred", size = .9)+
-    geom_hline(aes(yintercept = lb), color = "darkred", size = .9) +
-    geom_hline(aes(yintercept = ub), color = "darkred",, size = .9) +
-    theme_bw() +
-    theme(plot.title = element_text(size = 11, hjust = .5),
-          plot.subtitle = element_text(size = 11, hjust = .5)) +
-    labs(x = "X",
-         y= "X+Y",
-         title = paste0("Correlation: ",
-                        corr, 
-                        "\nX: (", round(unique(sim_data$lb_v1),3), ", ",
-                        round( unique(sim_data$ub_v1),3), ")",
-                        "\nY:  (", round(unique(sim_data$lb_v2),3), ", ", 
-                        round(unique(sim_data$ub_v2),3), ")"
-                        ),
-         subtitle = TeX(paste0(
-           "$(X_{\\alpha} + Y_{\\alpha}, X_{1-\\alpha} + Y_{1-\\alpha})$ = (", 
-                               round(unique(sim_data$lb_v1) + unique(sim_data$lb_v2),3 ),
-                               ", ",
-                               round(unique(sim_data$ub_v1) + unique(sim_data$ub_v2),3 ),
-                               ")")))
-  
-  if (data) {
-    sim_data %>% 
-      dplyr::select(-c(V1,V2,sum)) %>% 
-      distinct() %>%
-      mutate(corr= corr)
-  }
-  else {
-    cowplot::plot_grid(plt1,plt2, nrow = 1)
-  }
-  
-  
-  
-}
-
-
-# plot_sim(.2)
-
-walk(seq(0, 1, length = 5), ~{
-  plt <-sim(.x)
-  print(plt)
-})
-
-```
-
-In Figure \ref{fig:comp-intervals}, we compare the intervals defined by taking the quantiles of the sum, $\Big((X+Y)_\alpha, (X+Y)_{1-\alpha}\Big)$, to the intervals taken by summing the quantiles individually, $\Big(X_\alpha +Y_\alpha, \; X_{1-\alpha} +Y_{1-\alpha}\Big)$. We notice that, as we saw in Figure \ref{fig:simmvn}, increasing the correlation increases the width of the interval $\Big((X+Y)_\alpha, (X+Y)_{1-\alpha}\Big)$, while the interval $\Big(X_\alpha +Y_\alpha, \; X_{1-\alpha} +Y_{1-\alpha}\Big)$ is constant since changing the correlation does not change the marginal quantiles $X_\alpha, X_{1-\alpha}$.,
-
-
-```{r, fig.cap = "\\label{fig:comp-intervals}", fig.height = 3.5, fig.width = 6}
-dat <- map_df(seq(-1, 1, length = 11), ~sim(corr = .x, data = TRUE))
-
-dat %>%
-  mutate(lb_separate = lb_v1+lb_v2,
-         ub_separate = ub_v1+ub_v2) %>%
-  dplyr::select(corr, lb,ub,lb_separate,ub_separate) %>%
-  pivot_longer(-c(corr)) %>%
-  mutate(source = ifelse(grepl("separate", name),
-                         "Sum of Quantiles", "Quantiles of Sum")) %>%
-  mutate(name = gsub("_separate", "", name)) %>%
-  pivot_wider(names_from = name, values_from = value) %>%
-  ggplot(aes(x= corr, ymin = lb, ymax = ub, color = source)) +
-  geom_errorbar(position=position_dodge(width=.2),
-                size = 1.2) +
-  theme_bw() +
-  scale_x_continuous(breaks =seq(-1, 1, length = 11)) +
-  labs(x = "Correlation Between X and Y",
-       y = "0.025 and 0.975 Quantiles",
-       color = "") +
-  viridis::scale_color_viridis(discrete = TRUE, begin = .2, end = .7)
-
-```
-
-```{r,  fig.show = 'hold', out.width ="96%", fig.height = 3.2, include = FALSE}
-
-library(MASS)
-library(latex2exp)
-library(tidyverse)
-
-nsamp <- 1e4
-# corr = cov / sd_1 * sd_2
-# since both sd = 1
-
-
-sim <- function(corr, data = FALSE) {
-  sigma <- matrix(c(1,corr, corr, 1), byrow = TRUE, nrow = 2)
-  means <- c(0, 0)
-  X <- MASS::mvrnorm(n = nsamp, mu = means, Sigma = sigma)
-
-
-  sim_data <- X %>%
-    as_tibble() %>%
-    mutate(lb_v1 = quantile(V1, 0.025),
-           ub_v1 = quantile(V1, 0.975),
-           lb_v2 = quantile(V2, 0.025),
-           ub_v2 = quantile(V2, 0.975))  %>%
-    mutate(sum = V1 + V2,
-           lb = quantile(sum, .025),
-           ub = quantile(sum, .975))
-  
-  
-  plt1 <- sim_data %>%
-    ggplot(aes(x = sum)) +
-    geom_density(fill = "black", alpha = .8) +
-    geom_vline(aes(xintercept = lb),
-               color = "darkred", size = .9) +
-    geom_vline(aes(xintercept = ub),
-               color = "darkred", size = .9) +
-    labs(title =  TeX(paste0("$\\left( (X+Y)_\\alpha, (X+Y)_{1-\\alpha}\\right)$ =",
-                             " (",
-                      round(unique(sim_data$lb), 3),
-                      ",",
-                      round(unique(sim_data$ub), 3),
-                      ")"
-                      )),
-         x = "X+Y")+
-    theme_bw() +
-    theme(plot.title = element_text(size = 11, hjust = .5),
-          plot.subtitle = element_text(size = 11, hjust = .5)) +
-    xlim(-8,8) +
-    ylim(0,.3)
-
-  plt2 <- sim_data %>%
-    ggplot() +
-    geom_point(aes(x= V1,y=V2), alpha = .08, size = .2) +
-    geom_point(color = "red", x = means[1], y = means[2]) +
-    geom_density_2d(aes(x= V1,y=V2)) +
-    xlim(-4,4) +
-    ylim(-4,4) +
-    geom_density(aes(x = V1), fill = "black", alpha = .8)+
-    geom_density(aes(y = V2), fill = "black", alpha = .8) +
-    geom_vline(aes(xintercept = lb_v1), color = "darkred", size = .9) +
-    geom_vline(aes(xintercept = ub_v1), color = "darkred", size = .9)+
-    geom_hline(aes(yintercept = lb_v2), color = "darkred", size = .9) +
-    geom_hline(aes(yintercept = ub_v2), color = "darkred",, size = .9) +
-    theme_bw() +
-    theme(plot.title = element_text(size = 11, hjust = .5),
-          plot.subtitle = element_text(size = 11, hjust = .5)) +
-    labs(x = "X",
-         y= "Y",
-         title = paste0("Correlation: ", 
-                        corr, 
-                        "\nX: (", 
-                        round(unique(sim_data$lb_v1),3), ", ",
-                        round( unique(sim_data$ub_v1),3), ")",
-                        "\nY:  (", round(unique(sim_data$lb_v2),3), ", ", 
-                        round(unique(sim_data$ub_v2),3), ")"
-                        ),
-         subtitle = TeX(paste0("$(X_{\\alpha} + Y_{\\alpha}, X_{1-\\alpha} + Y_{1-\\alpha})$ = (", 
-                               round(unique(sim_data$lb_v1) + unique(sim_data$lb_v2),3 ),
-                               ", ",
-                               round(unique(sim_data$ub_v1) + unique(sim_data$ub_v2),3 ),
-                               ")")))
-  
-  if (data) {
-    sim_data %>% 
-      dplyr::select(-c(V1,V2,sum)) %>% 
-      distinct() %>%
-      mutate(corr= corr)
-  }
-  else {
-    cowplot::plot_grid(plt1,plt2, nrow = 1)
-  }
-  
-  
-  
-}
-
-
-# plot_sim(.2)
-
-walk(seq(0, 1, length = 5), ~{
-  plt <-sim(.x)
-  print(plt)
-})
-
-
-dat <- map_df(seq(-1, 1, length = 11), ~sim(corr = .x, data = TRUE))
-
-dat %>%
-  mutate(lb_separate = lb_v1+lb_v2,
-         ub_separate = ub_v1+ub_v2) %>%
-  dplyr::select(corr, lb,ub,lb_separate,ub_separate) %>%
-  pivot_longer(-c(corr)) %>%
-  mutate(source = ifelse(grepl("separate", name),
-                         "Sum of Quantiles", "Quantiles of Sum")) %>%
-  mutate(name = gsub("_separate", "", name)) %>%
-  pivot_wider(names_from = name, values_from = value) %>%
-  ggplot(aes(x= corr, ymin = lb, ymax = ub, color = source)) +
-  geom_errorbar(position=position_dodge(width=.2),
-                size = 1.2) +
-  theme_bw() +
-  scale_x_continuous(breaks =seq(-1, 1, length = 11)) +
-  labs(x = "Correlation Between X and Y",
-       y = "0.025 and 0.975 Quantiles",
-       color = "") +
-  viridis::scale_color_viridis(discrete = TRUE, begin = .2, end = .7,
-                               labels = c(
-                                'Sum of Quantiles' = 
-                                  TeX("Sum of Quantiles: $\\; X_\\alpha + Y_\\alpha$"),
-                                'Quantiles of Sum' =
-                                  TeX("Quantile of Sums: $\\; (X+Y)_\\alpha$")))
-
-
-```
-
-
-
-
-As we see in Figure \ref{fig:comp-intervals}, the intervals are identical when $X,Y$ are perfectly correlated. This result is not dependent on the choice of distribution, as we can show by considering  CDFs and quantile functions of a general distribution. 
-
-\begin{tcolorbox}[title = Quantiles of the Sum of Perfectly Correlated Random Variables]
-When two random variables $X$ and $Y$ are perfectly correlated,
-$$X_\alpha + Y_\alpha = (X+Y)_\alpha.$$
-\end{tcolorbox}
-
-When $X$ and $Y$ are perfectly correlated, $Y$ must be a linear combination of $X$, so we can write $X+Y= X+bX=(1+b)X$.
-
-Then, let the $\alpha^{th}$ quantile of $(1+b)X$ be $x_\alpha$. By definition of the quantile function, we have 
-
-$$F^{-1}_{(1+b) X } (\alpha) = x_\alpha \implies P((1+b) X \leq x_\alpha) = \alpha.$$
-Since $(1+b)$ is just a constant, we can divide to yield
-
-$$P\Big( X \leq x_\alpha/(1+b) \Big) = \alpha.$$
-To optain hte quantile for $bX$, we can multiply each side by $b$ to yield
-$$P\Big( bX \leq bx_\alpha/(1+b) \Big) = \alpha.$$
-Putting these results together, we have 
-\begin{align*}
-F^{-1}_{bX} (\alpha) + F^{-1}_{X} (\alpha) = \frac{bx_\alpha } { 1+b} + \frac{x_\alpha}{1+b}
-&= x_\alpha 
-&= F^{-1}_{(1+b)X}(\alpha) \end{align*}
-
-
-
-
-
-```{r,include=FALSE,eval=FALSE}
-$$F_{2X}(x_\alpha) = P(2X\leq x_\alpha) = \alpha \implies P(X \leq x_\alpha/2) = \alpha.$$
-Thus, we have $F_X^{-1} (\alpha) = x_\alpha/2$ and $F_{2X}^{-1}
-
-
-$$F_{2X}^{-1}(\alpha) = x_\alpha \implies F^{-1}_X(\alpha) = x_\alpha /2$$
-$$F_{2X}^{-1}(\alpha) = F^{-1}_X(\alpha) + F^{-1}_X(\alpha).$$
-```
-
-
-### Derivation of the Distribution of X+Y for Bivariate Normal
-
-
-We can see why we observe this relationship between intervals based on the the sum of the $\alpha^{th}$ quantiles of the individual distributions, $X_\alpha + Y_\alpha$, and the intervals based on the $\alpha^{th}$ quantile of the distribution of $X+Y$ by considering the definition of the quantile function of the normal distribution. 
-
-
-Defining $Z=g(X,Y) = X+Y$, we can obtain the density function by a change of variables. Notice if $g(X,Y) = X+Y$, $g^{-1}(X,Z) = Z-X$, so we have
-
-\begin{align*} f_{X,Z}(x,z) &= f_{X,Y}(x,g^{-1}(x,z)) \left|\frac{\partial g^{-1}(x,z)}{\partial z}\right| \\
-f_{X,Z}(x,z) &= f_{X,Y}(x,z-x) \left|\frac{\partial (x-z)}{\partial z}\right|\\
-f_{X,Z}(x,z) &= f_{X,Y}(x,z-x) \left|1\right|\\
-f_{X,Z}(x,z) &= f_{X,Y}(x,z-x) \\
-\end{align*}
-
-Then, we can marginalize out $X$ to get the PDF of $f_Z$ by taking 
-
-$$f_Z(z) = \int_{\infty}^\infty f(x,z-x) \; dx.$$ 
-
-Since $(X,Y)$ is bivariate normal with correlation $\rho$, the PDF is given by 
-
-$$f(x,y) = \dfrac{exp\left[\dfrac{-1}{2(1-\rho^2)} \left( \dfrac{(x-\bar x)^2}{\sigma_x^2}+\dfrac{(y-\bar y)^2}{\sigma_x^2} - \dfrac{2 \rho (x-\bar x)(y-\bar y)}{\sigma_x\sigma_y} \right)\right]}{2\pi \sigma_x \sigma_y \sqrt{1- \rho^2}}$$
-
-Integrating with respect to $x$^[This integration is extremely long and technical, so we do not include it here.], we have
-
-$$f_Z(z)  = \int_{-\infty}^\infty \dfrac{\exp\left[\dfrac{-1}{2(1-\rho^2)} \left( \dfrac{(x-\bar x)^2}{\sigma_x^2}+\dfrac{(y-\bar y)^2}{\sigma_x^2} - \dfrac{2 \rho (x-\bar x)(z-x-\bar y)}{\sigma_x\sigma_y} \right)\right]}{2\pi \sigma_x \sigma_y \sqrt{1- \rho^2}} dx $$
-$$=\dfrac{\exp\left[-\dfrac{(z-(\bar x + \bar y ))^2}{2(\sigma^2_x+\sigma^2_y + 2\rho \sigma_x \sigma_y)}\right]}{\sqrt{2\pi(\sigma_x^2 + \sigma_y^2 + 2\rho \sigma_x \sigma_y)}}.$$
-It follows that $Z$ is a normal random variable with mean $\bar x + \bar y$ and standard deviation $\sqrt{\sigma_x^2 +\sigma_y^2 + 2 \rho \sigma_x \sigma_y }$.
-
-
-In Figure \ref{fig:ex-sim-normal}, we plot the density estimate of the distribution of $X+Y$ for $(X,Y) \sim MVN\left( \begin{pmatrix} 0\\0 \end{pmatrix}, \begin{pmatrix} 1 & 0.2 \\0.2 & 1 \end{pmatrix}\right)$ and plot the density of the random variable $X+Y = Z \sim N\left(\bar x + \bar y,\sqrt{\sigma_x^2 +\sigma_y^2 + 2 \rho \sigma_x \sigma_y }\right)$ and see they are in close alignment, as expected.
-
-
-```{r, fig.cap="\\label{fig:ex-sim-normal} The theoretical density of $N\\left(\\bar x + \\bar y,\\sqrt{\\sigma_x^2 +\\sigma_y^2 + 2 \\rho \\sigma_x \\sigma_y }\\right)$ is plotted in red over the kernel density estimate of the observed distribution of $X+Y$."}
-
-nsamp <- 1e5
-corr <- .25
-sigma <- matrix(c(1,corr, corr, 1), byrow = TRUE, nrow = 2)
-means <- c(0, 0)
-X <- MASS::mvrnorm(n = nsamp, mu = means, Sigma = sigma)
-  
-sim_data <- X %>%
-    as_tibble() %>%
-    mutate(lb_v1 = quantile(V1, 0.025),
-           ub_v1 = quantile(V1, 0.975),
-           lb_v2 = quantile(V2, 0.025),
-           ub_v2 = quantile(V2, 0.975))  %>%
-    mutate(sum = V1 + V2,
-           lb = quantile(sum, .025),
-           ub = quantile(sum, .975))
-  
-  
-  
-# corr = covariance since both sd's are equal to 1
-sim_data %>%
-  mutate(theoretical_sum = rnorm(nsamp, mean = 0, sd = sqrt(1+1 + 2*corr*1*1)),
-         observed_sum = V1+V2) %>%
- # dplyr::select(theoretical_sum, observed_sum) %>%
- # pivot_longer(everything()) %>%
-  ggplot(aes(x = observed_sum))+
-  geom_density(fill = "#46947A", alpha = .8) +
-  stat_function(fun=dnorm, args = list(mean = 0, sd = sqrt(1+1 + 2*corr)),
-                color = "darkred",
-                size = 1.3) +
-  theme_bw() +
-  theme(plot.title = element_text(hjust = .5, size= 14),
-        axis.title = element_text(size= 12)) +
-  labs(title = TeX(paste0("$Z \\sim N\\left(\\bar x + \\bar y, ",
-  "\\sqrt{\\sigma_x^2 +\\sigma_y^2 + 2 \\rho \\sigma_x \\sigma_y }\\right)$")),
-  x = "X+Y",
-  y = "Density") 
-
-
-
-
-```
-
-
-Since we now know $Z \sim N\left(\bar x + \bar y,\sqrt{\sigma_x^2 +\sigma_y^2 + 2 \rho \sigma_x \sigma_y }\right)$, we can consider the quantile function of the normal distribution, which is defined as
-
-$$F_Z^{-1}(\alpha)=\mu +\sigma_Z \; \text{erf}^{-1}(2\alpha - 1).$$
-and since $\sigma_Z=\sqrt{\sigma_x^2 +\sigma_y^2 + 2 \rho \sigma_x \sigma_y }$ we have
-$$F_Z^{-1}(\alpha)=\mu + \left(\sqrt{\sigma_x^2 +\sigma_y^2 + 2 \rho \sigma_x \sigma_y } \right) \; \text{erf}^{-1}(2\alpha - 1).$$
-Now, we note the inverse error function $\text{erf}^{-1}$ is increasing (Figure \ref{fig:erf}).
-
-This means if $\alpha > 0.5$, $F_Z^{-1}$ is increasing with increasing values of $\rho$, and if $\alpha < 0.5$, $F_Z^{-1}$ is decreasing with increasing values of $\rho$.
-
-This if we have a pair of correlated random variables $(X_1,Y_1)$ and $(X_2,Y_2)$ and $\rho_{X_1,Y_1} > \rho_{X_2,Y_2}$ and consider $\alpha < 0.5$,
-
-$$(X_1+Y_1)_\alpha <(X_2+Y_2)_\alpha$$
-
-and 
-
-$$(X_1+Y_1)_{1-\alpha} > (X_2+Y_2)_{1-\alpha}.$$
-This is exactly what we observed in Figure \ref{fig:comp-intervals}.
-
-
-```{r, fig.cap = "\\label{fig:erf}"}
-
-
-tibble(x = seq(-1,1, by = .01),
-       y  = pracma::erfinv(x)) %>%
-  ggplot(aes(x=x,y=y)) +
-  geom_line(color = "#466094", size  =1.2) +
-  theme_bw() +
-  theme(plot.title = element_text(hjust = .5, size= 14),
-        axis.title = element_text(size= 12)) +
-  labs(y = TeX("$erf^{-1}(x)$"),
-       title = TeX("$erf^{-1}(x)$ on (0,1)"))
-
-
-```
 
 ## Seropositivity Data
 
@@ -555,4 +115,21 @@ To add
 ## County-level
 
 ## State-level
+
+## Cross Correlation Comparison
+
+
+An ongoing challenge for assessing the quality of the probabilistic bias intervals is that there is no ground truth to compare to. To broaden our comparison beyond Covidestim, we can look at wastewater data.
+
+Wastewater data is a source of data that has been of rising interest throughout the pandemic, in part due to its cost effectiveness in assessing community-level burden, but also due to the fact it represents a much more unbiased sample than COVID-19 testing does.
+
+That said, there are challenges in relating wastewater concentrations to the true number of infections, in part because of the same issue we face here of the lack of ground truth for the true number of infections in any location. The choice of normalization of the viral RNA concentrations of SARS-CoV-2 is important for understanding how these concentrations scale to the number of infections, since the concentration of virus (in genome copies per liter) in a sample will be influenced by various factor unrelated to the true prevalence COVID-19, such as processing differences between treatment plants or trends in water usage. One common choice is to normalize against the concentration of a virus that has a relatively stable population in wastewater, such as Pepper Mild Mottle Virus (PMMoV) [@zhan2022].
+
+Wastewater testing has become increasingly widespread throughout the pandemic as the technology and analysis approaches have evolved, as well as the demand for a source of data on the presence of COVID-19 that is less reliant on access to tests (or symptoms strong enough to warrant a test, which differ by the variants circulating). A comprehensive source of wastewater data across the United States is provided by Biobot Analytics, which is the institution partnering with the CDC for the National Wastewater Surveillance System (NWSS) [@duvallet2022]. Biobot Analytics provide wastewater concentrations aggregated at the county scale by using a weighted average of the concentrations at sampling locations within the county, weighted by the size of the corresponding sewershed populations. This data is publicly available on a public github repository.
+
+Most notable for this work, several counties in Massachusetts have reported wastewater data for a substantial period throughout 2021 to 2022. This allows us to compare the bias-corrected estimates -- as well as the Covidestim estimates -- to the wastewater concentrations.
+
+To compare 
+Because we are interested in how these time series are related, as well as to 
+
 

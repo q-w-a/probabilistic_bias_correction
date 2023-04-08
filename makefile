@@ -1,7 +1,7 @@
 
 all: data/state_level/tests_daily_all_states.RDS analysis/county_level_correction/county_level_correction_ma.html thesis
 
-thesis/_book/thesis.pdf:  $(wildcard thesis/*)
+thesis/_book/thesis.pdf:  $(wildcard thesis/*) analysis/vignettes/cross_correlation_wastewater.Rmd
       # generate citations based on Rmd files in thesis directory
 			Rscript thesis/generate_citations.R 
 			# knit thesis 

@@ -127,11 +127,12 @@ Ultimately, COVID-19 case counts are a key metric that informs our understanding
 # Overview of Approach 
 
 
- This work is based on the paper *Substantial underestimation of SARS-CoV-2 infection in the United States* by Wu *et al.* [@wuSubstantialUnderestimationSARSCoV22020]. The original implementation considered a single time interval early in the pandemic, with the objective to estimate the true number of cases as of April 18, 2020 at the state level. When we consider the estimates, we can look at both the estimates for total infections by state, but also the ratio of the estimated total cases to the observed cases.  This enables us to think about the way case ascertainment varies by state, as we see below. 
+ This work is based on the paper *Substantial underestimation of SARS-CoV-2 infection in the United States* by Wu *et al.* [@wuSubstantialUnderestimationSARSCoV22020]. The original implementation considered a single time interval early in the pandemic, with the objective to estimate the true number of cases as of April 18, 2020 at the state level. When we consider the estimates, we can look at both the estimates for total infections by state, but also the ratio of the estimated total cases to the observed cases.  This enables us to think about the way case ascertainment varies by state, as we see in Figure 
+ \ref{fig:originalfigwu}.
  
  
  
-```{r, echo = FALSE, out.width="50%", caption = "Figure from Wu et al. (2020) showing the ratio of total estimated infections when accounting for imperfect diagnostic test accuracy and incomplete testing to the number of cases confirmed by a positive PCR test."}
+```{r, echo = FALSE, out.width="50%", fig.cap = "\\label{fig:originalfigwu}Figure from Wu et al. (2020) showing the ratio of total estimated infections when accounting for imperfect diagnostic test accuracy and incomplete testing to the number of cases confirmed by a positive PCR test."}
  
 knitr::include_graphics("./figure/figure_original_case_ratio.png")
 # ![](./figure/figure_original_case_ratio.png){width=200}
