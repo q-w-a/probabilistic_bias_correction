@@ -6,9 +6,13 @@ knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE,
                       cache = FALSE,
                       fig.align ='center',
-                      fig.width = 6,
-                      fig.height = 3 ,
-                      dpi = 400)
+                     out.width="100%",
+                     fig.height = 3.5)
+
+library(tidyverse)
+
+library(latex2exp)
+
 ```
 
 
@@ -23,9 +27,6 @@ rbbt::bbt_insert()
 
 ```{r, echo = FALSE }
 
-library(tidyverse)
-
-library(latex2exp)
 
 theme_c <- function(...){ 
    # font <- "Helvetica"   #assign font family up front
@@ -483,7 +484,7 @@ est_P_A_testpos = function(P_S_untested, alpha, beta){
 
 ```
 
-```{r}
+```{r, cache=FALSE}
 
 # set prior parameters
 alpha_mean = .95
@@ -523,11 +524,12 @@ theta <- tibble(alpha = sample_gamma_density(pre_nsamp,
 
 ```
 
-```{r create theta.png,eval=FALSE}
+```{r create theta.png, fig.cap = "\\label{fig:theta}"}
 
-png(here::here("thesis/figure/theta.png"), width = 1000, height = 500)
+# png(here::here("thesis/figure/theta.png"), width = 1000, height = 500)
 
-theta %>% select(-phi_induced) %>%
+theta %>% 
+  select(-c(phi_induced)) %>%
   rename( "$\\alpha$" = alpha,
           "$\\beta$" = beta,
          "$P(S_1|untested)$" = P_S_untested ) %>%
@@ -535,12 +537,12 @@ theta %>% select(-phi_induced) %>%
   ggplot(aes(x=value)) +
   geom_density(alpha = .8, fill = "black") +
   theme_bw() +
-   theme(plot.title = element_text(size =20, 
+   theme(plot.title = element_text(size =14, 
                                    face="bold",
                                    hjust = .5),
-          strip.text = element_text(size = 17, color="white"),
+          strip.text = element_text(size = 14, color="white"),
          axis.text = element_text(size = 14),
-         axis.title = element_text(size = 16),
+         axis.title = element_text(size = 14),
          strip.background = element_rect(fill = "#3E3D3D")
           )  +
    labs(x = "Value",
@@ -553,14 +555,14 @@ theta %>% select(-phi_induced) %>%
                                     default = label_parsed)
              )
 
-dev.off()
+# dev.off()
 # ggsave("./img/theta.png", dpi = 800)
 
 ```
 
-```{r,fig.width=7, fig.align='center', fig.cap = "\\label{fig:theta}", fig.pos = "H"}
+```{r,fig.width=7, fig.align='center',, fig.pos = "H"}
 
-knitr::include_graphics(here::here("thesis/figure/theta.png"))
+# knitr::include_graphics(here::here("thesis/figure/theta.png"))
 
 ```
 
@@ -596,7 +598,7 @@ theta %>%
           plot.title = element_text(size = 12),
           axis.text.y = element_blank()) +
   scale_fill_manual(values = c("#577C9C", "#56BFA8")) +
-  labs(title = TeX("Direct and Induced Distributions on $P(S_0|untested, +)$"),
+  labs(title = TeX("Direct and Induced Distributions on $P(S_0|untested, +)$", bold = TRUE),
        fill = "",
        y = "Density",
        x = "Value")
@@ -619,7 +621,7 @@ Once we have these weights, we resample the $\phi_1,\dots,\phi_M$ to obtain a sa
 We see the melded distributions and pre-melding distributions in Figure \ref{fig:melded}. 
 
 
-```{r create melded figure, eval=FALSE}
+```{r,fig.cap = "\\label{fig:melded}", fig.height=6}
 
 
 # theta contains values sampled from alpha, beta, P_S_untested, and M(theta) = phi_induced
@@ -728,22 +730,16 @@ legend <- get_legend(
   p1
 )
 
-png(here::here("thesis/figure/melded.png"), width =500,height=500)
+# png(here::here("thesis/figure/melded.png"), width =500,height=500)
 
 cowplot::plot_grid(
   p1,
   p2,
   nrow = 2
 )
-dev.off()
+# dev.off()
 
 # ggsave("./img/melded.png", dpi = 700)
-
-```
-
-```{r, fig.cap = "\\label{fig:melded}", fig.width=7}
-
-knitr::include_graphics(here::here("thesis/figure/melded.png"))
 
 ```
 
@@ -860,7 +856,7 @@ $w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))}
 
 
 
-\begin{tcolorbox}
+\begin{tcolorbox}[title=Function $M$ Relating Testing Positivity Parameters to Asymptomatic Rate]
 Suppose we sample $Y_1, Y_2, \dots, Y_m$ independently and identically distributed with probability density function  $g$ and compute the weights
 \[ w_i =\dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) }\]
 for some nonnegative function $h$ defined on the support of $Y$.
@@ -1190,7 +1186,7 @@ $$ \propto \int^z h(x) \; f_X(x) \; dx.$$
 
 When we have an initial sample of size $m$ from $g$, denoted $Y_1,\dots,Y_m$, and take a weighted sample of size $r$, $Z_1,\dots,Z_r$, the choices of $m$ and $r$ can have notable effects on the estimated distribution of the resample. In particular, when the sample size and resample size do not differ substantially, it becomes more likely that we will sample some element of $Y_1,\dots,Y_m$ more than once. This can result in irregularities in the estimated distribution of  $Z_1,\dots,Z_r$. We see this in \ref{fig:prepostsamp} when the ratio of $m/r$ is closer to 1, while the problem reduces as we increase the sample size $m$ compared to the posterior (resample) size $r$.
 
-```{r pre post sampling code, eval=FALSE}
+```{r pre-post-sampling-code, fig.cap = "\\label{fig:prepostsamp}", fig.height = 8}
 ##########################################
 # EXAMPLE 1
 ##########################################
@@ -1281,36 +1277,36 @@ legend_b <- cowplot::get_legend(
       override.aes = list(
       linewidth=4))) +
     theme(legend.position = "top",
-          legend.text = element_text(size = 20))
+          legend.text = element_text(size = 14))
 )
 
 
 title_gg <- ggplot() + 
   labs(title =latex2exp::TeX("Distribution of Resample $Z_1,..., Z_r$ when Increasing the Sample Size $m$")) + 
-  theme(plot.title=element_text(face="bold", hjust = .5, size = 25, margin =margin(5,0,2,0)))
+  theme(plot.title=element_text(face="bold", hjust = .5, size = 14, margin =margin(5,0,2,0)))
 
 
 plts <- cowplot::plot_grid(plotlist = plotlist)
 
-png(filename=here::here('thesis/figure/sampling_resampling.png'), height = 600, width = 1000)
+# png(filename=here::here('thesis/figure/sampling_resampling.png'), height = 600, width = 1000)
 cowplot::plot_grid(title_gg,
                    legend_b,
                    plts, 
                    ncol = 1 ,
                    rel_heights = c(.05,.1, .85))
-dev.off()
+# dev.off()
 
 ```
 
-```{r, fig.cap ="\\label{fig:prepostsamp}", fig.width=7}
+```{r,fig.width=7}
 
-knitr::include_graphics(here::here('thesis/figure/sampling_resampling.png'))
+# knitr::include_graphics(here::here('thesis/figure/sampling_resampling.png'))
 # ggsave(filename=here::here('thesis/figure/sampling_resampling.png'), height = 6, width = 12)
 
 ```
 
 
-When using the Sampling-Importance-Resampling algorithm to obtain the logarithmically pooled distribution, see the effect of this choice has a major impact when we are melding truncated distributions. The pooled distribution is only defined on the intersection of the supports of the distributions being pooled. Truncation, then, can limit the choices of  $Y_1,\dots, Y_m$ we take when resampling, which can lead to substantial irregularities in the resulting estimated pooled distribution (Figure {fig:trunc}).
+When using the Sampling-Importance-Resampling algorithm to obtain the logarithmically pooled distribution, see the effect of this choice has a major impact when we are melding truncated distributions. The pooled distribution is only defined on the intersection of the supports of the distributions being pooled. Truncation, then, can limit the choices of  $Y_1,\dots, Y_m$ we take when resampling, which can lead to substantial irregularities in the resulting estimated pooled distribution (Figure \ref{fig:trunc}).
 
 
 ```{r base functions}
@@ -1493,8 +1489,8 @@ get_melded <- function(alpha_mean = 0.9,
                        post_nsamp = 1e5) {
 
   given_args <- as.list(environment())
-   cat("Arguments to get_melded:\n")
-   print(given_args)
+   # cat("Arguments to get_melded:\n")
+   # print(given_args)
 
 
     theta <- tibble(alpha = sample_gamma_density(pre_nsamp,
@@ -1667,7 +1663,7 @@ plot_melded <- function(melded, custom_title="", pre_nsamp, post_nsamp) {
 
 
 
-```{r, eval=FALSE}
+```{r, fig.cap = "\\label{fig:trunc}", fig.height = 8}
 
 
 # set prior parameters
@@ -1718,32 +1714,32 @@ legend_b <- cowplot::get_legend(
       override.aes = list(
       linewidth=4))) +
     theme(legend.position = "top",
-          legend.text = element_text(size = 20))
+          legend.text = element_text(size = 16))
 )
 
 
 title_gg <- ggplot() + 
   labs(title =latex2exp::TeX("Effect of Sample Size on Melded Distributions", bold=TRUE)) + 
-  theme(plot.title=element_text(face="bold", hjust = .5, size = 25, margin =margin(5,0,2,0)))
+  theme(plot.title=element_text(face="bold", hjust = .5, size = 16, margin =margin(5,0,2,0)))
 
 
 plts <- cowplot::plot_grid(plotlist = plotlist)
 
-jpeg(filename=here::here('thesis/figure/sampling_resampling_pb.png'), height = 900, width = 1000, quality =200)
+# jpeg(filename=here::here('thesis/figure/sampling_resampling_pb.png'), height = 900, width = 1000, quality =200)
 cowplot::plot_grid(title_gg,
                    legend_b,
                    plts, 
                    ncol = 1 ,
                    rel_heights = c(.05,.1, .85))
-dev.off()
+# dev.off()
 
 
 
 ```
 
-```{r,fig.cap = "\\label{fig:trunc}", fig.show='hold', out.width='100%'}
+```{r, fig.show='hold', out.width='100%'}
 
-knitr::include_graphics(here::here("thesis/figure/sampling_resampling_pb.png"))
+# knitr::include_graphics(here::here("thesis/figure/sampling_resampling_pb.png"))
 
 ```
 
@@ -1760,7 +1756,7 @@ knitr::include_graphics(here::here("thesis/figure/sampling_resampling_pb.png"))
 Locally estimated scatterplot smoothing (LOESS) fits a collection of local regression models to obtain a smooth curve through the observed data (Figure \ref{fig:loess}). It is highly flexible in the sense that we do not have to specify the functional relationship between the predictor and response variable for the entire range of the predictor, which may be impossible in various settings. It is particularly useful when working with time series data with substantial noise.
 
 
-```{r, fig.cap="\\label{fig:loess}LOESS curve fitted with  a span of 0.2. ", echo = FALSE, fig.asp = .6, cache = TRUE}
+```{r, fig.cap="\\label{fig:loess}LOESS curve fitted with  a span of 0.2. ", echo = FALSE, fig.asp = .6}
 
 set.seed(123)
 smoothing_span <- .2
@@ -1794,7 +1790,7 @@ data %>%
 
 To perform LOESS smoothing, we estimate a set of local regressions [@chambers1997]. To do this, we must specify the span; this smoothing parameter is the fraction of the data that is used for the local polynomial fit. With a smaller span, the resulting curve will fit the trends more closely, while a larger span reflects broader trends (Figure \ref{fig:smooth-spans}).
 
-```{r, fig.cap="\\label{fig:smooth-spans}", fig.asp = .67, cache = TRUE }
+```{r, fig.cap="\\label{fig:smooth-spans}", fig.asp = .67 }
 
 
 smoothed_all <- map_df(c(.1,.3, .5,.7, .9), ~
@@ -1856,7 +1852,7 @@ Essentially, this process gives weight to points in the neighborhood of $x^*$. C
 
 Then the weights we obtain are given in Figure \ref{fig:weights}.
 
-```{r, warning = FALSE, fig.cap = "\\label{fig:weights} The only values with nonzero weights are those within the interval $(500 - \\alpha (n), 500 - \\alpha (n))$. That is, the proportion $\\alpha$ of the data points closest to $x^*$ will have nonzero weights.", fig.width =6, fig.asp = .6, cache = TRUE}
+```{r, warning = FALSE, fig.cap = "\\label{fig:weights} The only values with nonzero weights are those within the interval $(500 - \\alpha (n), 500 - \\alpha (n))$. That is, the proportion $\\alpha$ of the data points closest to $x^*$ will have nonzero weights.", fig.width =6, fig.asp = .6}
 
 
 
@@ -1905,7 +1901,7 @@ We fit a linear regression with polynomial terms, typically with degree up to 2,
 
 \begin{flushleft}
 
-```{r, fig.cap = "\\label{fig:ex-poly}", fig.asp = .52, fig.width = 5, cache = TRUE}
+```{r, fig.cap = "\\label{fig:ex-poly}", fig.asp = .52, fig.width = 5}
 
 model <- lm(y ~ x + I(x^2), weights = weights, data = data)
 
@@ -1933,7 +1929,7 @@ data %>%
 
 By fitting the model for every point in $\mathbf x$, we obtain the smoothed line shown in red in Figure \ref{fig:loess-all}.
 
-```{r, fig.cap = "\\label{smooth-functions}", cache = TRUE}
+```{r, fig.cap = "\\label{smooth-functions}"}
 
 get_predicted <- function(x_i, all = FALSE) {
 
@@ -1966,7 +1962,7 @@ get_predicted_all <- function(x_i) {
 
 ```
 
-```{r loess-all, fig.cap = "\\label{loess-all}", fig.asp = .6, cache = TRUE}
+```{r loess-all, fig.cap = "\\label{loess-all}", fig.asp = .6}
 
 predicted_all <- map_df(data$x, ~tibble(fit = paste0("fit_", .x), 
                                         x_pred = .x,
@@ -2390,7 +2386,7 @@ tibble(x=density_coordinates_X, y = density_X) %>%
 
 We see the difference between using the transformation approach versus estimating the density of $X$ without first transforming it to be unbounded in Figure \ref{fig:original}.
 
-```{r create fig original, eval=FALSE}
+```{r create-fig-original,  fig.cap = "\\label{fig:original}"}
 
 ##################################
 # compare to original approach
@@ -2402,7 +2398,7 @@ We see the difference between using the transformation approach versus estimatin
                             kernel = "gaussian")
 
 
-jpeg(here::here('thesis/figure/comp_transformation_density.jpeg'), quality =500, width = 800, height =400)
+# jpeg(here::here('thesis/figure/comp_transformation_density.jpeg'), quality =500, width = 800, height =400)
 tibble(x=density_coordinates_X,
          y = density_X,
          approach = "Transformation\nApproach") %>%
@@ -2435,23 +2431,23 @@ tibble(x=density_coordinates_X,
                                3, ", ", 2, ")")),
          fill = "") +
     theme_bw() +
-    theme(axis.title = element_text(size = 18),
-          plot.title = element_text(size = 22, hjust = .5),
-          plot.subtitle = element_text(size = 15, hjust = .5),
-          legend.text = element_text(size = 16)) +
+    theme(axis.title = element_text(size = 12),
+          plot.title = element_text(size = 16, hjust = .5),
+          plot.subtitle = element_text(size = 12, hjust = .5),
+          legend.text = element_text(size = 12)) +
     viridis::scale_fill_viridis(discrete = TRUE, 
                                 begin = .3, end = .8) +
     scale_color_manual(name = '', values=c('theoretical' = 'red'), 
                        labels = c('Theoretical Density')) +
   guides(color =guide_legend(override.aes = list(linewidth =2)))
 
-dev.off()
+# dev.off()
 
 ```
 
-```{r, fig.width=7, fig.cap = "\\label{fig:original}"}
+```{r, fig.width=7}
 
-knitr::include_graphics(here::here('thesis/figure/comp_transformation_density.jpeg'))
+# knitr::include_graphics(here::here('thesis/figure/comp_transformation_density.jpeg'))
 
 ```
 
@@ -2508,13 +2504,12 @@ compare_density <- function(shape1, shape2, cap) {
     geom_line(alpha = .5, 
               aes( x=x, y = y, 
                    color = approach),
-              size = 1.03,
+             # size = 1.03,
               show.legend=FALSE) +
     stat_function(fun=dbeta,
                   args =list(shape1 = shape1, shape2=shape2),
                   xlim=c(0, 1),
-                  aes(color = "theoretical"),
-                  size = 1.05) +
+                  aes(color = "theoretical")) +
     geom_vline(aes(xintercept = 0), color = "darkred", 
                size = .4, alpha = .6) +
     geom_vline(aes(xintercept = 1), color = "darkred", 
@@ -2536,8 +2531,6 @@ compare_density <- function(shape1, shape2, cap) {
           plot.caption = element_text(hjust = 0, size = 12, face = "bold")) +
     viridis::scale_fill_viridis(discrete = TRUE, 
                                 begin = .3, end = .8) +
-    viridis::scale_color_viridis(discrete = TRUE, 
-                                begin = .3, end = .8) +
     ylim(0, yupper+2)+
     scale_color_manual(name = '', values=c('theoretical' = 'red'), 
                        labels = c('Theoretical Density'))
@@ -2555,7 +2548,7 @@ shapes <- expand.grid(seq(1 ,5, by = 1.5),
 
 ```
 
-```{r create fig:compare-beta-params, eval=FALSE}
+```{r, fig.cap = "\\label{fig:compare-beta-params}", fig.height = 10}
 
 
 
@@ -2573,7 +2566,7 @@ legend_b <- cowplot::get_legend(
       override.aes = list(
       linewidth=4))) +
     theme(legend.position = "top",
-          legend.text = element_text(size = 20))
+          legend.text = element_text(size = 14))
 )
 
 
@@ -2582,29 +2575,29 @@ title_gg <- ggplot() +
                              bold = TRUE)) + 
   theme(plot.title=element_text(face="bold",
                                 hjust = .5, 
-                                size = 25,
+                                size =14,
                                 margin =margin(5,0,2,0)))
 
 
 plts <- cowplot::plot_grid(plotlist = plotlist, ncol=2)
 
-jpeg(filename=here::here('thesis/figure/comp_density_by_params.jpeg'), height = 1000, width = 900, quality =300)
+# jpeg(filename=here::here('thesis/figure/comp_density_by_params.jpeg'), height = 1000, width = 900, quality =300)
 cowplot::plot_grid(title_gg,
                    legend_b,
                    plts, 
                    ncol = 1 ,
                    rel_heights = c(.05,.1, .85))
-dev.off()
+# dev.off()
 
 
 
 ```
 
 
-```{r, fig.cap = "\\label{fig:compare-beta-params}", out.width="90%" }
+```{r}
 
 
-knitr::include_graphics(here::here('thesis/figure/comp_density_by_params.jpeg'), dpi =300)
+# knitr::include_graphics(here::here('thesis/figure/comp_density_by_params.jpeg'), dpi =300)
 
 ```
 
@@ -2672,13 +2665,13 @@ df <- map_df(seq(0,1, by = .1),
 
 ```
 
-```{r create depends_on_x.jpeg,eval=FALSE}
+```{r, fig.cap = "\\label{fig:depends-on-x}"}
 
-jpeg(here::here('thesis/figure/depends_on_x.jpeg'), width = 800, height =500, quality=400)
+# svg(here::here('thesis/figure/depends_on_x.svg'), width = 8, height =5)
 df %>%
   mutate(x=as.factor(x)) %>%
   ggplot(aes(x=t, y =density, color = x)) +
-  geom_line(linewidth=1.5) +
+  geom_line() +
   labs(y = TeX("$K(t)$"),
        title = TeX(paste0("Beta Kernel with Shape 1 = ",
        "$\\frac{x}{b} +1$",
@@ -2689,20 +2682,20 @@ df %>%
                       discrete = TRUE,
                       direction = -1,
                       end = .95) +
-  theme(plot.title = element_text(hjust = .5, size =25),
-        plot.subtitle = element_text(hjust = .5, size = 20))
+  theme(plot.title = element_text(hjust = .5, size =14),
+        plot.subtitle = element_text(hjust = .5, size = 12))
  
-dev.off()
+# dev.off()
 
  
 ```
 
 
 
-```{r, fig.cap = "\\label{fig:depends-on-x}", fig.width=7}
+```{r,  fig.width=7}
 
 
-knitr::include_graphics(here::here('thesis/figure/depends_on_x.jpeg'))
+# knitr::include_graphics(here::here('thesis/figure/depends_on_x.svg'))
 
 ```
 
@@ -2745,7 +2738,7 @@ dat %>%
 As we did in Figure \ref{fig:compare-beta-params}, we can compare the performance of the beta kernel $\hat f_2$ for estimating the density of samples from different beta distributions (Figure \ref{fig:comp-beta}).
 
 
-```{r, fig.show = 'hold', out.width = '48%', fig.cap = "\\label{fig:comp-beta}",}
+```{r, fig.cap = "\\label{fig:comp-beta}", fig.height =10}
 
 beta_kernel_est_plot <- function(shape1,
                                  shape2, 
@@ -2773,18 +2766,18 @@ beta_kernel_est_plot <- function(shape1,
     stat_function(fun =dbeta, args =list(shape1=shape1,
                                          shape2=shape2),
                   xlim=c(0,1),
-                  color = "red",
-                  size = 1.05) +
-    labs(title = TeX("Density Estimation Using Beta Kernel Estimator $\\widehat{f_2}(x)$"),
+                  color = "red") +
+    labs(
+      # title = TeX("Density Estimation Using Beta Kernel Estimator $\\widehat{f_2}(x)$"),
          x = "x",
          y = TeX("$\\widehat{f_2}(x)$"),
          subtitle = TeX(paste0("$X \\sim $ Beta(", 
                                shape1, ", ", shape2, "), b = ", round(b,3))),
          caption = panel_name) +
       theme_bw() +
-      theme(axis.title = element_text(size = 14),
+      theme(axis.title = element_text(size = 8),
             plot.title = element_text(size = 12, hjust = .5),
-            plot.subtitle = element_text(size = 12, hjust = .5),
+            plot.subtitle = element_text(size = 10, hjust = .5),
             legend.text = element_text(size = 16),
             plot.caption = element_text(hjust = 0, size = 12, face = "bold")) +
       ylim(0,yupper)
@@ -2796,12 +2789,28 @@ plotlist <- pmap(shapes, ~{
   plt <- beta_kernel_est_plot(shape1 = ..1, 
                               shape2 = ..2, 
                               panel_name = ..3)
-  print(plt)
+  # print(plt)
   
 } )
 
+
+title_gg <- ggplot() + 
+  labs(title = TeX("Density Estimation Using Beta Kernel Estimator $\\widehat{f_2}(x)$",
+                          bold=TRUE)) + 
+  theme(plot.title=element_text(face="bold",
+                                hjust = .5, 
+                                size =14,
+                                margin =margin(5,0,2,0)))
+
+
 plts <- cowplot::plot_grid(plotlist = plotlist, ncol=2)
 
+# jpeg(filename=here::here('thesis/figure/comp_density_by_params.jpeg'), height = 1000, width = 900, quality =300)
+cowplot::plot_grid(title_gg,
+                #   legend_b,
+                   plts, 
+                   ncol = 1 ,
+                   rel_heights = c(.05,.95))
 
 
 # check correspondence with bde implementation
