@@ -12,10 +12,13 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, fig.width = 18, fig.height= 12)
 
 library(tidyverse)
 library(latex2exp)
+library(here)
+library(scales)
+library(viridis)
 
 theme_c <- function(...){ 
    # font <- "Helvetica"   #assign font family up front
@@ -137,6 +140,7 @@ joined <- joined %>%
 
 ```
 
+## Faceted by version
 
 
 ```{r}
@@ -208,6 +212,7 @@ ggsave(here::here(paste0('thesis/figure/', state, '_pb_compared_to_observed.pdf'
 
 ```
 
+## All versions together 
 
 ```{r}
 
@@ -264,6 +269,168 @@ ggsave(here::here(paste0('thesis/figure/', state, '_pb_compare_versions.pdf')),
 
 ```
 
+
+## Compare to Covidestim
+
+
+
+```{r}
+
+
+joined %>%
+  filter(biweek >=6) %>%
+  # covidestim does not report estimates for Nantucket 
+  filter(!grepl("Nantucket", county_name )) %>%
+  group_by(biweek) %>%
+  mutate(xmin = min(date),
+         xmax = max(date)) %>%
+  ungroup() %>%
+   ggplot() +
+  geom_ribbon(aes(x = date, 
+             ymin = exp_cases_lb,
+             ymax = exp_cases_ub,
+             fill = vlabel),
+             alpha = .5,
+             show.legend=FALSE) +
+   geom_linerange(aes(xmin = xmin,
+                      xmax=xmax,
+                      y = infections,
+                      color = 'covidestim')) +
+  facet_grid(county_name~vlabel, scales = "free_y",
+              labeller=as_labeller(
+               latex2exp::TeX, default = label_parsed)) +
+  scale_y_continuous(labels = comma) +
+  scale_x_date(date_breaks = "2 months", 
+               date_labels = "%b %Y") +
+  theme_c(axis.text.x = element_text(angle = 60, size = 16),
+          plot.title=element_text(face = "bold",
+                                  hjust = .5, 
+                                  size = 20,
+                                  margin=margin(5,5,15,5,'pt')),
+          strip.background = element_rect(fill = "#393939"),
+          strip.text = element_text(color =  "white", size = 16),
+          strip.text.y = element_text(margin = margin(5,5,5,5,'pt'),
+                                      size = 14,
+                                      face="bold"),
+          strip.text.x =  element_text(margin = margin(5,3,5,3,'pt'),
+                                       face = "bold",
+                                       size = 10),
+          plot.subtitle = ggtext::element_markdown(size = 25,
+                                                   margin = margin(3,5,10,5,'pt'),
+                                       face = "italic"),
+          legend.position = "top",
+          legend.text =element_text(size = 14)) +
+  scale_fill_manual(values = pal)  +
+  labs(y = "Estimated Cases",
+       title = paste0("Estimated Cases by Version in ", toupper(state))) +
+  scale_color_manual(values = c('covidestim' = 'darkblue'), labels = 'Covidestim Estimates',
+                     name = '') +
+  guides(color = guide_legend(override.aes = list(linewidth =2)))
+
+ggsave(here::here(paste0('thesis/figure/', state, '_pb_compared_to_covidestim.pdf')), 
+       height=15, width = 15, dpi=400)
+
+
+
+```
+
+```{r}
+
+# hampshire
+
+county_cols <- viridis(length(unique(joined$county_name))- 1, option = "mako")
+county_cols <- c("red",county_cols )
+
+names(county_cols ) <- c("$Hampshire$", unique(joined$county_name)[  unique(joined$county_name) != "$Hampshire$"])
+
+joined %>%
+  mutate(posrate = positive/total,
+         size = ifelse(grepl("Hampshire", county_name),'Hampshire', 'not'))  %>% 
+  select(biweek, county_name, posrate,size) %>% 
+  distinct() %>% 
+  ggplot(aes(x=biweek,y=posrate, color = county_name,
+             linewidth=size, alpha = size)) + 
+  geom_line() +
+  scale_linewidth_manual(values=c('Hampshire'=2, 'not'=.5)) +
+  scale_alpha_manual(values = c('Hampshire' = 1, 'not'=.4)) +
+  scale_color_manual(values=county_cols, labels = TeX(names(county_cols))) +
+  theme_c(legend.position = "right",
+          legend.title = element_text(size  =16, face="bold"),
+          axis.text.x = element_text(size = 9)) +
+  guides(linewidth="none",
+         alpha = "none",
+         color = guide_legend(override.aes = list(linewidth = 2.5))) +
+  labs(color = "County Name",
+       y = "Positivity Rate",
+       x= "Biweek",
+       title="Hampshire County Positivity Rate\nCompared to Other Counties in Massachusetts") +
+  scale_x_continuous(n.breaks = 7)
+  
+
+ggsave(here::here('thesis/figure/hampshire.pdf'), 
+       height=8, width = 14, dpi=400)
+
+```
+
+
+
+```{r}
+
+joined %>%
+  mutate(county_name = gsub("$","", county_name,fixed=TRUE)) %>%
+  select(-date) %>% 
+  distinct() %>%
+  mutate(in_interval = infections <= exp_cases_ub & infections >= exp_cases_lb) %>%
+  filter(!is.na(in_interval)) %>%
+  group_by(vlabel, in_interval, county_name) %>%
+  summarize(n=n()) %>%
+  group_by(county_name, vlabel) %>%
+  mutate(tot=sum(n),
+         prop_contained = n/tot) %>%
+ filter(in_interval) %>%
+  group_by(county_name) %>%
+  mutate(m = max(prop_contained)) %>%
+  ggplot(aes(x=fct_reorder(county_name, m, .desc=TRUE),
+             y = prop_contained, color = vlabel)) +
+  geom_point(size = 2.3) +
+  labs(y = "Proportion of Biweeks Containing Covidestim Estimate",
+       x = "County",
+       title = "Comparing the Proportion of Biweeks\nWhere Probabilistic Bias Interval Contains Covidestim Estimate")+
+    scale_color_manual(values = pal, labels =TeX(names(pal)), name ='')  +
+  theme_c(axis.text.x = element_text(angle = 15, size = 14),
+          legend.position ="right",
+          axis.title = element_text(size = 16))
+
+ggsave(here::here(paste0('thesis/figure/', 
+                         state, 
+                         '_pb_compared_to_covidestim_proportions.pdf')), 
+       height=8, width = 15, dpi=400)
+
+
+
+# 
+# joined %>%
+#   mutate(county_name = gsub("$","", county_name,fixed=TRUE)) %>%
+#   select(-date) %>% 
+#   distinct() %>%
+#   mutate(in_interval = infections <= exp_cases_ub & infections >= exp_cases_lb,
+#          posrate=positive/population) %>%
+#   group_by(county_name) %>%
+#   mutate(posrate=mean(posrate)) %>%
+#   filter(!is.na(in_interval)) %>%
+#   group_by(vlabel, in_interval, county_name, posrate) %>%
+#   summarize(n=n()) %>%
+#   group_by(county_name, vlabel,posrate) %>%
+#   mutate(tot=sum(n),
+#          prop_contained = n/tot) %>%
+#   ggplot(aes(x=posrate, y =prop_contained, color = vlabel)) +
+#   geom_point()
+
+```
+
+
+
+
 ## Michigan
 
 
@@ -317,9 +484,9 @@ joined <- corrected %>%
 
 
 # for facet_wrap latex formatting
-joined <- joined %>%
-#  mutate(county_name = gsub(" ", "~", county_name)) %>%
-   mutate(county_name = paste0('$"', county_name,'"$' ))
+# joined <- joined %>%
+# #  mutate(county_name = gsub(" ", "~", county_name)) %>%
+#    mutate(county_name = paste0('$"', county_name,'"$' ))
           
           # ,
           # county_name= paste0("$ $", county_name))
@@ -417,7 +584,7 @@ joined %>%
   
   
     ggsave(here::here(paste0('thesis/figure/', state, .y, '_pb_compared_to_observed.pdf')),
-           height=18, width = 15, dpi=400) }
+           height=22, width = 15, dpi=400) }
 )
 
 
@@ -444,8 +611,7 @@ joined %>%
    #                    y = exp_cases_median,
    #                    color =vlabel)) +
   facet_wrap(~county_name, scales = "free_y",
-              labeller=as_labeller(
-               latex2exp::TeX, default = label_parsed),
+              labeller=labeller(vlabel =as_labeller(TeX, default=label_parsed)),
              ncol = 3) +
   scale_y_continuous(labels = comma) +
   scale_x_date(date_breaks = "2 months", 
@@ -471,7 +637,7 @@ joined %>%
    scale_fill_manual(values = pal, labels =TeX(names(pal)),
                      name ='') +
   labs(y = "Estimated Cases",
-       title = paste0("Estimated Cases by Version in Massachusetts")) 
+       title = paste0("Estimated Cases by Version in Michigan")) 
 
 
 ggsave(here::here(paste0('thesis/figure/', state, '_pb_compare_versions.pdf')), 
@@ -480,4 +646,44 @@ ggsave(here::here(paste0('thesis/figure/', state, '_pb_compare_versions.pdf')),
 ```
 
 
+```{r}
+
+joined %>%
+  mutate(county_name = gsub("$","", county_name,fixed=TRUE),
+         county_name = gsub('"', '', county_name, fixed=TRUE)) %>%
+  select(-date) %>% 
+  distinct() %>%
+  mutate(in_interval = infections <= exp_cases_ub & infections >= exp_cases_lb) %>%
+  filter(!is.na(in_interval)) %>%
+  group_by(vlabel, in_interval, county_name) %>%
+  summarize(n=n()) %>%
+  group_by(county_name, vlabel) %>%
+  mutate(tot=sum(n),
+         prop_contained = n/tot) %>%
+ filter(in_interval) %>%
+  group_by(county_name) %>%
+  mutate(m = max(prop_contained)) %>%
+  ggplot(aes(x=fct_reorder(county_name, m, .desc=TRUE),
+             y = prop_contained, color = vlabel)) +
+  geom_point(size = 3.5) +
+  labs(y = "Proportion of Biweeks Containing Covidestim Estimate",
+       x = "County",
+       title = "Comparing the Proportion of Biweeks Where Probabilistic Bias Interval Contains Covidestim Estimate")+
+    scale_color_manual(values = pal, labels =TeX(names(pal)), name ='')  +
+  theme_c(axis.text.x = element_text( size =16, angle =60, hjust=.95,vjust=.9),
+          axis.text.y = element_text(size = 12),
+          legend.text = element_text(size = 28),
+          axis.title= element_text(size = 25),
+          legend.position ="top",
+          plot.title = element_text(size = 38, face="bold", margin = margin(2,0,3,0))) +
+  scale_y_continuous(n.breaks = 6) +
+  guides(color = guide_legend(override.aes = list(size = 8), nrow=4,
+                              byrow=TRUE))
+
+ggsave(here::here(paste0('thesis/figure/', 
+                         state, 
+                         '_pb_compared_to_covidestim_proportions.pdf')), 
+       height=14, width = 28, dpi=400)
+
+```
 

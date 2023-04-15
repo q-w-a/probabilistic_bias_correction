@@ -2,6 +2,11 @@
 
 ```{r}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+library(here)
+library(tidyverse)
+
+source(here('analysis','base_functions','base_functions.R'))
+library(latex2exp)
 
 theme_c <- function(...){ 
    # font <- "Helvetica"   #assign font family up front
@@ -45,7 +50,7 @@ theme_c <- function(...){
 
 
 
-# Definition of Prior Distributions for Bias Parameters
+# Definition of Prior Distributions for Bias Parameters 
 
 
 ## Background on the Beta Distribution
@@ -219,15 +224,15 @@ sd(samp)
 
 
 
-### Defining $P(S_1|Untested)$
+### Defining $P(S_1|\text{untested})$
 
 We recall that $S_1$ denotes the event that an individual has moderate to severe symptoms, so
  $P(S_1|Untested)$ is the probability of having moderate to severe symptoms among those who were not tested. We note that this would include people that have moderate to severe COVID-like symptoms that do indeed have COVID-19 as well as people that do not have COVID-19 and have some other respiratory illness.
  
- The original distribution was defined such that $P(S_1|Untested) \sim TBeta(\alpha = 1.18, \beta = 45.97)$, bounded between 0 and 15%, as we see below. 
+Wu et al. (2020) defined this distribution such that $P(S_1|\text{untested}) \sim TBeta(\alpha = 1.18, \beta = 45.97)$, bounded between 0 and 15%, as we see below. When we define the distribution of $P(S_1|\text{untested})$, we release the truncation. Furthermore, we actually remove the truncation on all prior distributions considered. This choice was based on the fact that we have a lack of data to support particular bounds for a truncated distribution, and such assumptions can lead to difficulties in the Bayesian melding component of the probabilistic bias analysis. 
 
 
-```{r, out.width = '80%',echo=FALSE}
+```{r, fig.width=7, fig.height = 3, echo=FALSE}
 
 alpha <- 1.18
 beta <- 45.97
@@ -242,23 +247,53 @@ get_beta_params <- function(mu, sd) {
 # truncated support between a=0, b=0.15
 trunc_beta_s1_untested <- function(x) {
   truncdist::dtrunc(x,spec = "beta",a = 0,b = 0.15,
-                    shape1 = get_beta_params(mu = 0.025, sd = (0.15)^2)$alpha,
-                    shape2 = get_beta_params(mu = 0.025, sd = (0.15)^2)$beta)
+                    shape1 = get_beta_params(mu = 0.025, sd = (0.15)^2)$a,
+                    shape2 = get_beta_params(mu = 0.025, sd = (0.15)^2)$b)
 } 
 
-tibble(x = seq(0, 1, by = 10^(-5)),
+wubeta <- tibble(x = seq(0, 1, by = 10^(-5)),
        y = trunc_beta_s1_untested(x)) %>%
-  ggplot(aes(x=x, y = y)) +
-  geom_area(alpha = .8) + 
-  theme_c() +
-  labs(x = "Value", y = "Probability Density", 
-       title = latex2exp::TeX("Original Definition of $P(S_1|untested)$")) 
-
-# 
-# ggplot(data.frame(x = c(0,1)), aes(x=x)) +
-#   stat_function(fun = dbeta, args = list(shape1= 20, shape2 = 1.4), geom = "area", fill = "purple", alpha = 0.35) 
+  mutate(source ="Wu et al.'s\nDefinition")
 
 
+prior_params <- list(
+    alpha_mean = .95,
+    alpha_sd = 0.08,
+    alpha_bounds = NA,
+   # alpha_bounds = c(.8,1),
+    beta_mean = .15,
+    beta_sd =.09,
+    beta_bounds = NA,
+  #  beta_bounds = c(0.002, 0.4),
+    s_untested_mean = .03,
+    s_untested_sd = .0225,
+  #  s_untested_bounds = c(0.0018, Inf),
+    s_untested_bounds = NA,
+    p_s0_pos_mean = .4,
+    p_s0_pos_sd = .1225,
+   p_s0_pos_bounds = NA,
+  #  p_s0_pos_bounds = c(.25, .7),
+    pre_nsamp = 1e5,
+    post_nsamp = 1e4)
+
+tibble(x = seq(0, 1, length = 10^(5)),
+       y = with(prior_params, beta_density(x,
+                                            mean = s_untested_mean,
+                                            sd = s_untested_sd,
+                                            bounds = s_untested_bounds))) %>%
+  mutate(source =  "Definition Here") %>%
+  bind_rows(wubeta) %>%
+   ggplot(aes(x=x, y = y, group=source)) +
+  geom_line(alpha = .8) + 
+  geom_ribbon(aes(x=x,ymin=0,ymax=y, fill=source),
+              alpha=.6) +
+  theme_c(legend.text=element_text(size = 10)) +
+  viridis::scale_fill_viridis(discrete=TRUE,
+                             option = "rocket", begin=.3,end=.8) +
+  labs(x = "Value",
+       y = "Probability Density", 
+       title = latex2exp::TeX("Comparing Definitions of $P(S_1|untested)$"),
+       fill ='') 
 
 ```
 
@@ -267,7 +302,7 @@ However, to implement this approach over a more extended time interval, we need 
  
  To do this, we can use the COVID-like illness indicator from the COVID-19 Trends and Impact Survey  [@salomon2021]. The COVID-19 Trends and Impact Survey (CTIS) is a large scale internet-based survey that invites a sample of Facebook users to respond to questions on several topics of public health interest, including testing and symptom status. The survey effort selects participants using stratified random sampling by state, and responses are aggregated and made publicly available.
  
-Below, we see that the distribution of the proportion of the population with COVID-like illness over all of 2021 is in a similar range as the original definition of $P(S_1|untested)$, with the bulk of the distribution between 0 and 15%. 
+Below, we see that the distribution of the proportion of the population with COVID-like illness over all of 2021 is in a similar range as the distribution defined for $P(S_1|untested)$, with the bulk of the distribution between 0 and 15%, although the COVID-19-like-illness has more density toward zero.
 
 
 ```{r, echo = FALSE, out.width="80%",eval=FALSE}
@@ -285,127 +320,117 @@ fb_symptoms <-jsonlite::fromJSON(
      simplifyVector = TRUE,
      flatten = TRUE)
 
-fb_symptoms <- fb_symptoms$epidata %>%
-  mutate(desc = case_when(
-    signal == "smoothed_wili" ~ "Estimated percentage of people\nwith influenza-like illness",
-    signal == "smoothed_wcli" ~ "Estimated percentage of people\nwith COVID-like illness"),
-    date = lubridate::ymd(time_value),
-    state = substr(geo_value, 1, 2)) 
 
-m <- fb_symptoms  %>%
-  group_by(signal) %>%
-  mutate(m = mean(value, na.rm = TRUE)) %>%
-  pull(m) %>% unique()
+fb_symptoms <- readRDS(here("data/state_level/screeningpos_all_states.RDS"))
 
-fb_symptoms  %>%
-  mutate(value = value/100) %>%
-  group_by(signal) %>%
-  mutate(mean_pct = mean(value, na.rm = TRUE)) %>%
-  ungroup() %>%
-  ggplot(aes(x = value)) +
-  geom_histogram() +
-  geom_vline(aes(xintercept = mean_pct), color = "darkred") + 
-  # geom_text(aes(x=mean_pct + 2, 
-  #               label = paste0("Mean =", round(mean_pct,2)),
-  #               y = 25000), 
-  #           colour="darkred") +
- # facet_wrap(~desc) +
-  theme_bw() +
-  theme(strip.text =element_text(size = 14, face = "bold"),
-        plot.title = element_text(face = "bold", hjust = .5, size = 18),
-        plot.subtitle = element_text(face = "italic", hjust = .5, size = 16)) +
-  labs(x = "Estimated Proportion of People",
-       title = "Distribution of Proportion of People with COVID-like Illness",
-                              subtitle = paste0("Mean = ", round(m,2))) +
-  scale_x_continuous(n.breaks = 8)
+fb_symptoms <- fb_symptoms %>% 
+  select(signal, date, value, state = geo_value) %>% 
+  pivot_wider(names_from = signal,
+              values_from = c(value)) %>%
+  mutate(beta_est = smoothed_wscreening_tested_positive_14d/smoothed_wtested_positive_14d)
 
-ggsave("./figure/emp_distribution_p_s_untested.png", dpi = 400)
 
-# percentage over time, by state 
-fb_symptoms  %>%
-  mutate(value = value/100) %>%
-  ggplot(aes(x = date, y = value, color = state)) +
-  geom_line(show.legend=FALSE, size = .2) +
-  theme_bw() +
-  theme(strip.text =element_text(size = 14, face = "bold"),
-        plot.title = element_text(face = "bold", hjust = .5, size = 18),
-        plot.subtitle = element_text(face = "italic", hjust = .5, size = 16),
-        axis.title = element_text(size = 14)) +
-  labs(title = "Estimated Percentages of People with\nCOVID-like Illness by State",
-       y = "State Mean") +
-  viridis::scale_color_viridis(discrete=TRUE, option = "inferno")
-  
-ggsave("./figure/cli_by_state.png", dpi = 400)
+fb_symptoms %>%
+  mutate(p_s_untested = with(prior_params, 
+                             sample_beta_density(n =  nrow(fb_symptoms), 
+                                                 mean=s_untested_mean, 
+                                                 sd=s_untested_sd))) %>%
+           select(p_s_untested, smoothed_wcli) %>%
+           pivot_longer(cols=everything()) %>%
+  mutate(name = ifelse(name == "p_s_untested", 
+                       "Defined Distribution of $P(S_1|untested)$",
+                       "COVID-19-like Illness")) %>%
+   ggplot(aes(x=value, fill = name)) +
+  geom_density(alpha = .8) +
+  viridis::scale_fill_viridis(option ="mako", discrete=TRUE, end =.8, begin=.1, 
+                              labels=latex2exp::TeX(c("Defined Distribution of $P(S_1|untested)$",  "COVID-19-like Illness")),
+                              name='') +
+  theme_c(plot.title=element_text(size=12, hjust = .5, margin=margin(0,0,3,0))) +
+  labs(title =latex2exp::TeX( "Comparing Defined Distribution of $P(S_1|untested)$ to Distribution of COVID-19-like Illness"))
+
+ggsave(here('thesis/figure/emp_p_s_untested.pdf'), width = 9.2, height =5)
+
+# 
+# fb_symptoms <- fb_symptoms$epidata %>%
+#   mutate(desc = case_when(
+#     signal == "smoothed_wili" ~ "Estimated percentage of people\nwith influenza-like illness",
+#     signal == "smoothed_wcli" ~ "Estimated percentage of people\nwith COVID-like illness"),
+#     date = lubridate::ymd(time_value),
+#     state = substr(geo_value, 1, 2)) 
+# 
+# m <- fb_symptoms  %>%
+#   group_by(signal) %>%
+#   mutate(m = mean(value, na.rm = TRUE)) %>%
+#   pull(m) %>% unique()
+# 
+# fb_symptoms  %>%
+#   mutate(value = value/100) %>%
+#   group_by(signal) %>%
+#   mutate(mean_pct = mean(value, na.rm = TRUE)) %>%
+#   ungroup() %>%
+#   ggplot(aes(x = value)) +
+#   geom_histogram() +
+#   geom_vline(aes(xintercept = mean_pct), color = "darkred") + 
+#   # geom_text(aes(x=mean_pct + 2, 
+#   #               label = paste0("Mean =", round(mean_pct,2)),
+#   #               y = 25000), 
+#   #           colour="darkred") +
+#  # facet_wrap(~desc) +
+#   theme_bw() +
+#   theme(strip.text =element_text(size = 14, face = "bold"),
+#         plot.title = element_text(face = "bold", hjust = .5, size = 18),
+#         plot.subtitle = element_text(face = "italic", hjust = .5, size = 16)) +
+#   labs(x = "Estimated Proportion of People",
+#        title = "Distribution of Proportion of People with COVID-like Illness",
+#                               subtitle = paste0("Mean = ", round(m,2))) +
+#   scale_x_continuous(n.breaks = 8)
+# 
+# ggsave("./figure/emp_distribution_p_s_untested.png", dpi = 400)
+# 
+# # percentage over time, by state 
+# fb_symptoms  %>%
+#   mutate(value = value/100) %>%
+#   ggplot(aes(x = date, y = value, color = state)) +
+#   geom_line(show.legend=FALSE, size = .2) +
+#   theme_bw() +
+#   theme(strip.text =element_text(size = 14, face = "bold"),
+#         plot.title = element_text(face = "bold", hjust = .5, size = 18),
+#         plot.subtitle = element_text(face = "italic", hjust = .5, size = 16),
+#         axis.title = element_text(size = 14)) +
+#   labs(title = "Estimated Percentages of People with\nCOVID-like Illness by State",
+#        y = "State Mean") +
+#   viridis::scale_color_viridis(discrete=TRUE, option = "inferno")
+#   
+# ggsave("./figure/cli_by_state.png", dpi = 400)
 
 
 ```
 
 ```{r, echo = FALSE,out.width = "80%"}
-knitr::include_graphics("./figure/emp_distribution_p_s_untested.png")
-```
-
-
-We also see that although the general trend is similar between states, there is variability in the proportion experiencing COVID-19-like illness by state. 
-
-
-
-```{r, echo = FALSE,out.width = "80%"}
-knitr::include_graphics("./figure/cli_by_state.png")
-```
-
-```{r, eval = FALSE, echo = FALSE}
-# county values
-fb_symptoms  %>%
-  mutate(date = lubridate::ymd(time_value)) %>%
-  ggplot(aes(x = date, y = value, color = geo_value)) +
-  geom_line(show.legend=FALSE, size = .2) +
-  facet_wrap(~desc, nrow = 2) +
-  theme_c(strip.text =element_text(size = 14, face = "bold")) 
+knitr::include_graphics("figure/emp_p_s_untested.pdf")
 ```
 
 
 ### Defining $\alpha$
 
 
- $\alpha$ is defined as the ratio of $\dfrac{P(test + |S_1, untested)}{P(test+|tested)}$, applied to allow $P(test + |S_1, untested)$ to vary by state. $P(test+|tested)$ is the state-level empirical estimate, but $\alpha$ itself is not calculated using the state-level empirical estimate. Instead, $P(test+|S_1, untested)$ is calculated as $P(test+|S_1, untested) =\alpha P(test+|tested)$. So we can think about $\alpha$ as the adjustment to the test positivity rate as we estimate the probability of testing positive among symptomatic untested individuals. This is assumed to be high, that is, that the probability of testing positive among **symptomatic untested** individuals would be near 90% of the probability of testing positive among **tested individuals** (not all of whom would be symptomatic).
- 
- $\alpha \sim TBeta(\alpha = 49.73, \beta = 5.53)$, bounded between 80% to 100%, with the mean at $\dfrac{\alpha}{\alpha + \beta} = 0.90$.
- 
- Due the the expansion of testing resources, it is plausible that $P(test +|untested,S_1)$ could exceed $P(test+|tested)$, so we will extend this distribution to be larger than one. 
- 
+We define $\alpha$ as the ratio  $\frac{P(\text{test}_+|S_1, \text{untested})}{P(test+|\text{tested})}$, applied to allow
+$P(\text{test}_+|S_1, \text{untested})$ to vary by state. $P(\text{test}_+|\text{tested})$ is the state-level empirical estimate, but we do not calculate $\alpha$ itself using the state-level empirical estimate. Instead, we calculate $P(\text{test}_+|S_1, \text{untested})$ as $P(\text{test}_+|S_1, \text{untested}) =\alpha P(\text{test}_+|\text{tested})$. We can think about $\alpha$ as the adjustment to the test positivity rate as we estimate the probability of testing positive among symptomatic *untested* individuals. We assume this ratio is close to 1, that is, that the probability of testing positive among symptomatic untested individuals would be near 90% of the probability of testing positive among tested individuals (not all of whom would be symptomatic).
+
+With the the expansion of testing resources in 2021, it is plausible that $P(\text{test}_+|\text{untested},S_1)$ could exceed $P(\text{test}_+|\text{tested})$, so we use a gamma distribution to allow $\alpha$ to take on values greater than 1.
 
 
+```{r, out.width = '80%',echo=FALSE}
 
-```{r, out.width = '50%',echo=FALSE}
-
-alpha <- 49.73	
-beta <- 5.53
-
-
-# truncated support between a=0, b=0.15
-trunc_beta_alpha <- function(x) {
-  truncdist::dtrunc(x,spec = "beta",
-                    # upper limit
-                    a = 0.80, 
-                    # lower limite
-                    b = 1,
-                    shape1 = get_beta_params(
-                      mu = 0.9, 
-                      sd = (0.2)^2)$alpha,
-                    shape2 = get_beta_params(
-                      mu = 0.9, 
-                      sd = (0.2)^2)$beta)
-} 
-
-tibble(x = seq(0, 1, by = 10^(-4)),
-       y = trunc_beta_alpha(x)) %>%
-  ggplot(aes(x=x, y = y)) +
-  geom_area(alpha = .8) + 
-  theme_c(axis.text.y = element_blank(),
-          axis.ticks.y = element_blank()) +
+tibble(x = seq(0, 1.3, length =1000), 
+       y =  with(prior_params, {
+  gamma_density(x, mean=alpha_mean,
+                sd=alpha_sd)})) %>%
+  ggplot(aes(x= x,ymin =0, ymax=y)) +
+  geom_ribbon(alpha = .8) +
   labs(x = "Value", y = "Probability Density", 
-       title = TeX("$\\alpha$")) 
-
+       title = latex2exp::TeX("Distribution of $\\alpha$")) +
+  theme_c()
 
 
 ```
@@ -414,72 +439,53 @@ tibble(x = seq(0, 1, by = 10^(-4)),
 ### Defining $\beta$
 
 
- Similar to the way we defined $\alpha$, $\beta$ is defined as the ratio of $\dfrac{P(test + |S_0, untested)}{P(test+|tested)}$, applied to allow $P(test + |S_0, untested)$ to vary by state. We use $\beta$ to calculate $P(test+|S_1, untested)$ by the expression $P(test+|S_0, untested) =\beta P(test+|tested)$. We can think about $\beta$ as the adjustment to the test positivity rate as we estimate the probability of testing positive among **aymptomatic untested** individuals (in contrast to $\alpha$, which is symptomatic untested individuals). This is assumed to be substantially lower than $\alpha$, reflecting we expect a much smaller proportion of asymptomatic untested individuals to test positive.
+ Similar to the way we defined $\alpha$, we define $\beta$ as the ratio of $\dfrac{P(\text{test}_+ |S_0, \text{untested})}{P(\text{test}_+|\text{tested})}$, applied to allow $P(\text{test}_+ |S_0, \text{untested})$ to vary by state. We use $\beta$ to calculate $P(test+|S_1, \text{untested})$ by the expression $P(\text{test}_+|S_0, \text{untested}) =\beta P(\text{test}_+|\text{tested})$. We can think about $\beta$ as the adjustment to the test positivity rate as we estimate the probability of testing positive among aymptomatic untested individuals (in contrast to $\alpha$, which is symptomatic untested individuals). We assume the values of $\beta$ are substantially lower than $\alpha$, reflecting that we expect a much smaller proportion of asymptomatic untested individuals to test positive than symptomatic individuals.
  
- The original definition of $\beta$ was 
- $\beta \sim TBeta(\alpha = 2.21, \beta = 12.53)$ with the mean at $\dfrac{2.21}{2.21 + 12.53} = 0.15$ and bounded between 0.2% to 40%.
+ 
  
 
 
+```{r, out.width = '80%', fig.height = 3, echo=FALSE}
 
-```{r, out.width = '50%',echo=FALSE}
 
 
-# truncated support between a=0, b=0.15
-trunc_beta <- function(x) {
-  truncdist::dtrunc(x,spec = "beta",
-                    # upper limit
-                    a = 0.2/100, 
-                    # lower limit
-                    b = 40/100,
-                    shape1 = get_beta_params(
-                      mu = 0.15, 
-                      sd = (0.3)^2)$alpha,
-                    shape2 = get_beta_params(
-                      mu = 0.15, 
-                      sd = (0.3)^2)$beta)
-} 
-
-tibble(x = seq(0, 1, by = 10^(-4)),
-       y = trunc_beta(x)) %>%
-  ggplot(aes(x=x, y = y)) +
-  geom_area(alpha = .8) + 
-  theme_c(axis.text.y = element_blank(),
-          axis.ticks.y = element_blank()) +
+tibble(x = seq(0, 1.3, length =1000), 
+       y =  with(prior_params, {
+  beta_density(x, mean=beta_mean,
+                sd=beta_sd)})) %>%
+  ggplot(aes(x= x,ymin =0, ymax=y)) +
+  geom_ribbon(alpha = .8) +
   labs(x = "Value", y = "Probability Density", 
-       title = TeX("$\\beta$")) 
-
+       title = latex2exp::TeX("Distribution of $\\beta$")) +
+  theme_c()
 
 
 ```
 
 
-Because $\beta$ is defined as the ratio of $\dfrac{P(test + |S_0, untested)}{P(test+|tested)}$, we can estimate $\beta$ empirically by taking the screening test positivity rate as an estimate of $P(test + |S_0, untested)$ and then dividing by the overall test positivity rate $P(test+|tested)$. State-level estimates for screening test positivity and overall test positivity are available through the COVID-19 Trends and Impact Survey, enabling us to obtain a time and state-specific estimate of $\beta$.
+Because we define $\beta$ as the ratio of $\frac{P(\text{test}_+ |S_0, \text{untested})}{P(\text{test}_+|\text{tested})}$, we can estimate $\beta$ empirically by taking the screening test positivity rate as an estimate of $P(test + |S_0, untested)$ and then dividing by the overall test positivity rate $P(\text{test}_+|\text{tested})$. State-level estimates for screening test positivity and overall test positivity are available through the COVID-19 Trends and Impact Survey, enabling us to obtain a time and state-specific estimate of $\beta$.
 
-### Defining $P(S_0|test+,untested)$
+### Defining $P(S_0|\text{test}_+,\text{untested})$
 
-$P(S_0|test +)$ is the probability of not having symptoms among those who test positive, that is, the percentage of asymptomatic infection among those with confirmed COVID-19. It is defined such that $P(S_0|Test +) \sim TBeta(\alpha = 6.00, \beta = 9.00)$, bounded between 25% and 70% with the mean at $\dfrac{\alpha}{\alpha + \beta} = 0.40$.
+$P(S_0|\text{test}_+)$ is the probability of not having symptoms among those who test positive, that is, the asymptomatic rate of COVID-19.
 
 One large meta-analysis found $P(S_0|test+)$ to be 40.50% (95% CI: 33.50%-47.50%), although it did not restrict to screening studies [@ma2021a]. Another meta-analysis, when restricting to screening studies,  found $P(S_0|test+)$ to be 47.3% (95% CI: 34.0% -61.0%) [@sah2021a].
 
-```{r, echo = FALSE, out.width='50%'}
+```{r, out.width = '80%', fig.height = 3}
 
-p_s0_pos <- function(x){
-  truncdist::dtrunc(x = x,spec = "beta",a = 0.25,b = 0.7,
-                    shape1 = get_beta_params(mu = 0.4, sd = (0.35)^2)$alpha,
-                    shape2 = get_beta_params(mu = 0.4, sd = (0.35)^2)$beta)
-}
 
-tibble(x = seq(0, 1, by = 10^(-4)),
-       y = p_s0_pos(x)) %>%
-  ggplot(aes(x=x, y = y)) +
-  geom_area(alpha = .8) + 
-  theme_c(axis.text.y = element_blank(),
-          axis.ticks.y = element_blank()) +
+tibble(x = seq(0, 1.3, length =1000), 
+       y =  with(prior_params, {
+  beta_density(x, mean=p_s0_pos_mean,
+                sd=p_s0_pos_sd)})) %>%
+  ggplot(aes(x= x,ymin =0, ymax=y)) +
+  geom_ribbon(alpha = .8) +
   labs(x = "Value", y = "Probability Density", 
-       title = TeX("$P(S_0|test +)$")) 
+       title = latex2exp::TeX("Distribution of $P(S_0|test+, untested)$")) +
+  theme_c()
 
-# 
+
+
 
 ```
 
@@ -488,7 +494,8 @@ tibble(x = seq(0, 1, by = 10^(-4)),
 
 ### Defining Test Sensitivity ($S_e$)
 
-The test sensitivity $P(test + | +)$ is defined as $P(test +|+ )\sim TBeta(\alpha = 4.20, \beta = 	1.05)$, bounded between 0.65 and 1 and with mean $\dfrac{\alpha}{\alpha + \beta} = 0.80$.
+We define the the test sensitivity and test sensitivity to follow the definitions in @wu2020. 
+$S_e$ is defined such that $S_e \sim TBeta(\alpha = 4.20, \beta = 	1.05)$, bounded between 0.65 and 1 and with mean $\dfrac{\alpha}{\alpha + \beta} = 0.80$.
 
 
 
@@ -503,12 +510,11 @@ p_se <- function(x){
 
 tibble(x = seq(0, 1, by = 10^(-4)),
        y = p_se(x)) %>%
-  ggplot(aes(x=x, y = y)) +
-  geom_area(alpha = .8) + 
-  theme_c(axis.text.y = element_blank(),
-          axis.ticks.y = element_blank()) +
+  ggplot(aes(x=x, ymin=0,ymax = y)) +
+  geom_ribbon(fill="black", alpha = .9) +
+  theme_c() +
   labs(x = "Value", y = "Probability Density", 
-       title = TeX("$S_e = P(test + | +)$")) 
+       title = TeX("$S_e$")) 
 
 
 
@@ -598,7 +604,7 @@ ggsave("./figure/variant_plot.jpg", dpi = 600)
 
 ```
 
-```{r, out.width = "80%", fig.cap = "Variant proportions in the United States from genomic surveillance data collected by the CDC. Data is not available for time periods earlier than May 8, 2021.", echo = FALSE}
+```{r, out.width = "80%", fig.height=3, fig.cap = "Variant proportions in the United States from genomic surveillance data collected by the CDC. Data is not available for time periods earlier than May 8, 2021.", echo = FALSE}
 
 knitr::include_graphics("./figure/variant_plot.jpg")
 
@@ -609,7 +615,7 @@ Ultimately, although it is plausible that test sensitivity may vary by time due 
 
 ## Defining Test Specificity ($S_p$)
 
-The test specificity $P(test -| -)$ is defined as $P(test -|- )\sim TBeta(a = 4998.50, \beta = 	0.25)$, bounded between 0.9998 and 1 and with mean $\dfrac{a}{a + b} = 0.99995$. The high certainty for this parameter is based on the [CDC 2019-nCoV Real-Time RT-PCR Diagnostic Panel](https://www.fda.gov/media/134922/download). 
+The test specificity $P(\text{test negative}| \text{negative})$ is defined as $P(\text{test negative}| \text{negative}) \sim TBeta(a = 4998.50, \beta = 	0.25)$, bounded between 0.9998 and 1 and with mean $\dfrac{a}{a + b} = 0.99995$. The high certainty for this parameter is based on the CDC 2019-nCoV Real-Time RT-PCR Diagnostic Panel.
 
 
 
@@ -635,22 +641,25 @@ tibble(x = p_sp(10000)) %>%
 ```
 
 
-## Summary Table of Bias Parameter Distributions
+## Exploration of the Implications of Changes in the Bias Parameters
 
-To add 
+To explore the implications of changes in the bias parameter distributions both on the melding and the final corrected estimates, we developed the Shiny app hosted [here](https://q-w-a.shinyapps.io/bayesian_melding_priors/).^[Code is available at the repository [here](https://github.com/q-w-a/probabilistic_bias_correction)]. 
+
 
 ## Correction for Incomplete Testing 
 
-As discussed previously, once we have sampled values from the constrained distributions of $P(S_1|untested)$, $\alpha$, $\beta$, we estimate the test positivity among the symptomatic untested population as $P(+|S_1,untested) = \alpha \; P(test +|tested)$ and we estimate the test positivity among the asymptomatic untested population as $P(+|S_0,untested) = \beta \; P(test +|tested)$. Then, we compute the positives among the symptomatic and mild/asymptomatic parts of the population respectively as 
+We denote $N^*$ to be positive tests (not infections).
 
-$$N^+_{untested,S_1} = N_{untested} \; P(S_1|untested) \cdot P(test + | S_1,untested) \;\;\;\text{ and }$$
-$$N^+_{untested,S_0} = N_{untested}(1-P(S_1|untested))P(test + | S_0,untested).$$
+As discussed previously, once we have sampled values from the constrained distributions of $P(S_1|untested)$, $\alpha$, $\beta$, we estimate the test positivity among the symptomatic untested population as $P(+|S_1,untested) = \alpha \; P(test +|tested)$, and we estimate the test positivity among the asymptomatic untested population as $P(+|S_0,untested) = \beta \; P(test +|tested)$. Then, we compute the positives among the symptomatic and mild/asymptomatic parts of the population respectively as 
+
+$$N^*_{\text{untested},S_1} = N_{\text{untested}} \; P(S_1|\text{untested}) \cdot P(\text{test}_+ | S_1,\text{untested}) \;\;\;\text{ and }$$
+$$N^*_{\text{untested},S_0} = N_{\text{untested}}(1-P(S_1|\text{untested}))P(test + | S_0,\text{untested}).$$
 Then, we take the total positives among the untested population as 
 
-$$N^+_{untested} = N^+_{untested,S_1} + N^+_{untested,S_0}$$
-and finally we add the number of observed positives, $N^+_{tested}$ to obtain the estimate for the positives among the total population, as 
+$$N^*_{\text{untested}} = N^*_{\text{untested},S_1} + N^*_{\text{untested},S_0}$$
+and finally we add the number of observed positives, $N^*_{tested}$ to obtain the estimate for the positives among the total population, as 
 
-$$N^+ = N^+_{untested} +N^+_{tested}.$$
+$$N^* = N^*_{\text{untested}} +N^*_{\text{untested}}.$$
 
 
 
@@ -697,7 +706,7 @@ where $P(S_0|untested)  = (1- P(S_1|untested))$.
 
 
 
-## Correction for Diagnostic Test Inaccuracy
+## Correction for Diagnostic Test Inaccuracy {#correct-test-inaccuracy}
 
 At this point, we have corrected for the incompleteness of testing. That is, we have an estimate of who would have tested positive if we tested the entire population. However, we also need to correct for imperfect test accuracy. 
 

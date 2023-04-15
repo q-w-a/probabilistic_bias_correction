@@ -1,0 +1,271 @@
+---
+title: "State Results"
+author: "Quinn White"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    df_print: paged
+    code_folding: hide
+    css: ../../css/template.css
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 18, fig.height= 12)
+
+library(tidyverse)
+library(latex2exp)
+library(here)
+library(scales)
+
+theme_c <- function(...){ 
+   # font <- "Helvetica"   #assign font family up front
+    theme_bw() %+replace%    #replace elements we want to change
+    
+    theme(
+      
+      
+      #text elements
+      plot.title = element_text(             #title
+                   size = 20,                #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = .5,
+                   vjust = 3),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   size = 14,
+                   hjust = .5,
+                   face = 'italic',
+                   vjust = 3),               #font size
+      
+      axis.title = element_text(             #axis titles
+                   size = 25),               #font size
+      
+      axis.text.x = element_text(              #axis text
+                   size = 18),
+      legend.text = element_text(size = 18),
+      # t, r, b, l
+      plot.margin = unit(c(1,.5,.5,.5), "cm"),
+      legend.position = "right",
+      strip.text.x = element_text(size = 16, face = "bold", color="white"),
+      strip.background = element_rect(fill = "#3E3D3D")
+      ) %+replace%
+      theme(...)
+   
+}
+
+
+```
+
+
+```{r}
+
+
+priors_versions <- c("v1", "v2", "v3", "v4")
+
+
+versions <- tibble(
+  version = c("v1", "v2", "v3", "v4"),
+  vlabel = factor(
+    c( "$Priors\\,Do\\,Not\\,Vary\\,by\\,County\\,and\\,Date$", 
+    "$\\beta$ Centered at Emp. Value",
+    "$P(S_1|untested)$ and $\\beta$ Centered at Emp. Values",
+    "$P(S_1|untested)$ Centered at Emp. Value"),
+    levels = c(
+        "$Priors\\,Do\\,Not\\,Vary\\,by\\,County\\,and\\,Date$", 
+        "$\\beta$ Centered at Emp. Value",
+        "$P(S_1|untested)$ and $\\beta$ Centered at Emp. Values",
+        "$P(S_1|untested)$ Centered at Emp. Value"
+    ) )
+)
+
+
+state_corrected_path <- here("analysis/results/adj_biweekly_state/")
+
+
+################################
+# ESTIMATED
+################################
+dates <- readRDS(here("data/date_to_biweek.RDS")) %>%
+  group_by(biweek) 
+
+
+
+covidestim <- readRDS(here('data/covidestim/covidestim_biweekly_all_states.RDS')) %>% 
+  select(-date)
+
+
+corrected <- map_df(priors_versions, ~readRDS(
+        paste0(state_corrected_path, "adj_",
+               .x, 
+               ".RDS")) %>% 
+          mutate(version = .x)) %>%
+  left_join(dates, relationship = "many-to-many") %>% 
+  rename(state=fips) %>%
+  left_join(versions) %>%
+  mutate(state=toupper(state)) %>%
+  left_join(covidestim, relationship= "many-to-many")
+  
+
+
+
+
+```
+
+
+```{r}
+
+pal <- c("red", "#10BAC5", "#1B10C5", "#EFB719", "#900C3F")
+
+names(pal) <- c("Covidestim",
+                '$P(S_1|untested)$ Centered at Emp. Value',
+                '$P(S_1|untested)$ and $\\beta$ Centered at Emp. Values',
+               "$Priors\\,Do\\,Not\\,Vary\\,by\\,County\\,and\\,Date$",
+               "$\\beta$ Centered at Emp. Value"
+               )
+
+
+
+states_all_versions <- corrected %>%
+  select(state,version) %>%
+  group_by(state) %>%
+  summarize(n_versions = n_distinct(version)) %>% 
+  filter(n_versions ==4) 
+
+
+end <- length(unique(states_all_versions$state))
+n <- floor(end/2)
+
+# first group
+corrected %>%
+  filter(state %in% states_all_versions$state[1:n]) %>%
+ # filter(state %in% sample(corrected$state,5)) %>%
+  filter(biweek >=6) %>%
+  group_by(biweek) %>%
+  mutate(xmin = min(date),
+         xmax = max(date)) %>%
+  ungroup() %>%
+   ggplot() +
+  geom_ribbon(aes(x = date, 
+             ymin = exp_cases_lb,
+             ymax = exp_cases_ub,
+             fill = vlabel),
+             alpha = .7,
+             show.legend=FALSE) +
+  geom_ribbon(aes(x = date,
+                  fill = 'Covidestim',
+                  ymin = infections.lo,
+                  ymax = infections.hi),
+              alpha = .7) +
+   # geom_linerange(aes(xmin = xmin,
+   #                    xmax=xmax,
+   #                    y = positive,
+   #                    color = 'obs')) +
+  facet_grid(state~vlabel, scales = "free_y",
+              labeller= labeller(vlabel =as_labeller(TeX, default=label_parsed))) +
+  scale_y_continuous(labels = comma) +
+  scale_x_date(date_breaks = "2 months", 
+               date_labels = "%b %Y") +
+  theme_c(axis.text.x = element_text(angle = 60, size = 16),
+          plot.title=element_text(face = "bold",
+                                  hjust = .5, 
+                                  size = 20,
+                                  margin=margin(5,5,15,5,'pt')),
+          strip.background = element_rect(fill = "#393939"),
+          strip.text = element_text(color =  "white", size = 16),
+          strip.text.y = element_text(margin = margin(5,5,5,5,'pt'),
+                                      size = 14,
+                                      face="bold"),
+          strip.text.x =  element_text(margin = margin(5,3,5,3,'pt'),
+                                       face = "bold",
+                                       size = 10),
+          plot.subtitle = ggtext::element_markdown(size = 25,margin = margin(3,5,10,5,'pt'),
+                                       face = "italic"),
+          legend.position = "top",
+          legend.text =element_text(size = 14)) +
+  scale_fill_manual(values =pal,
+                    labels = TeX(names(pal)),
+                    name='')  +
+  labs(y = "Estimated Cases",
+       title = paste0("Estimated Cases by Version Across the United States")) +
+  scale_color_manual(values = c('obs' = 'red'), labels = 'Positive Tests',
+                     name = '') +
+  guides(color = guide_legend(override.aes = list(linewidth =2),
+                              nrow=2,
+                              byrow=TRUE))
+
+
+
+ggsave(here::here(paste0('thesis/figure/state_comp_covidestim1.pdf')), 
+       height=24, width = 16, dpi=400)
+
+
+
+corrected %>%
+  filter(state %in% states_all_versions$state[n+1:end]) %>%
+ # filter(state %in% sample(corrected$state,5)) %>%
+  filter(biweek >=6) %>%
+  group_by(biweek) %>%
+  mutate(xmin = min(date),
+         xmax = max(date)) %>%
+  ungroup() %>%
+   ggplot() +
+  geom_ribbon(aes(x = date, 
+             ymin = exp_cases_lb,
+             ymax = exp_cases_ub,
+             fill = vlabel),
+             alpha = .6,
+             show.legend=FALSE) +
+  geom_ribbon(aes(x = date,
+                  fill = 'Covidestim',
+                  ymin = infections.lo,
+                  ymax = infections.hi),
+              alpha = .8) +
+   # geom_linerange(aes(xmin = xmin,
+   #                    xmax=xmax,
+   #                    y = positive,
+   #                    color = 'obs')) +
+  facet_grid(state~vlabel, scales = "free_y",
+              labeller= labeller(vlabel =as_labeller(TeX, default=label_parsed))) +
+  scale_y_continuous(labels = comma) +
+  scale_x_date(date_breaks = "2 months", 
+               date_labels = "%b %Y") +
+  theme_c(axis.text.x = element_text(angle = 60, size = 16),
+          plot.title=element_text(face = "bold",
+                                  hjust = .5, 
+                                  size = 20,
+                                  margin=margin(5,5,15,5,'pt')),
+          strip.background = element_rect(fill = "#393939"),
+          strip.text = element_text(color =  "white", size = 16),
+          strip.text.y = element_text(margin = margin(5,5,5,5,'pt'),
+                                      size = 14,
+                                      face="bold"),
+          strip.text.x =  element_text(margin = margin(5,3,5,3,'pt'),
+                                       face = "bold",
+                                       size = 10),
+          plot.subtitle = ggtext::element_markdown(size = 25,margin = margin(3,5,10,5,'pt'),
+                                       face = "italic"),
+          legend.position = "top",
+          legend.text =element_text(size = 14)) +
+  scale_fill_manual(values =pal,
+                    labels = TeX(names(pal)),
+                    name='')  +
+  labs(y = "Estimated Cases",
+       title = paste0("Estimated Cases by Version Across the United States")) +
+  scale_color_manual(values = c('obs' = 'red'), labels = 'Positive Tests',
+                     name = '') +
+  guides(color = guide_legend(override.aes = list(linewidth =2),
+                              nrow=2,
+                              byrow=TRUE))
+
+
+ggsave(here::here('thesis/figure/state_comp_covidestim2.pdf'), 
+       height=24, width = 16, dpi=400)
+
+
+
+```
+
+
+

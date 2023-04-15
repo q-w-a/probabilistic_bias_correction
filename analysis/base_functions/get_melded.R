@@ -168,11 +168,12 @@ plot_melded <- function(melded, custom_title="", nsamp) {
     theme(
       # axis.text.y = element_blank(),
       # axis.ticks.y = element_blank(),
-      axis.title = element_text(size = 18),
+      axis.title = element_text(size = 11),
       axis.text.x = element_text(size = 10),
-      plot.title =element_text(size = 18,
+      plot.title =element_text(size = 11,
                                margin =margin(0,0, .5,0, 'cm')),
-      strip.text = element_text(size = 16),
+      strip.text = element_text(size = 11,
+                                color="white"),
       legend.text = element_text(size = 16)) +
     labs(title = TeX(custom_title,bold=TRUE),
          subtitle =paste0("Number of Samples: ", nsamp),
@@ -194,12 +195,82 @@ plot_melded <- function(melded, custom_title="", nsamp) {
     theme(
       # axis.text.y = element_blank(),
       # axis.ticks.y = element_blank(),
-      axis.title = element_text(size = 18),
+      axis.title = element_text(size = 13),
       axis.text.x = element_text(size = 10),
-      plot.title =element_text(size = 18,
+      plot.title =element_text(size = 13,
                                margin =margin(0,0, .5,0, 'cm')),
-      strip.text = element_text(size = 16),
-      legend.text = element_text(size = 18)) +
+      strip.text = element_text(size = 11, color="white"),
+      legend.text = element_text(size = 13)) +
+    labs(
+      #title = paste0("Number of Samples: ", nsamp),
+      fill = "",
+      y = "Density") +
+    scale_fill_manual(values = c("#5670BF", "#418F6A","#B28542")) +
+    guides(fill = guide_legend(keyheight = 2,  keywidth = 2)) +
+    xlim(0,1)
+  
+  
+  p1 / p2 +  plot_layout(nrow =2, widths = c(4,1))
+  
+}
+
+
+
+
+
+
+
+
+plot_melded <- function(melded, custom_title="", pre_nsamp, post_nsamp) {
+  
+  
+  p1 <- melded %>%
+    filter(name != "$P(S_0|test+,untested)$") %>%
+    ggplot(aes(x = value, fill = type)) +
+    geom_density(alpha = .5, show.legend=FALSE) +
+    facet_wrap(~name,
+               labeller = as_labeller(
+                 TeX,   default = label_parsed),
+               ncol = 3,
+               scales = "fixed") +
+    theme_bw() +
+    theme(
+      # axis.text.y = element_blank(),
+      # axis.ticks.y = element_blank(),
+      axis.title = element_text(size = 13),
+      axis.text.x = element_text(size = 10),
+      plot.title =element_text(size = 13,
+                               margin =margin(0,0, .5,0, 'cm')),
+      strip.text = element_text(size = 11,color="white"),
+      strip.background = element_rect(fill = "#3E3D3D"),
+      legend.text = element_text(size = 16)) +
+    labs(title = TeX(custom_title,bold=TRUE),
+         subtitle =paste0("Sample Size: ", pre_nsamp, "\nResample Size: ", post_nsamp),
+         fill = "",
+         y = "Density") +
+    scale_fill_manual(values = c("#5670BF", "#418F6A","#B28542")) +
+    guides(fill = guide_legend(keyheight = 2,  keywidth = 2))
+  
+  p2 <- melded %>%
+    filter(name == "$P(S_0|test+,untested)$") %>%
+    ggplot(aes(x = value, fill = type)) +
+    geom_density(alpha = .5) +
+    facet_wrap(~name,
+               labeller = as_labeller(
+                 TeX,   default = label_parsed),
+               ncol = 3,
+               scales = "fixed") +
+    theme_bw() +
+    theme(
+      strip.text = element_text(size = 11, color = "white"),
+      strip.background = element_rect(fill = "#3E3D3D"),
+      # axis.text.y = element_blank(),
+      # axis.ticks.y = element_blank(),
+      axis.title = element_text(size = 13),
+      axis.text.x = element_text(size = 10),
+      plot.title =element_text(size = 13,
+                               margin =margin(0,0, .5,0, 'cm')),
+      legend.text = element_text(size = 13)) +
     labs(
       #title = paste0("Number of Samples: ", nsamp),
       fill = "",

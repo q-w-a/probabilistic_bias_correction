@@ -7,8 +7,8 @@ knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE,
                       warning = FALSE,
                       cache = FALSE,
-                      fig.width = 5,
-                      fig.height =3)
+                      fig.align='c',
+                      out.width="100%")
 
 
 library(here)
@@ -32,7 +32,7 @@ theme_c <- function(...) {
 }
 ```
 
-# Results
+# Results {#res}
 
 
 ## Comparison to the Covidestim Model
@@ -91,7 +91,7 @@ There are known issues with seroprevalence estimates. For one, these samples are
 
 
 
-### Limitations of this Comparison
+### Limitations of this Comparison {#lims}
 
 At this point in the pandemic, there is no true gold standard to compare to. Covidestim is one model, among many, that makes key assumptions about aspects of the virus. Another note is that estimates from the Covidestim model are reported on the daily timescale for counties, while the probabilistic approach we implemented here is at the biweekly time scale. 
 
@@ -127,7 +127,7 @@ Since $N_{S_1, \text{untested}}$ is so much larger than $N_{S_1, \text{untested}
 
 ```{r, out.width ="95%", fig.cap = "\\label{fig:pb_counts_ma}"}
 
-knitr::include_graphics('figure/ma_pb_compared_to_observed.pdf', dpi =500)
+knitr::include_graphics('figure/ma_pb_compared_to_observed.pdf')
                         
 ```
 
@@ -135,9 +135,36 @@ To better see the overlap between versions, in Figure \ref{fig:pb_versions_ma} w
 
 ```{r, out.width ="95%", fig.cap = "\\label{fig:pb_versions_ma}"}
 
-knitr::include_graphics('figure/ma_pb_compare_versions.pdf', dpi =500)
+knitr::include_graphics('figure/ma_pb_compare_versions.pdf')
 
 ```
+
+
+Now, we can also compare the extent to which these intervals agree with the Covidestim estimates. In \ref{fig:pb_covidestim_ma}, we see that when Covidestim estimates fall outside the probabilistic bias intervals, they fall below the intervals, estimating that there are less infections. The exception here is Hampshire County, which actually is very likely to be related to the high amount of asymptomatic testing done among the five colleges. Smith College alone, with a student body of about 2,500 and mandatory PCR testing twice a week, would contribute a substantial amount of tests to the test count in Hampshire County. Given the low infection burden, the vast majority of these tests were negative throughout most of 2021, reducing the positivity rate (Figure \ref{fig:hamp}). The extensive amount of asymptomatic testing done here would mean that 
+means that our correction factor $\beta$ in probabilistic analysis^[Recall $P(\text{test}_+ | S_0, \text{untested}) = \beta \; P(\text{test}_+|\text{tested})$. ], which we use to estimate the positivity rate among the untested asymptomatic population, would be too low. This is because the observed test positivity rate when so much asymptomatic testing is conducted would be closer to what expect the positivity rate among the asymptomatic test positivity rate to be among the untested population. Because the assumptions of the probabilistic bias analysis here did not assume such extensive asymptomatic testing was contributing to the test positivity rate, we are likely underestimating the true number of unobserved infections if there is a substantial amount of screening testing. It would be simple, however, to adjust $\beta$ to account for cases where there is increased asymptomatic testing. 
+
+```{r, fig.cap = "\\label{fig:pb_covidestim_ma}"}
+
+knitr::include_graphics("figure/ma_pb_compared_to_covidestim.pdf")
+
+```
+
+```{r, fig.cap = "\\label{fig:hamp} We see that Hampshire County has among the lowest test positivity rates among counties in Massachusetts in the time period considered.", out.width="90%", fig.height=2}
+
+knitr::include_graphics("figure/hampshire.pdf")
+
+```
+
+
+To summarize which versions are most concordant with the Covidestim estimates, we can consider the proportion of the biweeks where the interval contains the Covidestim estimate. As we see in Figure \ref{fig:covidestimprop}, the implementation with the prior for $P(S_1|\text{untested})$ centered at the empirical value tends to agree most with the Covidestim estimates.
+
+
+```{r, fig.cap = "\\label{fig:covidestimprop}"}
+
+knitr::include_graphics('figure/ma_pb_compared_to_covidestim_proportions.pdf')
+
+```
+
 
 
 
@@ -151,24 +178,46 @@ knitr::include_graphics(paste0('figure/', 'mi3', '_pb_compared_to_observed.pdf')
 
 ```
 
+```{r}
+
+knitr::include_graphics('figure/mi_pb_compared_to_covidestim_proportions.pdf')
+
+```
+
+\newpage
 
 ## State-level Results
  
 There is much more comprehensive testing data at the state-level than at the county level, as John Hopkins has tracked state-level testing data throughout the pandemic.
 As a result, we can apply probabilistic bias analysis across the United States at the state-level.
 
-However, since versions 2-4 of the analysis utilize empirical estimates of $P(S_1|\text{untested})$ or $\beta$ from the COVID-19 Trends and Impact Survey, these versions are only possible when there is sufficient data. As we see in Figure \ref{fig:statectis}, we see that 
+However, since versions 2-4 of the analysis utilize empirical estimates of $P(S_1|\text{untested})$ or $\beta$ from the COVID-19 Trends and Impact Survey, these versions are only possible when there is sufficient data. As we see in Figure \ref{fig:statectis}, some states have very little data for the empirical estimate of beta. However in Figure \ref{fig:statectis-s-untested} we see that there is more consistent reporting of $P(S_1|\text{untested})$.
 
 For versions 2-4, we did not attempt the probabilistic bias analysis for states where more than 60% of observations were missing at the daily time step. Missing values for states with sufficient data were imputed before summarizing to the biweek level using a linear weighted moving average. 
 
-```{r, out.width = "100%", fig.cap = '\\label{fig:statectis}'}
+```{r, out.width = "90%", fig.cap = '\\label{fig:statectis}'}
 
 knitr::include_graphics('figure/ctis_beta_states.pdf')
 
 ```
 
+```{r,out.width = "90%", fig.cap = '\\label{fig:statectis-s-untested}'}
+knitr::include_graphics('figure/ctis_s_untested_states.pdf')
+
+```
+
+In Figures \ref{fig:state-results-1} and \ref{fig:state-results-2}, we compare the 95% credible intervals of Covidestim summed to be on the biweek time scale to the probabilistic bias analysis intervals^[As mentioned in the [limitations](#lims) section, the two week intervals cannot be interpreted as 95% credible intervals. However, the comparison is still useful to contextualize the results of the probabilistic bias analysis.]. We see correspondence is much higher before the Omicron wave in late 2021 through early 2022, where Covidestim estimates the cases to be much higher.
+ 
+```{r,out.width = "100%", fig.cap  = '\\label{fig:state-results-1}'}
+knitr::include_graphics('figure/state_comp_covidestim1.pdf')
+
+```
  
  
+```{r,out.width = "100%", fig.cap  = '\\label{fig:state-results-2}'}
+knitr::include_graphics('figure/state_comp_covidestim2.pdf')
+
+```
  
 ## Cross Correlation Comparison
 
@@ -228,7 +277,7 @@ Looking at cross correlation can be useful in the sense that we can both conside
 In Figure \ref{fig:compdiff}, we consider simulated data where $(Z_t)$ is $(Y_t)$ lagged by 3 time units with noise added. We can see that  $Z_t$ and $Y_t$ are not second-order stationary since the mean clearly is not constant over time. However, to stabilize the mean, we can apply first order differencing, where we take the differences between consecutive observations.
 
 
-```{r, fig.show ='hold', out.width='100%', fig.height=2.5, fig.cap = "\\label{fig:compdiff}"}
+```{r, fig.show ='hold', out.width='100%', fig.height=3.5, fig.cap = "\\label{fig:compdiff}"}
 
 
 library(tidyverse)

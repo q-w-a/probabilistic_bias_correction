@@ -829,7 +829,7 @@ P(S_0 |\text{test}_+, \text{untested}) = \dfrac{\beta (1- P(S_1|\text{untested})
 \newpage
 
 
-## Sampling-Importance-Resampling Algorithm \label{sampling}
+## Sampling-Importance-Resampling Algorithm {#sampling}
 
 ### Overview 
 
@@ -1132,8 +1132,8 @@ As outlined in @carvalho2023, we can formally define logarithmic pooling as foll
 
 
 If we have a set of densities $\{ f_1(\phi), f_2(\phi), \ldots, f_n(\phi)\}$ and corresponding pooling weights $\boldsymbol{\alpha}=\{\alpha_1, \alpha_2, \ldots, \alpha_n\}$, then the pooled density is 
-
-$$ t(\boldsymbol{\alpha}) \prod_{i=0}^n f_i(\phi)^{\alpha_i}$$ where $t(\boldsymbol{\alpha})$ is the normalizing constant $t(\boldsymbol{\alpha}) = \dfrac{1}{ \int_{\Phi}\prod_{i=0}^n f_i(\phi)^{\alpha_i} d\phi}$ to ensure the pooled density is a valid probability density. 
+$$f^{\text{pooled}}(\phi) = t(\boldsymbol{\alpha}) \prod_{i=0}^n f_i(\phi)^{\alpha_i},$$
+where $t(\boldsymbol{\alpha})$ is the normalizing constant $t(\boldsymbol{\alpha}) = \dfrac{1}{ \int_{\Phi}\prod_{i=0}^n f_i(\phi)^{\alpha_i} d\phi}$ to ensure the pooled density is a valid probability density. 
 
 
 The case for this work is more simple: we only have two densities we wish to pool, $f_\phi^{induced}$ and $f_\phi^{direct}$, and we assign them equal weights by letting $\boldsymbol{\alpha} = \{.5, .5\}$. This  yields
@@ -1217,7 +1217,7 @@ compare_theoretical <- function(melded,
                                 input_rate,
                                 pre_nsamp, 
                                 post_nsamp,
-                                title_size = 15) {
+                                title_size = 8) {
   color_lab <-  paste0("PDF of Gamma(2, ", input_rate, ")")
 
   melded %>% 
@@ -1282,7 +1282,7 @@ legend_b <- cowplot::get_legend(
 
 
 title_gg <- ggplot() + 
-  labs(title =latex2exp::TeX("Distribution of Resample $Z_1,..., Z_r$ when Increasing the Sample Size $m$")) + 
+  labs(title =latex2exp::TeX("Distribution of Resample $Z_1,..., Z_r$ when Increasing the Sample Size $\\textit{m}$")) + 
   theme(plot.title=element_text(face="bold", hjust = .5, size = 14, margin =margin(5,0,2,0)))
 
 
@@ -1612,13 +1612,14 @@ plot_melded <- function(melded, custom_title="", pre_nsamp, post_nsamp) {
     theme(
           # axis.text.y = element_blank(),
           # axis.ticks.y = element_blank(),
-          axis.title = element_text(size = 14),
+          axis.title = element_text(size = 8),
           axis.text.x = element_text(size = 10),
-          plot.title =element_text(size = 14,
+          plot.title =element_text(size = 8,
                                    margin =margin(0,0, .5,0, 'cm')),
-          strip.text = element_text(size = 14),
-          legend.text = element_text(size = 14),
-          plot.subtitle = element_text(face = "bold", size = 12)) +
+          strip.text = element_text(size = 8, color="white"),
+           strip.background=element_rect(fill = "#3E3D3D", size = 12 ),
+          legend.text = element_text(size = 8),
+          plot.subtitle = element_text(face = "bold", size = 8)) +
     labs(title = TeX(custom_title,bold=TRUE),
          subtitle =paste0("Sample Size: ", pre_nsamp,
                           "\nPosterior Sample Size:", post_nsamp),
@@ -1640,12 +1641,13 @@ plot_melded <- function(melded, custom_title="", pre_nsamp, post_nsamp) {
     theme(
           # axis.text.y = element_blank(),
           # axis.ticks.y = element_blank(),
-          axis.title = element_text(size = 14),
+          axis.title = element_text(size = 8),
           axis.text.x = element_text(size = 10),
-          plot.title =element_text(size = 16,
+          plot.title =element_text(size = 12,
                                    margin =margin(0,0, .5,0, 'cm')),
-          strip.text = element_text(size = 14),
-          legend.text = element_text(size = 14)) +
+          strip.text = element_text(size = 8, color = "white"),
+          legend.text = element_text(size = 8),
+           strip.background=element_rect(fill = "#3E3D3D", size = 12 )) +
     labs(
       #title = paste0("Number of Samples: ", nsamp),
          fill = "",
@@ -1663,7 +1665,7 @@ plot_melded <- function(melded, custom_title="", pre_nsamp, post_nsamp) {
 
 
 
-```{r, fig.cap = "\\label{fig:trunc}", fig.height = 8}
+```{r, fig.cap = "\\label{fig:trunc}", fig.height = 9}
 
 
 # set prior parameters
@@ -1712,15 +1714,15 @@ legend_b <- cowplot::get_legend(
     guides(color = guide_legend(
       nrow = 1, 
       override.aes = list(
-      linewidth=4))) +
+      linewidth=2))) +
     theme(legend.position = "top",
-          legend.text = element_text(size = 16))
+          legend.text = element_text(size = 11))
 )
 
 
 title_gg <- ggplot() + 
   labs(title =latex2exp::TeX("Effect of Sample Size on Melded Distributions", bold=TRUE)) + 
-  theme(plot.title=element_text(face="bold", hjust = .5, size = 16, margin =margin(5,0,2,0)))
+  theme(plot.title=element_text(face="bold", hjust = .5, size = 13, margin =margin(5,0,2,0)))
 
 
 plts <- cowplot::plot_grid(plotlist = plotlist)
@@ -1730,7 +1732,7 @@ cowplot::plot_grid(title_gg,
                    legend_b,
                    plts, 
                    ncol = 1 ,
-                   rel_heights = c(.05,.1, .85))
+                   rel_heights = c(.05,.05, .9))
 # dev.off()
 
 
@@ -1885,9 +1887,9 @@ data %>%
   annotate(x = 700, geom= "text", y = .5, 
            label = TeX("$500 + (\\alpha)(n)$"), parse =TRUE) +
   theme_bw()+
-  theme(plot.title = element_text(hjust = .5, face="bold", size = 14),
-        plot.subtitle = element_text(hjust = .5, face="italic", size = 14),
-        axis.title = element_text(size = 14)) +
+  theme(plot.title = element_text(hjust = .5, face="bold", size = 11),
+        plot.subtitle = element_text(hjust = .5, face="italic", size = 11),
+        axis.title = element_text(size = 11)) +
   labs(title = TeX("Weights Computed for $x^* = 500$"))
 
 
@@ -1910,13 +1912,14 @@ data %>%
          predicted = predict(model)) %>%
   ggplot(aes(x = x, y =y)) +
   geom_point(size = .5, alpha = .6) +
-  geom_line(aes(y = predicted), size = 1.3, color = "#728BC8") +
+  geom_line(aes(y = predicted),color = "#728BC8") +
   geom_point(x =500, 
              y = data[data$x==x_star,]$y,
-             size =4,
-             color = "orange") +
+             size =2,
+             color = "orange",
+             alpha = .8) +
   theme_bw()+
-  theme(plot.title = element_text(hjust = .5, face="bold", size = 12),
+  theme(plot.title = element_text(hjust = .5, face="bold", size = 10),
         plot.subtitle = element_text(hjust = .5, face="italic", size = 12),
         axis.title = element_text(size = 12)) +
   labs(title = TeX("Local Model Estimated for Neighborhood about $x^* = 500$")) +
@@ -2179,13 +2182,11 @@ Methods exist for picking the smoothing parameter $h$ that minimizes the mean sq
 However, for this work, we used LOESS smoothing to smooth survey data from the COVID-19 Trends and Impact Survey [@reinhart2021]. 
 We choose the smoothing parameter for each variable based on domain knowledge regarding the level of noise present for each variable of interest. For example, there is substantial noise in the screening test positivity data that reflect trends that do not represent meaningful differences in the screening test positivity. Some trends in the screening sensitivity may be due to scheduled workplace screenings happening at regular time intervals, and some of the variation may be due to the frequency of screening testing due to other variables, such as the access and cost of testing.
 
-Since the ratio  $\frac{\text{screening test positivity}}{\text{overall test positivity}}$ is used to estimate $\beta = \frac{P(\text{test}_+| S_0, untested)}{P(\text{test}_+|tested)}$, the variability in the screening positivity creates substantial variability in our estimates of $\beta$.
+Since the ratio  $\frac{\text{screening test positivity}}{\text{overall test positivity}}$ is used to estimate $\beta = \frac{P(\text{test}_+| S_0, \text{untested})}{P(\text{test}_+|tested)}$, the variability in the screening positivity creates substantial variability in our estimates of $\beta$.
 
 In light of this variability and the presence of other trends regarding the screening test positivity, we set the span  to $\frac{4}{12} = 0.33$ to fit the local regressions for 4-month intervals with the aim to capture the broader trends over time.
 
-INCLUDE FIGURE OF SMOOTHED ESTIMATES HERE 
-
-There was less variabiity in the smoothing span for the weighted percentage of COVID-like Illness, the estimate of $P(S_1|untested)$. Hence, we set the smoothing parameter to $0.2$ detect trends at a finer time scale.
+There was less variabiity in the smoothing span for the weighted percentage of COVID-like Illness, the estimate of $P(S_1|\text{untested})$. Hence, we set the smoothing parameter to $0.2$ detect trends at a finer time scale.
 
 Sensitivity analyses with modified versions of the smoothing span of $\beta$ are included in the appendix in the section INCLUDE SECTION. 
 
@@ -2291,7 +2292,7 @@ Thus, in this case, we have $Y = \text{logit}(X)$, so $g^{-1}$ is the logit func
 $$f_X(x) = f_Y(\text{logit}(X)) \;\; \left| \frac{d}{dx} \text{logit}(X) \right|.$$ 
 Computing the derivative and simplifying, we have
 
-\begin{align*} = f_Y(logit(X)) \;\; \left| \frac{d}{dx}log(\frac{x}{1-x}) \right|\\
+\begin{align*} &= f_Y(logit(X)) \;\; \left| \frac{d}{dx}log(\frac{x}{1-x}) \right|\\
 &= f_Y(logit(X)) \;\; \left| \left(\frac{1-x}{x} \right) (x(1-x)^{-1})' \right|\\ 
 &= f_Y(logit(X)) \;\; \left| \left(\frac{1-x}{x} \right) ((1-x)^{-1} + x(1-x)^{-2} ) \right|\\
 &= f_Y(logit(X)) \;\; \left| \left(\frac{1-x}{x} \right) \left(\frac{(1-x) + x }{ (1-x)^{2} }\right) \right|\\
@@ -2432,7 +2433,7 @@ tibble(x=density_coordinates_X,
          fill = "") +
     theme_bw() +
     theme(axis.title = element_text(size = 12),
-          plot.title = element_text(size = 16, hjust = .5),
+          plot.title = element_text(size = 12, hjust = .5),
           plot.subtitle = element_text(size = 12, hjust = .5),
           legend.text = element_text(size = 12)) +
     viridis::scale_fill_viridis(discrete = TRUE, 
@@ -2571,12 +2572,15 @@ legend_b <- cowplot::get_legend(
 
 
 title_gg <- ggplot() + 
-  labs(title =latex2exp::TeX("Comparing Approaches for Estimating $f_X(x)$ for Different Beta Distributions", 
-                             bold = TRUE)) + 
+  labs(title =latex2exp::TeX("Comparing Approaches for Estimating $f_X(x)$,bold=TRUE"),
+  subtitle = latex2exp::TeX("for Different Beta Distributions",bold=TRUE)) + 
   theme(plot.title=element_text(face="bold",
                                 hjust = .5, 
-                                size =14,
-                                margin =margin(5,0,2,0)))
+                                size =14),
+        plot.subtitle = element_text(face="bold",
+                                     hjust = .5,
+                                     size = 14,
+                                margin =margin(0,0,3,0)))
 
 
 plts <- cowplot::plot_grid(plotlist = plotlist, ncol=2)
@@ -2738,7 +2742,7 @@ dat %>%
 As we did in Figure \ref{fig:compare-beta-params}, we can compare the performance of the beta kernel $\hat f_2$ for estimating the density of samples from different beta distributions (Figure \ref{fig:comp-beta}).
 
 
-```{r, fig.cap = "\\label{fig:comp-beta}", fig.height =10}
+```{r, fig.cap = "\\label{fig:comp-beta}", fig.height =10, fig.width= 7}
 
 beta_kernel_est_plot <- function(shape1,
                                  shape2, 
@@ -2766,7 +2770,7 @@ beta_kernel_est_plot <- function(shape1,
     stat_function(fun =dbeta, args =list(shape1=shape1,
                                          shape2=shape2),
                   xlim=c(0,1),
-                  color = "red") +
+                  aes(color = "Theoretical")) +
     labs(
       # title = TeX("Density Estimation Using Beta Kernel Estimator $\\widehat{f_2}(x)$"),
          x = "x",
@@ -2779,8 +2783,11 @@ beta_kernel_est_plot <- function(shape1,
             plot.title = element_text(size = 12, hjust = .5),
             plot.subtitle = element_text(size = 10, hjust = .5),
             legend.text = element_text(size = 16),
-            plot.caption = element_text(hjust = 0, size = 12, face = "bold")) +
-      ylim(0,yupper)
+            plot.caption = element_text(hjust = 0, size = 12, face = "bold"),
+            legend.position="none") +
+      ylim(0,yupper) +
+    scale_color_manual(values=c('Theoretical' = 'red'),
+                       name='')
   
 }
 
@@ -2803,14 +2810,21 @@ title_gg <- ggplot() +
                                 margin =margin(5,0,2,0)))
 
 
+legend_b <- get_legend(
+  plotlist[[1]] +
+  theme(legend.position="top",
+        legend.text =element_text(size =7)) +
+  guides(color = guide_legend(override.aes = list(linewidth= 3)))
+)
+
 plts <- cowplot::plot_grid(plotlist = plotlist, ncol=2)
 
 # jpeg(filename=here::here('thesis/figure/comp_density_by_params.jpeg'), height = 1000, width = 900, quality =300)
 cowplot::plot_grid(title_gg,
-                #   legend_b,
+                   legend_b,
                    plts, 
                    ncol = 1 ,
-                   rel_heights = c(.05,.95))
+                   rel_heights = c(.05,0.05,.9))
 
 
 # check correspondence with bde implementation
@@ -2827,4 +2841,100 @@ cowplot::plot_grid(title_gg,
 
 ```
 
+Although we can see the advantages of using the beta kernel estimator, in practice, available implementations (e.g., the `bde` package implementation) are much more computationally expensive than using Gaussian kernel density estimation, which make the beta kernel estimator unfeasible for this work. The exact density of the induced distribution is not going to change the estimated counts dramatically relative to the other sources of variability (e.g. the specification of the prior distributions or sources of data to inform these priors), and, as we see in Figure \ref{fig:gaus}, Gaussian density estimation does perform reasonably well for a variety of bounded distribution shapes.
+
+
+```{r, fig.height =9, fig.width=7, fig.cap = "\\label{fig:gaus}"}
+
+gaussian_dens_plot <- function(shape1,
+                                 shape2, 
+                                 panel_name,
+                                 nsamp = 1e4,
+                                 b = NULL) {
+  
+ # b <- ifelse(is.null(b), nsamp^(-2/5), b)
+  
+  X_sample <- rbeta(nsamp, shape1 = shape1 , shape2 = shape2)
+
+  dens <- density(X_sample, n = 1e3)
+  
+  dat <- tibble(coords = dens$x,
+         density = dens$y) 
+  
+  
+  yupper <- max(max(dat$density),
+                max(dbeta(dat$coords,
+                          shape1=shape1,
+                          shape2=shape2))) 
+  yupper <- yupper + .2
+
+  plt <- dat %>%
+    ggplot() +
+    geom_area(aes(x=coords, y =density),
+              fill = "#51928D",
+              alpha = .8) +
+    stat_function(fun =dbeta, args =list(shape1=shape1,
+                                         shape2=shape2),
+                  xlim=c(0,1),
+                  aes(color = "Theoretical")) +
+    labs(
+      # title = TeX("Density Estimation Using Beta Kernel Estimator $\\widehat{f_2}(x)$"),
+         x = "x",
+         y = TeX("$\\widehat{f}(x)$"),
+         subtitle = TeX(paste0("$X \\sim $ Beta(", 
+                               shape1, ", ", shape2, ")")),
+         caption = panel_name) +
+      theme_bw() +
+      theme(axis.title = element_text(size = 8),
+            plot.title = element_text(size = 12, hjust = .5),
+            plot.subtitle = element_text(size = 10, hjust = .5),
+            legend.text = element_text(size = 16),
+            plot.caption = element_text(hjust = 0, size = 12, face = "bold"),
+            legend.position="none") +
+      ylim(0,yupper) +
+    xlim(-0.1, 1.1)+
+    scale_color_manual(values=c('Theoretical' = 'red'),
+                       name='')
+  
+  
+}
+
+plotlist <- pmap(shapes, ~{
+  
+  plt <- gaussian_dens_plot(shape1 = ..1, 
+                              shape2 = ..2, 
+                              panel_name = ..3)
+  # print(plt)
+  
+} )
+
+
+title_gg <- ggplot() + 
+  labs(title = TeX("Density Estimation Using Gaussian Kernel Estimator",
+                          bold=TRUE)) + 
+  theme(plot.title=element_text(face="bold",
+                                hjust = .5, 
+                                size =14,
+                                margin =margin(5,0,2,0)))
+
+
+
+
+legend_b <- get_legend(
+  plotlist[[1]] +
+  theme(legend.position="top",
+        legend.text = element_text(size=7)) +
+  guides(color = guide_legend(override.aes = list(linewidth= 3)))
+)
+
+
+plts <- cowplot::plot_grid(plotlist = plotlist, ncol=2)
+
+# jpeg(filename=here::here('thesis/figure/comp_density_by_params.jpeg'), height = 1000, width = 900, quality =300)
+cowplot::plot_grid(title_gg,
+                   legend_b,
+                   plts, 
+                   ncol = 1 ,
+                   rel_heights = c(.05,0.05,.9))
+```
 

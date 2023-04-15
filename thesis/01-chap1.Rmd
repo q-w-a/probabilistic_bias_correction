@@ -12,27 +12,18 @@ rbbt::bbt_insert()
 
 ## Misc
 
-Things left to do --
-- add plot in motivation section
-- revise + add to prob bias section
-- add more background to summary of approach
-- revise melding section
-- add a prelim results section
-- add abstract
-- add overview section before methods updated diagram
-
 ```
 
 
 
-# Motivation  
+# Introduction  
 
   \vspace{.2 mm}
 Throughout the COVID-19 pandemic, observed infections have guided decisions at both the individual and government levels. At the state-level, policies on phased reopening, for example, often include criteria on COVID-19 cases [@californiadepartmentofpublichealth2021; @tomwolf2020; @charlesd.baker2021]. 
 
  To make this data accessible to the public, several organizations, including the CDC [@centersfordiseasecontrolandprevention2020], John Hopkins University [@dong2020], and the New York Times [@thenewyorktimes2022], compiled comprehensive dashboards presenting key metrics such as positive cases and test positivity rates across states.
 
-However, our interpretation of case counts as a measure of transmission is limited by the fact that testing rates impact these trends. The number of positive cases we observe in a county, for instance, will be a result of that county’s testing capacity and testing behavior of its population. This means the relationship between observed infections and true total infections may not be monotonic.
+However, our interpretation of case counts as a measure of transmission is limited by the fact that testing rates impact these trends. The number of positive cases we observe in a county, for instance, will be a result of that county’s testing capacity and testing behavior of its population. This means that trends in the infections may not always reflect trends in the true number of infections.
 
 The importance of considering testing rate led John Hopkins University to organize the most comprehensive testing database available in the United States [@dong2020], which enables us to see that testing rate varies substantially by state and time.
 
@@ -118,7 +109,7 @@ We also use cases to study the effect of vaccination at the population scale. Wo
 
 Beyond the efficacy of vaccines at the individual level, these studies also demonstrate that we can use case data to quantify the impact of vaccination efforts as a public health intervention. Coupled with information about genetic variants that are circulating, they also can extend our knowledge about the effect of this intervention across different phases of the pandemic. 
 
-Looking to the future, infection counts also may be informative as we better understand the impacts of long COVID-19\footnote{The syndrome goes by a number of names, including long-haul COVID-19, post-acute XXX, [SOURCE].} on a population scale. There is increased concern over the poorly characterized but widespread phenomenon of lingering COVID-19 symptoms, which includes but is not limited to symptoms of fatigue, dyspnea, chest pain, and palpitation. The heterogeneity of presentations and definitions has complicated research on the syndrome, yet its impact has been pervasive. In light of this, the NIH has made the initiative XXX to better understand and treat long COVID-19 [SOURCE.]
+Looking to the future, infection counts also may be informative as we better understand the impacts of long COVID-19\footnote{The syndrome goes by a number of names, including long-haul COVID-19, post-acute post-acute sequelae SARS-CoV-2 infection (PASC), among others.} on a population scale. There is increased concern over the poorly characterized but widespread phenomenon of lingering COVID-19 symptoms, which includes but is not limited to symptoms of fatigue, dyspnea, chest pain, and palpitation. The heterogeneity of presentations and definitions has complicated research on the syndrome, yet its impact has been pervasive. In light of this, the NIH has made the initiative  Researching COVID to Enhance Recovery (RECOVER) Initiative to better understand and treat long COVID-19.
 
 Infection counts are particularly relevant for the study of long COVID-19 at the population scale because, contrary to what we might expect, the severity of COVID-19 disease is not associated with the persistence of several symptoms, including anosmia, chest pain, cough, and palpitation [@dirican2022]. Since lingering symptoms can be problematic even with mild cases, trying to characterize the cumulative burden of COVID-19 through a proxy such as hospitalization counts would not capture the full impact.    
 
@@ -174,18 +165,22 @@ $$P(S_0|test+, untested) = \dfrac{\beta(1 - P(S_1|untested))}{\beta(1-P(S_1|unte
 When we have prior knowledge about the distributions of the inputs and output of a deterministic function, we can use \textcolor{blue}{[Bayesian melding]} to generate constrained distributions for the inputs and outputs that are in concordance with one another. In essence, this approach considers the distinct distributions we have for $\phi$: the distribution informed by previous literature on the asymptomatic rate, and the distribution formed by evaluating $M$ at values of $\theta$. We can combine these distributions with logarithmic pooling to yield a constrained distribution for $\phi=P(S_0|test +, untested)$, and then can approximate the inverted distribution to obtain constrained distributions for the inputs $\theta =  \{P(S_1|untested), \alpha, \beta \}$. These 
 
 
-We can summarize this process in the diagram that follows, where we repeat this process for every geographic unit (a state or county) and time interval (a 2 week interval). We divide the time period into 2-week intervals specifically due to the duration of test positivity, which is about two weeks on average [@mallett2020a; @kojima2022a]. This enables us to  think of our estimates for each two-week period as incident infections.
+We can summarize this process in Figure \ref{fig:diagram}. We repeat this process for every geographic unit (a state or county) and time interval (a 2 week interval). 
 
 
  
-```{r, echo = FALSE, out.width="80%", fig.align = 'center', fig.caption = 'Implementation of probabilistic bias analysis.'}
+```{r, echo = FALSE, out.width="10%", fig.align = 'center', fig.cap = '\\label{fig:diagram}Implementation of probabilistic bias analysis.'}
  
 knitr::include_graphics("./figure/analysis_diagram.png")
 # ![](./figure/figure_original_case_ratio.png){width=200}
 
 ```
 
-With the original implementation, $\alpha, \beta, \text{ and } P(S_1|untested)$ were assumed to be independent and identically distributed across states. However, because we are considering a wider time interval over all of 2021 and into early 2022, it makes sense to vary these parameters by time and location. Due to the availability of data to inform $\beta$ and $P(S_1|untested)$, we allow these parameters to vary by time and location, as discussed further in [Definition of Prior Distributions].
 
-When we allow $\beta$ and $P(S_1|untested)$ to vary over time and location, rather than implementing Bayesian melding once for each time interval, we must implement melding for each time interval and each location considered.
+We divide the time period into 2-week intervals specifically due to the duration of test positivity, which is about two weeks on average [@mallett2020a; @kojima2022a]. Because This enables us to  think of our estimates for each two-week period as incident infections.
+
+
+With the implementation of the implementation of @wu2020, $\alpha, \beta, \text{ and } P(S_1|\text{untested})$ were assumed to be independent and identically distributed across states. However, because we are considering a wider time interval over all of 2021 and into early 2022, it makes sense to vary these parameters by time and location. Due to the availability of data to inform $\beta$ and $P(S_1|untested)$, we allow these parameters to vary by time and location, as discussed further in [Definition of Prior Distributions].
+
+When we allow $\beta$ and $P(S_1|untested)$ to vary over time and location, rather than implementing Bayesian melding once and using the same melded distribution for each time interval, we must implement melding for each time interval separately. 
 

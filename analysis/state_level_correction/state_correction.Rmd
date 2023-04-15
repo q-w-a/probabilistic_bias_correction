@@ -9,7 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE, results = 'hide')
 library(tidyverse)
 library(here)
-
+library(latex2exp)
+library(viridis)
 
 theme_c <- function(...){ 
     font <- "Helvetica"   #assign font family up front
@@ -113,23 +114,29 @@ s_untested_smoothing_span <- .2
 
 ## Version 1 
 
-```{r correction v1}
+```{r}
 
 state_testing <- readRDS(here("data/state_level/tests_biweekly_all_states.RDS"))
 
 
 state_testing <- state_testing %>%
-  rename(fips = state)
-
-
-priors_version <- "v1"
-results_path <- here("analysis/results/adj_biweekly_state/")
-
-melded <- do.call(get_melded, prior_params)
+  rename(fips = state)%>%
+  select(-date) %>% 
+  distinct()
 
 
 # only use a few rows if testing
 state_testing <- if(testing) state_testing %>% filter(biweek >=6) %>% slice_sample(n=15) else state_testing
+
+results_path <- here("analysis/results/adj_biweekly_state/")
+
+```
+
+```{r correction v1, eval=FALSE}
+priors_version <- "v1"
+
+melded <- do.call(get_melded, prior_params)
+
 
 # check there are no NAs
 # covid_county %>% 
@@ -158,7 +165,7 @@ tictoc::toc()
 ```
 
 
-```{r, eval = save}
+```{r, eval = FALSE}
 saveRDS(corrected,
         paste0(results_path,
         "adj_",
@@ -171,9 +178,9 @@ saveRDS(corrected,
 
 ```{r, eval = TRUE}
 
-fb_symptoms <- readRDS("data/state_level/screeningpos_all_states.RDS")
+fb_symptoms <- readRDS(here("data/state_level/screeningpos_all_states.RDS"))
 
-dates <- readRDS("data/date_to_biweek.RDS")
+dates <- readRDS(here("data/date_to_biweek.RDS"))
 
 ################################
 # SCREENING PLOTS
@@ -188,22 +195,30 @@ symp <- fb_symptoms %>%
 symp %>% 
   ggplot(aes(x=date, y = beta_est)) +
   geom_line() +
-  theme_c(axis.text.x = element_text(angle =30),
-          axis.title = element_text(size =16)) +
-  facet_wrap(~toupper(state)) +
-  labs(title = "Empirical Estimate of Beta\n from COVID-19 Trends and Impact Survey Data",
+  theme_c(axis.text.x = element_text(angle =30, size = 12),
+          axis.title = element_text(size =16),
+          plot.title = element_text(size = 35)) +
+  facet_wrap(~toupper(state), ncol =10) +
+  labs(title = TeX("Empirical Estimate of $\\beta$ from COVID-19 Trends and Impact Survey Data"),
        y = "Screening Test Positivity / Overall Test Positivity")
 
-ggsave('thesis/figure/ctis_beta_states.pdf', height = 10, width = 10)
+ggsave(here('thesis/figure/ctis_beta_states.pdf'), height = 11, width = 16)
+
+
+
 
 symp %>% 
 #  filter(keep) %>%
   ggplot(aes(x=date, y = smoothed_wcli)) +
   geom_line() +
-  theme_c(axis.text.x = element_text(angle =30)) +
-  facet_wrap(~toupper(state)) +
-  labs(title = "Empirical Estimate of Beta\n from COVID-19 Trends and Impact Survey Data",
+  theme_c(axis.text.x = element_text(angle =30, size = 12),
+          plot.title = element_text(size = 35)) +
+  facet_wrap(~toupper(state), ncol=10) +
+  labs(title = TeX("Empirical Estimate of $P(S_1|untested)$\n from COVID-19 Trends and Impact Survey Data"),
        y = "Percentage with COVID-19-like Illness")
+
+ggsave(here('thesis/figure/ctis_s_untested_states.pdf'), height =11, width = 16)
+
 
 ################################################
 # FILTER TO STATES WITH >= 0.6 observations
@@ -256,7 +271,7 @@ symp_imputed <- symp %>%
 
 symp_imputed %>%
   mutate(was_na = ifelse(is.na(beta_est), "Missing", "Not Missing")) %>%
-  ggplot(aes(x=date, y = imputed, color = was_na)) +
+  ggplot(aes(x=date, y = imputed_beta, color = was_na)) +
   geom_point(size = .5, alpha = .5) +
  # geom_line() +
 #  geom_line(size = .7) +
@@ -383,15 +398,6 @@ compare_priors %>%
 
 
 
-```
-
-## Version 2
-
-```{r correction v2}
-
-
-priors_version <- "v2"
-
 
 state <- state_testing %>% 
   mutate(fips = tolower(fips)) %>%
@@ -401,10 +407,21 @@ state <- state_testing %>%
   filter(!is.na(beta_estimate_smoothed))
 
 
+```
+
+## Version 2
+
+```{r correction v2,eval=FALSE}
+
+
+priors_version <- "v2"
+
+
+
 corrected <- state %>% 
  # filter(fips %in% c("ca"), biweek %in% c(6,7)) %>%
-  select(-date) %>%
-  distinct() %>%
+  # select(-date) %>%
+  # distinct() %>%
 #  select(biweek,beta_estimate_smoothed) %>%
   arrange(biweek) %>%
   # there will be more than one observation per county since
@@ -454,7 +471,7 @@ state <- state_testing %>%
   # filter out the beginning dates where beta_estimate_smoothed is NA
   filter(!is.na(beta_estimate_smoothed)) %>% 
   select(-c(smoothed_wcli, smoothed_wscreening_tested_positive_14d, smoothed_wtested_positive_14d)) %>%
-  select(-date) %>%
+#  select(-date) %>%
   distinct() 
 
 
