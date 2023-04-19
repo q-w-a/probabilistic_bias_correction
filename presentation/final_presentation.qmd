@@ -1,0 +1,735 @@
+---
+title: "Using Sensitivity Analyses to Approximate Total COVID-19 Infections: <br><span style='font-size:75%;color:#EFF0F1;line-height:30%;margin:0;'>State and County level in the United States,<br> March 2021 - March 2022</span>"
+format:
+  revealjs: 
+    theme: ../css/presentation.scss
+    auto-stretch: false
+    center: false
+bibliography: "`r rbbt::bbt_write_bib('presentation.bib', overwrite = TRUE)`"
+csl: ama.csl
+---
+
+```{r, include=FALSE}
+
+library(tidyverse)
+library(here)
+library(latex2exp)
+
+
+theme_c <- function(...){ 
+   # font <- "Helvetica"   #assign font family up front
+    font <- "Helvetica"
+    theme_bw() %+replace%    #replace elements we want to change
+    
+    theme(
+      
+      
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   size = 20,                #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = .5,
+                   vjust = 3),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   size = 14,
+                   hjust = .5,
+                   face = 'italic',
+                   vjust = 3),               #font size
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 25),               #font size
+      
+      axis.text.x = element_text(              #axis text
+                   family = font,           
+                   size = 18),
+      legend.text = element_text(size = 16),
+      # t, r, b, l
+      plot.margin = unit(c(1,.5,.5,.5), "cm"),
+      legend.position = "bottom",
+      strip.background = element_rect(fill = "#323232"),
+      #strip.text = element_text(size = 16, face = "bold", color = "white")
+         strip.text = element_text(size = 16, face = "bold", color = "white")
+
+      ) %+replace%
+      theme(...)
+   
+}
+
+```
+
+## Motivation 
+
+:::: {.columns}
+
+::: {.column width="40%"}
+* Testing rate varies widely across states
+* Interested in the distinction between:
+  * the positive tests we observe
+  * true number infections that exist
+::: 
+```{r, eval=FALSE}
+
+library(tidyverse)
+library(viridis)
+library(lubridate)
+library(here)
+
+
+############################################
+# GET TESTING DATA FROM CDC
+############################################
+
+
+dat <- httr::GET(URLencode(
+  paste0("https://healthdata.gov/resource/j8mb-icvb.json?",
+  "$where=date between '2020-04-30T12:00:00' and '2020-12-30T12:00:00'&$limit=50000")))
+
+cdc1 <-jsonlite::fromJSON(
+      httr::content(dat,
+                    as = "text", 
+                    encoding = "UTF-8")) %>%
+  as_tibble()
+
+
+
+dat <- httr::GET(URLencode(
+  paste0("https://healthdata.gov/resource/j8mb-icvb.json?",
+  "$where=date between '2020-12-30T12:00:00' and '2021-10-15T12:00:00'&$limit=50000")))
+
+cdc2 <-jsonlite::fromJSON(
+      httr::content(dat,
+                    as = "text", 
+                    encoding = "UTF-8")) %>%
+  as_tibble()
+
+
+dat <- httr::GET(URLencode(
+  paste0("https://healthdata.gov/resource/j8mb-icvb.json?",
+  "$where=date between '2021-10-15T14:00:00' and '2022-02-25T14:00:00'&$limit=50000")))
+
+
+cdc3 <-jsonlite::fromJSON(
+      httr::content(dat,
+                    as = "text", 
+                    encoding = "UTF-8")) %>%
+  as_tibble()
+
+
+cdc <- bind_rows(cdc1, cdc2, cdc3) %>%
+  mutate(date = ymd(substr(date,1,10))) %>%
+  mutate(across(c(new_results_reported), as.numeric)) %>%
+  filter(!state %in% c("MP", "AS", "GU", "PR", "VI", "MH"))
+
+# overall_outcome is the outcome of the test (Inconclusive, Negative, or Positive)
+# new_results_reported is the number with the given outcome
+cdc_pos <- cdc %>%
+  select(-c(fema_region, total_results_reported)) %>%
+  pivot_wider(names_from = c("overall_outcome"),
+              values_from = c("new_results_reported")) %>%
+  mutate(total = Inconclusive + Negative + Positive) %>%
+  rename_with(tolower) %>%
+  select(state, positive, total, date)
+
+
+saveRDS(cdc_pos, here('presentation/presentation_data/testing.RDS'))
+
+```
+
+```{r, eval=FALSE}
+
+testing <- readRDS(here('presentation/presentation_data/testing.RDS'))
+
+# style = 'display:inline-block;margin-bottom:1vw;padding:1vw;'
+
+pop_link <- "https://www2.census.gov/programs-surveys/popest/datasets/2010-2019/state/detail/SCPRC-EST2019-18+POP-RES.csv"
+pop <- read_csv(pop_link)
+
+statecodes <- read_csv(here('data/demographic/statecodes.csv'))
+
+pop <- pop %>%
+  left_join(statecodes, by = c("NAME" = "state")) %>%
+  select(population = POPESTIMATE2019,
+         state = code) %>%
+  filter(!is.na(state))
+
+testing <- testing %>%
+  left_join(pop)
+
+testing <- testing %>%
+  mutate(week = week(date), year = year(date)) %>%
+  mutate(week = case_when(
+    year == 2020 ~ week,
+    year == 2021 ~ week + 52,
+    year == 2022 ~ week + 104
+  )) %>%
+  group_by(week, state, population) %>%
+  summarize(date = min(date), 
+            total = sum(total)) %>%
+  ungroup()
+
+
+testing  %>%
+   mutate(`Total Number Tested\nNormalized by Population Size` = total/population) %>%
+  ggplot(aes(x = date, 
+             y = `Total Number Tested\nNormalized by Population Size`,
+             color = state)) +
+  geom_line(size = .7, show.legend=FALSE) +
+  theme_bw() +
+  theme(axis.title = element_text(size = 22),
+          legend.position = "none",
+        plot.title = element_text(hjust = .5, face = "bold", size = 25),
+        text = element_text(family = "Arial"),
+        axis.text = element_text(size = 14)) +
+  labs(title = "Weekly Testing Rate by State")+ 
+  scale_x_date(date_labels= "%b %Y") +
+  scale_color_viridis(option="rocket", discrete=TRUE)
+
+ggsave(width=8, height = 6,"./presentation/figure/testing_all.jpeg", dpi=300)
+
+
+testing  %>%
+  ungroup() %>%
+  mutate(`Total Number Tested\nNormalized by Population Size` = total/population,
+         id = ifelse(state =="ID", 1, .1)) %>%
+  mutate(id = as_factor(id)) %>%
+  ggplot(aes(x = date, 
+             y = `Total Number Tested\nNormalized by Population Size`,
+             alpha = id,
+             group = state)) +
+  geom_line(size = .7, show.legend=FALSE) +
+  theme_bw() +
+  theme(axis.title = element_text(size = 22),
+          legend.position = "none",
+        plot.title = element_text(hjust = .5, face = "bold", size = 25),
+        text = element_text(family = "Arial"),
+        axis.text = element_text(size = 14)) +
+  labs(title = "Weekly Testing Rate by State")+ 
+  scale_alpha_manual(values=c(.1,1)) +
+  scale_x_date(date_labels= "%b %Y")
+
+ggsave(width=8, height = 6,"./presentation/figure/idaho_testing.jpeg", dpi=300)
+
+
+testing  %>%
+  ungroup() %>%
+  mutate(`Total Number Tested\nNormalized by Population Size` = total/population,
+         id = ifelse(state =="MA", 1, .1)) %>%
+  mutate(id = as_factor(id)) %>%
+  ggplot(aes(x = date, 
+             y = `Total Number Tested\nNormalized by Population Size`,
+             alpha = id,
+             group = state)) +
+  geom_line(size = .7, show.legend=FALSE) +
+  theme_bw() +
+  theme(axis.title = element_text(size = 22),
+          legend.position = "none",
+        plot.title = element_text(hjust = .5, face = "bold", size = 25),
+        text = element_text(family = "Arial"),
+        axis.text = element_text(size = 14)) +
+  labs(title = "Weekly Testing Rate by State")+ 
+  scale_alpha_manual(values=c(.1,1)) +
+    scale_x_date(date_labels= "%b %Y") 
+
+
+ggsave(width=8, height = 6,"./presentation/figure/ma_testing.jpeg", dpi=300)
+
+
+```
+
+
+::: {.column}
+<img width="55%" class = "fragment fade-out" src="./figure/testing_all.jpeg" style="position:absolute;top:20%;right:0;" />
+<img width="55%" class = "fragment current-visible" src="./figure/idaho_testing.jpeg" style="position:absolute;top:20%;right:0;" />
+<img width="55%" class = "fragment current-visible" src="./figure/ma_testing.jpeg" style="position:absolute;top:20%;right:0;" />
+::: 
+::::
+
+
+::: {.notes}
+Throughout the pandemic, the number of state-wide or county-wide positive tests have been something really concrete that we can turn to to better understand the prevalence of COVID-19 in a given area at a particular point in time.
+
+That said, these numbers are a direct result of access to tests (and willingness to test), which varies widely across states, which we see in the figure here.
+
+In particular, my curiosity about the impact of how incomplete testing affects our understanding of the pandemic was motivated by spending a substantial portion of the pandemic in Idaho, where views of the pandemic were pretty mixed, and testing not particularly accessible. Relative to other states, the testing rate was pretty low (switch image). I was really interested in this idea that the numbers of positive tests presented on public dashboards or discussed in the news were a direct result of testing access and testing behavior, and I really wondered how we could better think about and display the genuine uncertainty about those values.
+
+I also thought about this when I'd hear comparisons among case burdens among states, because when we have such differences in testing, for instance, here in Massachusetts the testing is among the highest of states in the U.S. (switch image), it will impact the difference between the infections we observe and the number truly infected.
+::: 
+
+
+
+## Relevance of Approximating True Infections
+
+* Cumulative burden and long COVID 
+  * Lingering symptoms often not predicted by severity [@dirican2022a]
+* Relationship between demographic variables and COVID-19 burden:
+   * Vaccination rate and cumulative cases [@harris2022b; @cuadros2022d; @cuadros2022e; @mclaughlin2022b]
+   * Socioeconomic variables and cumulative cases [@chen2021b; @karmakar2021b]
+   * Relationship between policy interventions such as stay-at-home orders [@jiang2022b] or mask mandates [@kao2023a] and incident cases
+
+
+
+::: {.notes}
+An important question to think about in the context is -- why do we want to know/estimate the number of true infections, or why it is not enough to just look at hospitalizations or deaths, given these are indicators of the impacts we care most about.  However, there are several reasons that thinking about the true infections is important. 
+
+For one, ...
+::: 
+
+## Other Work on Estimating True Number of Infections
+
+
+:::: {.columns}
+
+
+::: {.column width="75%"}
+
+* Broad strategy:
+  * Use IFR and/or seroprevalence data 
+  
+  
+::: {.fragment .fade-in}
+* Irons and Raftery @irons2021 constructed a Bayesian SIR model (03/2020 - 03/2021)
+  * Likelihood components incorporating data on deaths, confirmed cases, and the number of tests 
+  * Infection fatality ratio includes likelihood based on random sample seroprevalence surveys in Indiana and Ohio for infection fatality ratio 
+:::
+
+:::
+
+::: {.column width="25%"}
+<figure>
+<img src='figure/sars_cov_structure.png' width="100%" title="Diagram of SARS-CoV-2" alt="test">
+<figcaption style="font-size:50%"><b>Diagram of SARS-Cov-2 [@jackson2022], where label *N* refers to the nucleocapsid protein, and label *S* refers to the spike protein.
+</b></figcaption>
+</figure>
+::: 
+::::
+
+
+::: {.fragment .fade-in}
+* Chitwood *et al.* @chitwood2022 also constructed a Bayesian mechanistic model (March 2020 - present)
+  * Includes symptom states asymptomatic, symptomatic, and severe 
+  * Likelihood components incorporating data on deaths and confirmed cases
+  * Probability of diagnosis varies by time and symptom state
+:::
+
+
+::: {.notes}
+The broad strategy generally used to estimate the unobserved infections is to use the infection fatality ratio (i.e. the proportion of those infected that die) and data on COVID-19 deaths, which, while they are not without issues, are more reliable than cases. Some approaches also use seroprevalence data as an estimate of prevalence, though  seroprevalence studies that use a random sample are limited. Combining these sources of data can be used to in conjunction with observed cases to estimate the true infections.
+
+One notable model estimating the true number of infections is Irons and Raftery...
+
+Another model is Covidestim, produced by Chitwood *et al.* This group also makes their model estimates publicly available and have been actively maintaining the model, incorporating changes as needed (e.g., with Omicron).
+
+
+Any approach to estimate the unobserved infections has to make assumptions somewhere. For example, Irons and Raftery note that their parametrization of preferential testing does not allow for changes as access to testing increases, which can limit our ability to extend the model to different time periods, and often these assumptions are in characteristics of the disease (e.g., infectious period, ability to be reinfected) or the reliance on other quantities that are themselves difficult to estimate (the IFR, which relies on seroprevalence data, and may vary throughout the pandemic). 
+::: 
+
+## *Substantial Underestimation of COVID-19 in the United States* <br> <span style="size:90%;">(Wu *et al.*, 2020)</span>
+
+
+:::: {.columns}
+
+::: {.column width="55%"}
+* Applied probabilistic bias analysis to estimate the true COVID-19 case burden by correcting for:
+  * **incomplete testing** 
+  * **imperfect diagnostic accuracy** 
+* Time period: March to April 18, 2020 
+* State-level (one time interval)
+:::
+
+::: {.column width="45%" height="40%"}
+<figure>
+<img src='figure/wu_figure.png' style='float:right;height=50%;'>
+<figcaption style="font-size:50%">Figure from Wu *et al..* (2020) showing the ratio of total estimated infections before April 18 2020 to observed infections, by state. 
+</b></figcaption>
+</figure>
+:::
+
+::::
+  
+  
+  
+::: {.notes}
+The paper this work was based on is *Substantial Underestimation of COVID-19 in the United States* (Wu *et al.*, 2020)
+:::
+
+
+
+
+## Background: Probabilistic Bias Analysis
+
+* Aim of **quantitative bias analysis:** 
+  * Estimate systematic error to give a range of possible values for the true quantity of interest [@lash2009a]
+* Most commonly used for misclassification [@petersen2021a] 
+
+::: {.fragment .fade-in}
+* For **probabilistic bias analysis**, we:
+  * Specify prior distributions for bias parameters (e.g., specificity) 
+  * Sample from these distributions to produce corrected estimates
+    * Sampled values reflect corrected values under different combinations of the bias parameters
+:::
+::: {.fragment .fade-in}
+
+* Thought of as **semi-Bayesian**:
+  * Prior distributions of bias parameters are not updated with observed data 
+  * Difference between fully Bayesian approach and probabilistic bias analysis depends on the information in the data to update these priors [@maclehose2012] 
+:::
+
+
+## <span style="text-align:center;font-size:200%;width:60%;float:center;margin-left:40%;"> Outline </span>
+
+
+
+
+<span style="font-size:200%">
+<center>
+(1) Definition of priors adjusting for **incomplete testing** </center>
+$$\downarrow$$
+<center>(2) Definition of priors adjusting for **testing inaccuracy**</center>
+$$\downarrow$$
+<center>(3) Full Implementation of probabilistic bias analysis</center>
+</center>
+</span>
+
+## Correction for Incomplete Testing
+
+:::: {.columns}
+
+::: {.column width="20%"}
+* Fundamental idea: 
+  * Test positivity we observe is *not* that of the overall population
+  * $\; \Pr(\text{test}_+|\text{tested}) \neq \Pr(\text{test}_+|\text{untested})$ 
+* Strategy: 
+  * Partition the untested population into:
+    * moderate to severe symptoms ($S_1$) 
+    * mild/no COVID-19 symptoms ($S_0$)
+  * event $\text{test}_{+}$ denotes they *would* test positive if they were tested
+:::
+
+::: {.column width="60%"}
+
+
+<img src="./figure/symptom_diagram.png" style="margin-right:0; margin-left:40%;width=50%">
+
+::: 
+
+::::
+
+::: {.notes}
+make not on test + denoting hypothetical test positive -- distinction for tested individuals versus untested
+:::
+
+## Goal: Estimate Positives Among the Untested
+
+* Denote  $N^*$ is number of individuals who would test positive
+* Using $\Pr(\text{test}_+|S_1,\text{untested})$ and $\Pr(\text{test}_+|S_0,\text{untested})$, we could take:
+
+
+\begin{align*}
+N^*_{\text{untested}} &= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untested}} \\
+&=\Pr(\text{test}_+|S_1,\text{untested}) ( N_{S_1, \text{untested}} ) + \Pr(\text{test}_+|S_0,\text{untested}) ( N_{S_0, \text{untested}} )
+\end{align*}
+
+::: {.fragment .fade-in}
+
+* To estimate $N_{S_1, \text{untested}}$ and $N_{S_0, \text{untested}}$, we need $\Pr(S_1|\text{untested})$:
+
+$$ N_{S_1, \text{untested}} = ( N_{\text{untested}} ) \Pr(S_1|\text{untested}) $$
+$$ N_{S_0, \text{untested}} = ( N_{\text{untested}} ) (1-P(S_1|\text{untested})) $$
+
+:::
+
+::: {.fragment .fade-in}
+
+::: {.mybox}
+**Summary:** to adjust for incomplete testing, we need to define:
+
+* $\Pr(\text{test}_+|S_1,\text{untested})$
+* $\Pr(\text{test}_+|S_0,\text{untested})$
+* $\Pr(S_1|\text{untested})$ 
+
+::: 
+::: 
+
+
+::: {.notes}
+If we have priors for the test positivity rates among the symptomatic and asymptomatic partitions of the untested population, we could simply take:
+
+\begin{align*}
+N^*_{\text{untested}} &= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untested}} \\
+&=\Pr(\text{test}_+|S_1,\text{untested}) ( N_{S_1, \text{untested}} ) + \Pr(\text{test}_+|S_0,\text{untested}) ( N_{S_0, \text{untested}} )
+\end{align*}
+
+However, we see we need another prior -- one that describes the prevalence of symptoms in the population.
+
+To summarize, we need the two priors that describe test positivity among the partitions of the population, as well as a prior defining the prevalence of moderate-to-severe COVID_19 symptoms among the population
+:::
+
+
+##<span style="font-size:80%"> Defining Priors for $\Pr(\text{test}_+|S_1,\text{untested})$ and  $\Pr(\text{test}_+|S_0, \text{tested})$ </span>
+
+
+* We only have observed test positivity $\Pr(\text{test}_+|\text{tested})$
+* Define:
+  * $\alpha =  \frac{\Pr(\text{test}_+|S_1,\text{untested})}{\Pr(\text{test}_+|\text{tested})}$
+  * $\beta =  \frac{\Pr(\text{test}_+|S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}$
+
+
+```{r, eval=FALSE}
+
+source(here('analysis/base_functions/base_functions.R'))
+
+
+prior_params <- list(
+    alpha_mean = .95,
+    alpha_sd = 0.08,
+    alpha_bounds = NA,
+   # alpha_bounds = c(.8,1),
+    beta_mean = .15,
+    beta_sd =.09,
+    beta_bounds = NA,
+  #  beta_bounds = c(0.002, 0.4),
+    s_untested_mean = .03,
+    s_untested_sd = .0225,
+  #  s_untested_bounds = c(0.0018, Inf),
+    s_untested_bounds = NA,
+    p_s0_pos_mean = .4,
+    p_s0_pos_sd = .1225,
+   p_s0_pos_bounds = NA,
+  #  p_s0_pos_bounds = c(.25, .7),
+    pre_nsamp = 1e5,
+    post_nsamp = 1e4)
+
+tibble(x = seq(0, 1.3, length = 10^(5)),
+       alpha = with(prior_params, gamma_density(x,
+                                            mean = alpha_mean,
+                                            sd = alpha_sd,
+                                            bounds = alpha_bounds)),
+       beta = with(prior_params, beta_density(x,
+                                            mean = beta_mean,
+                                            sd = beta_sd,
+                                            bounds = beta_bounds))) %>%
+  pivot_longer(c(alpha,beta)) %>%
+  ggplot(aes(x=x, y = value)) +
+  geom_ribbon(aes(x=x,ymin=0,ymax=value),
+              fill = "black",
+              alpha = .8) +
+  facet_wrap(~name,labeller = as_labeller(TeX, default=label_parsed)) +
+  theme_c(axis.text.x = element_text(size = 10),
+          axis.title = element_text(size = 14),
+          strip.text = element_text(size = 22, color = "white")) +
+  scale_x_continuous(n.breaks = 6) +
+  labs(y= "Density")
+
+
+ggsave(width=7, height = 3, "./presentation/figure/alpha_beta.jpeg", dpi=300)
+
+
+
+```
+
+<center><img src="./figure/alpha_beta.jpeg" style ="width:80%"></center>
+
+
+
+::: {.notes}
+
+* Defining priors for the test positivity among the symptomatic and asymptomatic partitions of the population is the fundamental source of uncertainty for this work 
+* Instead of estimating these quantities directly, we define $\alpha$
+* We can think of alpha and beta as correction factors for correcting the test positivity we observe to get at the test positivity amongthe untested population
+
+:::
+
+
+## Defining Prior for $\Pr(S_1|\text{untested})$
+
+* Prevalence of moderate to severe COVID-19-like symptoms in the untested population
+
+```{r,eval=FALSE}
+
+
+prior_params <- list(
+    alpha_mean = .95,
+    alpha_sd = 0.08,
+    alpha_bounds = NA,
+   # alpha_bounds = c(.8,1),
+    beta_mean = .15,
+    beta_sd =.09,
+    beta_bounds = NA,
+  #  beta_bounds = c(0.002, 0.4),
+    s_untested_mean = .03,
+    s_untested_sd = .0225,
+  #  s_untested_bounds = c(0.0018, Inf),
+    s_untested_bounds = NA,
+    p_s0_pos_mean = .4,
+    p_s0_pos_sd = .1225,
+   p_s0_pos_bounds = NA,
+  #  p_s0_pos_bounds = c(.25, .7),
+    pre_nsamp = 1e5,
+    post_nsamp = 1e4)
+
+tibble(x = seq(0, 1.3, length = 10^(5)),
+       `$P(S_1|untested)$` = with(prior_params, beta_density(x,
+                                            mean = s_untested_mean,
+                                            sd = s_untested_sd,
+                                            bounds = s_untested_bounds))) %>%
+  pivot_longer(c(`$P(S_1|untested)$`)) %>%
+  ggplot(aes(x=x, y = value)) +
+  geom_ribbon(aes(x=x,ymin=0,ymax=value),
+              fill = "black",
+              alpha = .8) +
+  facet_wrap(~name,labeller = as_labeller(TeX, default=label_parsed)) +
+  theme_c(axis.text.x = element_text(size = 10),
+          axis.title = element_text(size = 14),
+          strip.text = element_text(size = 18, color = "white")) +
+  scale_x_continuous(n.breaks = 6, limits=c(0,1)) +
+  labs(y= "Density")
+
+
+ggsave(width=5, height = 3, "./presentation/figure/s_untested.jpeg", dpi=300)
+
+
+```
+
+
+<img src="./figure/s_untested.jpeg" style ="width:80%"> 
+
+## Informing $\beta$ and $\Pr(S_1|\text{untested})$ with CTIS Data
+
+* **COVID-19 Trends and Impact Survey:**
+  * Facebook survey through Delphi group at Carnegie Mellon
+  * Includes questions on:
+     * COVID-19 testing 
+     * Prevalence of COVID-19-like symptoms
+
+
+
+```{r}
+
+screening <- readRDS(here('data/state_level/screeningpos_all_states.RDS' ))
+
+dates <- readRDS(here('data/date_to_biweek.RDS'))
+
+
+ma_example <- screening %>% 
+  filter(geo_value == "ma") %>%
+  select(signal, value, geo_value, date) %>%
+  pivot_wider(values_from = value, names_from = signal) %>%
+  mutate(beta_est  =smoothed_wscreening_tested_positive_14d/ smoothed_wtested_positive_14d ) %>%
+  left_join(dates) %>%
+  group_by(biweek) %>% 
+  arrange(date) %>%
+  slice_max(n=1, order_by=date) %>%
+  ungroup() %>%
+  filter(date == lubridate::ymd("2021-05-06"))
+
+
+emp <- tibble(
+  x = seq(0, 1.3, length = 10^(5)),
+  s_untested = with(prior_params, beta_density(x,
+               mean = ma_example$smoothed_wcli,
+               sd = s_untested_sd,
+               bounds = s_untested_bounds)),
+  beta = s_untested = with(prior_params, beta_density(x,
+               mean = ma_example$beta_est,
+               sd = beta_sd-es,
+               bounds = beta_bounds))) %>%
+  pivot_longer(c(beta,s_untested)) %>%
+  mutate(source = "Centered at Empirical Value")
+
+
+prior_params <- list(
+    alpha_mean = .95,
+    alpha_sd = 0.08,
+    alpha_bounds = NA,
+   # alpha_bounds = c(.8,1),
+    beta_mean = .15,
+    beta_sd =.09,
+    beta_bounds = NA,
+  #  beta_bounds = c(0.002, 0.4),
+    s_untested_mean = .03,
+    s_untested_sd = .0225,
+  #  s_untested_bounds = c(0.0018, Inf),
+    s_untested_bounds = NA,
+    p_s0_pos_mean = .4,
+    p_s0_pos_sd = .1225,
+   p_s0_pos_bounds = NA,
+  #  p_s0_pos_bounds = c(.25, .7),
+    pre_nsamp = 1e5,
+    post_nsamp = 1e4)
+
+
+
+tibble(x = seq(0, 1.3, length = 10^(5)),
+       s_untested = with(prior_params, beta_density(x,
+                                            mean = s_untested_mean,
+                                            sd = s_untested_sd,
+                                            bounds = s_untested_bounds)),
+       beta = with(prior_params, beta_density(x,
+                                            mean = beta_mean,
+                                            sd = beta_sd,
+                                            bounds = beta_bounds))) %>%
+  pivot_longer(c(alpha,beta)) %>%
+  mutate(source = "Does Not Use ") %>% 
+  ggplot(aes(x=x, y = value)) +
+  geom_ribbon(aes(x=x,ymin=0,ymax=value),
+              fill = "black",
+              alpha = .8) +
+  facet_wrap(~name,labeller = as_labeller(TeX, default=label_parsed)) +
+  theme_c(axis.text.x = element_text(size = 10),
+          axis.title = element_text(size = 14),
+          strip.text = element_text(size = 22, color = "white")) +
+  scale_x_continuous(n.breaks = 6) +
+  labs(y= "Density")
+
+
+  
+
+```
+
+
+
+
+::: {.notes} 
+ * Empirical estimate of $\beta$:
+  * Since $\beta$ describes ratio of $P(test + | untested, S_0)$ to $P(test + | tested)$, one way to estimate $\beta$ empirically is to consider $\frac{\text{screening test positivity}}{\text{ test positivity}}$
+    * [COVID-19 Trends and Impact Survey (CTIS)](https://cmu-delphi.github.io/delphi-epidata/api/covidcast-signals/fb-survey.html) by the Delphi group at Carnegie Mellon
+    * Accessible through [COVIDcast API](https://cmu-delphi.github.io/delphi-epidata/)  
+    * We can take this as a time-specific, state-specific estimate of $\beta$  
+  * Empirical estimate of $P(S_1|untested)$  
+    * Can use COVID-like illness estimate from CTIS 
+      * Estimates percentage of people in a given state experiencing "fever, along with cough, or shortness of breath, or difficulty breathing) or influenza-like illness"
+
+::: 
+      
+## Motivation for Bayesian Melding
+
+
+## Correction for Incomplete Testing 
+
+
+## County-Level Results
+
+
+
+## Comparison with Wastewater 
+
+## Supplementary Slides
+
+### State-level Results
+
+### Details of COVID-19 Trends and Impact Survey
+
+### Choice of Time INterval
+
+
+
+
+
+## References
+
+::: {#refs}
+:::
