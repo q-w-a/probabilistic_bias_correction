@@ -253,11 +253,11 @@ You can have a dedication here if you wish.
 \chapter{Introduction}\label{introduction}}
 
 \vspace{.2 mm}
-Throughout the COVID-19 pandemic, observed infections have guided decisions at both the individual and government levels. At the state-level, policies on phased reopening, for example, often include criteria on COVID-19 cases (California Department of Public Health, 2021; Charles D. Baker, 2021; Tom Wolf, 2020).
+\textbar{} Throughout the COVID-19 pandemic, observed infections have guided decisions at both the individual and government levels. At the state-level, policies on phased reopening, for example, often include criteria on COVID-19 cases (California Department of Public Health, 2021; Charles D. Baker, 2021; Tom Wolf, 2020).
 
-To make this data accessible to the public, several organizations, including the CDC (Centers for Disease Control and Prevention, 2020), John Hopkins University (Dong, Du, \& Gardner, 2020), and the New York Times (The New York Times, 2022), compiled comprehensive dashboards presenting key metrics such as positive cases and test positivity rates across states.
+To make this data accessible to the public, several organizations, including the CDC (Disease Control and Prevention, 2020), John Hopkins University (Dong, Du, \& Gardner, 2020), and the New York Times (The New York Times, 2022), compiled comprehensive dashboards presenting key metrics such as positive tests and test positivity rates across states.
 
-However, our interpretation of case counts as a measure of transmission is limited by the fact that testing rates impact these trends. The number of positive cases we observe in a county, for instance, will be a result of that county's testing capacity and testing behavior of its population. This means that trends in the infections may not always reflect trends in the true number of infections.
+However, our interpretation of case counts as a measure of transmission is limited by the fact that testing rates impact these trends. The number of positive tests we observe in a county, for instance, will be a result of that county's testing capacity and testing behavior of its population. This means that trends in the infections may not always reflect trends in the true number of infections.
 
 The importance of considering testing rate led John Hopkins University to organize the most comprehensive testing database available in the United States (Dong et al., 2020), which enables us to see that testing rate varies substantially by state and time.
 
@@ -287,59 +287,88 @@ Ultimately, COVID-19 case counts are a key metric that informs our understanding
 \hypertarget{overview-of-approach}{%
 \chapter{Overview of Approach}\label{overview-of-approach}}
 
-This work is based on the paper \emph{Substantial underestimation of SARS-CoV-2 infection in the United States} by Wu \emph{et al.} (Wu et al., 2020). The original implementation considered a single time interval early in the pandemic, with the objective to estimate the true number of cases as of April 18, 2020 at the state level. When we consider the estimates, we can look at both the estimates for total infections by state, but also the ratio of the estimated total cases to the observed cases. This enables us to think about the way case ascertainment varies by state, as we see in Figure
+This work is based on the paper \emph{Substantial underestimation of SARS-CoV-2 infection in the United States} (Wu et al., 2020a). Wu \emph{et al.} considered a single time interval early in the pandemic, estimating the true number of infections as of April 18, 2020 at the state level. When we consider the estimates, we can look at both the estimates for total infections by state, but also the ratio of the estimated total cases to the observed cases. This enables us to think about the way case ascertainment varies by state, as we see in Figure
 \ref{fig:originalfigwu}.
 \begin{figure}
 \includegraphics[width=0.5\linewidth]{./figure/figure_original_case_ratio} \caption{\label{fig:originalfigwu}Figure from Wu et al. (2020) showing the ratio of total estimated infections when accounting for imperfect diagnostic test accuracy and incomplete testing to the number of cases confirmed by a positive PCR test.}\label{fig:unnamed-chunk-7}
 \end{figure}
-The core idea of the approach is to break up the unobserved infections into unobserved infections among those with no or mild symptoms or those with moderate to severe symptoms. We denote this symptom status by an indicator variable where \(S_1\) represents having moderate to severe symptoms and \(S_0\) represents having no or mild symptoms. In what follows, \(test +\) denotes the event that an individual \emph{would} test positive if they were tested, not that they actually did. For example, \(P(test+|S_1,untested)\) represents the probability a symptomatic individual would test positive if they were tested.
+The core idea of the approach is to break up the unobserved infections into unobserved infections among those with no or mild symptoms or those with moderate to severe symptoms. We denote this symptom status by an indicator variable, where \(S_1\) represents having moderate to severe symptoms and \(S_0\) represents having no or mild symptoms. In what follows, \(\text{test}_+\) denotes the event that an individual \emph{would} test positive if they were tested, not that they actually did. For example, \(\Pr(\text{test}_+|S_1,\text{untested})\) represents the probability a symptomatic untested individual would test positive if they were tested.
 
-Then, our goal is to estimate the infections among the untested population by calculating the number of moderate to severe esymptomatic infections among the untested population as
-\[N^+_{untested,S_1} = N_{untested} \; P(S_1|untested) \cdot P(test + | S_1,untested)\]
-and the asymptomatic (or mild) infections among the untested population as
-\[N^+_{untested,S_0} = N_{untested}(1-P(S_1|untested))P(test + | S_0,untested).\]
-Then we can estimate the total infections among the untested population as
+We let \(N^*\) denote the number of positive tests, to distinguish positive tests \(N^*\), which is affected by testing inaccuracy, from the number of active SARS-CoV-2 infections, \(N^+\).
 
-\[N^+_{untested} = N^+_{untested,S_1} + N^+_{untested,S_0}\]
-which allows us to obtain the estimated number of true infections as
+Our first goal is to estimate the number of untested individuals who would test positive, \(N^*_{\text{untested}}\).
 
-\[N^+ = N^+_{untested} +N^+_{tested}\]
-where \(N^+_{tested}\) is the number of positive tests in a given location.
+To estimate the number of untested individuals with moderate to severe COVID-19-like symptoms who would test positive untested population, we can take
+\begin{align*}
+N^*_{\text{untested},S_1} &=N_{\text{untested},S_1} \; \Pr(\text{test}_+ | S_1,\text{untested})\\
+&=N_{\text{untested}} \; \Pr(S_1|\text{untested})) \; \Pr(\text{test}_+ | S_1,\text{untested}).
+\end{align*}
+Similarly, we can estimate the asymptomatic (or mild) infections among the untested population as
+\begin{align*}
+N^*_{\text{untested},S_0} &=N_{\text{untested},S_0} \; \Pr(\text{test}_+ | S_0,\text{untested})\\
+&=N_{\text{untested}} \Pr(S_0|\text{untested}) \; \Pr(\text{test}_+ | S_0,\text{untested})\\
+&=N_{\text{untested}}(1-\Pr(S_1|\text{untested})) \; \Pr(\text{test}_+ | S_0,\text{untested}).
+\end{align*}
+Taking the sum of the positive tests among gives us the total:
 
-The uncertainty inherent in this estimation process is in the quantities \(P(S_1|untested)\), \(P(test + | S_1,untested)\), and \(P(test + | S_0,untested)\).
+\[N^*_{\text{untested}} = N^*_{\text{untested},S_1} + N^*_{\text{untested},S_0}.\]
+This allows us to obtain the estimated number of positive tests as
 
-It is particularly difficult to think about how we would estimate \(P(test + | S_0,untested)\) or \(P(test + | S_1,untested)\) directly because there is a lack of data on these quantities.
+\[N^* = N^*_{\text{untested}} +N^*_{\text{tested}},\]
+where \(N^*_{\text{tested}}\) is the number of positive tests in a given location.
 
-Instead, we define a random variable \(\alpha\) that represents the ratio \(\dfrac{P(test + |S_1, untested)}{P(test + | tested)}\), that is, \(P(test + |S_1, untested) = \alpha P(test+|tested)\). We can think of \(\alpha\) as the correction factor for estimating \(P(+|S_1,untested)\) from the test positivity \(P(test + |tested)\).
+At this point, we can apply a simple epidemiology formula to that corrects for the test specificity and sensitivity of the diagnostic test (Rothman, Greenland, \& Lash, 2008). Denoting the sensitivity \(S_e\) and specificity \(S_p\), this formula is given by
 
-We can define \(\beta\) analogously for the asymptomatic case, where \(\beta = \dfrac{P(test + |S_0, untested)}{P(test + | tested)}\), so we have \(P(test + |S_0, untested) = \beta \; P(test + | tested)\).
+\[\text{Number Truly Positive} = \dfrac{N^+ - (1-S_p) \times N}{S_e+S_p-1}.\]
 
-This formulation enables us to estimate \(P(test + |S_0, untested)\) and \(P(test + |S_1, untested)\) with information from the observed test positivity rate among the tested population, which means it can reflect differences in transmission dynamics by the location and time interval considered.
+The uncertainty inherent in this estimation process is in the quantities \(\Pr(S_1|\text{untested})\), \(\Pr(\text{test}_+| S_1,\text{untested})\), and \(\Pr(\text{test}_+ | S_0,\text{untested})\).
+
+It is particularly difficult to think about how we would estimate \(\Pr(\text{test}_+ | S_0,\text{untested})\) or \(\Pr(\text{test}_+ | S_1,\text{untested})\) directly because there is a lack of data on these quantities.
+
+Instead, we define random variables to relate the symptomatic and asymptomatic test positives to the observed positivity rate \(\Pr(\text{test}_|\text{tested})\).
+
+In particular, we define
+\begin{align*}
+\alpha &= \dfrac{\Pr(test + |S_1, \text{untested})}{\Pr(\text{test}_+ | \text{tested})}\\
+\beta  &= \dfrac{\Pr(test + |S_0, \text{untested})}{\Pr(\text{test}_+ | \text{tested})}.
+\end{align*}
+We can think of \(\alpha\) and \(\beta\) as variables that correct the observed test positivity rate to estimate the test positivity rate among the symptomatic and asymptomatic partitions of the population respectively.
+
+We can think of \(\alpha\) as the correction factor for estimating \(\Pr(+|S_1,\text{untested})\) from the test positivity \(\Pr(\text{test}_+ |\text{tested})\).
+
+We can define \(\beta\) analogously for the asymptomatic case, where
+\[\beta =  \dfrac{\Pr(\text{test}_+ |S_0, \text{untested})}{\Pr(\text{test}_+ | \text{tested})},\]
+so we have \(\Pr(\text{test}_+ |S_0, \text{untested}) = \beta \; \Pr(\text{test}_+ | \text{tested})\).
+
+This formulation enables us to estimate \(\Pr(\text{test}_+ |S_0, \text{untested})\) and \(\Pr(\text{test}_+ |S_1, \text{untested})\) with information from the observed test positivity rate among the tested population, which means it can reflect differences in transmission dynamics by the location and time interval considered.
 
 We expect \(\alpha\) to be higher than \(\beta\) to reflect that the test positivity rate among the asymptomatic untested population is lower than the symptomatic untested population. The specification of these distributions is discussed in greater detail in the {[}Definition of Prior Distributions for the Bias Parameters {]} section.
 
-Because of the uncertainty around \(\alpha\) and \(\beta\), it is useful to relate these parameters to the asymptomatic rate of the virus, \(P(S_0|test +, untested)\). Due to the importance of asymptomatic transmission to controlling the pandemic, the asymptomatic rate has been an area of substantial interest. This has led to extensive studies on the topic, including multiple meta-analyses summarizing these results (Ma et al., 2021a; Sah et al., 2021a).
+Because of the uncertainty around \(\alpha\) and \(\beta\), it is useful to relate these parameters to the asymptomatic rate of the virus, \(\Pr(S_0|\text{test}_+, \text{untested})\). Due to the importance of asymptomatic transmission to controlling the pandemic, the asymptomatic rate has been an area of substantial interest. This has led to extensive studies on the topic, including multiple meta-analyses summarizing these results (Ma et al., 2021a; Sah et al., 2021a).
 
-We can represent the relationship between \(\theta = \{ \alpha, \beta, P(S_1|untested)\}\) and \(\phi = \{\; P(S_0|test+, untested)\;\}\) by the deterministic function
-\(M: \theta \to \phi\) for \(\theta = \{P(S_1|untested), \alpha, \beta \}\) and \(\phi = P(S_0|test +,untested)\) defined as:
-\[P(S_0|test+, untested) = \dfrac{\beta(1 - P(S_1|untested))}{\beta(1-P(S_1|untested)) + \alpha P(S_1|untested)}.\]
+We can represent the relationship between \(\theta = \{ \alpha, \beta, \Pr(S_1|\text{untested})\}\) and \(\phi = \{\; \Pr(S_0|\text{test}_+, \text{untested})\;\}\) by the deterministic function
+\(M: \theta \to \phi\) for \(\theta = \{\Pr(S_1|\text{untested}), \alpha, \beta \}\) and \(\phi = \Pr(S_0|test +,\text{untested})\) defined as:
+\[\Pr(S_0|\text{test}_+, \text{untested}) = \dfrac{\beta(1 - \Pr(S_1|\text{untested}))}{\beta(1-\Pr(S_1|\text{untested})) + \alpha \Pr(S_1|\text{untested})}.\]
 
-When we have prior knowledge about the distributions of the inputs and output of a deterministic function, we can use \textcolor{blue}{[Bayesian melding]} to generate constrained distributions for the inputs and outputs that are in concordance with one another. In essence, this approach considers the distinct distributions we have for \(\phi\): the distribution informed by previous literature on the asymptomatic rate, and the distribution formed by evaluating \(M\) at values of \(\theta\). We can combine these distributions with logarithmic pooling to yield a constrained distribution for \(\phi=P(S_0|test +, untested)\), and then can approximate the inverted distribution to obtain constrained distributions for the inputs \(\theta = \{P(S_1|untested), \alpha, \beta \}\). These
+When we have prior knowledge about the distributions of the inputs and output of a deterministic function, we can use \protect\hyperlink{meld}{Bayesian melding} to generate constrained distributions for the inputs and outputs that are in concordance with one another. In essence, this approach considers the distinct distributions we have for \(\phi\): the distribution informed by previous literature on the asymptomatic rate, and the distribution formed by evaluating \(M\) at values of \(\theta\). We can combine these distributions with logarithmic pooling to yield a constrained distribution for \(\phi=\Pr(S_0|\text{test}_+, \text{untested})\), and then can approximate the inverted distribution to obtain constrained distributions for the inputs \(\theta = \{\Pr(S_1|\text{untested}), \alpha, \beta \}\).
 
 We can summarize this process in Figure \ref{fig:diagram}. We repeat this process for every geographic unit (a state or county) and time interval (a 2 week interval).
 \begin{figure}
 
-{\centering \includegraphics[width=0.1\linewidth]{./figure/analysis_diagram} 
+{\centering \includegraphics[width=1\linewidth]{./figure/analysis_diagram} 
 
 }
 
 \caption{\label{fig:diagram}Implementation of probabilistic bias analysis.}\label{fig:unnamed-chunk-8}
 \end{figure}
-We divide the time period into 2-week intervals specifically due to the duration of test positivity, which is about two weeks on average (Kojima, Roshani, \& Klausner, 2022; Mallett et al., 2020). Because This enables us to think of our estimates for each two-week period as incident infections.
+We divide the time period into 2-week intervals specifically due to the duration of test positivity, which is about two weeks on average (Kojima, Roshani, \& Klausner, 2022; Mallett et al., 2020). Because
+\[ \text{Prevalence} = (\text{Incidence Rate}) \times (\text{Average Duration of Disease}), \]
 
-With the implementation of the implementation of (\textbf{wu2020?}), \(\alpha, \beta, \text{ and } P(S_1|\text{untested})\) were assumed to be independent and identically distributed across states. However, because we are considering a wider time interval over all of 2021 and into early 2022, it makes sense to vary these parameters by time and location. Due to the availability of data to inform \(\beta\) and \(P(S_1|untested)\), we allow these parameters to vary by time and location, as discussed further in {[}Definition of Prior Distributions{]}.
+prevalent infections and incident infections are approximately equivalent on the two-week time scale, which enables us to think of our estimates for each two-week period as incident infections.
 
-When we allow \(\beta\) and \(P(S_1|untested)\) to vary over time and location, rather than implementing Bayesian melding once and using the same melded distribution for each time interval, we must implement melding for each time interval separately.
+With the implementation of the implementation of Wu et al. (2020b), \(\alpha, \beta, \text{and} \Pr(S_1|\text{untested})\) were assumed to be independent and identically distributed across states. However, because we are considering a wider time interval over all of 2021 and into early 2022, it makes sense to vary these parameters by time and location. Due to the availability of data to inform \(\beta\) and \(\Pr(S_1|\text{untested})\), we allow these parameters to vary by time and location, as discussed further in \protect\hyperlink{defpriors}{Definition of Prior Distributions}.
+
+When we allow \(\beta\) and \(\Pr(S_1|\text{untested})\) to vary over time and location, rather than implementing Bayesian melding once and using the same melded distribution for each time interval, we must implement melding for each time interval separately.
 
 \hypertarget{background}{%
 \chapter{Background}\label{background}}
@@ -523,8 +552,8 @@ The steps are as follows.
 \end{enumerate}
 \newpage
 
-\hypertarget{bayesian-melding-applied-to-covid-19-misclassification}{%
-\section{Bayesian Melding Applied to COVID-19 Misclassification}\label{bayesian-melding-applied-to-covid-19-misclassification}}
+\hypertarget{meld}{%
+\section{Bayesian Melding Applied to COVID-19 Misclassification}\label{meld}}
 
 ~~~In this work, we can relate the inputs \(\theta = \{P(S_1|\text{untested}), \alpha, \beta \}\) and \(\phi = P(S_0|\text{test}_+,\text{untested})\) by the deterministic model \(M: \theta \to \phi\) given by \(P(S_0|\text{test}_+, \text{untested}) = \dfrac{\beta(1 - P(S_1|\text{untested}))}{\beta(1-P(S_1|\text{untested})) + \alpha P(S_1|\text{untested})}.\) The derivation of \(M\) is in the \protect\hyperlink{derivation}{following section.}
 
@@ -1049,8 +1078,8 @@ Although we can see the advantages of using the beta kernel estimator, in practi
 
 \caption{\label{fig:gaus}}\label{fig:unnamed-chunk-46}
 \end{figure}
-\hypertarget{definition-of-prior-distributions-for-bias-parameters}{%
-\chapter{Definition of Prior Distributions for Bias Parameters}\label{definition-of-prior-distributions-for-bias-parameters}}
+\hypertarget{defpriors}{%
+\chapter{Definition of Prior Distributions for Bias Parameters}\label{defpriors}}
 
 \hypertarget{background-on-the-beta-distribution}{%
 \section{Background on the Beta Distribution}\label{background-on-the-beta-distribution}}
@@ -1110,7 +1139,7 @@ Wu et al.~(2020) defined this distribution such that \(P(S_1|\text{untested}) \s
 
 However, to implement this approach over a more extended time interval, we need to allow this parameter to vary by time. Due to state-specific differences in symptom prevalence, it also makes more sense to allow this parameter to vary by state.
 
-To do this, we can use the COVID-like illness indicator from the COVID-19 Trends and Impact Survey (Salomon et al., 2021). The COVID-19 Trends and Impact Survey (CTIS) is a large scale internet-based survey that invites a sample of Facebook users to respond to questions on several topics of public health interest, including testing and symptom status. The survey effort selects participants using stratified random sampling by state, and responses are aggregated and made publicly available.
+To do this, we can use the COVID-like illness indicator from the COVID-19 Trends and Impact Survey (Salomon et al., 2021a). The COVID-19 Trends and Impact Survey (CTIS) is a large scale internet-based survey that invites a sample of Facebook users to respond to questions on several topics of public health interest, including testing and symptom status. The survey effort selects participants using stratified random sampling by state, and responses are aggregated and made publicly available.
 
 Below, we see that the distribution of the proportion of the population with COVID-like illness over all of 2021 is in a similar range as the distribution defined for \(P(S_1|untested)\), with the bulk of the distribution between 0 and 15\%, although the COVID-19-like-illness has more density toward zero.
 \begin{center}\includegraphics[width=0.8\linewidth]{figure/emp_p_s_untested} \end{center}
@@ -1146,7 +1175,7 @@ One large meta-analysis found \(P(S_0|test+)\) to be 40.50\% (95\% CI: 33.50\%-4
 \hypertarget{defining-test-sensitivity-s_e}{%
 \subsection{\texorpdfstring{Defining Test Sensitivity (\(S_e\))}{Defining Test Sensitivity (S\_e)}}\label{defining-test-sensitivity-s_e}}
 
-We define the the test sensitivity and test sensitivity to follow the definitions in (\textbf{wu2020?}).
+We define the the test sensitivity and test sensitivity to follow the definitions in Wu et al. (2020b).
 \(S_e\) is defined such that \(S_e \sim TBeta(\alpha = 4.20, \beta = 1.05)\), bounded between 0.65 and 1 and with mean \(\dfrac{\alpha}{\alpha + \beta} = 0.80\).
 \begin{center}\includegraphics[width=0.8\linewidth]{thesis_files/figure-latex/unnamed-chunk-58-1} \end{center}
 
@@ -1202,12 +1231,12 @@ At this point, we have corrected for the incompleteness of testing. That is, we 
 Test accuracy is broken up into two components, specificity and sensitivity.
 
 We define test sensitivity and specificity as follows:
-* \(S_e\) = test sensitivity = the probability an individual tests positive if they have COVID-19 (probability of a true positive), that is, \(P(test + | +)\).
-* \(S_p\) = test specificity = probability an individual tests negative if they do not have COVID-19 (probability of a true negative), that is, \(P(test - |-)\).
+* \(S_e\) = test sensitivity = the probability an individual tests positive if they have COVID-19 (probability of a true positive), that is, \(P(\text{test}_+ | +)\).
+* \(S_p\) = test specificity = probability an individual tests negative if they do not have COVID-19 (probability of a true negative), that is, \(P(\text{test}_- |-)\).
 
 Then, given that we have the number \(N^+\) who tested positive (or, in the context of this work, would have tested positive), the specificity \(S_p\), the sensitivity \(S_e\), and the total population size \(N\), we can calculate the true positives with the formula
-\[\text{Number Truly Positive} = \dfrac{N^+ - (1-S_p) \times N}{S_e+S_p-1}\]
-from Modern Epidemiology (Rothman, Greenland, \& Lash, 2008).
+\[\text{Number Truly Positive} = \dfrac{N^* - (1-S_p) \times N}{S_e+S_p-1}\]
+from Modern Epidemiology (Rothman et al., 2008).
 
 \hypertarget{derivation-of-formula-for-correction-for-diagnostic-test-inaccuracy}{%
 \subsection{Derivation of Formula for Correction for Diagnostic Test Inaccuracy}\label{derivation-of-formula-for-correction-for-diagnostic-test-inaccuracy}}
@@ -1219,7 +1248,7 @@ We define test sensitivity and specificity as follows:
 As defined previously, \(S_e \sim TBeta(0.65, 1)\) and \(S_p \sim TBeta(0.998, 1)\).
 
 To correct case counts for diagnostic test inaccuracy, we use the formula
-\[\text{Number Truly Positive} = \dfrac{N^+ - (1-S_p) \times N}{S_e+S_p-1}\]
+\[\text{Number Truly Positive} = \dfrac{N^*- (1-S_p) \times N}{S_e+S_p-1}\]
 as defined in Rothman et al.~(2008).
 
 To obtain this formula, we let:
@@ -1228,7 +1257,7 @@ To obtain this formula, we let:
 \item
   \(N\) denote the total population size
 \item
-  \(N^+\) denote the number \emph{classified} as positive
+  \(N^*\) denote the number \emph{classified} as positive
 \item
   \(N^-\) denote the number \emph{classified} as negative
 \item
@@ -1244,10 +1273,10 @@ The quantity we want to estimate is the number of truly positive individuals whe
 
 The number classified as positive, \(N^+\) can be written as
 
-\[ N^+ = P(test + | +) T^+ + P(test + | -) T^-\]
+\[ N^* = P(test + | +) T^+ + P(test + | -) T^-\]
 
 where \(P(test + | +) T^+\) is the number of true positives and \(P(test + | -) N^-\) is the number of false positives. By the definitions of sensitivity \(S_e\) and specificity \(S_p\) we can write this more clearly as
-\[ N^+ =S_e T^+ + (1-S_p) T^-.\]
+\[ N^* =S_e T^+ + (1-S_p) T^-.\]
 
 Meanwhile, the number classified as negative, \(N^-\) can be written as
 
@@ -1264,45 +1293,45 @@ At this point, we can solve the expression \(N^- = S_p T^- + (1-S_e) T^+\) for t
 Now, we can substitute this result into our expression for \(N^+ =S_e T^+ + (1-S_p) T^-\) and solve for the desired value, the number of truly positive individuals, \(T^+\). This gives us
 
 \[
- N^+ =S_e T^+ + (1-S_p)  \left( \dfrac{( N^- - (1-S_e) T^+) }{S_p} \right)
+ N^* =S_e T^+ + (1-S_p)  \left( \dfrac{( N^- - (1-S_e) T^+) }{S_p} \right)
 \]
 
 \[
- S_pN^+ =S_pS_e T^+ + (1-S_p)  \left( {( N^- - (1-S_e) T^+) } \right)
+ S_p \; N^* =S_pS_e T^+ + (1-S_p)  \left( {( N^- - (1-S_e) T^+) } \right)
 \]
 
 \[
- S_pN^+ =S_pS_e T^+ + (1-S_p)  ( N^-)  - (1-S_p)(1-S_e) T^+
+ S_p \; N^* =S_pS_e T^+ + (1-S_p)  ( N^-)  - (1-S_p)(1-S_e) T^+
 \]
 
 \[
- S_pN^+ -   (1-S_p)  ( N^-) =S_pS_e T^+  - (1-S_p)(1-S_e) T^+
+ S_p \; N^* -   (1-S_p)  ( N^-) =S_pS_e T^+  - (1-S_p)(1-S_e) T^+
 \]
 
 \[
- S_pN^+ -   (1-S_p)  ( N^-) = (S_pS_e  - (1-S_p)(1-S_e)) T^+
+ S_p N^* -   (1-S_p)  ( N^-) = (S_pS_e  - (1-S_p)(1-S_e)) T^+
 \]
 
 \[
- S_pN^+ -   (1-S_p)  ( N^-) = (S_p + S_e - 1) T^+
+ S_p \; N^* -   (1-S_p)  ( N^-) = (S_p + S_e - 1) T^+
 \]
 
 \[
- T^+ = \dfrac{ S_pN^+ -   (1-S_p)  ( N^-)}{(S_p + S_e - 1)} 
+ T^+ = \dfrac{ S_p \; N^* -   (1-S_p)  ( N^-)}{(S_p + S_e - 1)} 
 \]
 
-At this point we can simplify the numerator as follows by using the fact \(N = N^+ + N^-\). This gives us
-\begin{align*} =S_pN^+ -   (1-S_p)  N^-\\
-=  S_pN^+ + S_p  N^- - N^-\\
-=  S_p(N^+ +  N^-) - N^- \\
-=  S_pN - (N-N^+) \\
-=  S_pN - (N-N^+) \\
-=  (S_p-1)N + N^+ \\
-=    N^+ - (1-S_p)N\\
+At this point we can simplify the numerator as follows by using the fact \(N =N^* + N^-\). This gives us
+\begin{align*} =S_p \;N^* -   (1-S_p)  N^-\\
+=  S_p   N^* + S_p  N^- - N^-\\
+=  S_p(N^* +  N^-) - N^- \\
+=  S_pN - (N-N^*) \\
+=  S_pN - (N-N^*) \\
+=  (S_p-1)N + N^* \\
+=  N^* - (1-S_p)N\\
 \end{align*}
 so we have
 \[
- T^+ = \dfrac{  N^+ - (1-S_p)N}{(S_p + S_e - 1)}.
+ T^+ = \dfrac{ N^*- (1-S_p)N}{(S_p + S_e - 1)}.
 \]
 
 \hypertarget{details-of-implementation}{%
@@ -1366,13 +1395,13 @@ Repeating this process with sampled values of the bias parameters gives us a dis
 
 The implementation for versions 2-4 when considering a single time and geographic unit are almost identical to version 1; the difference is in the source of the priors.
 
-For one version, we allow \(\beta\) to vary by date and state by using the COVID-19 Trends and Impact Survey (\textbf{salomon2021a?}). Since \(\beta\) represents the ratio of \(\dfrac{P(\text{test}_+|\text{untested},S_0)}{P(\text{test}_+|\text{tested})}\), one way we can think about estimating this quantity empirically is as the screening test positivity over the overall test positivity. Since both these quantities are reported by the COVID-19 Trends and Impact Survey, we can center the distribution for \(\beta\) for a given location and time interval at this ratio, after performing LOESS smoothing. That is, we use the same standard deviation assumed in the first version, where we do not allow priors to vary by state or date, but we set the mean to be the empirical estimate of beta.
+For one version, we allow \(\beta\) to vary by date and state by using the COVID-19 Trends and Impact Survey (Salomon et al., 2021b). Since \(\beta\) represents the ratio of \(\dfrac{P(\text{test}_+|\text{untested},S_0)}{P(\text{test}_+|\text{tested})}\), one way we can think about estimating this quantity empirically is as the screening test positivity over the overall test positivity. Since both these quantities are reported by the COVID-19 Trends and Impact Survey, we can center the distribution for \(\beta\) for a given location and time interval at this ratio, after performing LOESS smoothing. That is, we use the same standard deviation assumed in the first version, where we do not allow priors to vary by state or date, but we set the mean to be the empirical estimate of beta.
 
 For another version, we allow \(P(S_1|\text{untested})\) to vary by date and state by centering the distribution for \(P(S_1|\text{untested})\) at the percentage of COVID-19-like illness reported by the COVID-19 Trends and Impact Survey, since this variable reflects the presents of symptoms related to COVID-19 among the general population.
 
 Lastly, in one version we center both the distribution for \(P(S_1|\text{untested})\) and \(\beta\) at their empirical values.
 
-While we recognize taking values of the survey may in itself introduce biases, in the United States, there is little alternative to inform the priors for \(\beta\) or \(P(S_1|untested)\), particularly at a fine geographic scale. Some countries, for example, the United Kingdom, conducted PCR tests and recorded symptoms for a random sample of the population to estimate community prevalence of COVID-19 (\textbf{riley2021?}). A study like this would be able to estimate the test positivity rate among the untested population directly (and the asymptomatic or symptomatic positivity rates as well) rather than defining random variables \(\alpha\) and \(\beta\) to correct the observed test positivity rate.
+While we recognize taking values of the survey may in itself introduce biases, in the United States, there is little alternative to inform the priors for \(\beta\) or \(P(S_1|untested)\), particularly at a fine geographic scale. Some countries, for example, the United Kingdom, conducted PCR tests and recorded symptoms for a random sample of the population to estimate community prevalence of COVID-19 (Riley et al., 2021). A study like this would be able to estimate the test positivity rate among the untested population directly (and the asymptomatic or symptomatic positivity rates as well) rather than defining random variables \(\alpha\) and \(\beta\) to correct the observed test positivity rate.
 
 In this sense, looking at the empirical estimates of \(P(S_1|untested)\) and \(\beta\) using the COVID-19 Trends and Impact Survey can provide a useful baseline for plausible values these parameters can take on, and allows us to see how the bias-corrected estimates differ depending on the data used to inform the priors.
 
@@ -1387,7 +1416,7 @@ In this sense, looking at the empirical estimates of \(P(S_1|untested)\) and \(\
 
 One challenge in correcting for biases in general is that although we may have some information about the influence of possible biases, we do not have a ground truth for comparison. However, one approach to handle the fact that the true cases are unobserved is comparing our estimates to those from other approaches seeking to estimate a similar quantity. In particular, if other approaches make different assumptions and come to a similar result, this can give us more confidence in our estimates.
 
-One notable project seeking to estimate the true infection burden at the county-level over time is the COVIDestim project. In this work, Chitwood et al.~proposed a mechanistic model that includes states for asymptomatic/pre-symptomatic infection, symptomatic but mild infection, severe COVID-19 presentations, and death. This approach also enables the estimation of \(R_t\), the number of secondary infections a single infected individual causes at time \(t\). This is a useful quantity to estimate, but is sensitive to reporting delays and changes in testing practices (\textbf{pitzer2021a?}).
+One notable project seeking to estimate the true infection burden at the county-level over time is the COVIDestim project. In this work, Chitwood et al.~proposed a mechanistic model that includes states for asymptomatic/pre-symptomatic infection, symptomatic but mild infection, severe COVID-19 presentations, and death. This approach also enables the estimation of \(R_t\), the number of secondary infections a single infected individual causes at time \(t\). This is a useful quantity to estimate, but is sensitive to reporting delays and changes in testing practices (Pitzer et al., 2021).
 
 \hypertarget{the-covidestim-model}{%
 \subsection{The Covidestim Model}\label{the-covidestim-model}}
@@ -1412,7 +1441,7 @@ The observed cases and death data for each state to the model were fitted using 
 
 This approach relies on infection fatality ratios and death counts to estimate the true case counts. Thus, it is sensitive to estimates of infection fatality rate, with higher infection fatality ratio estimates resulting in lower estimated infections. The infection fatality ratio is defined as the proportion of COVID-19 infections that lead to death, which means there is uncertainty in estimating both the numerator and the denominator of the ratio. The true cumulative incidence depends on the same uncertainties in estimating the true case burden at any point in time. Estimating the infection fatality ratio itself is a challenging task.
 
-The COVIDestim model uses age-specific estimates of IFR produced by (\textbf{odriscoll2021?}). This group used national-level age-stratified, and when possible sex-stratified, COVID-19 death counts and cumulative infection estimates from seroprevalence studies. Of note, the estimates of infection fatality ratio are assumed to be constant over time, which may not be the case due to improving treatments (e.g., Paxlovid), different variants leading to less severe presentations, or changes in the demographics of individuals being infected. However, reliable estimates of infection fatality ratio that vary with time difficult to acquire; COVIDestim assumed a higher case fatality in 2020 given the novelty of the virus and consequent lack of available treatments.
+The COVIDestim model uses age-specific estimates of IFR produced by O'Driscoll et al. (2021). This group used national-level age-stratified, and when possible sex-stratified, COVID-19 death counts and cumulative infection estimates from seroprevalence studies. Of note, the estimates of infection fatality ratio are assumed to be constant over time, which may not be the case due to improving treatments (e.g., Paxlovid), different variants leading to less severe presentations, or changes in the demographics of individuals being infected. However, reliable estimates of infection fatality ratio that vary with time difficult to acquire; COVIDestim assumed a higher case fatality in 2020 given the novelty of the virus and consequent lack of available treatments.
 
 \hypertarget{the-model}{%
 \subsection{The Model}\label{the-model}}
@@ -1433,7 +1462,7 @@ The observed cases and death data for each state to the model were fitted using 
 \hypertarget{comparison-to-serological-data}{%
 \subsection{Comparison to Serological Data}\label{comparison-to-serological-data}}
 
-There are known issues with seroprevalence estimates. For one, these samples are drawn from a convenience (i.e.~nonrandom) sample of individuals with blood specimens taken for purposes other than COVID-19 antibody detection (\textbf{zotero-1003?}). Secondly, while a positive serological test is evidence for infection, a negative serological test is less clear to interpret. The person may have been infected but not yet have developed antibodies, or their immune system may not have produced antibodies at a detectable level {[}(\textbf{cdc2020?}).
+There are known issues with seroprevalence estimates. For one, these samples are drawn from a convenience (i.e.~nonrandom) sample of individuals with blood specimens taken for purposes other than COVID-19 antibody detection ({``Commercial {Laboratory Seroprevalence Surveys} \textbar{} {Coronavirus} \textbar{} {COVID-19} \textbar{} {CDC},''} n.d.). Secondly, while a positive serological test is evidence for infection, a negative serological test is less clear to interpret. The person may have been infected but not yet have developed antibodies, or their immune system may not have produced antibodies at a detectable level {[}CDC (2020).
 
 Indeed, Chitwood et al.~found limited concordance between their estimates and seroprevalence data. However, there was a stronger correlation between estimates of cumulative infection and cumulative hospitalizations and cumulative deaths \footnote{The correlation employed here is the Spearman rank correlation, which measures the strength of the monotonic relationship rather than the strength of the linear relationship, in which case the Pearson correlation coefficient is the usual choice. The Spearman rank correlation is equivalent to the Pearson correlation of the rank values rather than the values themselves. }.
 
@@ -1452,7 +1481,7 @@ We performed county-level probabilistic bias analysis for Michigan and Massachus
 \hypertarget{massachusetts}{%
 \subsection{Massachusetts}\label{massachusetts}}
 
-Figure \ref{fig:pb_counts_ma} shows the bias corrected estimates for each implementation, as well as the observed cases. We note that the lower bounds of the bias corrected estimates are always above the observed cases because adding (unobserved) infections among the untested population to the observed positives among the population never results in a decrease in the estimated infections. In theory such a decrease could be possible since we do correct for differences due to imperfect test accuracy, and if the false positive rate was high enough, we might estimate the lower bound of cases as lower than the observed cases. However, the false positive rate of the COVID-19 PCR test is so low that in practice we do not see lower bounds lower than the number of infections.\footnote{The false positive rate differs by platform and laboratory, but multiple analyses estimated that it is less than 0.10\% (\textbf{chandler2021?}).}
+Figure \ref{fig:pb_counts_ma} shows the bias corrected estimates for each implementation, as well as the observed cases. We note that the lower bounds of the bias corrected estimates are always above the observed cases because adding (unobserved) infections among the untested population to the observed positives among the population never results in a decrease in the estimated infections. In theory such a decrease could be possible since we do correct for differences due to imperfect test accuracy, and if the false positive rate was high enough, we might estimate the lower bound of cases as lower than the observed cases. However, the false positive rate of the COVID-19 PCR test is so low that in practice we do not see lower bounds lower than the number of infections.\footnote{The false positive rate differs by platform and laboratory, but multiple analyses estimated that it is less than 0.10\% (Chandler, Bourassa, Mathias, \& Greninger, 2021).}
 
 We can see although the trends are broadly similar between versions for each county, centering the distribution at the empirical value of \(\beta\) leads to peaks not present in the version where priors do not vary by county and date. However, only centering \(P(S_1|\text{untested})\) at the empirical value leads to a distribution that is highly similar to the version where priors do not vary by county and date.
 
@@ -1532,17 +1561,17 @@ An ongoing challenge for assessing the quality of the probabilistic bias interva
 
 Wastewater data is a source of data that has been of rising interest throughout the pandemic, in part due to its cost effectiveness in assessing community-level burden, but also due to the fact it represents a much more unbiased sample than COVID-19 testing does.
 
-That said, there are challenges in relating wastewater concentrations to the true number of infections, in part because of the same issue we face here of the lack of ground truth for the true number of infections in any location. The choice of normalization of the viral RNA concentrations of SARS-CoV-2 is important for understanding how these concentrations scale to the number of infections, since the concentration of virus (in genome copies per liter) in a sample will be influenced by various factor unrelated to the true prevalence COVID-19, such as processing differences between treatment plants or trends in water usage. One common choice is to normalize against the concentration of a virus that has a relatively stable population in wastewater, such as Pepper Mild Mottle Virus (PMMoV) (\textbf{zhan2022?}).
+That said, there are challenges in relating wastewater concentrations to the true number of infections, in part because of the same issue we face here of the lack of ground truth for the true number of infections in any location. The choice of normalization of the viral RNA concentrations of SARS-CoV-2 is important for understanding how these concentrations scale to the number of infections, since the concentration of virus (in genome copies per liter) in a sample will be influenced by various factor unrelated to the true prevalence COVID-19, such as processing differences between treatment plants or trends in water usage. One common choice is to normalize against the concentration of a virus that has a relatively stable population in wastewater, such as Pepper Mild Mottle Virus (PMMoV) (Zhan et al., 2022).
 
-Wastewater testing has become increasingly widespread throughout the pandemic as the technology and analysis approaches have evolved, as well as the demand for a source of data on the presence of COVID-19 that is less reliant on access to tests (or symptoms strong enough to warrant a test, which differ by the variants circulating). A comprehensive source of wastewater data across the United States is provided by Biobot Analytics, which is the institution partnering with the CDC for the National Wastewater Surveillance System (NWSS) (\textbf{duvallet2022?}). Biobot Analytics provide wastewater concentrations aggregated at the county scale by using a weighted average of the concentrations at sampling locations within the county, weighted by the size of the corresponding sewershed populations. This data is publicly available on a public github repository.
+Wastewater testing has become increasingly widespread throughout the pandemic as the technology and analysis approaches have evolved, as well as the demand for a source of data on the presence of COVID-19 that is less reliant on access to tests (or symptoms strong enough to warrant a test, which differ by the variants circulating). A comprehensive source of wastewater data across the United States is provided by Biobot Analytics, which is the institution partnering with the CDC for the National Wastewater Surveillance System (NWSS) (Duvallet et al., 2022). Biobot Analytics provide wastewater concentrations aggregated at the county scale by using a weighted average of the concentrations at sampling locations within the county, weighted by the size of the corresponding sewershed populations. This data is publicly available on a public github repository.
 
 Most notable for this work, several counties in Massachusetts have reported wastewater data for a substantial period throughout 2021 to 2022. This allows us to compare the bias-corrected estimates -- as well as the Covidestim estimates -- to the wastewater concentrations.
 
-Wastewater concentrations are typically a leading indicator of observed cases, though there may be some variability in the lead time during different waves of the pandemic (\textbf{hopkins2023?}). In particular, the lead time was strongest in the earliest waves of the pandemic, and has since declined (\textbf{xiao2022?}). Various factors can create the changes we see in lead time over the course of the pandemic; for example, the lead time can be impacted by differences in viral shedding, diagnostic testing turnaround times, and testing capacity and behavior (\textbf{olesen2021?}).
+Wastewater concentrations are typically a leading indicator of observed cases, though there may be some variability in the lead time during different waves of the pandemic (Hopkins et al., 2023). In particular, the lead time was strongest in the earliest waves of the pandemic, and has since declined (Xiao et al., 2022). Various factors can create the changes we see in lead time over the course of the pandemic; for example, the lead time can be impacted by differences in viral shedding, diagnostic testing turnaround times, and testing capacity and behavior (Olesen, Imakaev, \& Duvallet, 2021).
 
 Since the correlation between the time series as well as the lag at which the maximum correlation occurs are both of interest, we assessed the cross correlation between the series.
 
-First, we define autocorrelation since the definition of cross correlation is very similar. The definition here uses the notation of (\textbf{shumway2011?}).
+First, we define autocorrelation since the definition of cross correlation is very similar. The definition here uses the notation of Shumway \& Stoffer (2011).
 \begin{tcolorbox}[title=Definition: Autocorrelation]
 
 Denote the set of time points of a time series $T$. For any time series $(x_t)_{t\in T}$, we define the auto-correlation function (ACF)  as 
@@ -1566,7 +1595,7 @@ Again assuming the series satisfy second-order stationarity, we have
 $$\rho_{XY}(s,t) = \dfrac{E[(X_s - \mu_{X})(Y_t-\mu_{Y})]}{\sqrt{\text{Var}(X) \text{Var}(Y)}}.$$
 
 \end{tcolorbox}
-The implementation of the cross correlation in base R (\texttt{stats::ccf}) assumes second order stationarity (\textbf{venables2002?}).
+The implementation of the cross correlation in base R (\texttt{stats::ccf}) assumes second order stationarity (Venables \& Ripley, 2002).
 
 Looking at cross correlation can be useful in the sense that we can both consider the strength of correlation and the lag at which the correlation is maximized. Before presenting the cross correlation results of the county level time series, we can consider a more concrete example, where the lag is known.
 
@@ -1761,151 +1790,196 @@ This is exactly what we observed in Figure \ref{fig:comp-intervals}.
 \hypertarget{refs}{}
 \begin{CSLReferences}{1}{0}
 \leavevmode\vadjust pre{\hypertarget{ref-aurelienpelissier2022}{}}%
-Aurelien Pelissier. (2022, February 4). Density Estimation for Bounded Variables. Retrieved March 19, 2023, from \url{https://medium.com/mlearning-ai/density-estimation-for-bounded-variables-7d68f633e772}
+Aurelien Pelissier. (2022, February 4). Density {Estimation} for {Bounded Variables}. Retrieved March 19, 2023, from \url{https://medium.com/mlearning-ai/density-estimation-for-bounded-variables-7d68f633e772}
 
 \leavevmode\vadjust pre{\hypertarget{ref-blitzsteinIntroductionProbability2019}{}}%
-Blitzstein, J. K., \& Hwang, J. (2019). \emph{Introduction to probability} (Second edition). Boca Raton: CRC Press.
+Blitzstein, J. K., \& Hwang, J. (2019). \emph{Introduction to probability} (Second edition). {Boca Raton}: {CRC Press}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-californiadepartmentofpublichealth2021}{}}%
-California Department of Public Health. (2021, June 15). Blueprint for a Safer Economy. Retrieved December 16, 2022, from \url{https://www.cdph.ca.gov/Programs/CID/DCDC/Pages/COVID-19/COVID19CountyMonitoringOverview.aspx}
+California Department of Public Health. (2021, June 15). Blueprint for a {Safer Economy}. Retrieved December 16, 2022, from \url{https://www.cdph.ca.gov/Programs/CID/DCDC/Pages/COVID-19/COVID19CountyMonitoringOverview.aspx}
 
 \leavevmode\vadjust pre{\hypertarget{ref-carvalho2023}{}}%
-Carvalho, L. M., Villela, D. A. M., Coelho, F. C., \& Bastos, L. S. (2023). Bayesian Inference for the Weights in Logarithmic Pooling. \emph{Bayesian Analysis}, \emph{18}(1). http://doi.org/\href{https://doi.org/10.1214/22-BA1311}{10.1214/22-BA1311}
+Carvalho, L. M., Villela, D. A. M., Coelho, F. C., \& Bastos, L. S. (2023). Bayesian {Inference} for the {Weights} in {Logarithmic Pooling}. \emph{Bayesian Analysis}, \emph{18}(1). http://doi.org/\href{https://doi.org/10.1214/22-BA1311}{10.1214/22-BA1311}
 
-\leavevmode\vadjust pre{\hypertarget{ref-centersfordiseasecontrolandprevention2020}{}}%
-Centers for Disease Control and Prevention. (2020, March 28). COVID Data Tracker. Retrieved December 16, 2022, from \url{https://covid.cdc.gov/covid-data-tracker}
+\leavevmode\vadjust pre{\hypertarget{ref-cdc2020}{}}%
+CDC. (2020, February 11). Cases, data, and surveillance to track and analyze {COVID-19}. Retrieved April 12, 2023, from \url{https://www.cdc.gov/coronavirus/2019-ncov/covid-data/serology-surveillance/index.html}
 
 \leavevmode\vadjust pre{\hypertarget{ref-chambers1997}{}}%
-Chambers, J. M. (Ed.). (1997). \emph{Statistical models in S} (Reprint). London: Chapman \& Hall.
+Chambers, J. M. (Ed.). (1997). \emph{Statistical models in {S}} (Reprint). {London}: {Chapman \& Hall}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-chandler2021}{}}%
+Chandler, C. M., Bourassa, L., Mathias, P. C., \& Greninger, A. L. (2021). Estimating the {False-Positive Rate} of {Highly Automated SARS-CoV-2 Nucleic Acid Amplification Testing}. \emph{Journal of Clinical Microbiology}, \emph{59}(8), e01080--21. http://doi.org/\href{https://doi.org/10.1128/JCM.01080-21}{10.1128/JCM.01080-21}
 
 \leavevmode\vadjust pre{\hypertarget{ref-charlesd.baker2021}{}}%
-Charles D. Baker. (2021). COVID-19 Order No. 65. Retrieved from \url{https://www.mass.gov/doc/covid-19-order-65/download}
+Charles D. Baker. (2021). {COVID-19 Order No}. 65. Retrieved from \url{https://www.mass.gov/doc/covid-19-order-65/download}
 
 \leavevmode\vadjust pre{\hypertarget{ref-chen2021a}{}}%
-Chen, J. T., \& Krieger, N. (2021). Revealing the Unequal Burden of COVID-19 by Income, Race/Ethnicity, and Household Crowding: US County Versus Zip Code Analyses. \emph{Journal of Public Health Management and Practice}, \emph{27}(Supplement 1), S43--S56. http://doi.org/\href{https://doi.org/10.1097/PHH.0000000000001263}{10.1097/PHH.0000000000001263}
+Chen, J. T., \& Krieger, N. (2021). Revealing the {Unequal Burden} of {COVID-19} by {Income}, {Race}/{Ethnicity}, and {Household Crowding}: {US County Versus Zip Code Analyses}. \emph{Journal of Public Health Management and Practice}, \emph{27}, S43--S56. http://doi.org/\href{https://doi.org/10.1097/PHH.0000000000001263}{10.1097/PHH.0000000000001263}
 
 \leavevmode\vadjust pre{\hypertarget{ref-chen1999}{}}%
 Chen, S. X. (1999). Beta kernel estimators for density functions. \emph{Computational Statistics \& Data Analysis}, \emph{31}(2), 131--145. http://doi.org/\href{https://doi.org/10.1016/S0167-9473(99)00010-9}{10.1016/S0167-9473(99)00010-9}
 
 \leavevmode\vadjust pre{\hypertarget{ref-chen2022}{}}%
-Chen, Y., Han, Y., Yang, J., Ma, Y., Li, J., \& Zhang, R. (2022). Impact of SARS-CoV-2 Variants on the Analytical Sensitivity of rRT-PCR Assays. \emph{Journal of Clinical Microbiology}, \emph{60}(4), e02374--21. http://doi.org/\href{https://doi.org/10.1128/jcm.02374-21}{10.1128/jcm.02374-21}
+Chen, Y., Han, Y., Yang, J., Ma, Y., Li, J., \& Zhang, R. (2022). Impact of {SARS-CoV-2 Variants} on the {Analytical Sensitivity} of {rRT-PCR Assays}. \emph{Journal of Clinical Microbiology}, \emph{60}(4), e02374--21. http://doi.org/\href{https://doi.org/10.1128/jcm.02374-21}{10.1128/jcm.02374-21}
+
+\leavevmode\vadjust pre{\hypertarget{ref-zotero-1003}{}}%
+Commercial {Laboratory Seroprevalence Surveys} \textbar{} {Coronavirus} \textbar{} {COVID-19} \textbar{} {CDC}. (n.d.). Retrieved April 12, 2023, from \url{https://www.cdc.gov/coronavirus/2019-ncov/cases-updates/commercial-lab-surveys.html}
 
 \leavevmode\vadjust pre{\hypertarget{ref-cuadros2022c}{}}%
-Cuadros, D. F., Moreno, C. M., Musuka, G., Miller, F. D., Coule, P., \& MacKinnon, N. J. (2022). Association Between Vaccination Coverage Disparity and the Dynamics of the COVID-19 Delta and Omicron Waves in the US. \emph{Frontiers in Medicine}, \emph{9}, 898101. http://doi.org/\href{https://doi.org/10.3389/fmed.2022.898101}{10.3389/fmed.2022.898101}
+Cuadros, D. F., Moreno, C. M., Musuka, G., Miller, F. D., Coule, P., \& MacKinnon, N. J. (2022). Association {Between Vaccination Coverage Disparity} and the {Dynamics} of the {COVID-19 Delta} and {Omicron Waves} in the {US}. \emph{Frontiers in Medicine}, \emph{9}, 898101. http://doi.org/\href{https://doi.org/10.3389/fmed.2022.898101}{10.3389/fmed.2022.898101}
 
 \leavevmode\vadjust pre{\hypertarget{ref-dirican2022}{}}%
-Dirican, E., \& Bal, T. (2022). COVID-19 disease severity to predict persistent symptoms: a systematic review and meta-analysis. \emph{Primary Health Care Research \& Development}, \emph{23}, e69. http://doi.org/\href{https://doi.org/10.1017/S1463423622000585}{10.1017/S1463423622000585}
+Dirican, E., \& Bal, T. (2022). {COVID-19} disease severity to predict persistent symptoms: A systematic review and meta-analysis. \emph{Primary Health Care Research \& Development}, \emph{23}, e69. http://doi.org/\href{https://doi.org/10.1017/S1463423622000585}{10.1017/S1463423622000585}
+
+\leavevmode\vadjust pre{\hypertarget{ref-centersfordiseasecontrolandprevention2020}{}}%
+Disease Control and Prevention, C. for. (2020, March 28). {COVID Data Tracker}. Retrieved December 16, 2022, from \url{https://covid.cdc.gov/covid-data-tracker}
 
 \leavevmode\vadjust pre{\hypertarget{ref-dong2020}{}}%
-Dong, E., Du, H., \& Gardner, L. (2020). An interactive web-based dashboard to track COVID-19 in real time. \emph{The Lancet Infectious Diseases}, \emph{20}(5), 533--534. http://doi.org/\href{https://doi.org/10.1016/S1473-3099(20)30120-1}{10.1016/S1473-3099(20)30120-1}
+Dong, E., Du, H., \& Gardner, L. (2020). An interactive web-based dashboard to track {COVID-19} in real time. \emph{The Lancet Infectious Diseases}, \emph{20}(5), 533--534. http://doi.org/\href{https://doi.org/10.1016/S1473-3099(20)30120-1}{10.1016/S1473-3099(20)30120-1}
+
+\leavevmode\vadjust pre{\hypertarget{ref-duvallet2022}{}}%
+Duvallet, C., Wu, F., McElroy, K. A., Imakaev, M., Endo, N., Xiao, A., \ldots{} Matus, M. (2022). Nationwide {Trends} in {COVID-19 Cases} and {SARS-CoV-2 RNA Wastewater Concentrations} in the {United States}. \emph{ACS ES\&T Water}, \emph{2}(11), 1899--1909. http://doi.org/\href{https://doi.org/10.1021/acsestwater.1c00434}{10.1021/acsestwater.1c00434}
 
 \leavevmode\vadjust pre{\hypertarget{ref-fall2022}{}}%
-Fall, A., Eldesouki, R. E., Sachithanandham, J., Morris, C. P., Norton, J. M., Gaston, D. C., \ldots{} Mostafa, H. H. (2022). The displacement of the SARS-CoV-2 variant Delta with Omicron: An investigation of hospital admissions and upper respiratory viral loads. \emph{eBioMedicine}, \emph{79}, 104008. http://doi.org/\href{https://doi.org/10.1016/j.ebiom.2022.104008}{10.1016/j.ebiom.2022.104008}
+Fall, A., Eldesouki, R. E., Sachithanandham, J., Morris, C. P., Norton, J. M., Gaston, D. C., \ldots{} Mostafa, H. H. (2022). The displacement of the {SARS-CoV-2} variant {Delta} with {Omicron}: {An} investigation of hospital admissions and upper respiratory viral loads. \emph{eBioMedicine}, \emph{79}, 104008. http://doi.org/\href{https://doi.org/10.1016/j.ebiom.2022.104008}{10.1016/j.ebiom.2022.104008}
 
 \leavevmode\vadjust pre{\hypertarget{ref-genest1986}{}}%
-Genest, C., McConway, K. J., \& Schervish, M. J. (1986). Characterization of Externally Bayesian Pooling Operators. \emph{The Annals of Statistics}, \emph{14}(2), 487--501. Retrieved from \url{https://www.jstor.org/stable/2241231}
+Genest, C., McConway, K. J., \& Schervish, M. J. (1986). Characterization of {Externally Bayesian Pooling Operators}. \emph{The Annals of Statistics}, \emph{14}(2), 487--501. Retrieved from \url{https://www.jstor.org/stable/2241231}
 
 \leavevmode\vadjust pre{\hypertarget{ref-green2020}{}}%
-Green, D. A., Zucker, J., Westblade, L. F., Whittier, S., Rennert, H., Velu, P., \ldots{} Sepulveda, J. L. (2020). Clinical Performance of SARS-CoV-2 Molecular Tests. \emph{Journal of Clinical Microbiology}, \emph{58}(8), e00995--20. http://doi.org/\href{https://doi.org/10.1128/JCM.00995-20}{10.1128/JCM.00995-20}
+Green, D. A., Zucker, J., Westblade, L. F., Whittier, S., Rennert, H., Velu, P., \ldots{} Sepulveda, J. L. (2020). Clinical {Performance} of {SARS-CoV-2 Molecular Tests}. \emph{Journal of Clinical Microbiology}, \emph{58}(8), e00995--20. http://doi.org/\href{https://doi.org/10.1128/JCM.00995-20}{10.1128/JCM.00995-20}
 
 \leavevmode\vadjust pre{\hypertarget{ref-greenland2016}{}}%
-Greenland, S., Senn, S. J., Rothman, K. J., Carlin, J. B., Poole, C., Goodman, S. N., \& Altman, D. G. (2016). Statistical tests, P values, confidence intervals, and power: a guide to misinterpretations. \emph{European Journal of Epidemiology}, \emph{31}(4), 337--350. http://doi.org/\href{https://doi.org/10.1007/s10654-016-0149-3}{10.1007/s10654-016-0149-3}
+Greenland, S., Senn, S. J., Rothman, K. J., Carlin, J. B., Poole, C., Goodman, S. N., \& Altman, D. G. (2016). Statistical tests, {P} values, confidence intervals, and power: A guide to misinterpretations. \emph{European Journal of Epidemiology}, \emph{31}(4), 337--350. http://doi.org/\href{https://doi.org/10.1007/s10654-016-0149-3}{10.1007/s10654-016-0149-3}
 
 \leavevmode\vadjust pre{\hypertarget{ref-harris2022a}{}}%
-Harris, J. E. (2022). COVID-19 Incidence and hospitalization during the delta surge were inversely related to vaccination coverage among the most populous U.S. Counties. \emph{Health Policy and Technology}, \emph{11}(2), 100583. http://doi.org/\href{https://doi.org/10.1016/j.hlpt.2021.100583}{10.1016/j.hlpt.2021.100583}
+Harris, J. E. (2022). {COVID-19 Incidence} and hospitalization during the delta surge were inversely related to vaccination coverage among the most populous {U}.{S}. {Counties}. \emph{Health Policy and Technology}, \emph{11}(2), 100583. http://doi.org/\href{https://doi.org/10.1016/j.hlpt.2021.100583}{10.1016/j.hlpt.2021.100583}
+
+\leavevmode\vadjust pre{\hypertarget{ref-hopkins2023}{}}%
+Hopkins, L., Persse, D., Caton, K., Ensor, K., Schneider, R., McCall, C., \& Stadler, L. B. (2023). Citywide wastewater {SARS-CoV-2} levels strongly correlated with multiple disease surveillance indicators and outcomes over three {COVID-19} waves. \emph{Science of The Total Environment}, \emph{855}, 158967. http://doi.org/\href{https://doi.org/10.1016/j.scitotenv.2022.158967}{10.1016/j.scitotenv.2022.158967}
 
 \leavevmode\vadjust pre{\hypertarget{ref-jiang2022a}{}}%
-Jiang, D. H., Roy, D. J., Pollock, B. D., Shah, N. D., \& McCoy, R. G. (2022). Association of stay-at-home orders and COVID-19 incidence and mortality in rural and urban United States: a population-based study. \emph{BMJ Open}, \emph{12}(4), e055791. http://doi.org/\href{https://doi.org/10.1136/bmjopen-2021-055791}{10.1136/bmjopen-2021-055791}
+Jiang, D. H., Roy, D. J., Pollock, B. D., Shah, N. D., \& McCoy, R. G. (2022). Association of stay-at-home orders and {COVID-19} incidence and mortality in rural and urban {United States}: A population-based study. \emph{BMJ Open}, \emph{12}(4), e055791. http://doi.org/\href{https://doi.org/10.1136/bmjopen-2021-055791}{10.1136/bmjopen-2021-055791}
 
 \leavevmode\vadjust pre{\hypertarget{ref-kanji2021}{}}%
-Kanji, J. N., Zelyas, N., MacDonald, C., Pabbaraju, K., Khan, M. N., Prasad, A., \ldots{} Tipples, G. (2021). False negative rate of COVID-19 PCR testing: a discordant testing analysis. \emph{Virology Journal}, \emph{18}(1), 13. http://doi.org/\href{https://doi.org/10.1186/s12985-021-01489-0}{10.1186/s12985-021-01489-0}
+Kanji, J. N., Zelyas, N., MacDonald, C., Pabbaraju, K., Khan, M. N., Prasad, A., \ldots{} Tipples, G. (2021). False negative rate of {COVID-19 PCR} testing: A discordant testing analysis. \emph{Virology Journal}, \emph{18}(1), 13. http://doi.org/\href{https://doi.org/10.1186/s12985-021-01489-0}{10.1186/s12985-021-01489-0}
 
 \leavevmode\vadjust pre{\hypertarget{ref-kao2023}{}}%
-Kao, S.-Y. Z., Sharpe, J. D., Lane, R. I., Njai, R., McCord, R. F., Ajiboye, A. S., \ldots{} Ekwueme, D. U. (2023). Duration of Behavioral Policy Interventions and Incidence of COVID-19 by Social Vulnerability of US Counties, April--December 2020. \emph{Public Health Reports}, \emph{138}(1), 190--199. http://doi.org/\href{https://doi.org/10.1177/00333549221125202}{10.1177/00333549221125202}
+Kao, S.-Y. Z., Sharpe, J. D., Lane, R. I., Njai, R., McCord, R. F., Ajiboye, A. S., \ldots{} Ekwueme, D. U. (2023). Duration of {Behavioral Policy Interventions} and {Incidence} of {COVID-19} by {Social Vulnerability} of {US Counties}, {April}--{December} 2020. \emph{Public Health Reports}, \emph{138}(1), 190--199. http://doi.org/\href{https://doi.org/10.1177/00333549221125202}{10.1177/00333549221125202}
 
 \leavevmode\vadjust pre{\hypertarget{ref-karmakar2021a}{}}%
-Karmakar, M., Lantz, P. M., \& Tipirneni, R. (2021). Association of Social and Demographic Factors With COVID-19 Incidence and Death Rates in the US. \emph{JAMA Network Open}, \emph{4}(1), e2036462. http://doi.org/\href{https://doi.org/10.1001/jamanetworkopen.2020.36462}{10.1001/jamanetworkopen.2020.36462}
+Karmakar, M., Lantz, P. M., \& Tipirneni, R. (2021). Association of {Social} and {Demographic Factors With COVID-19 Incidence} and {Death Rates} in the {US}. \emph{JAMA Network Open}, \emph{4}(1), e2036462. http://doi.org/\href{https://doi.org/10.1001/jamanetworkopen.2020.36462}{10.1001/jamanetworkopen.2020.36462}
 
 \leavevmode\vadjust pre{\hypertarget{ref-kaufman2021}{}}%
-Kaufman, B. G., Whitaker, R., Mahendraratnam, N., Hurewitz, S., Yi, J., Smith, V. A., \& McClellan, M. (2021). State variation in effects of state social distancing policies on COVID-19 cases. \emph{BMC Public Health}, \emph{21}(1), 1239. http://doi.org/\href{https://doi.org/10.1186/s12889-021-11236-3}{10.1186/s12889-021-11236-3}
+Kaufman, B. G., Whitaker, R., Mahendraratnam, N., Hurewitz, S., Yi, J., Smith, V. A., \& McClellan, M. (2021). State variation in effects of state social distancing policies on {COVID-19} cases. \emph{BMC Public Health}, \emph{21}(1), 1239. http://doi.org/\href{https://doi.org/10.1186/s12889-021-11236-3}{10.1186/s12889-021-11236-3}
 
 \leavevmode\vadjust pre{\hypertarget{ref-kojima2022a}{}}%
-Kojima, N., Roshani, A., \& Klausner, J. D. (2022). Duration of COVID-19 PCR positivity for Omicron vs earlier variants. \emph{Journal of Clinical Virology Plus}, \emph{2}(3), 100085. http://doi.org/\href{https://doi.org/10.1016/j.jcvp.2022.100085}{10.1016/j.jcvp.2022.100085}
+Kojima, N., Roshani, A., \& Klausner, J. D. (2022). Duration of {COVID-19 PCR} positivity for {Omicron} vs earlier variants. \emph{Journal of Clinical Virology Plus}, \emph{2}(3), 100085. http://doi.org/\href{https://doi.org/10.1016/j.jcvp.2022.100085}{10.1016/j.jcvp.2022.100085}
 
 \leavevmode\vadjust pre{\hypertarget{ref-kortela2021a}{}}%
-Kortela, E., Kirjavainen, V., Ahava, M. J., Jokiranta, S. T., But, A., Lindahl, A., \ldots{} Kekäläinen, E. (2021). Real-life clinical sensitivity of SARS-CoV-2 RT-PCR test in symptomatic patients. \emph{PLOS ONE}, \emph{16}(5), e0251661. http://doi.org/\href{https://doi.org/10.1371/journal.pone.0251661}{10.1371/journal.pone.0251661}
+Kortela, E., Kirjavainen, V., Ahava, M. J., Jokiranta, S. T., But, A., Lindahl, A., \ldots{} Kekäläinen, E. (2021). Real-life clinical sensitivity of {SARS-CoV-2 RT-PCR} test in symptomatic patients. \emph{PLOS ONE}, \emph{16}(5), e0251661. http://doi.org/\href{https://doi.org/10.1371/journal.pone.0251661}{10.1371/journal.pone.0251661}
 
 \leavevmode\vadjust pre{\hypertarget{ref-lash2009}{}}%
-Lash, T. L., Fox, M. P., \& Fink, A. K. (2009). \emph{Applying Quantitative Bias Analysis to Epidemiologic Data}. New York, NY: Springer New York. http://doi.org/\href{https://doi.org/10.1007/978-0-387-87959-8}{10.1007/978-0-387-87959-8}
+Lash, T. L., Fox, M. P., \& Fink, A. K. (2009). \emph{Applying {Quantitative Bias Analysis} to {Epidemiologic Data}}. {New York, NY}: {Springer New York}. http://doi.org/\href{https://doi.org/10.1007/978-0-387-87959-8}{10.1007/978-0-387-87959-8}
 
 \leavevmode\vadjust pre{\hypertarget{ref-ma2021}{}}%
-Ma, Q., Liu, J., Liu, Q., Kang, L., Liu, R., Jing, W., \ldots{} Liu, M. (2021b). Global Percentage of Asymptomatic SARS-CoV-2 Infections Among the Tested Population and Individuals With Confirmed COVID-19 Diagnosis: A Systematic Review and Meta-analysis. \emph{JAMA Network Open}, \emph{4}(12), e2137257. http://doi.org/\href{https://doi.org/10.1001/jamanetworkopen.2021.37257}{10.1001/jamanetworkopen.2021.37257}
+Ma, Q., Liu, J., Liu, Q., Kang, L., Liu, R., Jing, W., \ldots{} Liu, M. (2021b). Global {Percentage} of {Asymptomatic SARS-CoV-2 Infections Among} the {Tested Population} and {Individuals With Confirmed COVID-19 Diagnosis}: {A Systematic Review} and {Meta-analysis}. \emph{JAMA Network Open}, \emph{4}(12), e2137257. http://doi.org/\href{https://doi.org/10.1001/jamanetworkopen.2021.37257}{10.1001/jamanetworkopen.2021.37257}
 
 \leavevmode\vadjust pre{\hypertarget{ref-ma2021a}{}}%
-Ma, Q., Liu, J., Liu, Q., Kang, L., Liu, R., Jing, W., \ldots{} Liu, M. (2021a). Global Percentage of Asymptomatic SARS-CoV-2 Infections Among the Tested Population and Individuals With Confirmed COVID-19 Diagnosis: A Systematic Review and Meta-analysis. \emph{JAMA Network Open}, \emph{4}(12), e2137257. http://doi.org/\href{https://doi.org/10.1001/jamanetworkopen.2021.37257}{10.1001/jamanetworkopen.2021.37257}
+Ma, Q., Liu, J., Liu, Q., Kang, L., Liu, R., Jing, W., \ldots{} Liu, M. (2021a). Global {Percentage} of {Asymptomatic SARS-CoV-2 Infections Among} the {Tested Population} and {Individuals With Confirmed COVID-19 Diagnosis}: {A Systematic Review} and {Meta-analysis}. \emph{JAMA Network Open}, \emph{4}(12), e2137257. http://doi.org/\href{https://doi.org/10.1001/jamanetworkopen.2021.37257}{10.1001/jamanetworkopen.2021.37257}
 
 \leavevmode\vadjust pre{\hypertarget{ref-mallett2020a}{}}%
-Mallett, S., Allen, A. J., Graziadio, S., Taylor, S. A., Sakai, N. S., Green, K., \ldots{} Halligan, S. (2020). At what times during infection is SARS-CoV-2 detectable and no longer detectable using RT-PCR-based tests? A systematic review of individual participant data. \emph{BMC Medicine}, \emph{18}(1), 346. http://doi.org/\href{https://doi.org/10.1186/s12916-020-01810-8}{10.1186/s12916-020-01810-8}
+Mallett, S., Allen, A. J., Graziadio, S., Taylor, S. A., Sakai, N. S., Green, K., \ldots{} Halligan, S. (2020). At what times during infection is {SARS-CoV-2} detectable and no longer detectable using {RT-PCR-based} tests? {A} systematic review of individual participant data. \emph{BMC Medicine}, \emph{18}(1), 346. http://doi.org/\href{https://doi.org/10.1186/s12916-020-01810-8}{10.1186/s12916-020-01810-8}
 
 \leavevmode\vadjust pre{\hypertarget{ref-mclaughlin2022a}{}}%
-McLaughlin, J. M., Wiemken, T. L., Khan, F., \& Jodar, L. (2022). US County-Level COVID-19 Vaccine Uptake and Rates of Omicron Cases and Deaths. \emph{Open Forum Infectious Diseases}, \emph{9}(7), ofac299. http://doi.org/\href{https://doi.org/10.1093/ofid/ofac299}{10.1093/ofid/ofac299}
+McLaughlin, J. M., Wiemken, T. L., Khan, F., \& Jodar, L. (2022). {US County-Level COVID-19 Vaccine Uptake} and {Rates} of {Omicron Cases} and {Deaths}. \emph{Open Forum Infectious Diseases}, \emph{9}(7), ofac299. http://doi.org/\href{https://doi.org/10.1093/ofid/ofac299}{10.1093/ofid/ofac299}
 
 \leavevmode\vadjust pre{\hypertarget{ref-mustafahellou2021}{}}%
-Mustafa Hellou, M., Górska, A., Mazzaferri, F., Cremonini, E., Gentilotti, E., De Nardo, P., \ldots{} Paul, M. (2021). Nucleic acid amplification tests on respiratory samples for the diagnosis of coronavirus infections: a systematic review and meta-analysis. \emph{Clinical Microbiology and Infection}, \emph{27}(3), 341--351. http://doi.org/\href{https://doi.org/10.1016/j.cmi.2020.11.002}{10.1016/j.cmi.2020.11.002}
+Mustafa Hellou, M., Górska, A., Mazzaferri, F., Cremonini, E., Gentilotti, E., De Nardo, P., \ldots{} Paul, M. (2021). Nucleic acid amplification tests on respiratory samples for the diagnosis of coronavirus infections: A systematic review and meta-analysis. \emph{Clinical Microbiology and Infection}, \emph{27}(3), 341--351. http://doi.org/\href{https://doi.org/10.1016/j.cmi.2020.11.002}{10.1016/j.cmi.2020.11.002}
 
 \leavevmode\vadjust pre{\hypertarget{ref-neyman1937}{}}%
-Neyman, J. (1937). Outline of a Theory of Statistical Estimation Based on the Classical Theory of Probability. \emph{Philosophical Transactions of the Royal Society of London. Series A, Mathematical and Physical Sciences}, \emph{236}(767), 333--380. http://doi.org/\href{https://doi.org/10.1098/rsta.1937.0005}{10.1098/rsta.1937.0005}
+Neyman, J. (1937). Outline of a {Theory} of {Statistical Estimation Based} on the {Classical Theory} of {Probability}. \emph{Philosophical Transactions of the Royal Society of London. Series A, Mathematical and Physical Sciences}, \emph{236}(767), 333--380. http://doi.org/\href{https://doi.org/10.1098/rsta.1937.0005}{10.1098/rsta.1937.0005}
+
+\leavevmode\vadjust pre{\hypertarget{ref-odriscoll2021}{}}%
+O'Driscoll, M., Ribeiro Dos Santos, G., Wang, L., Cummings, D. A. T., Azman, A. S., Paireau, J., \ldots{} Salje, H. (2021). Age-specific mortality and immunity patterns of {SARS-CoV-2}. \emph{Nature}, \emph{590}(7844), 140--145. http://doi.org/\href{https://doi.org/10.1038/s41586-020-2918-0}{10.1038/s41586-020-2918-0}
+
+\leavevmode\vadjust pre{\hypertarget{ref-olesen2021}{}}%
+Olesen, S. W., Imakaev, M., \& Duvallet, C. (2021). Making waves: {Defining} the lead time of wastewater-based epidemiology for {COVID-19}. \emph{Water Research}, \emph{202}, 117433. http://doi.org/\href{https://doi.org/10.1016/j.watres.2021.117433}{10.1016/j.watres.2021.117433}
 
 \leavevmode\vadjust pre{\hypertarget{ref-petersen2021}{}}%
 Petersen, J. M., Ranker, L. R., Barnard-Mayers, R., MacLehose, R. F., \& Fox, M. P. (2021). A systematic review of quantitative bias analysis applied to epidemiological research. \emph{International Journal of Epidemiology}, \emph{50}(5), 1708--1730. http://doi.org/\href{https://doi.org/10.1093/ije/dyab061}{10.1093/ije/dyab061}
 
+\leavevmode\vadjust pre{\hypertarget{ref-pitzer2021a}{}}%
+Pitzer, V. E., Chitwood, M., Havumaki, J., Menzies, N. A., Perniciaro, S., Warren, J. L., \ldots{} Cohen, T. (2021). The {Impact} of {Changes} in {Diagnostic Testing Practices} on {Estimates} of {COVID-19 Transmission} in the {United States}. \emph{American Journal of Epidemiology}, \emph{190}(9), 1908--1917. http://doi.org/\href{https://doi.org/10.1093/aje/kwab089}{10.1093/aje/kwab089}
+
 \leavevmode\vadjust pre{\hypertarget{ref-poole2000}{}}%
-Poole, D., \& Raftery, A. E. (2000). Inference for Deterministic Simulation Models: The Bayesian Melding Approach. \emph{Journal of the American Statistical Association}, \emph{95}(452), 1244--1255. http://doi.org/\href{https://doi.org/10.1080/01621459.2000.10474324}{10.1080/01621459.2000.10474324}
+Poole, D., \& Raftery, A. E. (2000). Inference for {Deterministic Simulation Models}: {The Bayesian Melding Approach}. \emph{Journal of the American Statistical Association}, \emph{95}(452), 1244--1255. http://doi.org/\href{https://doi.org/10.1080/01621459.2000.10474324}{10.1080/01621459.2000.10474324}
 
 \leavevmode\vadjust pre{\hypertarget{ref-powers2011}{}}%
-Powers, K. A., Ghani, A. C., Miller, W. C., Hoffman, I. F., Pettifor, A. E., Kamanga, G., \ldots{} Cohen, M. S. (2011). The role of acute and early HIV infection in the spread of HIV and implications for transmission prevention strategies in Lilongwe, Malawi: a modelling study. \emph{The Lancet}, \emph{378}(9787), 256--268. http://doi.org/\href{https://doi.org/10.1016/S0140-6736(11)60842-8}{10.1016/S0140-6736(11)60842-8}
+Powers, K. A., Ghani, A. C., Miller, W. C., Hoffman, I. F., Pettifor, A. E., Kamanga, G., \ldots{} Cohen, M. S. (2011). The role of acute and early {HIV} infection in the spread of {HIV} and implications for transmission prevention strategies in {Lilongwe}, {Malawi}: A modelling study. \emph{The Lancet}, \emph{378}(9787), 256--268. http://doi.org/\href{https://doi.org/10.1016/S0140-6736(11)60842-8}{10.1016/S0140-6736(11)60842-8}
 
 \leavevmode\vadjust pre{\hypertarget{ref-reinhart2021}{}}%
-Reinhart, A., Brooks, L., Jahja, M., Rumack, A., Tang, J., Agrawal, S., \ldots{} Tibshirani, R. J. (2021). An open repository of real-time COVID-19 indicators. \emph{Proceedings of the National Academy of Sciences}, \emph{118}(51), e2111452118. http://doi.org/\href{https://doi.org/10.1073/pnas.2111452118}{10.1073/pnas.2111452118}
+Reinhart, A., Brooks, L., Jahja, M., Rumack, A., Tang, J., Agrawal, S., \ldots{} Tibshirani, R. J. (2021). An open repository of real-time {COVID-19} indicators. \emph{Proceedings of the National Academy of Sciences}, \emph{118}(51), e2111452118. http://doi.org/\href{https://doi.org/10.1073/pnas.2111452118}{10.1073/pnas.2111452118}
+
+\leavevmode\vadjust pre{\hypertarget{ref-riley2021}{}}%
+Riley, S., Atchison, C., Ashby, D., Donnelly, C. A., Barclay, W., Cooke, G. S., \ldots{} REACT study group. (2021). {REal-time Assessment} of {Community Transmission} ({REACT}) of {SARS-CoV-2} virus: {Study} protocol. \emph{Wellcome Open Research}, \emph{5}, 200. http://doi.org/\href{https://doi.org/10.12688/wellcomeopenres.16228.2}{10.12688/wellcomeopenres.16228.2}
 
 \leavevmode\vadjust pre{\hypertarget{ref-robson2014}{}}%
 Robson, B. J. (2014). When do aquatic systems models provide useful predictions, what is changing, and what is next? \emph{Environmental Modelling \& Software}, \emph{61}, 287--296. http://doi.org/\href{https://doi.org/10.1016/j.envsoft.2014.01.009}{10.1016/j.envsoft.2014.01.009}
 
 \leavevmode\vadjust pre{\hypertarget{ref-rothman2008}{}}%
-Rothman, K. J., Greenland, S., \& Lash, T. L. (2008). \emph{Modern epidemiology} (Third edition). Philadelphia Baltimore New York: Wolters Kluwer Health, Lippincott Williams \& Wilkins.
+Rothman, K. J., Greenland, S., \& Lash, T. L. (2008). \emph{Modern epidemiology} (Third edition). {Philadelphia Baltimore New York}: {Wolters Kluwer Health, Lippincott Williams \& Wilkins}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-rubin1987}{}}%
-Rubin, D. B. (1987). The Calculation of Posterior Distributions by Data Augmentation: Comment: A Noniterative Sampling/Importance Resampling Alternative to the Data Augmentation Algorithm for Creating a Few Imputations When Fractions of Missing Information Are Modest: The SIR Algorithm. \emph{Journal of the American Statistical Association}, \emph{82}(398), 543. http://doi.org/\href{https://doi.org/10.2307/2289460}{10.2307/2289460}
+Rubin, D. B. (1987). The {Calculation} of {Posterior Distributions} by {Data Augmentation}: {Comment}: {A Noniterative Sampling}/{Importance Resampling Alternative} to the {Data Augmentation Algorithm} for {Creating} a {Few Imputations When Fractions} of {Missing Information Are Modest}: {The SIR Algorithm}. \emph{Journal of the American Statistical Association}, \emph{82}(398), 543. http://doi.org/\href{https://doi.org/10.2307/2289460}{10.2307/2289460}
 
 \leavevmode\vadjust pre{\hypertarget{ref-rubin2004}{}}%
-Rubin, D. B., Gelman, A., \& Meng, X.-L. (Eds.). (2004). \emph{Applied Bayesian modeling and causal inference from incomplete-data perspectives: an essential journey with Donald Rubin's statistical family}. Chichester, West Sussex, England\,; Hoboken, NJ: Wiley.
+Rubin, D. B., Gelman, A., \& Meng, X.-L. (Eds.). (2004). \emph{Applied {Bayesian} modeling and causal inference from incomplete-data perspectives: An essential journey with {Donald Rubin}'s statistical family}. {Chichester, West Sussex, England ; Hoboken, NJ}: {Wiley}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-sah2021}{}}%
-Sah, P., Fitzpatrick, M. C., Zimmer, C. F., Abdollahi, E., Juden-Kelly, L., Moghadas, S. M., \ldots{} Galvani, A. P. (2021b). Asymptomatic SARS-CoV-2 infection: A systematic review and meta-analysis. \emph{Proceedings of the National Academy of Sciences}, \emph{118}(34), e2109229118. http://doi.org/\href{https://doi.org/10.1073/pnas.2109229118}{10.1073/pnas.2109229118}
+Sah, P., Fitzpatrick, M. C., Zimmer, C. F., Abdollahi, E., Juden-Kelly, L., Moghadas, S. M., \ldots{} Galvani, A. P. (2021b). Asymptomatic {SARS-CoV-2} infection: {A} systematic review and meta-analysis. \emph{Proceedings of the National Academy of Sciences}, \emph{118}(34), e2109229118. http://doi.org/\href{https://doi.org/10.1073/pnas.2109229118}{10.1073/pnas.2109229118}
 
 \leavevmode\vadjust pre{\hypertarget{ref-sah2021a}{}}%
-Sah, P., Fitzpatrick, M. C., Zimmer, C. F., Abdollahi, E., Juden-Kelly, L., Moghadas, S. M., \ldots{} Galvani, A. P. (2021a). Asymptomatic SARS-CoV-2 infection: A systematic review and meta-analysis. \emph{Proceedings of the National Academy of Sciences}, \emph{118}(34), e2109229118. http://doi.org/\href{https://doi.org/10.1073/pnas.2109229118}{10.1073/pnas.2109229118}
+Sah, P., Fitzpatrick, M. C., Zimmer, C. F., Abdollahi, E., Juden-Kelly, L., Moghadas, S. M., \ldots{} Galvani, A. P. (2021a). Asymptomatic {SARS-CoV-2} infection: {A} systematic review and meta-analysis. \emph{Proceedings of the National Academy of Sciences}, \emph{118}(34), e2109229118. http://doi.org/\href{https://doi.org/10.1073/pnas.2109229118}{10.1073/pnas.2109229118}
 
 \leavevmode\vadjust pre{\hypertarget{ref-salomon2021}{}}%
-Salomon, J. A., Reinhart, A., Bilinski, A., Chua, E. J., La Motte-Kerr, W., Rönn, M. M., \ldots{} Tibshirani, R. J. (2021). The US COVID-19 Trends and Impact Survey: Continuous real-time measurement of COVID-19 symptoms, risks, protective behaviors, testing, and vaccination. \emph{Proceedings of the National Academy of Sciences}, \emph{118}(51), e2111454118. http://doi.org/\href{https://doi.org/10.1073/pnas.2111454118}{10.1073/pnas.2111454118}
+Salomon, J. A., Reinhart, A., Bilinski, A., Chua, E. J., La Motte-Kerr, W., Rönn, M. M., \ldots{} Tibshirani, R. J. (2021a). The {US COVID-19 Trends} and {Impact Survey}: {Continuous} real-time measurement of {COVID-19} symptoms, risks, protective behaviors, testing, and vaccination. \emph{Proceedings of the National Academy of Sciences}, \emph{118}(51), e2111454118. http://doi.org/\href{https://doi.org/10.1073/pnas.2111454118}{10.1073/pnas.2111454118}
+
+\leavevmode\vadjust pre{\hypertarget{ref-salomon2021a}{}}%
+Salomon, J. A., Reinhart, A., Bilinski, A., Chua, E. J., La Motte-Kerr, W., Rönn, M. M., \ldots{} Tibshirani, R. J. (2021b). The {US COVID-19 Trends} and {Impact Survey}: {Continuous} real-time measurement of {COVID-19} symptoms, risks, protective behaviors, testing, and vaccination. \emph{Proceedings of the National Academy of Sciences}, \emph{118}(51), e2111454118. http://doi.org/\href{https://doi.org/10.1073/pnas.2111454118}{10.1073/pnas.2111454118}
 
 \leavevmode\vadjust pre{\hypertarget{ref-sevcikova2007}{}}%
-Ševčíková, H., Raftery, A. E., \& Waddell, P. A. (2007). Assessing uncertainty in urban simulations using Bayesian melding. \emph{Transportation Research Part B: Methodological}, \emph{41}(6), 652--669. http://doi.org/\href{https://doi.org/10.1016/j.trb.2006.11.001}{10.1016/j.trb.2006.11.001}
+Ševčíková, H., Raftery, A. E., \& Waddell, P. A. (2007). Assessing uncertainty in urban simulations using {Bayesian} melding. \emph{Transportation Research Part B: Methodological}, \emph{41}(6), 652--669. http://doi.org/\href{https://doi.org/10.1016/j.trb.2006.11.001}{10.1016/j.trb.2006.11.001}
+
+\leavevmode\vadjust pre{\hypertarget{ref-shumway2011}{}}%
+Shumway, R. H., \& Stoffer, D. S. (2011). \emph{Time series analysis and its applications: With {R} examples} (3rd ed). {New York}: {Springer}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-singanayagam2022}{}}%
-Singanayagam, A., Hakki, S., Dunning, J., Madon, K. J., Crone, M. A., Koycheva, A., \ldots{} Lackenby, A. (2022). Community transmission and viral load kinetics of the SARS-CoV-2 delta (B.1.617.2) variant in vaccinated and unvaccinated individuals in the UK: a prospective, longitudinal, cohort study. \emph{The Lancet Infectious Diseases}, \emph{22}(2), 183--195. http://doi.org/\href{https://doi.org/10.1016/S1473-3099(21)00648-4}{10.1016/S1473-3099(21)00648-4}
+Singanayagam, A., Hakki, S., Dunning, J., Madon, K. J., Crone, M. A., Koycheva, A., \ldots{} Lackenby, A. (2022). Community transmission and viral load kinetics of the {SARS-CoV-2} delta ({B}.1.617.2) variant in vaccinated and unvaccinated individuals in the {UK}: A prospective, longitudinal, cohort study. \emph{The Lancet Infectious Diseases}, \emph{22}(2), 183--195. http://doi.org/\href{https://doi.org/10.1016/S1473-3099(21)00648-4}{10.1016/S1473-3099(21)00648-4}
 
 \leavevmode\vadjust pre{\hypertarget{ref-thenewyorktimes2022}{}}%
-The New York Times. (2022, December 16). Coronavirus in the U.S.: Latest Map and Case Count. Retrieved December 16, 2022, from \url{https://www.nytimes.com/interactive/2021/us/covid-cases.html}
+The New York Times. (2022, December 16). Coronavirus in the {U}.{S}.: {Latest Map} and {Case Count}. Retrieved December 16, 2022, from \url{https://www.nytimes.com/interactive/2021/us/covid-cases.html}
 
 \leavevmode\vadjust pre{\hypertarget{ref-tomwolf2020}{}}%
-Tom Wolf. (2020, November 19). Process to Reopen Pennsylvania. Retrieved December 16, 2022, from \url{https://www.governor.pa.gov/process-to-reopen-pennsylvania/}
+Tom Wolf. (2020, November 19). Process to {Reopen Pennsylvania}. Retrieved December 16, 2022, from \url{https://www.governor.pa.gov/process-to-reopen-pennsylvania/}
+
+\leavevmode\vadjust pre{\hypertarget{ref-venables2002}{}}%
+Venables, W. N., \& Ripley, B. D. (2002). \emph{Modern {Applied Statistics} with {S}}. {New York, NY}: {Springer New York}. http://doi.org/\href{https://doi.org/10.1007/978-0-387-21706-2}{10.1007/978-0-387-21706-2}
 
 \leavevmode\vadjust pre{\hypertarget{ref-wasserman2006}{}}%
-Wasserman, L. (2006). \emph{All of nonparametric statistics}. New York: Springer.
+Wasserman, L. (2006). \emph{All of nonparametric statistics}. {New York}: {Springer}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-wu2020}{}}%
+Wu, S. L., Mertens, A. N., Crider, Y. S., Nguyen, A., Pokpongkiat, N. N., Djajadi, S., \ldots{} Benjamin-Chung, J. (2020b). Substantial underestimation of {SARS-CoV-2} infection in the {United States}. \emph{Nature Communications}, \emph{11}(1), 4507. http://doi.org/\href{https://doi.org/10.1038/s41467-020-18272-4}{10.1038/s41467-020-18272-4}
 
 \leavevmode\vadjust pre{\hypertarget{ref-wuSubstantialUnderestimationSARSCoV22020}{}}%
-Wu, S. L., Mertens, A. N., Crider, Y. S., Nguyen, A., Pokpongkiat, N. N., Djajadi, S., \ldots{} Benjamin-Chung, J. (2020). Substantial underestimation of SARS-CoV-2 infection in the United States. \emph{Nature Communications}, \emph{11}(1), 4507. http://doi.org/\href{https://doi.org/10.1038/s41467-020-18272-4}{10.1038/s41467-020-18272-4}
+Wu, S. L., Mertens, A. N., Crider, Y. S., Nguyen, A., Pokpongkiat, N. N., Djajadi, S., \ldots{} Benjamin-Chung, J. (2020a). Substantial underestimation of {SARS-CoV-2} infection in the {United States}. \emph{Nature Communications}, \emph{11}(1), 4507. http://doi.org/\href{https://doi.org/10.1038/s41467-020-18272-4}{10.1038/s41467-020-18272-4}
+
+\leavevmode\vadjust pre{\hypertarget{ref-xiao2022}{}}%
+Xiao, A., Wu, F., Bushman, M., Zhang, J., Imakaev, M., Chai, P. R., \ldots{} Alm, E. J. (2022). Metrics to relate {COVID-19} wastewater data to clinical testing dynamics. \emph{Water Research}, \emph{212}, 118070. http://doi.org/\href{https://doi.org/10.1016/j.watres.2022.118070}{10.1016/j.watres.2022.118070}
+
+\leavevmode\vadjust pre{\hypertarget{ref-zhan2022}{}}%
+Zhan, Q., Babler, K. M., Sharkey, M. E., Amirali, A., Beaver, C. C., Boone, M. M., \ldots{} Solo-Gabriele, H. M. (2022). Relationships between {SARS-CoV-2} in {Wastewater} and {COVID-19 Clinical Cases} and {Hospitalizations}, with and without {Normalization} against {Indicators} of {Human Waste}. \emph{ACS ES\&T Water}, \emph{2}(11), 1992--2003. http://doi.org/\href{https://doi.org/10.1021/acsestwater.2c00045}{10.1021/acsestwater.2c00045}
 
 \end{CSLReferences}
 

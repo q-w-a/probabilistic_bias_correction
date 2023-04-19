@@ -304,7 +304,7 @@ $$w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))
 
 \newpage
 
-## Bayesian Melding Applied to COVID-19 Misclassification
+## Bayesian Melding Applied to COVID-19 Misclassification {#meld}
 
 
 |    In this work, we can relate the inputs $\theta =  \{P(S_1|\text{untested}), \alpha, \beta \}$ and  $\phi = P(S_0|\text{test}_+,\text{untested})$ by the deterministic model $M: \theta \to \phi$ given by

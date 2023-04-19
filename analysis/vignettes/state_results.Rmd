@@ -267,5 +267,70 @@ ggsave(here::here('thesis/figure/state_comp_covidestim2.pdf'),
 
 ```
 
+```{r}
+
+ratios <- corrected %>%
+  filter(vlabel == "$P(S_1|untested)$ Centered at Emp. Value") %>% 
+ # filter(state %in% sample(unique(corrected$state),5)) %>%
+  mutate(ratio_undetected_lb = exp_cases_lb/ positive,
+         ratio_undected = exp_cases_median/positive,
+         ratio_undetected_ub = exp_cases_ub/ positive) %>%
+  group_by(state) %>%
+  mutate(m_ratio = median(ratio_undected)) %>%
+  ungroup() %>%
+  mutate(state=fct_reorder(state,m_ratio)) %>%
+  arrange(state)
+
+states_ordered <-ratios$state %>% unique()
+
+ratios %>%
+ # filter(state %in% states_ordered[1:n])  %>%
+  ggplot(aes(x=date,ymin=ratio_undetected_lb, ymax=ratio_undetected_ub)) +
+  geom_ribbon(
+              alpha = .8) +
+   # geom_linerange(aes(xmin = xmin,
+   #                    xmax=xmax,
+   #                    y = positive,
+   #                    color = 'obs')) +
+  facet_wrap(~state,
+              labeller= labeller(vlabel =as_labeller(TeX, default=label_parsed)),
+             ncol = 5) +
+  scale_y_continuous(labels = comma) +
+  scale_x_date(date_breaks = "2 months", 
+               date_labels = "%b %Y") +
+  theme_c(axis.text.x = element_text(angle = 60, size = 16),
+          plot.title=element_text(face = "bold",
+                                  hjust = .5, 
+                                  size = 20,
+                                  margin=margin(5,5,15,5,'pt')),
+          strip.background = element_rect(fill = "#393939"),
+          strip.text = element_text(color =  "white", size = 16),
+          strip.text.y = element_text(margin = margin(5,5,5,5,'pt'),
+                                      size = 14,
+                                      face="bold"),
+          strip.text.x =  element_text(margin = margin(5,3,5,3,'pt'),
+                                       face = "bold",
+                                       size = 10),
+          plot.subtitle = ggtext::element_markdown(size = 25,margin = margin(3,5,10,5,'pt'),
+                                       face = "italic"),
+          legend.position = "top",
+          legend.text =element_text(size = 14)) +
+  scale_fill_manual(values =pal,
+                    labels = TeX(names(pal)),
+                    name='')  +
+  labs(y = "Ratio of Estimated Cases to Observed Cases",
+       title = paste0("Ratio of Estimated to Observed Cases")) +
+  scale_color_manual(values = c('obs' = 'red'), labels = 'Positive Tests',
+                     name = '') +
+  guides(color = guide_legend(override.aes = list(linewidth =2),
+                              nrow=2,
+                              byrow=TRUE))
+
+
+
+
+
+
+```
 
 

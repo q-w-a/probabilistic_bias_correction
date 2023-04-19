@@ -20,7 +20,7 @@ acknowledgements: |
   Will add
 dedication: |
   You can have a dedication here if you wish. 
-bibliography: "bibliography.json"
+bibliography: "bibliography.bib"
 csl: csl/apa.csl
 lot: false
 lof: false

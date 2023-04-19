@@ -50,7 +50,7 @@ theme_c <- function(...){
 
 
 
-# Definition of Prior Distributions for Bias Parameters 
+# Definition of Prior Distributions for Bias Parameters {#defpriors}
 
 
 ## Background on the Beta Distribution
@@ -713,11 +713,11 @@ At this point, we have corrected for the incompleteness of testing. That is, we 
 Test accuracy is broken up into two components, specificity and sensitivity.
 
 We define test sensitivity and specificity as follows:
-* $S_e$ = test sensitivity = the probability an individual tests positive if they have COVID-19 (probability of a true positive), that is, $P(test + | +)$. 
-* $S_p$ = test specificity = probability an individual tests negative if they do not have COVID-19 (probability of a true negative), that is, $P(test - |-)$.
+* $S_e$ = test sensitivity = the probability an individual tests positive if they have COVID-19 (probability of a true positive), that is, $P(\text{test}_+ | +)$. 
+* $S_p$ = test specificity = probability an individual tests negative if they do not have COVID-19 (probability of a true negative), that is, $P(\text{test}_- |-)$.
 
 Then, given that we have the number $N^+$ who tested positive (or, in the context of this work, would have tested positive), the specificity $S_p$, the sensitivity $S_e$, and the total population size $N$, we can calculate the true positives with the formula
-$$\text{Number Truly Positive} = \dfrac{N^+ - (1-S_p) \times N}{S_e+S_p-1}$$
+$$\text{Number Truly Positive} = \dfrac{N^* - (1-S_p) \times N}{S_e+S_p-1}$$
 from Modern Epidemiology [@rothman2008].
 
 ### Derivation of Formula for Correction for Diagnostic Test Inaccuracy
@@ -729,13 +729,13 @@ We define test sensitivity and specificity as follows:
 As defined previously, $S_e \sim TBeta(0.65, 1)$ and $S_p \sim TBeta(0.998, 1)$.
 
 To correct case counts for diagnostic test inaccuracy, we use the formula 
-$$\text{Number Truly Positive} = \dfrac{N^+ - (1-S_p) \times N}{S_e+S_p-1}$$
+$$\text{Number Truly Positive} = \dfrac{N^*- (1-S_p) \times N}{S_e+S_p-1}$$
 as defined in Rothman et al. (2008).
 
 To obtain this formula, we let:
 
 * $N$ denote the total population size
-* $N^+$ denote the number *classified* as positive
+* $N^*$ denote the number *classified* as positive
 * $N^-$ denote the number *classified* as negative
 * $T^+$ denote the number that is *truly* positive
 * $T^-$ denote the number that is *truly* positive
@@ -750,10 +750,10 @@ The quantity we want to estimate is the number of truly positive individuals whe
 
 The number classified as positive, $N^+$ can be written as 
 
-\[ N^+ = P(test + | +) T^+ + P(test + | -) T^-\]
+\[ N^* = P(test + | +) T^+ + P(test + | -) T^-\]
 
 where $P(test + | +) T^+$ is the number of true positives and $P(test + | -) N^-$ is the number of false positives. By the definitions of  sensitivity $S_e$ and specificity $S_p$ we can write this more clearly as 
-\[ N^+ =S_e T^+ + (1-S_p) T^-.\]
+\[ N^* =S_e T^+ + (1-S_p) T^-.\]
 
 
 Meanwhile, the number classified as negative, $N^-$ can be written as 
@@ -771,47 +771,47 @@ At this point, we can solve the expression $N^- = S_p T^- + (1-S_e) T^+$ for the
 Now, we can substitute this result into our expression for $N^+ =S_e T^+ + (1-S_p) T^-$ and solve for the desired value, the number of truly positive individuals, $T^+$. This gives us
 
 \[
- N^+ =S_e T^+ + (1-S_p)  \left( \dfrac{( N^- - (1-S_e) T^+) }{S_p} \right)
+ N^* =S_e T^+ + (1-S_p)  \left( \dfrac{( N^- - (1-S_e) T^+) }{S_p} \right)
 \]
 
 \[
- S_pN^+ =S_pS_e T^+ + (1-S_p)  \left( {( N^- - (1-S_e) T^+) } \right)
+ S_p \; N^* =S_pS_e T^+ + (1-S_p)  \left( {( N^- - (1-S_e) T^+) } \right)
 \]
 
 \[
- S_pN^+ =S_pS_e T^+ + (1-S_p)  ( N^-)  - (1-S_p)(1-S_e) T^+
+ S_p \; N^* =S_pS_e T^+ + (1-S_p)  ( N^-)  - (1-S_p)(1-S_e) T^+
 \]
 
 \[
- S_pN^+ -   (1-S_p)  ( N^-) =S_pS_e T^+  - (1-S_p)(1-S_e) T^+
+ S_p \; N^* -   (1-S_p)  ( N^-) =S_pS_e T^+  - (1-S_p)(1-S_e) T^+
 \] 
 
 \[
- S_pN^+ -   (1-S_p)  ( N^-) = (S_pS_e  - (1-S_p)(1-S_e)) T^+
+ S_p N^* -   (1-S_p)  ( N^-) = (S_pS_e  - (1-S_p)(1-S_e)) T^+
 \] 
 
 \[
- S_pN^+ -   (1-S_p)  ( N^-) = (S_p + S_e - 1) T^+
+ S_p \; N^* -   (1-S_p)  ( N^-) = (S_p + S_e - 1) T^+
 \] 
 
 \[
- T^+ = \dfrac{ S_pN^+ -   (1-S_p)  ( N^-)}{(S_p + S_e - 1)} 
+ T^+ = \dfrac{ S_p \; N^* -   (1-S_p)  ( N^-)}{(S_p + S_e - 1)} 
 \] 
 
-At this point we can simplify the numerator as follows by using the fact $N = N^+ + N^-$. This gives us 
+At this point we can simplify the numerator as follows by using the fact $N =N^* + N^-$. This gives us 
 
-\begin{align*} =S_pN^+ -   (1-S_p)  N^-\\
-=  S_pN^+ + S_p  N^- - N^-\\
-=  S_p(N^+ +  N^-) - N^- \\
-=  S_pN - (N-N^+) \\
-=  S_pN - (N-N^+) \\
-=  (S_p-1)N + N^+ \\
-=    N^+ - (1-S_p)N\\
+\begin{align*} =S_p \;N^* -   (1-S_p)  N^-\\
+=  S_p   N^* + S_p  N^- - N^-\\
+=  S_p(N^* +  N^-) - N^- \\
+=  S_pN - (N-N^*) \\
+=  S_pN - (N-N^*) \\
+=  (S_p-1)N + N^* \\
+=  N^* - (1-S_p)N\\
 \end{align*}
 
 so we have 
 \[
- T^+ = \dfrac{  N^+ - (1-S_p)N}{(S_p + S_e - 1)}.
+ T^+ = \dfrac{ N^*- (1-S_p)N}{(S_p + S_e - 1)}.
 \] 
 
   
