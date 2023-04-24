@@ -40,19 +40,30 @@ $presentation-font-size-root: 1.7vw;
     font-family: Asana-Math;
 }
 
+.mybox2, .MathJax, .MathJax_Display {
+  font-size:80% !important;
+}
+
+.m {
+    font-size: 60%  !important;
+    font-family: Asana-Math;
+}
+
+
 
 /* .citation {
   font-size: 80% !important;
 } */
 
-.myheader {
+h1 {
 background: #204668;
-padding-left: 10%;
-padding-right: 10%;
+width: 80%;
+padding: 10%;
 outline-color: gray;
 border-color: gray;
 border-radius: 20px;
-color: white;
+color: white !important;
+text-align: center;
 }
 
 button {
@@ -154,9 +165,22 @@ h2 {
   border-color: gray;
   border-radius: 20px;
   color: #fff !important;
-  width: 90%;
+ width: 90%;
 }
 
+
+.myheader {
+   background: #204668 !important;
+//  margin-left: 30%;
+  padding: 10%;
+  outline-color: gray;
+  border-color: gray;
+  border-radius: 20px;
+  color: #fff !important;
+  width: 90%;
+  float: center;
+}
+ 
 
 .outlineslide {
   background: #204668 !important;
@@ -176,27 +200,22 @@ h2 {
 }
 
 
-
-.mheader3 h1 {
-   background: #204668 !important;
-   font-size: 300% !important;
-  padding-left: 5%;
-  padding-right: 5%;
-  padding-bottom: .5vw;
-  padding-top: .5vw;
-  outline-color: gray;
-  border-color: gray;
-  border-radius: 20px;
-  color: #fff !important;
-  width: 60%;
-}
-
-
 .mybox {
   padding: 1em;
   background: white;
   color: black;
   border: 2px solid gray;
   border-radius: 10px;
+}
+
+
+
+.mybox2 {
+  padding: 1%;
+  background: white;
+  color: black;
+  border: 2px solid gray;
+  border-radius: 10px;
+  font-size: 150%;
 }
 

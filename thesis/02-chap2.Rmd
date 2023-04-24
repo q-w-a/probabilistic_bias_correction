@@ -296,7 +296,7 @@ The steps are as follows.
 2. For every $\theta_i$ we compute $\phi_i = M(\theta_i)$ to obtain a sample from the induced distribution.
 3. Since the density $f_\phi^{induced}(\phi)$ is unlikely to have an analytical form, we can compute it via a density approximation such as kernel density estimation.
 4. Construct weights proportional to the ratio of the prior on $\phi$ evaluated at $M(\theta_i)$ to the induced prior $f_\phi^{induced}$ evaluated at $M(\theta_i)$. If a likelihood $L_1(\theta)$ for the inputs and $L_2(\phi)$ is available, the weights are 
-$$w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}.$$
+$$w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}L_1(\theta_i) \; L_2(M(\theta_i)).$$
 However, in this work, no likelihood is available for the variables of interest, so the likelihood is left out of the weights, leaving us with
 $$w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}.$$
 5. Sample $\theta$ and $\phi$ from step (1) with probabilities proportional to the weights from (4).
@@ -605,11 +605,13 @@ theta %>%
 
 ```
 
-\newpage 
+
+
+
 
 ### Pooling
 
-At this point, we want to obtain the logarithmically pooled distribution, denoted $f^{pooled}$.
+At this point, we want to obtain the logarithmically pooled distribution of the two priors we have on $\phi$, denoted $f_\phi^{pooled}$.
 
 
 Now, as described in greater detail in the section on the [Sampling-Importance-Resampling algorithm](#logpooled), the weights are $w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}.$
@@ -747,7 +749,110 @@ cowplot::plot_grid(
 
 Comparing the induced and direct priors on $P(S_0| \text{test}_+, \text{untested})$ above, we see that although they have shared support, some values from the induced distribution we acquire by using $M$ to generate values of $\phi$ from sampled values of $\theta$ are very unlikely to be in accordance with the information we know about the prevalence of SARS-CoV-2 asymptomatic infection. This is where Bayesian melding comes into play. Pooling these distributions enable us to take both the prior on  $f^{direct}$ from published analyses on asymptomatic infection, and the induced prior, $f^{induced}$, into account to constrain the distributions of both the model inputs $\theta = \{ \alpha, \beta, P(S_1 | \text{untested})\}$ and model output $\phi = P(S_0|\text{test}_+, \text{untested})$ to be in accordance with both prior distributions. We then use these constrained distributions as inputs in the probabilistic bias analysis.
 
-\newpage 
+
+
+
+### Motivating Example
+
+We can see the impact of using melded priors in Suffolk county in} Massachusetts in Figure  \ref{fig:suffolkmelding}. Since using the priors without melding allows for asymptomatic rates $P(S_0|\text{test}_+,\text{untested})$ that are extremely high, the upper bound of the estimates will be substantially higher than predicted when using the melded priors, which do not include values where the inputs lead to values of asymptomatic rate that are unsupported by available data (e.g., meta-analyses) on the asymptomatic rate.
+
+```{r, eval=FALSE}
+
+
+prior_params <- list(
+    alpha_mean = .95,
+    alpha_sd = 0.08,
+    alpha_bounds = NA,
+   # alpha_bounds = c(.8,1),
+    beta_mean = .15,
+    beta_sd =.09,
+    beta_bounds = NA,
+  #  beta_bounds = c(0.002, 0.4),
+    s_untested_mean = .03,
+    s_untested_sd = .0225,
+  #  s_untested_bounds = c(0.0018, Inf),
+    s_untested_bounds = NA,
+    p_s0_pos_mean = .4,
+    p_s0_pos_sd = .1225,
+   p_s0_pos_bounds = NA,
+  #  p_s0_pos_bounds = c(.25, .7),
+    pre_nsamp = 1e5,
+    post_nsamp = 1e4)
+
+
+state_name <- "ma"
+
+
+state_data_path <- paste0(here::here(),
+                          "/data/county_level/", 
+                          state_name, 
+                          "/",
+                          state_name,
+                          "_county_biweekly.RDS")
+
+
+# read data for mi
+covid_county <- readRDS(state_data_path) %>%
+  select(-date) %>%
+  distinct() %>% 
+  filter(fips == "25025")
+
+
+
+corrected_sample_reps <- 1e3
+melded <- do.call(get_melded, prior_params)
+
+
+estimates_with_melded <-pmap_df(
+  covid_county,
+  ~ {process_priors_per_county(
+      priors = melded$post_melding,
+      county_df = list(...),
+      nsamp = prior_params$post_nsamp) %>%
+      generate_corrected_sample(., num_reps = corrected_sample_reps) %>%
+      summarize_corrected_sample()
+    })
+
+
+estimates_without_melded <- pmap_df(
+  covid_county,
+  ~ { process_priors_per_county(
+      priors = melded$pre_melding,
+      county_df = list(...),
+      nsamp = prior_params$pre_nsamp) %>%
+      generate_corrected_sample(., num_reps = corrected_sample_reps) %>%
+      summarize_corrected_sample()
+    })
+
+
+estimates_with_melded <- estimates_with_melded %>% mutate(source = "With Melded Priors")
+
+estimates_without_melded <- estimates_without_melded %>% mutate(source ="Without Melding")
+  
+
+estimates_with_melded %>%
+  bind_rows(estimates_without_melded) %>%
+  left_join(dates, relationship="many-to-many") %>%
+  ggplot(aes(x=date, ymin = exp_cases_lb, ymax= exp_cases_ub, fill = source)) +
+  geom_ribbon(alpha = .6) +
+  viridis::scale_fill_viridis(discrete=TRUE, option = "rocket", begin=.2, end=.8) +
+  theme_c(legend.position="right",
+          text = element_text(size=12)) +
+  labs(x="",
+       y= "Corrected Counts",
+       fill="")
+
+ggsave(here('thesis/figure/', 'suffolk_bayesian_melding.pdf'), width =12, height = 6)
+ggsave(here('presentation/figure/', 'suffolk_bayesian_melding.jpeg'), width =12, height = 6)
+
+```
+
+
+```{r, fig.label="\\label{fig:suffolkmelding}"}
+knitr::include_graphics(here::here('thesis/figure/', 'suffolk_bayesian_melding.pdf'))
+
+```
+
 
 ### Derivation of $M$ {#derivation}
 

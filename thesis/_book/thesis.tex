@@ -544,7 +544,7 @@ The steps are as follows.
   Since the density \(f_\phi^{induced}(\phi)\) is unlikely to have an analytical form, we can compute it via a density approximation such as kernel density estimation.
 \item
   Construct weights proportional to the ratio of the prior on \(\phi\) evaluated at \(M(\theta_i)\) to the induced prior \(f_\phi^{induced}\) evaluated at \(M(\theta_i)\). If a likelihood \(L_1(\theta)\) for the inputs and \(L_2(\phi)\) is available, the weights are
-  \[w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}.\]
+  \[w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}L_1(\theta_i) \; L_2(M(\theta_i)).\]
   However, in this work, no likelihood is available for the variables of interest, so the likelihood is left out of the weights, leaving us with
   \[w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}.\]
 \item
@@ -589,12 +589,10 @@ Then, taking \(M(\theta)\), we can compute the induced distribution \(f_\phi^{in
 
 \caption{\label{fig:prior-induced}}\label{fig:unnamed-chunk-19}
 \end{figure}
-\newpage
-
 \hypertarget{pooling}{%
 \subsection{Pooling}\label{pooling}}
 
-At this point, we want to obtain the logarithmically pooled distribution, denoted \(f^{pooled}\).
+At this point, we want to obtain the logarithmically pooled distribution of the two priors we have on \(\phi\), denoted \(f_\phi^{pooled}\).
 
 Now, as described in greater detail in the section on the \protect\hyperlink{logpooled}{Sampling-Importance-Resampling algorithm}, the weights are \(w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}.\)
 
@@ -613,7 +611,11 @@ We see the melded distributions and pre-melding distributions in Figure \ref{fig
 \end{figure}
 Comparing the induced and direct priors on \(P(S_0| \text{test}_+, \text{untested})\) above, we see that although they have shared support, some values from the induced distribution we acquire by using \(M\) to generate values of \(\phi\) from sampled values of \(\theta\) are very unlikely to be in accordance with the information we know about the prevalence of SARS-CoV-2 asymptomatic infection. This is where Bayesian melding comes into play. Pooling these distributions enable us to take both the prior on \(f^{direct}\) from published analyses on asymptomatic infection, and the induced prior, \(f^{induced}\), into account to constrain the distributions of both the model inputs \(\theta = \{ \alpha, \beta, P(S_1 | \text{untested})\}\) and model output \(\phi = P(S_0|\text{test}_+, \text{untested})\) to be in accordance with both prior distributions. We then use these constrained distributions as inputs in the probabilistic bias analysis.
 
-\newpage
+\hypertarget{motivating-example}{%
+\subsection{Motivating Example}\label{motivating-example}}
+
+We can see the impact of using melded priors in Suffolk county in\} Massachusetts in Figure \ref{fig:suffolkmelding}. Since using the priors without melding allows for asymptomatic rates \(P(S_0|\text{test}_+,\text{untested})\) that are extremely high, the upper bound of the estimates will be substantially higher than predicted when using the melded priors, which do not include values where the inputs lead to values of asymptomatic rate that are unsupported by available data (e.g., meta-analyses) on the asymptomatic rate.
+\begin{center}\includegraphics[width=1\linewidth]{figure/suffolk_bayesian_melding} \end{center}
 
 \hypertarget{derivation}{%
 \subsection{\texorpdfstring{Derivation of \(M\)}{Derivation of M}}\label{derivation}}
@@ -763,20 +765,20 @@ From the PDF of the gamma distribution, \(\dfrac{\beta^\alpha}{\Gamma(\alpha) }y
 We can see this result by considering \(Y\) before and after resampling below (Figure \ref{fig:ex1}).
 \begin{figure}
 
-{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-21-1} 
+{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-23-1} 
 
 }
 
-\caption{\label{fig:ex1}}\label{fig:unnamed-chunk-21}
+\caption{\label{fig:ex1}}\label{fig:unnamed-chunk-23}
 \end{figure}
 Then, we can see that the PDF of the the gamma distribution with \(\alpha = 2\) and \(\beta = \lambda\) corresponds to the post-sampling distribution as expected (Figure \ref{fig:ex12}).
 \begin{figure}
 
-{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-22-1} 
+{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-24-1} 
 
 }
 
-\caption{\label{fig:ex12}}\label{fig:unnamed-chunk-22}
+\caption{\label{fig:ex12}}\label{fig:unnamed-chunk-24}
 \end{figure}
 \newpage
 
@@ -794,20 +796,20 @@ which is proportional to the exponential distribution with parameter \(2\lambda\
 The distributions before and after resampling are shown in Figure \ref{fig:ex2}.
 \begin{figure}
 
-{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-23-1} 
+{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-25-1} 
 
 }
 
-\caption{\label{fig:ex2}}\label{fig:unnamed-chunk-23}
+\caption{\label{fig:ex2}}\label{fig:unnamed-chunk-25}
 \end{figure}
 and then plotting the PDF of the exponential distribution with parameter \(2\lambda\) we can see the correspondence to the post-sampling distribution (Figure \ref{fig:ex22}).
 \begin{figure}
 
-{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-24-1} 
+{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-26-1} 
 
 }
 
-\caption{\label{fig:ex22}}\label{fig:unnamed-chunk-24}
+\caption{\label{fig:ex22}}\label{fig:unnamed-chunk-26}
 \end{figure}
 \newpage
 
@@ -846,11 +848,11 @@ When we have an initial sample of size \(m\) from \(g\), denoted \(Y_1,\dots,Y_m
 When using the Sampling-Importance-Resampling algorithm to obtain the logarithmically pooled distribution, see the effect of this choice has a major impact when we are melding truncated distributions. The pooled distribution is only defined on the intersection of the supports of the distributions being pooled. Truncation, then, can limit the choices of \(Y_1,\dots, Y_m\) we take when resampling, which can lead to substantial irregularities in the resulting estimated pooled distribution (Figure \ref{fig:trunc}).
 \begin{figure}
 
-{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-27-1} 
+{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-29-1} 
 
 }
 
-\caption{\label{fig:trunc}}\label{fig:unnamed-chunk-27}
+\caption{\label{fig:trunc}}\label{fig:unnamed-chunk-29}
 \end{figure}
 \newpage
 
@@ -863,20 +865,20 @@ When using the Sampling-Importance-Resampling algorithm to obtain the logarithmi
 Locally estimated scatterplot smoothing (LOESS) fits a collection of local regression models to obtain a smooth curve through the observed data (Figure \ref{fig:loess}). It is highly flexible in the sense that we do not have to specify the functional relationship between the predictor and response variable for the entire range of the predictor, which may be impossible in various settings. It is particularly useful when working with time series data with substantial noise.
 \begin{figure}
 
-{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-29-1} 
+{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-31-1} 
 
 }
 
-\caption{\label{fig:loess}LOESS curve fitted with  a span of 0.2. }\label{fig:unnamed-chunk-29}
+\caption{\label{fig:loess}LOESS curve fitted with  a span of 0.2. }\label{fig:unnamed-chunk-31}
 \end{figure}
 To perform LOESS smoothing, we estimate a set of local regressions (Chambers, 1997). To do this, we must specify the span; this smoothing parameter is the fraction of the data that is used for the local polynomial fit. With a smaller span, the resulting curve will fit the trends more closely, while a larger span reflects broader trends (Figure \ref{fig:smooth-spans}).
 \begin{figure}
 
-{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-30-1} 
+{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-32-1} 
 
 }
 
-\caption{\label{fig:smooth-spans}}\label{fig:unnamed-chunk-30}
+\caption{\label{fig:smooth-spans}}\label{fig:unnamed-chunk-32}
 \end{figure}
 \hypertarget{fitting-the-loess-curve}{%
 \subsection{Fitting the LOESS Curve}\label{fitting-the-loess-curve}}
@@ -905,11 +907,11 @@ Essentially, this process gives weight to points in the neighborhood of \(x^*\).
 Then the weights we obtain are given in Figure \ref{fig:weights}.
 \begin{figure}
 
-{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-31-1} 
+{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-33-1} 
 
 }
 
-\caption{\label{fig:weights} The only values with nonzero weights are those within the interval $(500 - \alpha (n), 500 - \alpha (n))$. That is, the proportion $\alpha$ of the data points closest to $x^*$ will have nonzero weights.}\label{fig:unnamed-chunk-31}
+\caption{\label{fig:weights} The only values with nonzero weights are those within the interval $(500 - \alpha (n), 500 - \alpha (n))$. That is, the proportion $\alpha$ of the data points closest to $x^*$ will have nonzero weights.}\label{fig:unnamed-chunk-33}
 \end{figure}
 \newpage
 
@@ -917,11 +919,11 @@ We fit a linear regression with polynomial terms, typically with degree up to 2,
 \begin{flushleft}
 \begin{figure}
 
-{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-32-1} 
+{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-34-1} 
 
 }
 
-\caption{\label{fig:ex-poly}}\label{fig:unnamed-chunk-32}
+\caption{\label{fig:ex-poly}}\label{fig:unnamed-chunk-34}
 \end{figure}
 \end{flushleft}
 By fitting the model for every point in \(\mathbf x\), we obtain the smoothed line shown in red in Figure \ref{fig:loess-all}.
@@ -974,11 +976,11 @@ The kernel density estimator is
 where \(h\) is the smoothing parameter or bandwidth. In Figure \ref{fig:kernel}, we see the effect of increasing the bandwidth \(h\): larger values result in smoother curves, while smaller values result in curves that follow the histogram more closely.
 \begin{figure}
 
-{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-36-1} 
+{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-38-1} 
 
 }
 
-\caption{\label{fig:kernel}}\label{fig:unnamed-chunk-36}
+\caption{\label{fig:kernel}}\label{fig:unnamed-chunk-38}
 \end{figure}
 \hypertarget{bounded-density-estimation}{%
 \subsection{Bounded Density Estimation}\label{bounded-density-estimation}}
@@ -1008,11 +1010,11 @@ This means that we compute \(Y = logit(X)\) and then estimate the density of the
 In some cases, this approach works well. In Figure \ref{fig:trans}, we simulate a variable \(X \sim Beta(3,2)\) and estimate the density with the transformation approach.
 \begin{figure}
 
-{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-38-1} 
+{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-40-1} 
 
 }
 
-\caption{\label{fig:trans}}\label{fig:unnamed-chunk-38}
+\caption{\label{fig:trans}}\label{fig:unnamed-chunk-40}
 \end{figure}
 We see the difference between using the transformation approach versus estimating the density of \(X\) without first transforming it to be unbounded in Figure \ref{fig:original}.
 \begin{figure}
@@ -1026,11 +1028,11 @@ We see the difference between using the transformation approach versus estimatin
 However, when we simulate densities that have greater mass toward the boundaries 0 or 1, we see that boundary bias becomes problematic (Figure \ref{fig:compare-beta-params}). This is evident in panels B, C, D, and G of Figure \ref{fig:compare-beta-params}, where the estimated density near the boundaries is a poor estimate of the true density.
 \begin{figure}
 
-{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-40-1} 
+{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-42-1} 
 
 }
 
-\caption{\label{fig:compare-beta-params}}\label{fig:unnamed-chunk-40}
+\caption{\label{fig:compare-beta-params}}\label{fig:unnamed-chunk-42}
 \end{figure}
 An alternative to the transformation approach for density estimation of bounded variables by using beta kernel estimators, which resolves the issue of boundary bias.
 
@@ -1054,29 +1056,29 @@ K_{x/b, \; \rho(1-x)}(t) & \text{if } x\in(1-2b,1]
 Notably, for beta kernel estimators, the shape of the kernel depends on \(x\) (Figure \ref{fig:depends-on-x}).
 \begin{figure}
 
-{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-43-1} 
-
-}
-
-\caption{\label{fig:depends-on-x}}\label{fig:unnamed-chunk-43}
-\end{figure}
-As we did in Figure \ref{fig:compare-beta-params}, we can compare the performance of the beta kernel \(\hat f_2\) for estimating the density of samples from different beta distributions (Figure \ref{fig:comp-beta}).
-\begin{figure}
-
 {\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-45-1} 
 
 }
 
-\caption{\label{fig:comp-beta}}\label{fig:unnamed-chunk-45}
+\caption{\label{fig:depends-on-x}}\label{fig:unnamed-chunk-45}
+\end{figure}
+As we did in Figure \ref{fig:compare-beta-params}, we can compare the performance of the beta kernel \(\hat f_2\) for estimating the density of samples from different beta distributions (Figure \ref{fig:comp-beta}).
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-47-1} 
+
+}
+
+\caption{\label{fig:comp-beta}}\label{fig:unnamed-chunk-47}
 \end{figure}
 Although we can see the advantages of using the beta kernel estimator, in practice, available implementations (e.g., the \texttt{bde} package implementation) are much more computationally expensive than using Gaussian kernel density estimation, which make the beta kernel estimator unfeasible for this work. The exact density of the induced distribution is not going to change the estimated counts dramatically relative to the other sources of variability (e.g.~the specification of the prior distributions or sources of data to inform these priors), and, as we see in Figure \ref{fig:gaus}, Gaussian density estimation does perform reasonably well for a variety of bounded distribution shapes.
 \begin{figure}
 
-{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-46-1} 
+{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-48-1} 
 
 }
 
-\caption{\label{fig:gaus}}\label{fig:unnamed-chunk-46}
+\caption{\label{fig:gaus}}\label{fig:unnamed-chunk-48}
 \end{figure}
 \hypertarget{defpriors}{%
 \chapter{Definition of Prior Distributions for Bias Parameters}\label{defpriors}}
@@ -1087,7 +1089,7 @@ Although we can see the advantages of using the beta kernel estimator, in practi
 The priors we are specifying here are for probabilities, with the exception of \(\alpha\) and \(\beta\), which represent ratios of probabilities. To define a prior for a parameter that takes on values in \([0,1]\), a particularly useful distribution is the beta distribution, which is only defined on the interval \([0,1]\). It is parameterized by two positive values \(a, b\)\footnote{In R, \(a\) = shape1 and \(b\) = shape2.}.
 
 The beta distribution is an extremely flexible distribution\footnote{The beta distribution is also useful in Bayesian statistics, because it is the conjugate prior distribution for the binomial distribution and negative binomial distributions. That is, if we have a binomial likelihood with parameter \(p\) and \(p\) is distributed according to the beta distribution, the resulting posterior follows a beta distribution.}; by altering the parameters \(a,b\), we can get an extensive array of shapes, as seen below.
-\begin{center}\includegraphics[width=0.9\linewidth]{thesis_files/figure-latex/unnamed-chunk-48-1} \end{center}
+\begin{center}\includegraphics[width=0.9\linewidth]{thesis_files/figure-latex/unnamed-chunk-50-1} \end{center}
 
 In defining a beta distribution to reflect knowledge about a parameter, we need to work backwards to find the parameters \(a\) and \(b\) that correspond to the desired mean and variance.
 
@@ -1110,7 +1112,7 @@ The expected value of the beta distribution is then \(E(X) = \dfrac{a}{a + b}\) 
 The gamma distribution is another very flexible distribution. However, the support of the gamma distribution is \((0,\infty)\) rather than \([0,1]\). Because some of the bias parameters are not probabilities (\(\alpha\) and \(\beta\) are ratios of probabilities), we can instead use the gamma distribution to allow the random variable to take on values over 1.
 
 As with the beta distribution, a variety of shapes are possible with the gamma distribution.
-\begin{center}\includegraphics[width=0.9\linewidth]{thesis_files/figure-latex/unnamed-chunk-49-1} \end{center}
+\begin{center}\includegraphics[width=0.9\linewidth]{thesis_files/figure-latex/unnamed-chunk-51-1} \end{center}
 
 Let \(k=shape\) and \(\theta=scale\). The parameterization of the gamma distribution that R uses is
 
@@ -1135,7 +1137,7 @@ We recall that \(S_1\) denotes the event that an individual has moderate to seve
 \(P(S_1|Untested)\) is the probability of having moderate to severe symptoms among those who were not tested. We note that this would include people that have moderate to severe COVID-like symptoms that do indeed have COVID-19 as well as people that do not have COVID-19 and have some other respiratory illness.
 
 Wu et al.~(2020) defined this distribution such that \(P(S_1|\text{untested}) \sim TBeta(\alpha = 1.18, \beta = 45.97)\), bounded between 0 and 15\%, as we see below. When we define the distribution of \(P(S_1|\text{untested})\), we release the truncation. Furthermore, we actually remove the truncation on all prior distributions considered. This choice was based on the fact that we have a lack of data to support particular bounds for a truncated distribution, and such assumptions can lead to difficulties in the Bayesian melding component of the probabilistic bias analysis.
-\begin{center}\includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-52-1} \end{center}
+\begin{center}\includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-54-1} \end{center}
 
 However, to implement this approach over a more extended time interval, we need to allow this parameter to vary by time. Due to state-specific differences in symptom prevalence, it also makes more sense to allow this parameter to vary by state.
 
@@ -1151,13 +1153,13 @@ We define \(\alpha\) as the ratio \(\frac{P(\text{test}_+|S_1, \text{untested})}
 \(P(\text{test}_+|S_1, \text{untested})\) to vary by state. \(P(\text{test}_+|\text{tested})\) is the state-level empirical estimate, but we do not calculate \(\alpha\) itself using the state-level empirical estimate. Instead, we calculate \(P(\text{test}_+|S_1, \text{untested})\) as \(P(\text{test}_+|S_1, \text{untested}) =\alpha P(\text{test}_+|\text{tested})\). We can think about \(\alpha\) as the adjustment to the test positivity rate as we estimate the probability of testing positive among symptomatic \emph{untested} individuals. We assume this ratio is close to 1, that is, that the probability of testing positive among symptomatic untested individuals would be near 90\% of the probability of testing positive among tested individuals (not all of whom would be symptomatic).
 
 With the the expansion of testing resources in 2021, it is plausible that \(P(\text{test}_+|\text{untested},S_1)\) could exceed \(P(\text{test}_+|\text{tested})\), so we use a gamma distribution to allow \(\alpha\) to take on values greater than 1.
-\begin{center}\includegraphics[width=0.8\linewidth]{thesis_files/figure-latex/unnamed-chunk-55-1} \end{center}
+\begin{center}\includegraphics[width=0.8\linewidth]{thesis_files/figure-latex/unnamed-chunk-57-1} \end{center}
 
 \hypertarget{defining-beta}{%
 \subsection{\texorpdfstring{Defining \(\beta\)}{Defining \textbackslash beta}}\label{defining-beta}}
 
 Similar to the way we defined \(\alpha\), we define \(\beta\) as the ratio of \(\dfrac{P(\text{test}_+ |S_0, \text{untested})}{P(\text{test}_+|\text{tested})}\), applied to allow \(P(\text{test}_+ |S_0, \text{untested})\) to vary by state. We use \(\beta\) to calculate \(P(test+|S_1, \text{untested})\) by the expression \(P(\text{test}_+|S_0, \text{untested}) =\beta P(\text{test}_+|\text{tested})\). We can think about \(\beta\) as the adjustment to the test positivity rate as we estimate the probability of testing positive among aymptomatic untested individuals (in contrast to \(\alpha\), which is symptomatic untested individuals). We assume the values of \(\beta\) are substantially lower than \(\alpha\), reflecting that we expect a much smaller proportion of asymptomatic untested individuals to test positive than symptomatic individuals.
-\begin{center}\includegraphics[width=0.8\linewidth]{thesis_files/figure-latex/unnamed-chunk-56-1} \end{center}
+\begin{center}\includegraphics[width=0.8\linewidth]{thesis_files/figure-latex/unnamed-chunk-58-1} \end{center}
 
 Because we define \(\beta\) as the ratio of \(\frac{P(\text{test}_+ |S_0, \text{untested})}{P(\text{test}_+|\text{tested})}\), we can estimate \(\beta\) empirically by taking the screening test positivity rate as an estimate of \(P(test + |S_0, untested)\) and then dividing by the overall test positivity rate \(P(\text{test}_+|\text{tested})\). State-level estimates for screening test positivity and overall test positivity are available through the COVID-19 Trends and Impact Survey, enabling us to obtain a time and state-specific estimate of \(\beta\).
 
@@ -1167,7 +1169,7 @@ Because we define \(\beta\) as the ratio of \(\frac{P(\text{test}_+ |S_0, \text{
 \(P(S_0|\text{test}_+)\) is the probability of not having symptoms among those who test positive, that is, the asymptomatic rate of COVID-19.
 
 One large meta-analysis found \(P(S_0|test+)\) to be 40.50\% (95\% CI: 33.50\%-47.50\%), although it did not restrict to screening studies (Ma et al., 2021a). Another meta-analysis, when restricting to screening studies, found \(P(S_0|test+)\) to be 47.3\% (95\% CI: 34.0\% -61.0\%) (Sah et al., 2021a).
-\begin{center}\includegraphics[width=0.8\linewidth]{thesis_files/figure-latex/unnamed-chunk-57-1} \end{center}
+\begin{center}\includegraphics[width=0.8\linewidth]{thesis_files/figure-latex/unnamed-chunk-59-1} \end{center}
 
 \hypertarget{definition-of-priors-for-test-inaccuracy-correction}{%
 \section{Definition of Priors for Test Inaccuracy Correction}\label{definition-of-priors-for-test-inaccuracy-correction}}
@@ -1177,7 +1179,7 @@ One large meta-analysis found \(P(S_0|test+)\) to be 40.50\% (95\% CI: 33.50\%-4
 
 We define the the test sensitivity and test sensitivity to follow the definitions in Wu et al. (2020b).
 \(S_e\) is defined such that \(S_e \sim TBeta(\alpha = 4.20, \beta = 1.05)\), bounded between 0.65 and 1 and with mean \(\dfrac{\alpha}{\alpha + \beta} = 0.80\).
-\begin{center}\includegraphics[width=0.8\linewidth]{thesis_files/figure-latex/unnamed-chunk-58-1} \end{center}
+\begin{center}\includegraphics[width=0.8\linewidth]{thesis_files/figure-latex/unnamed-chunk-60-1} \end{center}
 
 \textbf{Data available for informing this prior distribution:}
 
@@ -1192,7 +1194,7 @@ Because PCR tests are designed to target a highly conserved region of the viral 
 
 }
 
-\caption{Variant proportions in the United States from genomic surveillance data collected by the CDC. Data is not available for time periods earlier than May 8, 2021.}\label{fig:unnamed-chunk-60}
+\caption{Variant proportions in the United States from genomic surveillance data collected by the CDC. Data is not available for time periods earlier than May 8, 2021.}\label{fig:unnamed-chunk-62}
 \end{figure}
 Ultimately, although it is plausible that test sensitivity may vary by time due to differences in viral shedding dynamics over time as well as differences due to the mutations present in circulating variants, there is a lack of data to inform exactly how the sensitivity may vary over time. As a result, we assume the test sensitivity is independent and identically distributed across time periods.
 
@@ -1200,7 +1202,7 @@ Ultimately, although it is plausible that test sensitivity may vary by time due 
 \section{\texorpdfstring{Defining Test Specificity (\(S_p\))}{Defining Test Specificity (S\_p)}}\label{defining-test-specificity-s_p}}
 
 The test specificity \(P(\text{test negative}| \text{negative})\) is defined as \(P(\text{test negative}| \text{negative}) \sim TBeta(a = 4998.50, \beta = 0.25)\), bounded between 0.9998 and 1 and with mean \(\dfrac{a}{a + b} = 0.99995\). The high certainty for this parameter is based on the CDC 2019-nCoV Real-Time RT-PCR Diagnostic Panel.
-\begin{center}\includegraphics[width=0.8\linewidth]{thesis_files/figure-latex/unnamed-chunk-61-1} \end{center}
+\begin{center}\includegraphics[width=0.8\linewidth]{thesis_files/figure-latex/unnamed-chunk-63-1} \end{center}
 
 \hypertarget{exploration-of-the-implications-of-changes-in-the-bias-parameters}{%
 \section{Exploration of the Implications of Changes in the Bias Parameters}\label{exploration-of-the-implications-of-changes-in-the-bias-parameters}}
@@ -1346,13 +1348,13 @@ As we did in the \protect\hyperlink{sampling}{Background} section, we denote the
 
 We begin by sampling \(m\) times from the defined prior distributions \(\theta = \Big\{ \alpha, \beta, P(S_1| \text{untested})\Big\}\), as we see in Figure \ref{fig:sample-priors}.
 \begin{figure}
-\includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-65-1} \caption{\label{fig:sample-priors}}\label{fig:unnamed-chunk-65}
+\includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-67-1} \caption{\label{fig:sample-priors}}\label{fig:unnamed-chunk-67}
 \end{figure}
 At this point, we use Bayesian melding to obtain \(r\) observations from the constrained priors for \(\alpha, \; \beta, \;P(S_1|\text{untested})\), and \(P(S_0|\text{test}_+,\text{untested})\).
 
 We also sample \(r\) values from the priors for sensitivity and specificity, which we use to correct for imperfect testing accuracy. However, these parameters are not involved in the Bayesian melding.
 
-\includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-66-1}
+\includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-68-1}
 
 From here, we obtain the bias corrected estimates by sampling from the \(r\) observations of the bias parameters and computing the unobserved infections.
 
@@ -1371,7 +1373,7 @@ We use these positivity rates to calculate the number of positive tests among th
 \begin{align*}
 N^*_{\text{untested},S_1} &= P( \text{test}_+ | S_1, \text{untested}) ( N_{S_1,\text{untested}}) \\
 &= P( \text{test}_+ | S_1, \text{untested}) (N_{\text{untested}} ) P(S_1|\text{untested})\\
-N^*+*_{\text{untested},S_0} &= P( \text{test}_+ | S_0, \text{untested}) ( N_{S_0,\text{untested}})\\
+N^*_{\text{untested},S_0} &= P( \text{test}_+ | S_0, \text{untested}) ( N_{S_0,\text{untested}})\\
 &== P( \text{test}_+ | S_1, \text{untested}) (N_{\text{untested}} ) (1- P(S_1|\text{untested}))
 \end{align*}
 We use \(N^*\) to denote the number of people who would test positive, not the number who are infected. This distinction is important because we are not yet correcting for diagnostic test inaccuracy. With this notation, \(N^*_{\text{untested}}\) is the number of people among the untested population we expect to test positive if they were all tested, while \(N^*_{\text{tested}}\) is simply the number of positive tests reported for this 2-week interval. This means we can write the total number of individuals who we expect to test positive as
@@ -1388,7 +1390,7 @@ That is, we take the sampled value of sensitivity \(S_e\) and specificty \(S_p\)
 
 Repeating this process with sampled values of the bias parameters gives us a distribution for the corrected counts, as we see in Figure \ref{fig:correctedsuffolk}. The 95\% simulation intervals presented in the \protect\hyperlink{res}{Results} section are the 2.5\% and 97.5\% percentiles for each geographic unit and 2-week time interval, as we see in the second panel of Figure \ref{fig:correctedsuffolk}.
 \begin{figure}
-\includegraphics[width=0.5\linewidth]{thesis_files/figure-latex/unnamed-chunk-67-1} \includegraphics[width=0.5\linewidth]{thesis_files/figure-latex/unnamed-chunk-67-2} \caption{\label{fig:correctedsuffolk}}\label{fig:unnamed-chunk-67}
+\includegraphics[width=0.5\linewidth]{thesis_files/figure-latex/unnamed-chunk-69-1} \includegraphics[width=0.5\linewidth]{thesis_files/figure-latex/unnamed-chunk-69-2} \caption{\label{fig:correctedsuffolk}}\label{fig:unnamed-chunk-69}
 \end{figure}
 \hypertarget{version-2-4-allowing-some-prior-parameters-to-vary}{%
 \section{Version 2-4: Allowing Some Prior Parameters to Vary}\label{version-2-4-allowing-some-prior-parameters-to-vary}}
@@ -1496,34 +1498,34 @@ and the number of positive infections among those who are untested and \emph{sym
 \end{align*}
 Since \(N_{S_1, \text{untested}}\) is so much larger than \(N_{S_1, \text{untested}}\) for any of the specified values of \(P(S_1|\text{untested})\) (since the bulk of this distribution is less than 5\%), \(\beta\) has a larger impact on the number of estimated infections.
 \begin{figure}
-\includegraphics[width=0.95\linewidth]{figure/ma_pb_compared_to_observed} \caption{\label{fig:pb_counts_ma}}\label{fig:unnamed-chunk-69}
+\includegraphics[width=0.95\linewidth]{figure/ma_pb_compared_to_observed} \caption{\label{fig:pb_counts_ma}}\label{fig:unnamed-chunk-71}
 \end{figure}
 To better see the overlap between versions, in Figure \ref{fig:pb_versions_ma} we can look at the versions together. This allows us to see more clearly how the version with both \(P(S_1|\text{untested})\) and \(\beta\) centered at their empirical values is consistently the highest. Meanwhile, the version with only \(P(S_1|untested)\) centered at its empirical value corresponds so closely to the version that does not vary by date or location that there is no part of the intervals for the version not varying by date or location that do not overlap with the \(P(S_1|\text{untested})\) version.
 \begin{figure}
-\includegraphics[width=0.95\linewidth]{figure/ma_pb_compare_versions} \caption{\label{fig:pb_versions_ma}}\label{fig:unnamed-chunk-70}
+\includegraphics[width=0.95\linewidth]{figure/ma_pb_compare_versions} \caption{\label{fig:pb_versions_ma}}\label{fig:unnamed-chunk-72}
 \end{figure}
 Now, we can also compare the extent to which these intervals agree with the Covidestim estimates. In \ref{fig:pb_covidestim_ma}, we see that when Covidestim estimates fall outside the probabilistic bias intervals, they fall below the intervals, estimating that there are less infections. The exception here is Hampshire County, which actually is very likely to be related to the high amount of asymptomatic testing done among the five colleges. Smith College alone, with a student body of about 2,500 and mandatory PCR testing twice a week, would contribute a substantial amount of tests to the test count in Hampshire County. Given the low infection burden, the vast majority of these tests were negative throughout most of 2021, reducing the positivity rate (Figure \ref{fig:hamp}). The extensive amount of asymptomatic testing done here would mean that
 means that our correction factor \(\beta\) in probabilistic analysis\footnote{Recall \(P(\text{test}_+ | S_0, \text{untested}) = \beta \; P(\text{test}_+|\text{tested})\).}, which we use to estimate the positivity rate among the untested asymptomatic population, would be too low. This is because the observed test positivity rate when so much asymptomatic testing is conducted would be closer to what expect the positivity rate among the asymptomatic test positivity rate to be among the untested population. Because the assumptions of the probabilistic bias analysis here did not assume such extensive asymptomatic testing was contributing to the test positivity rate, we are likely underestimating the true number of unobserved infections if there is a substantial amount of screening testing. It would be simple, however, to adjust \(\beta\) to account for cases where there is increased asymptomatic testing.
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/ma_pb_compared_to_covidestim} \caption{\label{fig:pb_covidestim_ma}}\label{fig:unnamed-chunk-71}
+\includegraphics[width=1\linewidth]{figure/ma_pb_compared_to_covidestim} \caption{\label{fig:pb_covidestim_ma}}\label{fig:unnamed-chunk-73}
 \end{figure}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{figure/hampshire} \caption{\label{fig:hamp} We see that Hampshire County has among the lowest test positivity rates among counties in Massachusetts in the time period considered.}\label{fig:unnamed-chunk-72}
+\includegraphics[width=0.9\linewidth]{figure/hampshire} \caption{\label{fig:hamp} We see that Hampshire County has among the lowest test positivity rates among counties in Massachusetts in the time period considered.}\label{fig:unnamed-chunk-74}
 \end{figure}
 To summarize which versions are most concordant with the Covidestim estimates, we can consider the proportion of the biweeks where the interval contains the Covidestim estimate. As we see in Figure \ref{fig:covidestimprop}, the implementation with the prior for \(P(S_1|\text{untested})\) centered at the empirical value tends to agree most with the Covidestim estimates.
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/ma_pb_compared_to_covidestim_proportions} \caption{\label{fig:covidestimprop}}\label{fig:unnamed-chunk-73}
+\includegraphics[width=1\linewidth]{figure/ma_pb_compared_to_covidestim_proportions} \caption{\label{fig:covidestimprop}}\label{fig:unnamed-chunk-75}
 \end{figure}
 \hypertarget{michigan}{%
 \subsection{Michigan}\label{michigan}}
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/mi1_pb_compared_to_observed} \caption{\label{fig:pb_versions_mi}}\label{fig:unnamed-chunk-74-1}
+\includegraphics[width=1\linewidth]{figure/mi1_pb_compared_to_observed} \caption{\label{fig:pb_versions_mi}}\label{fig:unnamed-chunk-76-1}
 \end{figure}
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/mi2_pb_compared_to_observed} \caption{\label{fig:pb_versions_mi}}\label{fig:unnamed-chunk-74-2}
+\includegraphics[width=1\linewidth]{figure/mi2_pb_compared_to_observed} \caption{\label{fig:pb_versions_mi}}\label{fig:unnamed-chunk-76-2}
 \end{figure}
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/mi3_pb_compared_to_observed} \caption{\label{fig:pb_versions_mi}}\label{fig:unnamed-chunk-74-3}
+\includegraphics[width=1\linewidth]{figure/mi3_pb_compared_to_observed} \caption{\label{fig:pb_versions_mi}}\label{fig:unnamed-chunk-76-3}
 \end{figure}
 \includegraphics[width=1\linewidth]{figure/mi_pb_compared_to_covidestim_proportions}
 
@@ -1539,17 +1541,17 @@ However, since versions 2-4 of the analysis utilize empirical estimates of \(P(S
 
 For versions 2-4, we did not attempt the probabilistic bias analysis for states where more than 60\% of observations were missing at the daily time step. Missing values for states with sufficient data were imputed before summarizing to the biweek level using a linear weighted moving average.
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{figure/ctis_beta_states} \caption{\label{fig:statectis}}\label{fig:unnamed-chunk-76}
+\includegraphics[width=0.9\linewidth]{figure/ctis_beta_states} \caption{\label{fig:statectis}}\label{fig:unnamed-chunk-78}
 \end{figure}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{figure/ctis_s_untested_states} \caption{\label{fig:statectis-s-untested}}\label{fig:unnamed-chunk-77}
+\includegraphics[width=0.9\linewidth]{figure/ctis_s_untested_states} \caption{\label{fig:statectis-s-untested}}\label{fig:unnamed-chunk-79}
 \end{figure}
 In Figures \ref{fig:state-results-1} and \ref{fig:state-results-2}, we compare the 95\% credible intervals of Covidestim summed to be on the biweek time scale to the probabilistic bias analysis intervals\footnote{As mentioned in the \protect\hyperlink{lims}{limitations} section, the two week intervals cannot be interpreted as 95\% credible intervals. However, the comparison is still useful to contextualize the results of the probabilistic bias analysis.}. We see correspondence is much higher before the Omicron wave in late 2021 through early 2022, where Covidestim estimates the cases to be much higher.
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/state_comp_covidestim1} \caption{\label{fig:state-results-1}}\label{fig:unnamed-chunk-78}
+\includegraphics[width=1\linewidth]{figure/state_comp_covidestim1} \caption{\label{fig:state-results-1}}\label{fig:unnamed-chunk-80}
 \end{figure}
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/state_comp_covidestim2} \caption{\label{fig:state-results-2}}\label{fig:unnamed-chunk-79}
+\includegraphics[width=1\linewidth]{figure/state_comp_covidestim2} \caption{\label{fig:state-results-2}}\label{fig:unnamed-chunk-81}
 \end{figure}
 \hypertarget{cross-correlation-comparison}{%
 \section{Cross Correlation Comparison}\label{cross-correlation-comparison}}
@@ -1601,12 +1603,12 @@ Looking at cross correlation can be useful in the sense that we can both conside
 
 In Figure \ref{fig:compdiff}, we consider simulated data where \((Z_t)\) is \((Y_t)\) lagged by 3 time units with noise added. We can see that \(Z_t\) and \(Y_t\) are not second-order stationary since the mean clearly is not constant over time. However, to stabilize the mean, we can apply first order differencing, where we take the differences between consecutive observations.
 \begin{figure}
-\includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-80-1} \caption{\label{fig:compdiff}}\label{fig:unnamed-chunk-80}
+\includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-82-1} \caption{\label{fig:compdiff}}\label{fig:unnamed-chunk-82}
 \end{figure}
 We can see the effect of applying differencing to the time series when we compute the cross correlations of \((Z_t)\) and \((Y_t)\), as shown in Figure \ref{fig:corzy}. The true lag of \(-3\) time units was recovered when considering the differenced time series, but not when we considered the original time series. In what follows, because the time series we are considering are not stationary, we consider the cross correlation between the differenced time series.
 \vspace{5 cm}
 \begin{figure}
-\includegraphics[width=0.45\linewidth]{thesis_files/figure-latex/unnamed-chunk-81-1} \includegraphics[width=0.45\linewidth]{thesis_files/figure-latex/unnamed-chunk-81-2} \caption{\label{fig:corzy}}\label{fig:unnamed-chunk-81}
+\includegraphics[width=0.45\linewidth]{thesis_files/figure-latex/unnamed-chunk-83-1} \includegraphics[width=0.45\linewidth]{thesis_files/figure-latex/unnamed-chunk-83-2} \caption{\label{fig:corzy}}\label{fig:unnamed-chunk-83}
 \end{figure}
 \hypertarget{cross-correlation-results-comparing-bias-corrected-counts-covidestim-estimates-and-wastewater-concentrations}{%
 \subsection{Cross Correlation Results Comparing Bias Corrected Counts, Covidestim Estimates, and Wastewater Concentrations}\label{cross-correlation-results-comparing-bias-corrected-counts-covidestim-estimates-and-wastewater-concentrations}}
@@ -1617,7 +1619,7 @@ Since the effective concentration of SARS-CoV-2 in wastewater samples reported b
 
 Looking at the counties in Figure \ref{fig:wastewater_ma_by_county}, we see that, with the exception of Barnstable, MA, the wastewater trends are highly similar to trends captured by the bias corrected infection counts. We also see that the trends are similar both with regard to shape but also with regard to time, with little visible lag between the series. This is expected because although wastewater cases do in general lead cases, lead times generally are not on the order of 2 weeks. This means that since we are summarizing to 2-week intervals we would expect the lag to be very small, if present at all.
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/wastewater_ma_by_county} \caption{\label{fig:wastewater_ma_by_county}}\label{fig:unnamed-chunk-82}
+\includegraphics[width=1\linewidth]{figure/wastewater_ma_by_county} \caption{\label{fig:wastewater_ma_by_county}}\label{fig:unnamed-chunk-84}
 \end{figure}
 \hypertarget{comparison-between-implementations-of-probabilistic-bias-analysis}{%
 \subsubsection{Comparison Between Implementations of Probabilistic Bias Analysis}\label{comparison-between-implementations-of-probabilistic-bias-analysis}}
@@ -1628,14 +1630,14 @@ Given the small size of Barnstable relative to other counties and high variabili
 
 Comparing the maximum correlations obtained the observed cases, only in Hampshire County were the observed cases more correlated with the wastewater concentrations than all implementations of probabilistic bias analysis. We also see again that in most cases the maximum correlation is obtained at zero lag in observed cases; however, for Barnstable, the correlation is highest when wastewater concentrations lead infections by two biweeks, and for Hampshire the correlation is highest when wastewater concentrations lead infections by 1 biweek.
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/correlation_observed_pb} \caption{\label{fig:correlation_observed_pb}}\label{fig:unnamed-chunk-83}
+\includegraphics[width=1\linewidth]{figure/correlation_observed_pb} \caption{\label{fig:correlation_observed_pb}}\label{fig:unnamed-chunk-85}
 \end{figure}
 \hypertarget{comparison-between-covidestim-observed-cases-and-bias-corrected-counts}{%
 \subsubsection{Comparison Between Covidestim, Observed Cases, and Bias Corrected Counts}\label{comparison-between-covidestim-observed-cases-and-bias-corrected-counts}}
 
-In Figure \ref{fig:correlation_observed_pb_covidestim}, we also compare the Covidestim estimates to the wastewater concentrations. In general, both Covidestim and bias-corrected counts are more correlated with wastewater concentrations than observed infections. Of note, Nantucket County (25019) is not included here because Covidestimdoes not report estimates are not reported for Nantucket.\footnote{In reporting of COVID-19 data, Nantucket values are grouped with Dukes County, which is likely why Covidestim does not try to estimate the grouped counts.}
+In Figure \ref{fig:correlation_observed_pb_covidestim}, we also compare the Covidestim estimates to the wastewater concentrations. In general, both Covidestim and bias-corrected counts are more correlated with wastewater concentrations than observed infections. Of note, Nantucket County (25019) is not included here because Covidestim does not report estimates are not reported for Nantucket.\footnote{In reporting of COVID-19 data, Nantucket values are grouped with Dukes County, which is likely why Covidestim does not try to estimate the grouped counts.}
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/correlation_observed_pb_covidestim} \caption{\label{fig:correlation_observed_pb_covidestim}}\label{fig:unnamed-chunk-84}
+\includegraphics[width=1\linewidth]{figure/correlation_observed_pb_covidestim} \caption{\label{fig:correlation_observed_pb_covidestim}}\label{fig:unnamed-chunk-86}
 \end{figure}
 \hypertarget{takeaways}{%
 \subsubsection{Takeaways}\label{takeaways}}
@@ -1664,7 +1666,7 @@ The strength of applying probabilistic bias analysis to consider possible values
 \section{Changing Mean and Variance for Prior Distribution Specifications}\label{changing-mean-and-variance-for-prior-distribution-specifications}}
 
 \hypertarget{relationship-between-xy_alpha-and-x_alpha-y_alpha-for-dependent-variables-xy}{%
-\section{\texorpdfstring{Relationship Between \((X+Y)_\alpha\) and \(X_{alpha}\) +\(Y_{\alpha}\) for Dependent Variables \(X,Y\)}{Relationship Between (X+Y)\_\textbackslash alpha and X\_\{alpha\} +Y\_\{\textbackslash alpha\} for Dependent Variables X,Y}}\label{relationship-between-xy_alpha-and-x_alpha-y_alpha-for-dependent-variables-xy}}
+\section{\texorpdfstring{Relationship Between \((X+Y)_\alpha\) and \(X_{\alpha}\) +\(Y_{\alpha}\) for Dependent Variables \(X,Y\)}{Relationship Between (X+Y)\_\textbackslash alpha and X\_\{\textbackslash alpha\} +Y\_\{\textbackslash alpha\} for Dependent Variables X,Y}}\label{relationship-between-xy_alpha-and-x_alpha-y_alpha-for-dependent-variables-xy}}
 
 \hypertarget{simulation-bivariate-normal}{%
 \subsection{Simulation: Bivariate Normal}\label{simulation-bivariate-normal}}
@@ -1678,20 +1680,20 @@ In Figure \ref{fig:simmvn}, in each panel, we increase the correlation \(\rho\) 
 We see in Figure \ref{fig:simmvn} that when we increase the correlation between \(X\) and \(Y\), the width of the interval \(\Big((X+Y)_\alpha, (X+Y)_{1-\alpha}\Big)\) increases.
 \begin{figure}
 
-{\centering \includegraphics[width=0.96\linewidth]{thesis_files/figure-latex/unnamed-chunk-86-1} \includegraphics[width=0.96\linewidth]{thesis_files/figure-latex/unnamed-chunk-86-2} \includegraphics[width=0.96\linewidth]{thesis_files/figure-latex/unnamed-chunk-86-3} \includegraphics[width=0.96\linewidth]{thesis_files/figure-latex/unnamed-chunk-86-4} \includegraphics[width=0.96\linewidth]{thesis_files/figure-latex/unnamed-chunk-86-5} 
+{\centering \includegraphics[width=0.96\linewidth]{thesis_files/figure-latex/unnamed-chunk-88-1} \includegraphics[width=0.96\linewidth]{thesis_files/figure-latex/unnamed-chunk-88-2} \includegraphics[width=0.96\linewidth]{thesis_files/figure-latex/unnamed-chunk-88-3} \includegraphics[width=0.96\linewidth]{thesis_files/figure-latex/unnamed-chunk-88-4} \includegraphics[width=0.96\linewidth]{thesis_files/figure-latex/unnamed-chunk-88-5} 
 
 }
 
-\caption{\label{fig:simmvn}}\label{fig:unnamed-chunk-86}
+\caption{\label{fig:simmvn}}\label{fig:unnamed-chunk-88}
 \end{figure}
 In Figure \ref{fig:comp-intervals}, we compare the intervals defined by taking the quantiles of the sum, \(\Big((X+Y)_\alpha, (X+Y)_{1-\alpha}\Big)\), to the intervals taken by summing the quantiles individually, \(\Big(X_\alpha +Y_\alpha, \; X_{1-\alpha} +Y_{1-\alpha}\Big)\). We notice that, as we saw in Figure \ref{fig:simmvn}, increasing the correlation increases the width of the interval \(\Big((X+Y)_\alpha, (X+Y)_{1-\alpha}\Big)\), while the interval \(\Big(X_\alpha +Y_\alpha, \; X_{1-\alpha} +Y_{1-\alpha}\Big)\) is constant since changing the correlation does not change the marginal quantiles \(X_\alpha, X_{1-\alpha}\).,
 \begin{figure}
 
-{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-87-1} 
+{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-89-1} 
 
 }
 
-\caption{\label{fig:comp-intervals}}\label{fig:unnamed-chunk-87}
+\caption{\label{fig:comp-intervals}}\label{fig:unnamed-chunk-89}
 \end{figure}
 As we see in Figure \ref{fig:comp-intervals}, the intervals are identical when \(X,Y\) are perfectly correlated. This result is not dependent on the choice of distribution, as we can show by considering CDFs and quantile functions of a general distribution.
 \begin{tcolorbox}[title = Quantiles of the Sum of Perfectly Correlated Random Variables]
@@ -1742,11 +1744,11 @@ It follows that \(Z\) is a normal random variable with mean \(\bar x + \bar y\) 
 In Figure \ref{fig:ex-sim-normal}, we plot the density estimate of the distribution of \(X+Y\) for \((X,Y) \sim MVN\left( \begin{pmatrix} 0\\0 \end{pmatrix}, \begin{pmatrix} 1 & 0.2 \\0.2 & 1 \end{pmatrix}\right)\) and plot the density of the random variable \(X+Y = Z \sim N\left(\bar x + \bar y,\sqrt{\sigma_x^2 +\sigma_y^2 + 2 \rho \sigma_x \sigma_y }\right)\) and see they are in close alignment, as expected.
 \begin{figure}
 
-{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-90-1} 
+{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-92-1} 
 
 }
 
-\caption{\label{fig:ex-sim-normal} The theoretical density of $N\left(\bar x + \bar y,\sqrt{\sigma_x^2 +\sigma_y^2 + 2 \rho \sigma_x \sigma_y }\right)$ is plotted in red over the kernel density estimate of the observed distribution of $X+Y$.}\label{fig:unnamed-chunk-90}
+\caption{\label{fig:ex-sim-normal} The theoretical density of $N\left(\bar x + \bar y,\sqrt{\sigma_x^2 +\sigma_y^2 + 2 \rho \sigma_x \sigma_y }\right)$ is plotted in red over the kernel density estimate of the observed distribution of $X+Y$.}\label{fig:unnamed-chunk-92}
 \end{figure}
 Since we now know \(Z \sim N\left(\bar x + \bar y,\sqrt{\sigma_x^2 +\sigma_y^2 + 2 \rho \sigma_x \sigma_y }\right)\), we can consider the quantile function of the normal distribution, which is defined as
 
@@ -1767,11 +1769,11 @@ and
 This is exactly what we observed in Figure \ref{fig:comp-intervals}.
 \begin{figure}
 
-{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-91-1} 
+{\centering \includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-93-1} 
 
 }
 
-\caption{\label{fig:erf}}\label{fig:unnamed-chunk-91}
+\caption{\label{fig:erf}}\label{fig:unnamed-chunk-93}
 \end{figure}
 \backmatter
 

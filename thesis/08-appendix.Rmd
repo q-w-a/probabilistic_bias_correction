@@ -23,7 +23,7 @@ knitr::opts_chunk$set(echo = FALSE,
 
 ## Changing Mean and Variance for Prior Distribution Specifications 
 
-## Relationship Between $(X+Y)_\alpha$ and $X_{alpha}$ +$Y_{\alpha}$ for Dependent Variables $X,Y$
+## Relationship Between $(X+Y)_\alpha$ and $X_{\alpha}$ +$Y_{\alpha}$ for Dependent Variables $X,Y$
 
 
 ### Simulation: Bivariate Normal 

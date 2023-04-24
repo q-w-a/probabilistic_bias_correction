@@ -428,7 +428,7 @@ knitr::include_graphics("figure/correlation_observed_pb.jpeg")
 #### Comparison Between Covidestim, Observed Cases, and Bias Corrected Counts
 
 
-In Figure \ref{fig:correlation_observed_pb_covidestim}, we also compare the Covidestim estimates to the wastewater concentrations. In general, both Covidestim and bias-corrected counts are more correlated with wastewater concentrations than observed infections. Of note, Nantucket County (25019) is not included here because Covidestimdoes not report estimates are not reported for Nantucket.^[In reporting of COVID-19 data, Nantucket values are grouped with Dukes County, which is likely why Covidestim does not try to estimate the grouped counts.] 
+In Figure \ref{fig:correlation_observed_pb_covidestim}, we also compare the Covidestim estimates to the wastewater concentrations. In general, both Covidestim and bias-corrected counts are more correlated with wastewater concentrations than observed infections. Of note, Nantucket County (25019) is not included here because Covidestim does not report estimates are not reported for Nantucket.^[In reporting of COVID-19 data, Nantucket values are grouped with Dukes County, which is likely why Covidestim does not try to estimate the grouped counts.] 
 
 ```{r,fig.cap = "\\label{fig:correlation_observed_pb_covidestim}", out.width="100%"}
 # figure produced by cross_correlation_wastewater.Rmd

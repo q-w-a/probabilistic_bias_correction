@@ -345,6 +345,22 @@
   <h1 class="title">Using Sensitivity Analyses to Approximate Total COVID-19 Infections: <br><span style="font-size:75%;color:#EFF0F1;line-height:30%;margin:0;">State and County level in the United States,<br> March 2021 - March 2022</span></h1>
 </section>
 
+<section id="outline" class="slide level2">
+<h2>Outline</h2>
+<div class="mybox">
+<p><span style="font-size:180%;"></span></p>
+<ol type="1">
+<li>Motivation and Previous Work <br></li>
+<li>Methods <br></li>
+<li>Results <br> </li>
+</ol>
+</div>
+</section>
+<section>
+<section id="motivation-and-previous-work" class="title-slide slide level1 center">
+<h1>Motivation and Previous Work</h1>
+
+</section>
 <section id="motivation" class="slide level2">
 <h2>Motivation</h2>
 <div class="columns">
@@ -353,16 +369,16 @@
 <li>Testing rate varies widely across states</li>
 <li>Interested in the distinction between:
 <ul>
-<li>the positive tests we observe</li>
-<li>true number infections that exist</li>
+<li>Positive tests we observe</li>
+<li>True number infections that exist</li>
 </ul></li>
 </ul>
 </div><div class="cell">
 
 </div><div class="cell">
 
-</div><div class="column">
-<p><img width="55%" class="fragment fade-out" src="./figure/testing_all.jpeg" style="position:absolute;top:20%;right:0;"> <img width="55%" class="fragment current-visible" src="./figure/idaho_testing.jpeg" style="position:absolute;top:20%;right:0;"> <img width="55%" class="fragment current-visible" src="./figure/ma_testing.jpeg" style="position:absolute;top:20%;right:0;"></p>
+</div><p><img width="55%" src="./figure/testing_all.jpeg" style="position:absolute;top:20%;right:0;"></p><div class="column">
+<p><img width="55%" class="fragment" src="./figure/testing_all.jpeg" style="position:absolute;top:20%;right:0;"> <img width="55%" class="fragment current-visible" src="./figure/idaho_testing.jpeg" style="position:absolute;top:20%;right:0;"> <img width="55%" class="fragment current-visible" src="./figure/ma_testing.jpeg" style="position:absolute;top:20%;right:0;"></p>
 </div>
 </div>
 <aside class="notes">
@@ -467,7 +483,7 @@
       }</style></aside>
 </section>
 <section id="substantial-underestimation-of-covid-19-in-the-united-states-wu-et-al.-2020" class="slide level2">
-<h2><em>Substantial Underestimation of COVID-19 in the United States</em> <br> <span style="size:90%;">(Wu <em>et al.</em>, 2020)</span></h2>
+<h2><span style="font-size:80%"> <em>Substantial Underestimation of COVID-19 in the United States</em> <br> (Wu <em>et al.</em>, 2020) </span></h2>
 <div class="columns">
 <div class="column" style="width:55%;">
 <ul>
@@ -479,9 +495,9 @@
 <li>Time period: March to April 18, 2020</li>
 <li>State-level (one time interval)</li>
 </ul>
-</div><div class="column" height="40%" style="width:45%;">
+</div><div class="column" height="40%" style="width:35%;">
 <figure>
-<img src="figure/wu_figure.png" style="float:right;height=50%;">
+<img src="figure/wu_figure.png" style="float:right;height=27%;">
 <figcaption style="font-size:50%">
 Figure from Wu <em>et al..</em> (2020) showing the ratio of total estimated infections before April 18 2020 to observed infections, by state. 
 </figcaption>
@@ -502,8 +518,8 @@ Figure from Wu <em>et al..</em> (2020) showing the ratio of total estimated infe
           display:block!important;
       }</style></aside>
 </section>
-<section id="background-probabilistic-bias-analysis" class="slide level2">
-<h2>Background: Probabilistic Bias Analysis</h2>
+<section id="probabilistic-bias-analysis" class="slide level2">
+<h2>Probabilistic Bias Analysis</h2>
 <ul>
 <li>Aim of <strong>quantitative bias analysis:</strong>
 <ul>
@@ -533,9 +549,27 @@ Figure from Wu <em>et al..</em> (2020) showing the ratio of total estimated infe
 </ul>
 </div>
 </section>
-<section id="outline" class="slide level2">
-<h2><span style="text-align:center;font-size:200%;width:60%;float:center;margin-left:40%;"> Outline </span></h2>
-<span style="font-size:200%">
+<section id="aims-of-this-work" class="slide level2">
+<h2>Aims of this Work</h2>
+<p><span style="font-size:150%"></span></p>
+<ul>
+<li>Extend Wu <em>et. al.</em>’s analysis to the time period March 2021 to March 2022
+<ul>
+<li>2-week interval</li>
+</ul></li>
+<li>Geographic scale:
+<ul>
+<li>State-level across all states</li>
+<li>County-level for two</li>
+</ul></li>
+<li>Inform priors with available data</li>
+<li>Compare results to Covidestim<sup>1</sup> model</li>
+</ul>
+<p></p>
+<aside><ol class="aside-footnotes"><li id="fn1"><p><span class="citation" data-cites="chitwood2022"><sup><a href="#/references" role="doc-biblioref" onclick="">12</a></sup></span></p></li></ol></aside></section>
+<section id="methods-outline" class="slide level2">
+<h2><span style="text-align:center;font-size:180%;width:60%;"> Methods Outline </span></h2>
+<span style="font-size:150%">
 <center>
 <ol type="1">
 <li>Definition of priors adjusting for <strong>incomplete testing</strong>
@@ -570,8 +604,8 @@ Figure from Wu <em>et al..</em> (2020) showing the ratio of total estimated infe
 <ul>
 <li>Partition the untested population into:
 <ul>
-<li>moderate to severe symptoms (<span class="math inline">\(S_1\)</span>)</li>
-<li>mild/no COVID-19 symptoms (<span class="math inline">\(S_0\)</span>)</li>
+<li>moderate to severe symptoms (denoted <span class="math inline">\(S_1\)</span>)</li>
+<li>mild/no COVID-19 symptoms (denoted <span class="math inline">\(S_0\)</span>)</li>
 </ul></li>
 <li>event <span class="math inline">\(\text{test}_{+}\)</span> denotes they <em>would</em> test positive if they were tested</li>
 </ul></li>
@@ -608,7 +642,8 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 <ul>
 <li>To estimate <span class="math inline">\(N_{S_1, \text{untested}}\)</span> and <span class="math inline">\(N_{S_0, \text{untested}}\)</span>, we need <span class="math inline">\(\Pr(S_1|\text{untested})\)</span>:</li>
 </ul>
-<p><span class="math display">\[ N_{S_1, \text{untested}} = ( N_{\text{untested}} ) \Pr(S_1|\text{untested}) \]</span> <span class="math display">\[ N_{S_0, \text{untested}} = ( N_{\text{untested}} ) (1-P(S_1|\text{untested})) \]</span></p>
+<p><span class="math display">\[\begin{align*} N_{S_1, \text{untested}} &amp;= ( N_{\text{untested}} ) \Pr(S_1|\text{untested})\\
+N_{S_0, \text{untested}} &amp;= ( N_{\text{untested}} ) (1-P(S_1|\text{untested})) \end{align*}\]</span></p>
 </div>
 <div class="fragment fade-in">
 <div class="mybox">
@@ -644,10 +679,12 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 <h2>Defining Priors for <span class="math inline">\(\Pr(\text{test}_+|S_1,\text{untested})\)</span> and <span class="math inline">\(\Pr(\text{test}_+|S_0, \text{tested})\)</span></h2>
 <ul>
 <li>We only have observed test positivity <span class="math inline">\(\Pr(\text{test}_+|\text{tested})\)</span></li>
-<li>Define:</li>
+<li>Define:
+<ul>
+<li><span class="math inline">\(\alpha = \frac{\Pr(\text{test}_+|S_1,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
+<li><span class="math inline">\(\beta = \frac{\Pr(\text{test}_+|S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
+</ul></li>
 </ul>
-<p><span class="math display">\[\alpha =  \frac{\Pr(\text{test}_+|S_1,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\]</span></p>
-<p><span class="math display">\[\beta =  \frac{\Pr(\text{test}_+|S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\]</span></p>
 <div class="cell">
 
 </div>
@@ -684,10 +721,13 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 </section>
 <section id="informing-beta-and-prs_1textuntested-with-ctis-data" class="slide level2">
 <h2>Informing <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\Pr(S_1|\text{untested})\)</span> with CTIS Data</h2>
+<div class="columns">
+<div class="column" style="width:30%;">
 <ul>
-<li><strong>COVID-19 Trends and Impact Survey:</strong>
+<li><strong>COVID-19 Trends and Impact Survey (CTIS): </strong><span class="citation" data-cites="salomon2021a"><sup><a href="#/references" role="doc-biblioref" onclick="">16</a></sup></span>
 <ul>
 <li>Facebook survey through Delphi group at Carnegie Mellon</li>
+<li>Random sample of users directed to survey</li>
 <li>Includes questions on:
 <ul>
 <li>COVID-19 testing</li>
@@ -695,8 +735,9 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 </ul></li>
 </ul></li>
 </ul>
-<div class="cell">
-
+</div><div class="column" style="width:70%;">
+<p><img src="figure/vary_beta_time.jpeg"></p>
+</div>
 </div>
 <aside class="notes">
 <ul>
@@ -713,7 +754,8 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 <ul>
 <li>Can use COVID-like illness estimate from CTIS
 <ul>
-<li>Estimates percentage of people in a given state experiencing “fever, along with cough, or shortness of breath, or difficulty breathing) or influenza-like illness”</li>
+<li>Estimates percentage of people in a given state experiencing “fever, along with cough, or shortness of breath, or difficulty breathing) or influenza-like illness” Describe how we estimate beta by taking screening test positivity / overall test positivity<br>
+</li>
 </ul></li>
 </ul></li>
 </ul>
@@ -731,21 +773,163 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 </section>
 <section id="motivation-for-bayesian-melding" class="slide level2">
 <h2>Motivation for Bayesian Melding</h2>
+<ul>
+<li>Relate <span class="math inline">\(\theta = \{ \alpha, \beta, \Pr(S_1|\text{untested})\}\)</span> to the asymptomatic rate <span class="math inline">\(P(S_0|\text{untested, test}_+)\)</span> by:</li>
+</ul>
+<div class="mybox2">
+<p><span class="math display">\[M(\theta) = P(S_0|\text{test}_+, \text{untested}) = \dfrac{\beta(1 - P(S_1|\text{untested}))}{\beta(1-P(S_1|\text{untested})) + \alpha P(S_1|\text{untested})}.\]</span></p>
+</div>
+<div class="cell">
+
+</div>
+<p><img width="60%" class="fragment" src="figure/theta_samp.jpeg" style="position:absolute;bottom:5%;"></p>
+<p><img width="60%" class="fragment fade-in" src="figure/theta_samp_specific.jpeg" style="position:absolute;bottom:5%;"></p>
+<p><span class="fragment fade-in" style="float:right;margin-right: 0%;font-size:150%;"><br><br> A 94%<br>asymptomatic rate? </span></p>
+<div class="cell">
+
+</div>
 </section>
-<section id="correction-for-incomplete-testing-1" class="slide level2">
-<h2>Correction for Incomplete Testing</h2>
+<section id="bayesian-melding-application" class="slide level2">
+<h2>Bayesian Melding: Application</h2>
+<div class="columns">
+<div class="column" style="width:30%;">
+<ul>
+<li><span class="math inline">\(P(S_0|+,\text{untested})\)</span> is the <em>asymptomatic rate of infection</em> among the untested population
+<ul>
+<li>Specify prior based on meta-analyses on asymptomatic infection rate</li>
+<li>Many studies on the topic<span class="citation" data-cites="ma2021b sah2021b"><sup><a href="#/references" role="doc-biblioref" onclick="">17</a>,<a href="#/references" role="doc-biblioref" onclick="">18</a></sup></span></li>
+</ul></li>
+</ul>
+</div><div class="column" style="width:70%;">
+<p><img width="60%" src="figure/plot_no_melding.jpeg" style="position:absolute;float:right;margin-right:0;margin-bottom:0;"></p>
+<p><img width="60%" class="fragment fade-in" src="figure/plot_with_melding.jpeg" style="position:absolute;margin-right:0; margin-bottom:0;"></p>
+</div>
+</div>
 </section>
-<section id="county-level-results" class="slide level2">
-<h2>County-Level Results</h2>
+<section id="impact-of-applying-melding" class="slide level2">
+<h2>Impact of Applying Melding</h2>
+<p><img src="figure/suffolk_bayesian_melding.jpeg"></p>
+</section>
+<section id="bayesian-melding-background" class="slide level2">
+<h2>Bayesian Melding: Background</h2>
+<ul>
+<li>Proposed by <em>Poole et al.</em> (2000)<span class="citation" data-cites="poole2000a"><sup><a href="#/references" role="doc-biblioref" onclick="">19</a></sup></span></li>
+<li>Applicable when we have a deterministic model <span class="math inline">\(M:\theta \to \phi\)</span> and (different) information about the distributions of inputs <span class="math inline">\(\theta\)</span> and and output/s <span class="math inline">\(\phi\)</span>
+<ul>
+<li>Two separate prior distributions on <span class="math inline">\(\phi\)</span>:
+<ul>
+<li>Prior on <span class="math inline">\(\phi\)</span></li>
+<li>Induced prior on <span class="math inline">\(\phi\)</span> given by <span class="math inline">\(M(\theta)\)</span></li>
+</ul></li>
+<li>Goal of melding:
+<ul>
+<li>Combine two separate prior distributions on <span class="math inline">\(\phi\)</span> <span class="math inline">\(\to\)</span> generate distribution in accordance with knowledge of distributions of inputs and outputs</li>
+<li>Obtain constrained distributions for <span class="math inline">\(\phi\)</span> and <span class="math inline">\(\theta\)</span></li>
+</ul></li>
+</ul></li>
+</ul>
+<aside class="notes">
+<p>When <span class="math inline">\(M\)</span> is noninvertible, use <a href="#/sampling-importance-resampling-algorithm"> Sampling-Importance-Resampling Algorithm</a> to approximate constrained distributions on <span class="math inline">\(\theta\)</span></p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="implications-of-choices-of-priors" class="slide level2 scrollable">
+<h2>Implications of Choices of Priors</h2>
+<iframe src="https://q-w-a.shinyapps.io/bayesian_melding_priors" data-external="1" width="100%" height="100%">
+</iframe>
+</section>
+<section id="putting-it-all-together" class="slide level2">
+<h2>Putting it all together</h2>
+<p><span style="font-size:80%"> * Considering a single county and a single 2-week interval </span></p>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<p><img src="figure/first_step.jpeg" width="85%" style="margin:0;padding:0"><span class="math inline">\(\Huge \rightarrow\)</span> <img src="figure/melding_step.jpeg" width="85%" style="margin:0;padding:0;"><span class="math inline">\(\Huge \rightarrow\)</span> <img src="figure/correction_step.jpeg" width="60%" style="margin:0;padding:0;width=50%"></p>
+</section></section>
+<section>
+<section id="results" class="title-slide slide level1 center">
+<h1>Results</h1>
+
+</section>
+<section id="county-level-in-massachusetts" class="slide level2 scrollable">
+<h2>County Level in Massachusetts</h2>
+<p><img src="figure/ma_pb_compared_to_covidestim.jpeg"></p>
+</section>
+<section id="summary" class="slide level2">
+<h2>Summary</h2>
+<div class="mybox">
+<p><span style="font-size:120%"></span></p>
+<ul>
+<li>Probabilistic bias analysis for approximating COVID-19 infections:
+<ul>
+<li>Transparent assumptions</li>
+<li>Ease of exploring implications of different incomplete testing scenarios</li>
+<li>Simple presentation of uncertainty in the number of true infections</li>
+<li>Applicable at multiple geographic scales</li>
+</ul></li>
+</ul>
+<p></p>
+</div>
+</section>
+<section id="comparison-to-wastewater-data" class="slide level2">
+<h2>Comparison to Wastewater Data</h2>
+</section></section>
+<section>
+<section id="supplementary-slides" class="title-slide slide level1 center">
+<h1>Supplementary Slides</h1>
+
+</section>
+<section id="positivity-rate-for-hampshire-county" class="slide level2">
+<h2>Positivity Rate for Hampshire County</h2>
+<p><img src="figure/hampshire.jpeg"></p>
 </section>
 <section id="comparison-with-wastewater" class="slide level2">
 <h2>Comparison with Wastewater</h2>
 </section>
-<section id="supplementary-slides" class="slide level2">
-<h2>Supplementary Slides</h2>
-<h3 id="state-level-results">State-level Results</h3>
-<h3 id="details-of-covid-19-trends-and-impact-survey">Details of COVID-19 Trends and Impact Survey</h3>
-<h3 id="choice-of-time-interval">Choice of Time INterval</h3>
+<section id="sampling-importance-resampling-algorithm" class="slide level2">
+<h2>Sampling-Importance-Resampling</h2>
+<p><strong>Fundamental idea</strong></p>
+<div class="mybox">
+<p>Suppose we sample <span class="math inline">\(Y_1, Y_2, \dots, Y_m\)</span> independently and identically distributed with probability density function <span class="math inline">\(g\)</span> and compute the weights <span class="math display">\[w_i =\dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) }\]</span> for some nonnegative function <span class="math inline">\(h\)</span> defined on the support of <span class="math inline">\(Y\)</span>.</p>
+<p>If we sample <span class="math inline">\(Z_1, \dots, Z_r\)</span> from the discrete distribution <span class="math inline">\(Y_1,\dots, Y_m\)</span> such that</p>
+<p><span class="math display">\[P(Z = Y_i) = \dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) } = w_i ,\]</span> then <span class="math inline">\(Z_1, \dots, Z_r\)</span> is approximately a sample with density proportional to <span class="math inline">\(h \cdot g\)</span>.</p>
+</div>
+</section>
+<section id="sampling-importance-resampling-steps" class="slide level2">
+<h2>Sampling-Importance-Resampling Steps</h2>
+<div class="smaller">
+<ol type="1">
+<li>We draw <span class="math inline">\(\theta\)</span> from its prior distribution <span class="math inline">\(f_\theta(\theta)\)</span>.</li>
+<li>For every <span class="math inline">\(\theta_i\)</span> we compute <span class="math inline">\(\phi_i = M(\theta_i)\)</span> to obtain a sample from the induced distribution.</li>
+<li>Since the density <span class="math inline">\(f_\phi^{induced}(\phi)\)</span> is unlikely to have an analytical form, we can compute it via a density approximation such as kernel density estimation.</li>
+<li>Construct weights proportional to the ratio of the prior on <span class="math inline">\(\phi\)</span> evaluated at <span class="math inline">\(M(\theta_i)\)</span> to the induced prior <span class="math inline">\(f_\phi^{induced}\)</span> evaluated at <span class="math inline">\(M(\theta_i)\)</span>. If a likelihood <span class="math inline">\(L_1(\theta)\)</span> for the inputs and a likelihood <span class="math inline">\(L_2(\phi)\)</span> for the outputs is available, the weights are <span class="math display">\[w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}L_1(\theta_i) \; L_2(M(\theta_i)).\]</span> However, in this work, no likelihood is available for the variables of interest, so the likelihood is left out of the weights, leaving us with <span class="math display">\[w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}.\]</span></li>
+<li>Sample <span class="math inline">\(\theta\)</span> and <span class="math inline">\(\phi\)</span> from step (1) with probabilities proportional to the weights from (4).</li>
+</ol>
+</div>
+</section>
+<section id="state-level-results" class="slide level2">
+<h2>State-level Results</h2>
+</section>
+<section id="details-of-covid-19-trends-and-impact-survey" class="slide level2">
+<h2>Details of COVID-19 Trends and Impact Survey</h2>
+</section>
+<section id="choice-of-time-interval" class="slide level2">
+<h2>Choice of Time Interval</h2>
 </section>
 <section id="references" class="slide level2 smaller scrollable">
 <h2>References</h2>
@@ -795,11 +979,24 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 <div id="ref-maclehose2012" class="csl-entry" role="doc-biblioentry">
 <div class="csl-left-margin">15. </div><div class="csl-right-inline">MacLehose RF, Gustafson P. Is <span>Probabilistic Bias Analysis Approximately Bayesian</span>? <em>Epidemiology</em>. 2012;23(1):151-158. Accessed November 28, 2022. <a href="https://www.jstor.org/stable/23214190">https://www.jstor.org/stable/23214190</a></div>
 </div>
+<div id="ref-salomon2021a" class="csl-entry" role="doc-biblioentry">
+<div class="csl-left-margin">16. </div><div class="csl-right-inline">Salomon JA, Reinhart A, Bilinski A, et al. The <span>US COVID-19 Trends</span> and <span>Impact Survey</span>: <span>Continuous</span> real-time measurement of <span>COVID-19</span> symptoms, risks, protective behaviors, testing, and vaccination. <em>Proc Natl Acad Sci USA</em>. 2021;118(51):e2111454118. doi:<a href="https://doi.org/10.1073/pnas.2111454118">10.1073/pnas.2111454118</a></div>
+</div>
+<div id="ref-ma2021b" class="csl-entry" role="doc-biblioentry">
+<div class="csl-left-margin">17. </div><div class="csl-right-inline">Ma Q, Liu J, Liu Q, et al. Global <span>Percentage</span> of <span>Asymptomatic SARS-CoV-2 Infections Among</span> the <span>Tested Population</span> and <span>Individuals With Confirmed COVID-19 Diagnosis</span>: <span>A Systematic Review</span> and <span class="nocase">Meta-analysis</span>. <em>JAMA Netw Open</em>. 2021;4(12):e2137257. doi:<a href="https://doi.org/10.1001/jamanetworkopen.2021.37257">10.1001/jamanetworkopen.2021.37257</a></div>
+</div>
+<div id="ref-sah2021b" class="csl-entry" role="doc-biblioentry">
+<div class="csl-left-margin">18. </div><div class="csl-right-inline">Sah P, Fitzpatrick MC, Zimmer CF, et al. Asymptomatic <span>SARS-CoV-2</span> infection: <span>A</span> systematic review and meta-analysis. <em>Proc Natl Acad Sci USA</em>. 2021;118(34):e2109229118. doi:<a href="https://doi.org/10.1073/pnas.2109229118">10.1073/pnas.2109229118</a></div>
+</div>
+<div id="ref-poole2000a" class="csl-entry" role="doc-biblioentry">
+<div class="csl-left-margin">19. </div><div class="csl-right-inline">Poole D, Raftery AE. Inference for <span>Deterministic Simulation Models</span>: <span>The Bayesian Melding Approach</span>. <em>Journal of the American Statistical Association</em>. 2000;95(452):1244-1255. doi:<a href="https://doi.org/10.1080/01621459.2000.10474324">10.1080/01621459.2000.10474324</a></div>
+</div>
 </div>
 <div class="footer footer-default">
 
 </div>
-</section>
+</section></section>
+
     </div>
   </div>
 

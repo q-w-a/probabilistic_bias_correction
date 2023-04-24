@@ -1,5 +1,5 @@
 ---
-title: "Using Sensitivity Analyses to Approximate Total COVID-19 Infections: <br><span style='font-size:75%;color:#EFF0F1;line-height:30%;margin:0;'>State and County level in the United States,<br> March 2021 - March 2022</span>"
+title: "Using Sensitivity Analyses to Approximate Total COVID-19 Infections: <br><span style='font-size:75%;color:#EFF0F1;line-height:30%;margin:0;'>State and County level in the United States,<br> March 2021 - March 2022</span></span>"
 format:
   revealjs: 
     theme: ../css/presentation.scss
@@ -61,6 +61,25 @@ theme_c <- function(...){
 
 ```
 
+
+##  Outline 
+
+::: {.mybox}
+<span style="font-size:180%;">
+
+(1) Motivation and Previous Work 
+<br>
+(2) Methods
+<br>
+(3) Results
+<br>
+</span>
+
+:::
+
+
+# Motivation and Previous Work
+
 ## Motivation 
 
 :::: {.columns}
@@ -68,8 +87,8 @@ theme_c <- function(...){
 ::: {.column width="40%"}
 * Testing rate varies widely across states
 * Interested in the distinction between:
-  * the positive tests we observe
-  * true number infections that exist
+  * Positive tests we observe
+  * True number infections that exist
 ::: 
 ```{r, eval=FALSE}
 
@@ -114,7 +133,7 @@ dat <- httr::GET(URLencode(
 
 cdc3 <-jsonlite::fromJSON(
       httr::content(dat,
-                    as = "text", 
+                    as = "text", u 
                     encoding = "UTF-8")) %>%
   as_tibble()
 
@@ -240,9 +259,10 @@ ggsave(width=8, height = 6,"./presentation/figure/ma_testing.jpeg", dpi=300)
 
 ```
 
+<img width="55%"  src="./figure/testing_all.jpeg" style="position:absolute;top:20%;right:0;" />
 
 ::: {.column}
-<img width="55%" class = "fragment fade-out" src="./figure/testing_all.jpeg" style="position:absolute;top:20%;right:0;" />
+<img width="55%" class = "fragment" src="./figure/testing_all.jpeg" style="position:absolute;top:20%;right:0;" />
 <img width="55%" class = "fragment current-visible" src="./figure/idaho_testing.jpeg" style="position:absolute;top:20%;right:0;" />
 <img width="55%" class = "fragment current-visible" src="./figure/ma_testing.jpeg" style="position:absolute;top:20%;right:0;" />
 ::: 
@@ -327,7 +347,7 @@ Another model is Covidestim, produced by Chitwood *et al.* This group also makes
 Any approach to estimate the unobserved infections has to make assumptions somewhere. For example, Irons and Raftery note that their parametrization of preferential testing does not allow for changes as access to testing increases, which can limit our ability to extend the model to different time periods, and often these assumptions are in characteristics of the disease (e.g., infectious period, ability to be reinfected) or the reliance on other quantities that are themselves difficult to estimate (the IFR, which relies on seroprevalence data, and may vary throughout the pandemic). 
 ::: 
 
-## *Substantial Underestimation of COVID-19 in the United States* <br> <span style="size:90%;">(Wu *et al.*, 2020)</span>
+## <span style="font-size:80%"> *Substantial Underestimation of COVID-19 in the United States* <br> (Wu *et al.*, 2020) </span>
 
 
 :::: {.columns}
@@ -340,9 +360,9 @@ Any approach to estimate the unobserved infections has to make assumptions somew
 * State-level (one time interval)
 :::
 
-::: {.column width="45%" height="40%"}
+::: {.column width="35%" height="40%"}
 <figure>
-<img src='figure/wu_figure.png' style='float:right;height=50%;'>
+<img src='figure/wu_figure.png' style='float:right;height=27%;'>
 <figcaption style="font-size:50%">Figure from Wu *et al..* (2020) showing the ratio of total estimated infections before April 18 2020 to observed infections, by state. 
 </b></figcaption>
 </figure>
@@ -359,7 +379,7 @@ The paper this work was based on is *Substantial Underestimation of COVID-19 in 
 
 
 
-## Background: Probabilistic Bias Analysis
+## Probabilistic Bias Analysis
 
 * Aim of **quantitative bias analysis:** 
   * Estimate systematic error to give a range of possible values for the true quantity of interest [@lash2009a]
@@ -379,12 +399,28 @@ The paper this work was based on is *Substantial Underestimation of COVID-19 in 
 :::
 
 
-## <span style="text-align:center;font-size:200%;width:60%;float:center;margin-left:40%;"> Outline </span>
+
+## Aims of this Work
+
+<span style="font-size:150%">
+
+* Extend Wu *et. al.*'s analysis to the time period March 2021 to March 2022 
+  * 2-week interval
+* Geographic scale:
+  * State-level across all states
+  * County-level for two
+* Inform priors with available data 
+* Compare results to Covidestim^[@chitwood2022] model
+
+</span>
+
+
+## <span style="text-align:center;font-size:180%;width:60%;"> Methods Outline </span>
 
 
 
 
-<span style="font-size:200%">
+<span style="font-size:150%">
 <center>
 (1) Definition of priors adjusting for **incomplete testing** </center>
 $$\downarrow$$
@@ -404,8 +440,8 @@ $$\downarrow$$
   * $\; \Pr(\text{test}_+|\text{tested}) \neq \Pr(\text{test}_+|\text{untested})$ 
 * Strategy: 
   * Partition the untested population into:
-    * moderate to severe symptoms ($S_1$) 
-    * mild/no COVID-19 symptoms ($S_0$)
+    * moderate to severe symptoms (denoted $S_1$)
+    * mild/no COVID-19 symptoms (denoted $S_0$)
   * event $\text{test}_{+}$ denotes they *would* test positive if they were tested
 :::
 
@@ -437,8 +473,8 @@ N^*_{\text{untested}} &= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untested}
 
 * To estimate $N_{S_1, \text{untested}}$ and $N_{S_0, \text{untested}}$, we need $\Pr(S_1|\text{untested})$:
 
-$$ N_{S_1, \text{untested}} = ( N_{\text{untested}} ) \Pr(S_1|\text{untested}) $$
-$$ N_{S_0, \text{untested}} = ( N_{\text{untested}} ) (1-P(S_1|\text{untested})) $$
+\begin{align*} N_{S_1, \text{untested}} &= ( N_{\text{untested}} ) \Pr(S_1|\text{untested})\\
+N_{S_0, \text{untested}} &= ( N_{\text{untested}} ) (1-P(S_1|\text{untested})) \end{align*}
 
 :::
 
@@ -469,7 +505,7 @@ To summarize, we need the two priors that describe test positivity among the par
 :::
 
 
-##<span style="font-size:80%"> Defining Priors for $\Pr(\text{test}_+|S_1,\text{untested})$ and  $\Pr(\text{test}_+|S_0, \text{tested})$ </span>
+## Defining Priors for $\Pr(\text{test}_+|S_1,\text{untested})$ and  $\Pr(\text{test}_+|S_0, \text{tested})$ 
 
 
 * We only have observed test positivity $\Pr(\text{test}_+|\text{tested})$
@@ -584,7 +620,7 @@ tibble(x = seq(0, 1.3, length = 10^(5)),
   facet_wrap(~name,labeller = as_labeller(TeX, default=label_parsed)) +
   theme_c(axis.text.x = element_text(size = 10),
           axis.title = element_text(size = 14),
-          strip.text = element_text(size = 18, color = "white")) +
+          strip.text = element_text(size = 14, color = "white")) +
   scale_x_continuous(n.breaks = 6, limits=c(0,1)) +
   labs(y= "Density")
 
@@ -599,46 +635,32 @@ ggsave(width=5, height = 3, "./presentation/figure/s_untested.jpeg", dpi=300)
 
 ## Informing $\beta$ and $\Pr(S_1|\text{untested})$ with CTIS Data
 
-* **COVID-19 Trends and Impact Survey:**
+
+:::: {.columns}
+
+::: {.column width="30%"}
+* **COVID-19 Trends and Impact Survey  (CTIS): ** [@salomon2021a]
   * Facebook survey through Delphi group at Carnegie Mellon
+  * Random sample of users directed to survey
   * Includes questions on:
      * COVID-19 testing 
      * Prevalence of COVID-19-like symptoms
+:::
+```{r, eval= FALSE, include=FALSE}
+
+
+###################################################
+# SHOWING HOW PRIOR FOR BETA VARIES OVER TIME 
+###################################################
 
 
 
-```{r}
+source(here('analysis/base_functions/base_functions.R'))
 
-screening <- readRDS(here('data/state_level/screeningpos_all_states.RDS' ))
+screening <- readRDS(here('data/state_level/screeningpos_all_states.RDS' )) %>%
+  filter(geo_value=="ma")
 
 dates <- readRDS(here('data/date_to_biweek.RDS'))
-
-
-ma_example <- screening %>% 
-  filter(geo_value == "ma") %>%
-  select(signal, value, geo_value, date) %>%
-  pivot_wider(values_from = value, names_from = signal) %>%
-  mutate(beta_est  =smoothed_wscreening_tested_positive_14d/ smoothed_wtested_positive_14d ) %>%
-  left_join(dates) %>%
-  group_by(biweek) %>% 
-  arrange(date) %>%
-  slice_max(n=1, order_by=date) %>%
-  ungroup() %>%
-  filter(date == lubridate::ymd("2021-05-06"))
-
-
-emp <- tibble(
-  x = seq(0, 1.3, length = 10^(5)),
-  s_untested = with(prior_params, beta_density(x,
-               mean = ma_example$smoothed_wcli,
-               sd = s_untested_sd,
-               bounds = s_untested_bounds)),
-  beta = s_untested = with(prior_params, beta_density(x,
-               mean = ma_example$beta_est,
-               sd = beta_sd-es,
-               bounds = beta_bounds))) %>%
-  pivot_longer(c(beta,s_untested)) %>%
-  mutate(source = "Centered at Empirical Value")
 
 
 prior_params <- list(
@@ -658,37 +680,181 @@ prior_params <- list(
     p_s0_pos_sd = .1225,
    p_s0_pos_bounds = NA,
   #  p_s0_pos_bounds = c(.25, .7),
-    pre_nsamp = 1e5,
+    pre_nsamp = 1e4,
     post_nsamp = 1e4)
 
 
+smoothing_span <- .33
 
-tibble(x = seq(0, 1.3, length = 10^(5)),
-       s_untested = with(prior_params, beta_density(x,
-                                            mean = s_untested_mean,
-                                            sd = s_untested_sd,
-                                            bounds = s_untested_bounds)),
-       beta = with(prior_params, beta_density(x,
-                                            mean = beta_mean,
-                                            sd = beta_sd,
-                                            bounds = beta_bounds))) %>%
-  pivot_longer(c(alpha,beta)) %>%
-  mutate(source = "Does Not Use ") %>% 
-  ggplot(aes(x=x, y = value)) +
-  geom_ribbon(aes(x=x,ymin=0,ymax=value),
-              fill = "black",
-              alpha = .8) +
-  facet_wrap(~name,labeller = as_labeller(TeX, default=label_parsed)) +
-  theme_c(axis.text.x = element_text(size = 10),
-          axis.title = element_text(size = 14),
-          strip.text = element_text(size = 22, color = "white")) +
-  scale_x_continuous(n.breaks = 6) +
-  labs(y= "Density")
+beta_est <- screening %>% 
+  select(signal, date, value) %>% 
+  pivot_wider(names_from = signal,
+              values_from =value) %>%
+  mutate(beta_estimate = smoothed_wscreening_tested_positive_14d
+         /smoothed_wtested_positive_14d) %>%
+  arrange(date) %>%
+  mutate(index = 1:nrow(.)) %>%
+  ungroup() %>%
+  # fill last weeks (missing from survey data) with rolling mean from previous
+  # 3 observations
+  mutate(rolled_mean_beta = RcppRoll::roll_mean(beta_estimate,
+                                           n = 3,
+                                           na.rm = FALSE, 
+                                           fill = NA),
+         rolled_mean_screening = RcppRoll::roll_mean(
+             smoothed_wscreening_tested_positive_14d,
+                                           n = 3,
+                                           na.rm = FALSE, 
+                                           fill = NA)) %>%
+  fill(c(rolled_mean_beta,
+         rolled_mean_screening),
+         .direction = "down") %>%
+  mutate(beta_estimate = ifelse(is.na(beta_estimate), 
+                                rolled_mean_beta, 
+                                beta_estimate),
+         smoothed_wscreening_tested_positive_14d =
+           ifelse(is.na(smoothed_wscreening_tested_positive_14d),
+                  rolled_mean_screening,
+                  smoothed_wscreening_tested_positive_14d))
+
+smoothed_beta <- loess(beta_estimate~index,
+                       data= beta_est,
+                       span = smoothing_span)
+
+smoothed_screening <- loess(smoothed_wscreening_tested_positive_14d~index,
+                       data= beta_est,
+                       span = smoothing_span)
 
 
+beta_est <- beta_est %>%
+  mutate(beta_estimate_smoothed = predict(smoothed_beta),
+         screening_estimate_smoothed = predict(smoothed_screening)) 
+
+
+
+
+
+
+
+ma_example <- beta_est %>% 
+  left_join(dates) %>%
+  group_by(biweek) %>% 
+  arrange(date) %>%
+  slice_max(n=1, order_by=date)
+  # summarize(beta_est = beta_est[which.max(date)],
+  #           smoothed_wcli = mean(smoothed_wcli, na.rm=TRUE),
+  #           date = max(date)) %>%
+  # filter(date >= "2021-05-06")
+
+ma_all <- ma_example %>%
+  pmap_df(
+          ~{
+   df <- tibble(...)
+    tibble( 
+    date = df$date,
+    x = seq(1e-2,1, length =1e3),
+    beta =  with(prior_params,
+                  beta_density(x,
+                      mean = df$beta_estimate_smoothed,
+                      sd = beta_sd,
+               bounds = s_untested_bounds))
+  )
+  })
+
+
+
+
+ma_all <- ma_all %>%
+  mutate(source = "Centered at Empirical Value")
+
+original <-  map_df(ma_example$date,
+                    ~{
+    tibble( x = seq(1e-2,1, length =1e3),
+            date=.x,
+    beta =  with(prior_params,
+                  beta_density(x,
+                      mean =beta_mean,
+                      sd = beta_sd,
+               bounds = s_untested_bounds)))
+    
+  }) %>%
+    mutate(source = "Not Centered at Empirical Value")
   
 
+
+ma_all %>%
+  bind_rows(original) %>%
+  mutate(date=factor(date), ordered=TRUE) %>%
+    arrange(date) %>%
+  ggplot(aes(y= fct_reorder(date, as.numeric(date),.desc=TRUE), 
+             x =x, height=beta,  fill = source)) +
+  ggridges::geom_ridgeline(alpha = .7) +
+  scale_fill_manual(values = c("#900C3F", "#017ED1")) +
+  labs(title = TeX("Comparing Prior for $\\beta$ to Distribution Centered at Empirical Value"),
+       y = "Density",
+       fill ="",
+       x = TeX("Value of $\\beta$")) +
+  theme_c(legend.position="top",
+          plot.title = element_text(size =18)) +
+  guides(fill=guide_legend(nrow=2)) 
+
+
+ggsave(width=11, height = 9, "./presentation/figure/vary_beta_time.jpeg", dpi=300)
+
+# 
+# emp <- tibble(
+#   s_untested = with(prior_params, 
+#                     sample_beta_density(
+#                       1e3,
+#                       mean = ma_example$smoothed_wcli,
+#                       sd = s_untested_sd,
+#                bounds = s_untested_bounds)),
+#   beta =  with(prior_params, 
+#                sample_beta_density(
+#                  1e3,
+#                  mean = ma_example$beta_est,
+#                  sd = beta_sd,
+#                  bounds = beta_bounds))) %>%
+#   pivot_longer(c(beta,s_untested)) %>%
+#   mutate(source = "Centered at Empirical Value")
+# 
+# 
+# 
+# 
+# tibble( s_untested = with(prior_params, sample_beta_density(1e3,
+#                                             mean = s_untested_mean,
+#                                             sd = s_untested_sd,
+#                                             bounds = s_untested_bounds)),
+#        beta = with(prior_params, sample_beta_density(1e3,
+#                                             mean = beta_mean,
+#                                             sd = beta_sd,
+#                                             bounds = beta_bounds))) %>%
+#   pivot_longer(c(s_untested,beta)) %>%
+#   mutate(source = "Not Centered at Empirical Value") %>% 
+#   bind_rows(emp) %>%
+#   ggplot(aes(x=value, fill = source)) +
+#   geom_density() +
+#   facet_wrap(~name,labeller =labeller(name=TeX, default=label_parsed)) +
+#   theme_c(axis.text.x = element_text(size = 10),
+#           axis.title = element_text(size = 14),
+#           strip.text = element_text(size = 22, color = "white")) +
+#   scale_x_continuous(n.breaks = 6) +
+#   labs(y= "Density")
+
+
+
 ```
+
+
+
+
+::: {.column width="70%"}
+<img src="figure/vary_beta_time.jpeg">
+
+::: 
+
+::::
+
 
 
 
@@ -702,28 +868,560 @@ tibble(x = seq(0, 1.3, length = 10^(5)),
   * Empirical estimate of $P(S_1|untested)$  
     * Can use COVID-like illness estimate from CTIS 
       * Estimates percentage of people in a given state experiencing "fever, along with cough, or shortness of breath, or difficulty breathing) or influenza-like illness"
-
+Describe how we estimate beta by taking screening test positivity / overall test positivity  
 ::: 
       
 ## Motivation for Bayesian Melding
 
+* Relate $\theta = \{ \alpha, \beta, \Pr(S_1|\text{untested})\}$ to the asymptomatic rate $P(S_0|\text{untested, test}_+)$ by:
 
-## Correction for Incomplete Testing 
+
+::: {.mybox2}
+
+ $$M(\theta) = P(S_0|\text{test}_+, \text{untested}) = \dfrac{\beta(1 - P(S_1|\text{untested}))}{\beta(1-P(S_1|\text{untested})) + \alpha P(S_1|\text{untested})}.$$ 
+::: 
 
 
-## County-Level Results
+```{r, eval=FALSE}
 
+theta_wide <- with(prior_params,  
+ theta <- tibble(alpha = sample_gamma_density(pre_nsamp,
+                                                mean = alpha_mean,
+                                                sd = alpha_sd,
+                                                bounds = alpha_bounds),
+                    beta= sample_beta_density(pre_nsamp,
+                                              mean = beta_mean,
+                                              sd = beta_sd,
+                                              bounds = beta_bounds),
+                    P_S_untested = sample_beta_density(pre_nsamp,
+                                                       mean = s_untested_mean,
+                                                       sd = s_untested_sd,
+                                                       bounds = s_untested_bounds)) %>%
+        mutate(phi_induced = est_P_A_testpos(P_S_untested = P_S_untested,
+                                             alpha = alpha,
+                                             beta=beta)))
+
+theta <- theta_wide %>% 
+  pivot_longer(cols=everything()) %>%
+    mutate(name = case_when(
+      name == "alpha" ~"$\\alpha$",
+      name == "beta" ~"$\\beta$",
+      name == "phi_induced" ~ "$M(\\theta) = P(S_0|test+,untested)$",
+      name == "P_S_untested" ~ "$P(S_1|untested)$")
+    ) %>%
+    mutate(name = factor(name,
+                         levels = c(
+                           "$\\alpha$",
+                           "$\\beta$",
+                           "$P(S_1|untested)$",
+                           "$M(\\theta) = P(S_0|test+,untested)$"))) 
+
+plt1 <- theta %>% 
+  filter(name != "$M(\\theta) = P(S_0|test+,untested)$" ) %>%
+  ggplot(aes(x = value)) +
+  geom_density(fill="black", alpha=.7)+
+  facet_wrap(~name,
+             labeller=  as_labeller(TeX, default = label_parsed),
+             ncol = 3) +
+  theme_c()
+
+plt2 <- theta %>% 
+  filter(name == "$M(\\theta) = P(S_0|test+,untested)$" ) %>%
+  ggplot(aes(x = value)) +
+  geom_density(fill="#B28542", alpha=.7)+
+  facet_wrap(~name,
+             labeller=  as_labeller(TeX, default = label_parsed),
+             ncol = 3) +
+  theme_c()
+
+plt1/plt2
+
+ggsave(width=10, height = 6, "./presentation/figure/theta_samp.jpeg", dpi=300)
+
+theta %>% 
+  filter(name != "$M(\\theta) = P(S_0|test+,untested)$" ) %>%
+  ggplot(aes(x = value)) +
+  geom_density(fill="black", alpha=.7)+
+  facet_wrap(~name,
+             labeller=  as_labeller(TeX, default = label_parsed),
+             ncol = 3) +
+  theme_c()
+
+df <- tibble(name = c( "$\\alpha$", "$\\beta$", "$P(S_1|untested)$"),
+             int =c(0.935, .167, .0123)) 
+
+plt1 <- plt1 + geom_vline(aes(xintercept =int),
+                          color ="darkred",
+                          data =df,
+                          linewidth=1.02)
+plt2 <- plt2 + geom_vline(aes(xintercept =0.935),
+                          color ="darkred",
+                          linewidth=1.02)
+
+plt1 / plt2
+
+
+ggsave(width=10, height = 6, "./presentation/figure/theta_samp_specific.jpeg", dpi=300)
+
+
+```
+
+
+
+<img width="60%" class = "fragment" src="figure/theta_samp.jpeg" style="position:absolute;bottom:5%;">
+
+<img width="60%" class = "fragment fade-in" src="figure/theta_samp_specific.jpeg" style="position:absolute;bottom:5%;">
+
+<span class ="fragment fade-in" style = "float:right;margin-right: 0%;font-size:150%;"><br><br> A 94%<br>asymptomatic rate? </span>
+
+
+
+```{r,eval=FALSE}
+
+source(here('analysis/base_functions/get_melded.R'))
+
+
+
+prior_params <- list(
+    alpha_mean = .95,
+    alpha_sd = 0.08,
+    alpha_bounds = NA,
+   # alpha_bounds = c(.8,1),
+    beta_mean = .15,
+    beta_sd =.09,
+    beta_bounds = NA,
+  #  beta_bounds = c(0.002, 0.4),
+    s_untested_mean = .03,
+    s_untested_sd = .0225,
+  #  s_untested_bounds = c(0.0018, Inf),
+    s_untested_bounds = NA,
+    p_s0_pos_mean = .4,
+    p_s0_pos_sd = .1225,
+   p_s0_pos_bounds = NA,
+  #  p_s0_pos_bounds = c(.25, .7),
+    pre_nsamp = 1e6,
+    post_nsamp = 1e5)
+
+
+melded <- do.call(get_melded, prior_params)
+
+
+melded_long <- reformat_melded(melded$post_melding,
+                               melded$pre_melding,
+                               pre_nsamp = prior_params$pre_nsamp,
+                              p_s0_pos_mean = prior_params$p_s0_pos_mean,
+                              p_s0_pos_sd = prior_params$p_s0_pos_sd,
+                              p_s0_pos_bounds = NA)
+
+################################
+# FIRST WITHOUT MELDING 
+################################
+plt1 <- melded_long %>%
+  filter(type == "Before Melding" & name != "$P(S_0|test+,untested)$") %>%
+  ggplot(aes(x=value, fill = type)) +
+  geom_density( alpha = .8, show.legend=FALSE) +
+  facet_wrap(~name, labeller=as_labeller(TeX, default = label_parsed), ncol=4) +
+  theme_c(legend.position = "top") +
+  scale_fill_manual(values = list("Before Melding"= "#5670BF", "Induced" = "#B28542")) +
+  labs(fill = "")
+
+plt2 <-  melded_long  %>%
+  filter(type!="After Melding" & name == "$P(S_0|test+,untested)$") %>%
+  ggplot(aes(x=value, fill = type)) +
+  geom_density( alpha = .8, show.legend=TRUE) +
+  facet_wrap(~name, labeller=as_labeller(TeX, default = label_parsed), ncol=4) +
+  theme_c(legend.position = "right",
+          legend.text = element_text(size = 16)) +
+  scale_fill_manual(values = list("Before Melding"= "#5670BF", "Induced" = "#B28542")) +
+  labs(fill = "") 
+
+cowplot::plot_grid(plt1,plt2, ncol=1, rel_widths = c(1,.9))
+
+ggsave(width=9, height = 8, "./presentation/figure/plot_no_melding.jpeg", dpi=300)
+
+
+################################
+# NOW WITH MELDING 
+################################
+plt1 <- melded_long %>%
+  filter(name != "$P(S_0|test+,untested)$") %>%
+  ggplot(aes(x=value, fill = type)) +
+  geom_density( alpha = .8, show.legend=FALSE) +
+  facet_wrap(~name, labeller=as_labeller(TeX, default = label_parsed), ncol=4) +
+  theme_c(legend.position = "top") +
+    scale_fill_manual(values = c("Before Melding"= "#5670BF", "Induced" = "#B28542",
+                                 "After Melding" = "#418F6A")) +
+  labs(fill = "")
+
+plt2 <-  melded_long  %>%
+  filter( name == "$P(S_0|test+,untested)$") %>%
+  ggplot(aes(x=value, fill = type)) +
+  geom_density( alpha = .8, show.legend=TRUE) +
+  facet_wrap(~name, labeller=as_labeller(TeX, default = label_parsed), ncol=4) +
+  theme_c(legend.position = "right",
+          legend.text = element_text(size = 16)) +
+scale_fill_manual(values = c("Before Melding"= "#5670BF", "Induced" = "#B28542",
+                                 "After Melding" = "#418F6A")) +
+  labs(fill = "") 
+
+cowplot::plot_grid(plt1,plt2, ncol=1, rel_widths = c(1,.9))
+
+ggsave(width=9, height = 8, "./presentation/figure/plot_with_melding.jpeg", dpi=300)
+
+
+
+
+
+
+
+```
+
+
+## Bayesian Melding: Application
+
+:::: {.columns}
+
+::: {.column width="30%"}
+* $P(S_0|+,\text{untested})$ is the *asymptomatic rate of infection* among the untested population 
+  * Specify prior based on meta-analyses on asymptomatic infection rate
+  * Many studies on the topic[@ma2021b; @sah2021b]
+
+
+:::
+
+::: {.column width="70%"}
+<img width="60%" src="figure/plot_no_melding.jpeg" style="position:absolute;float:right;margin-right:0;margin-bottom:0;">
+
+<img width="60%" class = "fragment fade-in" src="figure/plot_with_melding.jpeg" style="position:absolute;margin-right:0; margin-bottom:0;">
+:::
+
+
+::::
+
+## Impact of Applying Melding
+ 
+ <img src="figure/suffolk_bayesian_melding.jpeg">
+
+## Bayesian Melding: Background
+
+
+* Proposed by *Poole et al.* (2000) @poole2000a
+* Applicable when we have a deterministic model $M:\theta \to \phi$ and (different) information about the distributions of inputs $\theta$ and and output/s $\phi$
+  * Two separate prior distributions on $\phi$: 
+    * Prior on $\phi$ 
+    * Induced prior on $\phi$ given by $M(\theta)$
+  * Goal of melding:
+    * Combine two separate prior distributions on $\phi$ $\to$ generate distribution in accordance with knowledge of distributions of inputs and outputs
+    * Obtain constrained distributions for $\phi$ and $\theta$
+
+
+
+::: {.notes}
+When $M$ is noninvertible, use <a href="#/sampling-importance-resampling-algorithm"> Sampling-Importance-Resampling Algorithm</a> to approximate constrained distributions on $\theta$ 
+
+
+
+:::
+
+
+## Implications of Choices of Priors {.scrollable}
+
+<iframe src="https://q-w-a.shinyapps.io/bayesian_melding_priors" data-external="1" width="100%" height="100%" ></iframe>
+
+
+
+## Putting it all together 
+
+<span style="font-size:80%">
+* Considering a single county and a single 2-week interval
+</span>
+
+```{r, eval=FALSE}
+
+ma <- readRDS(here("data/county_level/ma/ma_county_biweekly.RDS"))
+
+example <- ma %>% filter(county_name == "Suffolk" & biweek == 10)
+
+melded <- do.call(get_melded, prior_params)
+
+melded$pre_melding %>% 
+  pivot_longer(everything()) %>%
+  filter(name != "phi_induced") %>%
+  mutate(name = case_when(
+    name == "alpha" ~"$\\alpha$",
+    name =="beta" ~"$\\beta$",
+    name == "phi_induced" ~"$M(\\theta) = P(S_0|test_+,untested)$",
+    name=="P_S_untested" ~ "$P(S_1|untested)$"
+  )) %>%
+  mutate(name = factor(name, levels = c("$\\alpha$",
+                                        "$\\beta$",
+                                        "$P(S_1|untested)$",
+                                        "$M(\\theta) = P(S_0|test_+,untested)$"))) %>%
+  mutate(type = "Before Melding") %>%
+  ggplot(aes(x=value, fill = type)) +
+    geom_density( alpha=.8, show.legend = FALSE) +
+    facet_wrap(~name, labeller=as_labeller(TeX, default=label_parsed),
+               ncol=3) +
+  theme_c(axis.text.x=element_text(size =9),
+          axis.title = element_text(size=14),
+          strip.text = element_text(size = 12, color="white")) +
+  scale_x_continuous(n.breaks=4, limits =c(0,1.2))+
+scale_fill_manual(values = c("Before Melding"= "#5670BF",
+                             "Induced" = "#B28542",
+                                 "After Melding" = "#418F6A"))
+
+ggsave(here('presentation/figure/first_step.jpeg'), width = 10, height = 2)
+  
+
+post <- melded$post_melding %>%  pivot_longer(everything()) %>% mutate(source = "After Melding")
+pre <- melded$pre_melding %>%  pivot_longer(everything()) %>% mutate(source = "Before Melding")
+
+post %>% 
+  bind_rows(pre) %>%
+  filter(name !="P_A_testpos" & name != "phi_induced") %>%
+  mutate(name = case_when(
+    name == "alpha" ~"$\\alpha$",
+    name =="beta" ~"$\\beta$",
+    name == "phi_induced" ~"$M(\\theta) = P(S_0|test_+,untested)$",
+    name=="P_S_untested" ~ "$P(S_1|untested)$"
+  )) %>%
+  mutate(name = factor(name, levels = c("$\\alpha$",
+                                        "$\\beta$",
+                                        "$P(S_1|untested)$",
+                                        "$M(\\theta) = P(S_0|test_+,untested)$"))) %>%
+  ggplot(aes(x=value, fill =source)) +
+    geom_density(alpha=.8) +
+    facet_wrap(~name, labeller=as_labeller(TeX, default=label_parsed),
+               ncol=3)  +
+  theme_c(axis.text.x=element_text(size =9),
+          text =element_text(size=10),
+          axis.title = element_text(size=14),
+          strip.text = element_text(size = 12, color="white"),
+          legend.position="right") +
+  scale_fill_manual(values = c("Before Melding"= "#5670BF", "Induced" = "#B28542",
+                                 "After Melding" = "#418F6A")) +
+  labs(fill = "") +
+  scale_x_continuous(n.breaks=5, limits =c(0,1.2))
+
+ggsave(here('presentation/figure/melding_step.jpeg'), width = 10, height = 2)
+
+                                         
+                                         
+```
+
+
+
+
+```{r, results = 'hide', fig.height=7, eval=FALSE}
+
+library(patchwork)
+
+
+melded <- do.call(get_melded, prior_params)
+
+title <- paste0("Mean of ${\\alpha}$: ")
+
+melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = prior_params$p_s0_pos_mean,
+                                      p_s0_pos_sd = prior_params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = prior_params$p_s0_pos_bounds,
+                                      pre_nsamp = prior_params$pre_nsamp)
+
+plt_melded <- plot_melded(melded_long,
+            pre_nsamp=prior_params$pre_nsamp,
+            post_nsamp=prior_params$post_nsamp) +
+  theme_c() 
+       
+
+
+nsamp <- prior_params$post_nsamp
+dist_Se <- truncdist::rtrunc(n = nsamp,spec = "beta",a = 0.65,b = 1,
+                               shape1 = get_beta_params(mu = 0.8,
+                                                        sd = (0.4)^2)$a,
+                               shape2 = get_beta_params(mu = 0.8,
+                                                        sd = (0.4)^2)$b)
+dist_Sp <- truncdist::rtrunc(n = nsamp,spec = "beta",a = 0.9998,b = 1,
+                               shape1 = get_beta_params(mu = 0.99995,
+                                                        sd = (0.01)^2)$a,
+                               shape2 = get_beta_params(mu = 0.99995,
+                                                        sd = (0.01)^2)$b)
+
+
+title_gg <- ggplot() + 
+  labs(title =latex2exp::TeX("Set of Priors for Probabilistic Bias Analysis", bold = TRUE)) + 
+  theme(plot.title=element_text(face="bold", hjust = .5, size = 14, margin =margin(5,0,2,0)))
+
+
+
+
+plt <- tibble(Sensitivity = dist_Se,
+              Specificity = dist_Sp) %>%
+  pivot_longer(cols=everything()) %>%
+  ggplot(aes(x=value)) +
+  geom_density(fill="black", alpha =.8) +
+  xlim(0,1) +
+  theme_c() +
+  facet_wrap(~name, scales="free_y")
+
+
+
+cowplot::plot_grid(title_gg,
+                   plt_melded, plt, ncol = 1,
+                   rel_heights = c(.05, .7, .25))
+
+# 
+# 
+# theta <- melded$pre_melding %>%
+#   pivot_longer(cols=everything()) %>%
+#   mutate(source = "Before Melding")
+# 
+# 
+# theta_melded <- melded$post_melding %>%
+#   pivot_longer(cols=everything())
+# 
+# melded$post_melding %>%
+#   mutate(x = est_P_A_testpos(P_S_untested, alpha, beta)) %>%
+#   ggplot(aes(x=x)) +
+#   geom_histogram()
+
+
+
+
+```
+
+
+
+```{r,eval=FALSE}
+
+
+all_priors <- process_priors_per_county(
+      priors = melded$post_melding,
+      county_df = example,
+      nsamp = prior_params$post_nsamp)
+
+
+corrected_sample <- all_priors %>%
+      generate_corrected_sample(priors_by_county_df = ., num_reps = 1e4)
+
+
+corrected_sample %>%
+  select(exp_cases) %>%
+  mutate(lower = quantile(exp_cases, 0.025),
+         upper = quantile(exp_cases, 0.975)) %>%
+  ggplot(aes(x=exp_cases)) +
+  geom_histogram(alpha=.8) +
+  geom_vline(aes(xintercept = lower),
+             color = '#DBC37F',
+             linewidth = 1.5) +
+  geom_vline(aes(xintercept = upper),
+             color = '#DBC37F',
+             linewidth = 1.5) +
+  theme_c() +
+  theme(plot.title = element_text(face="bold", hjust = .5, size = 13),
+        axis.title = element_text(size = 13),
+        axis.text.x =element_text(size=6),
+        axis.text.y =element_text(size=6)) +
+  labs(title = "95% Simulation Interval\nfor 2-week Interval Starting May 2021",
+       y = "Frequency",
+       x = "Infections")
+
+
+ggsave(here('presentation/figure/correction_step.jpeg'), width = 7, height = 4)
+
+
+```
+
+<img src="figure/first_step.jpeg" width = "85%" style="margin:0;padding:0">$\Huge \rightarrow$
+<img src="figure/melding_step.jpeg" width="85%" style="margin:0;padding:0;">$\Huge \rightarrow$
+<img src='figure/correction_step.jpeg'  width = "60%" style="margin:0;padding:0;width=50%">
+
+
+# Results
+
+
+
+## County Level in Massachusetts {.scrollable}
+
+<img src="figure/ma_pb_compared_to_covidestim.jpeg">
+
+
+
+
+
+## Summary
+
+
+::: {.mybox}
+<span style="font-size:120%">
+
+
+- Probabilistic bias analysis for approximating COVID-19 infections:
+  - Transparent assumptions 
+  - Ease of exploring implications of different incomplete testing scenarios
+  - Simple presentation of uncertainty in the number of true infections 
+  - Applicable at multiple geographic scales
+  
+</span>
+:::
+
+
+## Comparison to Wastewater Data
+
+
+
+
+
+
+# Supplementary Slides 
+
+
+## Positivity Rate for Hampshire County
+
+<img src="figure/hampshire.jpeg">
 
 
 ## Comparison with Wastewater 
 
-## Supplementary Slides
 
-### State-level Results
+## Sampling-Importance-Resampling {#sampling-importance-resampling-algorithm}
 
-### Details of COVID-19 Trends and Impact Survey
 
-### Choice of Time INterval
+**Fundamental idea**
+
+::: {.mybox}
+Suppose we sample $Y_1, Y_2, \dots, Y_m$ independently and identically distributed with probability density function  $g$ and compute the weights
+$$w_i =\dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) }$$
+for some nonnegative function $h$ defined on the support of $Y$.
+
+If  we sample $Z_1, \dots, Z_r$ from the discrete distribution $Y_1,\dots, Y_m$ such that 
+
+$$P(Z = Y_i) = \dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) } = w_i ,$$
+then $Z_1, \dots, Z_r$ is approximately a sample with density proportional to $h \cdot g$.
+
+:::
+
+
+## Sampling-Importance-Resampling Steps
+
+::: {.smaller}
+
+1. We draw $\theta$ from its prior distribution $f_\theta(\theta)$.
+2. For every $\theta_i$ we compute $\phi_i = M(\theta_i)$ to obtain a sample from the induced distribution.
+3. Since the density $f_\phi^{induced}(\phi)$ is unlikely to have an analytical form, we can compute it via a density approximation such as kernel density estimation.
+4. Construct weights proportional to the ratio of the prior on $\phi$ evaluated at $M(\theta_i)$ to the induced prior $f_\phi^{induced}$ evaluated at $M(\theta_i)$. If a likelihood $L_1(\theta)$ for the inputs and a likelihood $L_2(\phi)$ for the outputs is available, the weights are 
+$$w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}L_1(\theta_i) \; L_2(M(\theta_i)).$$
+However, in this work, no likelihood is available for the variables of interest, so the likelihood is left out of the weights, leaving us with
+$$w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))} \right)^{1-\alpha}.$$
+5. Sample $\theta$ and $\phi$ from step (1) with probabilities proportional to the weights from (4).
+
+:::
+
+## State-level Results
+
+## Details of COVID-19 Trends and Impact Survey
+
+## Choice of Time Interval
 
 
 

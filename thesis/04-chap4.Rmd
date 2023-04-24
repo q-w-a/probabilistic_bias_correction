@@ -104,7 +104,7 @@ As we did in the [Background](#sampling) section, we denote the sample size as $
 
 We begin by sampling $m$ times from the defined prior distributions $\theta = \Big\{ \alpha, \beta, P(S_1| \text{untested})\Big\}$, as we see in Figure \ref{fig:sample-priors}.
 
-```{r, fig.width=7, fig.height=4.5, fig.cap = "\\label{fig:sample-priors}"}
+```{r, fig.width=7, fig.height=3.9, fig.cap = "\\label{fig:sample-priors}"}
 
 ma <- readRDS(here("data/county_level/ma/ma_county_biweekly.RDS"))
 
@@ -194,7 +194,7 @@ dist_Sp <- truncdist::rtrunc(n = nsamp,spec = "beta",a = 0.9998,b = 1,
 
 
 title_gg <- ggplot() + 
-  labs(title =latex2exp::TeX("Set of Priors for Probabilistic Bias Analysis, bold = TRUE")) + 
+  labs(title =latex2exp::TeX("Set of Priors for Probabilistic Bias Analysis", bold = TRUE)) + 
   theme(plot.title=element_text(face="bold", hjust = .5, size = 14, margin =margin(5,0,2,0)))
 
 
@@ -206,6 +206,7 @@ plt <- tibble(Sensitivity = dist_Se,
   ggplot(aes(x=value)) +
   geom_density(fill="black", alpha =.8) +
   theme_c() +
+  xlim(0,1) +
   facet_wrap(~name, scales="free_y")
 
 
@@ -256,7 +257,7 @@ We use these positivity rates to calculate the number of positive tests among th
 \begin{align*}
 N^*_{\text{untested},S_1} &= P( \text{test}_+ | S_1, \text{untested}) ( N_{S_1,\text{untested}}) \\
 &= P( \text{test}_+ | S_1, \text{untested}) (N_{\text{untested}} ) P(S_1|\text{untested})\\
-N^*+*_{\text{untested},S_0} &= P( \text{test}_+ | S_0, \text{untested}) ( N_{S_0,\text{untested}})\\
+N^*_{\text{untested},S_0} &= P( \text{test}_+ | S_0, \text{untested}) ( N_{S_0,\text{untested}})\\
 &== P( \text{test}_+ | S_1, \text{untested}) (N_{\text{untested}} ) (1- P(S_1|\text{untested}))
 \end{align*}
 
@@ -319,7 +320,7 @@ corrected_sample %>%
         axis.title = element_text(size = 16)) +
   labs(title = "Distribution of Bias-Corrected Cases",
        y = "Frequency",
-       x = "Cases")
+       x = "Infections")
 
 
 
@@ -342,7 +343,7 @@ corrected_sample %>%
         axis.title = element_text(size = 16)) +
   labs(title = "95% Simulation Interval",
        y = "Frequency",
-       x = "Cases")
+       x = "Infections")
 
 
 

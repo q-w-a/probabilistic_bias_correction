@@ -331,6 +331,10 @@ ggsave(here::here(paste0('thesis/figure/', state, '_pb_compared_to_covidestim.pd
        height=15, width = 15, dpi=400)
 
 
+ggsave(here::here(paste0('presentation/figure/', state, '_pb_compared_to_covidestim.jpeg')), 
+       height=15, width = 15, dpi=400)
+
+
 
 ```
 
@@ -368,6 +372,12 @@ joined %>%
   
 
 ggsave(here::here('thesis/figure/hampshire.pdf'), 
+       height=8, width = 14, dpi=400)
+
+
+
+
+ggsave(here::here('presentation/figure/hampshire.jpeg'), 
        height=8, width = 14, dpi=400)
 
 ```

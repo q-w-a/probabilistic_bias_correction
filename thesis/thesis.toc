@@ -15,20 +15,21 @@
 \contentsline {subsection}{\numberline {3.3.1}Distribution of \(\theta = \{\alpha , \beta , P(S_1|\text {untested}) \}\)}{20}{subsection.3.3.1}%
 \contentsline {subsection}{\numberline {3.3.2}Direct Prior and Induced Prior Distributions for \(P(S_0|\text {test}_+,\text {untested})\)}{20}{subsection.3.3.2}%
 \contentsline {subsection}{\numberline {3.3.3}Pooling}{21}{subsection.3.3.3}%
-\contentsline {subsection}{\numberline {3.3.4}Derivation of \(M\)}{23}{subsection.3.3.4}%
-\contentsline {section}{\numberline {3.4}Sampling-Importance-Resampling Algorithm}{25}{section.3.4}%
-\contentsline {subsection}{\numberline {3.4.1}Overview}{25}{subsection.3.4.1}%
-\contentsline {subsection}{\numberline {3.4.2}Proof that Algorithm Obtains Approximate Sample from Target Distribution}{25}{subsection.3.4.2}%
-\contentsline {subsubsection}{Example 1:}{28}{section*.19}%
-\contentsline {subsubsection}{Example 2:}{29}{section*.22}%
-\contentsline {subsection}{\numberline {3.4.3}Obtaining Logarithmic Pooled Distribution with the Sampling-Importance-Resampling Algorithm}{30}{subsection.3.4.3}%
-\contentsline {subsection}{\numberline {3.4.4}Implications of the Sample Size and Resample Size}{30}{subsection.3.4.4}%
-\contentsline {section}{\numberline {3.5}LOESS Smoothing}{34}{section.3.5}%
-\contentsline {subsection}{\numberline {3.5.1}Introduction}{34}{subsection.3.5.1}%
-\contentsline {subsection}{\numberline {3.5.2}Fitting the LOESS Curve}{35}{subsection.3.5.2}%
-\contentsline {section}{\numberline {3.6}Kernel Density Estimation}{40}{section.3.6}%
-\contentsline {subsection}{\numberline {3.6.1}Overview}{40}{subsection.3.6.1}%
-\contentsline {subsection}{\numberline {3.6.2}Bounded Density Estimation}{41}{subsection.3.6.2}%
+\contentsline {subsection}{\numberline {3.3.4}Motivating Example}{23}{subsection.3.3.4}%
+\contentsline {subsection}{\numberline {3.3.5}Derivation of \(M\)}{23}{subsection.3.3.5}%
+\contentsline {section}{\numberline {3.4}Sampling-Importance-Resampling Algorithm}{26}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Overview}{26}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Proof that Algorithm Obtains Approximate Sample from Target Distribution}{26}{subsection.3.4.2}%
+\contentsline {subsubsection}{Example 1:}{29}{section*.19}%
+\contentsline {subsubsection}{Example 2:}{30}{section*.22}%
+\contentsline {subsection}{\numberline {3.4.3}Obtaining Logarithmic Pooled Distribution with the Sampling-Importance-Resampling Algorithm}{31}{subsection.3.4.3}%
+\contentsline {subsection}{\numberline {3.4.4}Implications of the Sample Size and Resample Size}{31}{subsection.3.4.4}%
+\contentsline {section}{\numberline {3.5}LOESS Smoothing}{35}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Introduction}{35}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Fitting the LOESS Curve}{36}{subsection.3.5.2}%
+\contentsline {section}{\numberline {3.6}Kernel Density Estimation}{41}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Overview}{41}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}Bounded Density Estimation}{42}{subsection.3.6.2}%
 \contentsline {chapter}{Chapter 4: Definition of Prior Distributions for Bias Parameters}{49}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Background on the Beta Distribution}{49}{section.4.1}%
 \contentsline {section}{\numberline {4.2}Background on the Gamma Distribution}{50}{section.4.2}%
@@ -46,7 +47,7 @@
 \contentsline {subsection}{\numberline {4.8.1}Derivation of Formula for Correction for Diagnostic Test Inaccuracy}{58}{subsection.4.8.1}%
 \contentsline {chapter}{Chapter 5: Details of Implementation}{61}{chapter.5}%
 \contentsline {section}{\numberline {5.1}Version 1: Priors do Not Vary by State or Date}{61}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Version 2-4: Allowing Some Prior Parameters to Vary}{65}{section.5.2}%
+\contentsline {section}{\numberline {5.2}Version 2-4: Allowing Some Prior Parameters to Vary}{64}{section.5.2}%
 \contentsline {chapter}{Chapter 6: Results}{67}{chapter.6}%
 \contentsline {section}{\numberline {6.1}Comparison to the Covidestim Model}{67}{section.6.1}%
 \contentsline {subsection}{\numberline {6.1.1}Overview}{67}{subsection.6.1.1}%
@@ -70,7 +71,7 @@
 \contentsline {section}{\numberline {A.1}Smoothing Span}{95}{section.A.1}%
 \contentsline {subsection}{\numberline {A.1.1}Changing SPAN for LOESS Smoothing of \(\beta \)}{95}{subsection.A.1.1}%
 \contentsline {section}{\numberline {A.2}Changing Mean and Variance for Prior Distribution Specifications}{95}{section.A.2}%
-\contentsline {section}{\numberline {A.3}Relationship Between \((X+Y)_\alpha \) and \(X_{alpha}\) +\(Y_{\alpha }\) for Dependent Variables \(X,Y\)}{95}{section.A.3}%
+\contentsline {section}{\numberline {A.3}Relationship Between \((X+Y)_\alpha \) and \(X_{\alpha }\) +\(Y_{\alpha }\) for Dependent Variables \(X,Y\)}{95}{section.A.3}%
 \contentsline {subsection}{\numberline {A.3.1}Simulation: Bivariate Normal}{95}{subsection.A.3.1}%
 \contentsline {subsection}{\numberline {A.3.2}Derivation of the Distribution of X+Y for Bivariate Normal}{98}{subsection.A.3.2}%
 \contentsline {chapter}{References}{101}{appendix*.67}%
