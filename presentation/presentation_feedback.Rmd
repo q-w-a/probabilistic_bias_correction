@@ -309,6 +309,12 @@ Same denominator, but numerators have different relationship.
 
 ```{r}
 
+
+#############################################
+# FUNCTIONS TO COMPUTE PROBABILITIES
+#############################################
+
+
 TESTED <- .05
 UNTESTED <- .9
 
@@ -328,14 +334,12 @@ POS_GIVEN_UNTESTED_A <- .05
 # note s_given_untested must be < s/tested
 
 
-
-
 # get P(S|untested) from P(S), P(tested), P(S|tested)
 get_s_given_untested <- function(s, tested, s_given_tested) {
   (s - s_given_tested * tested)/(1-tested)
 }
 
-S_GIVEN_UNTESTED <- get_s_given_untested(s, tested, s_given_tested)
+S_GIVEN_UNTESTED <- get_s_given_untested(S, TESTED, S_GIVEN_TESTED)
 
 # get P(test +|untested) from P(test +), P(tested), P(test + | tested)
 get_pos_given_untested <- function(pos, 
@@ -352,6 +356,13 @@ get_pos_given_s_untested <- function(pos_given_untested, pos_given_untested_a, s
 }
 
 
+
+
+```
+
+```{r}
+
+
 # get P(S|untested) 
 get_pos_given_s_untested(pos_given_untested=POS_GIVEN_UNTESTED,
                          pos_given_untested_a = POS_GIVEN_UNTESTED_A, 
@@ -361,7 +372,7 @@ get_pos_given_s_untested(pos_given_untested=POS_GIVEN_UNTESTED,
 
 
 TESTED <- .05
-UNTESTED <- .9
+UNTESTED <- .95
 POS_GIVEN_TESTED <- .09
 POS <- .08
 S <- .03
@@ -588,9 +599,12 @@ This might be plausible if a contagious but mild variant of the virus were circu
 reps <- 100
 TESTED <- .02
 S_GIVEN_TESTED <- .8
+POS <- .08
+
+
 
 sim_start <- tibble(tested = rep(TESTED, reps),
-       untested = rep(UNTESTED, reps), 
+       untested = 1-tested, 
        pos = rep(POS,reps),
        s= seq(.04,.01, length=reps),
        s_given_tested = rep(S_GIVEN_TESTED, reps ),
@@ -632,12 +646,12 @@ sim_start %>%
           axis.title =element_text(size=16)) +
   labs(x = TeX("$\\alpha$"), 
        y= TeX("$\\beta$"),
-       color = TeX("$P(test_+|tested)$"),
-       title = TeX("$P(S_1)$, $P(test_+|tested)$, $P(test_+|tested,S_0)$ All Increasing")) +
+       color = TeX("$Pr(test_+|tested)$"),
+       title = TeX("$Pr(S_1)$, $Pr(test_+|tested)$, $Pr(test_+|untested,S_0)$ All Increasing")) +
   viridis::scale_color_viridis(option="mako", direction=-1, end=.95) 
 
 
-ggsave(here('presentation/figure/alpha_beta_negative_corr.pdf'))
+ggsave(here('presentation/figure/alpha_beta_negative_corr.jpeg'),width=10,height=5.5)
 
 ```
 
@@ -718,13 +732,13 @@ sim_start %>%
           axis.title =element_text(size=16)) +
   labs(x = TeX("$\\alpha$"), 
        y= TeX("$\\beta$"),
-       color = TeX("$P(test_+|tested)$"),
-       title = TeX("$P(S_1)$ and $P(test_+|tested)$ are Increasing, but $P(test_+|tested,S_0)$ is Decreasing")) +
+       color = TeX("$Pr(test_+|tested)$"),
+       title = TeX("$Pr(S_1)$ and $Pr(test_+|tested)$ are Increasing, but $Pr(test_+|untested,S_0)$ is Decreasing")) +
   viridis::scale_color_viridis(option="mako", direction=-1, end=.95) 
 
 
 
-ggsave(here('presentation/figure/alpha_beta_positive_corr.pdf'))
+ggsave(here('presentation/figure/alpha_beta_positive_corr.jpeg'),width=10,height=5.5)
 
 
 

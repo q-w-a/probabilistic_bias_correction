@@ -388,6 +388,7 @@ PCR test results at the state-level from healthdata.gov endpoint [here](https://
 
 ```{r, eval=TRUE}
 
+
 dates <- readRDS(paste0(here::here(),
                  "/data/date_to_biweek.RDS"))
 
@@ -474,6 +475,145 @@ cdc_pos %>%
                  "/data/state_level/tests_biweekly_all_states.RDS"))
 
 ```
+
+
+# State-level Cases (JHU)
+
+```{r}
+
+
+jhu <- read_csv('https://raw.githubusercontent.com/govex/COVID-19/master/data_tables/testing_data/time_series_covid19_US.csv')
+
+
+
+jhu %>%
+  mutate(date=as_date(date, format= "%m/%d/%Y")) %>%
+  filter(date >= "2021-03-03" & date <= "2022-03-02") %>% 
+  left_join(dates) %>%
+  arrange(date) %>%
+ # mutate(across(where(is.numeric), abs)) %>%
+  mutate(people_viral_positive = people_viral_positive - lag(people_viral_positive, n = 1),
+         people_viral_total = people_viral_total - lag(people_viral_total, n = 1)) %>%
+#  filter(people_viral_positive < people_viral_total) %>%
+  group_by(biweek,state) %>%
+   # mutate(across(where(is.numeric), abs)) %>%
+  mutate(across(c(people_viral_positive,people_viral_total), sum, na.rm=TRUE)) %>%
+  select(date, biweek, people_viral_positive, people_viral_total, state) %>%
+  group_by(state) %>%
+  summarize(n=n_distinct(biweek))
+
+
+
+dates <- readRDS(here('data/date_to_biweek.RDS'))
+
+library(slider)
+
+state_testing <- jhu %>%
+  mutate(date=as_date(date, format= "%m/%d/%Y")) %>%
+  filter(date >= "2021-02-26" & date <= "2022-02-25") %>% 
+  group_by(state) %>%
+  arrange(state, date) %>%
+ # mutate(across(where(is.numeric), abs)) %>%
+  mutate(people_viral_positive = people_viral_positive - lag(people_viral_positive, n = 1, order_by=date),
+         people_viral_total = people_viral_total - lag(people_viral_total, n = 1,  order_by=date),
+         ) %>%
+  mutate(people_viral_positive = ifelse(people_viral_positive < 0, NA,people_viral_positive),
+         people_viral_total = ifelse(people_viral_total < 0, NA,people_viral_total), 
+  people_viral_positive_roll = slide_dbl(people_viral_positive, mean, .before=4, .after =4),
+         people_viral_total_roll = slide_dbl(people_viral_total, mean, .before=4, .after =4),
+         #  people_viral_positive = ifelse(is.na(people_viral_positive) | people_viral_positive==0,
+         #                                 people_viral_positive_roll, 
+         #                                 people_viral_positive),
+         # people_viral_total = ifelse(is.na(people_viral_total) | people_viral_total==0,
+         #                             people_viral_total_roll,
+         #                             people_viral_total)
+  ) %>%
+  left_join(dates) %>%
+#  filter(people_viral_positive < people_viral_total) %>%
+  group_by(biweek,state) %>%
+   # mutate(across(where(is.numeric), abs)) %>%
+  mutate(across(c(people_viral_positive,people_viral_total),  function(x) sum(x, na.rm = FALSE))) %>%
+  mutate(has_both = !is.na(people_viral_positive) & !is.na(people_viral_total)) %>%
+  select(biweek, people_viral_positive, people_viral_total, state, has_both)  %>% 
+  distinct() %>%
+  ungroup()
+
+state_testing %>%
+  filter(has_both) %>%
+  filter(biweek >=6)
+
+
+states_keep <- state_testing %>%
+  mutate(has_both = people_viral_positive > 0 & people_viral_total >0) %>%
+  mutate(people_viral_total = ifelse(people_viral_total ==0, NA,  people_viral_total ),
+         people_viral_total = ifelse(people_viral_positive ==0, NA,  people_viral_total )) %>%
+  filter(has_both) %>%
+  group_by(state)%>%
+  summarize(n=n_distinct(biweek)) %>%
+  filter(n >20)
+
+state_testing %>%
+  filter(biweek <28) %>%
+  ggplot(aes(x=biweek, y = people_viral_positive/people_viral_total)) +
+  geom_line() +
+  facet_wrap(~state)
+
+
+state_testing <- state_testing %>%
+  group_by(state) %>%
+  arrange(state,biweek) %>%
+  mutate(pos_roll =slide_dbl(people_viral_positive, mean, .before=3, .after =2),
+         total_roll =slide_dbl(people_viral_total, mean, .before=3, .after =2) ) %>%
+  ungroup() %>%
+  mutate(people_viral_total = ifelse(people_viral_total < people_viral_positive,
+                                     total_roll,
+                                     people_viral_total),
+         people_viral_positive = ifelse(people_viral_total < people_viral_positive,
+                                     pos_roll,
+                                     people_viral_positive))  %>%
+#  filter(people_viral_total < people_viral_positive) %>%
+  mutate(people_viral_total = ifelse(people_viral_total < people_viral_positive,
+                                     NA,
+                                     people_viral_total),
+         people_viral_positive = ifelse(people_viral_total < people_viral_positive,
+                                     NA,
+                                     people_viral_positive) ) %>%
+  select(state, positive = people_viral_positive, total = people_viral_total, biweek) %>%
+  mutate(posrate= positive/total) %>%
+  filter(!is.na(positive) & !is.na(total) & !is.na(posrate)) %>%
+  filter(state %in% states_keep$state) %>%
+  left_join(state_pop)
+
+state_all_biweeks <- state_testing %>% select(biweek, positive,state,population) %>%
+  pivot_wider(names_from = biweek, values_from=positive) %>%
+  pivot_longer(cols =3:ncol(.), values_to="positive", names_to="biweek") %>%
+  mutate(biweek=as.integer(biweek)) %>%
+  select(-positive)
+  
+state_testing <- state_testing %>%
+  right_join(state_all_biweeks) %>%
+  group_by(state) %>%
+  arrange(biweek) %>%
+  mutate(pos_roll =slide_dbl(positive, mean, na.rm=TRUE, .before=2, .after =2),
+         total_roll =slide_dbl(total, mean, na.rm = TRUE, .before=2, .after =2)) %>%
+  mutate(positive= ifelse(is.na(positive), pos_roll, positive),
+         total = ifelse(is.na(total), total_roll, total)) %>%
+  mutate(posrate=positive/total)
+
+state_testing %>%
+  filter(!state %in% c("MP", "AS", "GU", "PR", "VI", "MH")) %>%
+   saveRDS(paste0(here::here(), 
+                 "/data/state_level/tests_biweekly_all_states_JHU.RDS"))
+
+
+
+
+
+
+
+```
+
+
 
 # County-level Cases
 

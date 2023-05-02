@@ -659,7 +659,7 @@ Then, we take the total positives among the untested population as
 $$N^*_{\text{untested}} = N^*_{\text{untested},S_1} + N^*_{\text{untested},S_0}$$
 and finally we add the number of observed positives, $N^*_{tested}$ to obtain the estimate for the positives among the total population, as 
 
-$$N^* = N^*_{\text{untested}} +N^*_{\text{untested}}.$$
+$$N^* = N^*_{\text{tested}} +N^*_{\text{untested}}.$$
 
 
 

@@ -374,7 +374,7 @@
 <li>Interested in the distinction between:
 <ul>
 <li>Positive tests we observe</li>
-<li>True number infections that exist</li>
+<li>True number of infections that exist</li>
 </ul></li>
 </ul>
 </div><div class="cell">
@@ -390,8 +390,7 @@
 <aside class="notes">
 <p>Throughout the pandemic, the number of state-wide or county-wide positive tests have been something really concrete that we can turn to to better understand the prevalence of COVID-19 in a given area at a particular point in time.</p>
 <p>That said, these numbers are a direct result of access to tests (and willingness to test), which varies widely across states, which we see in the figure here.</p>
-<p>In particular, my curiosity about the impact of how incomplete testing affects our understanding of the pandemic was motivated by spending a substantial portion of the pandemic in Idaho, where views of the pandemic were pretty mixed, and testing not particularly accessible. Relative to other states, the testing rate was pretty low (switch image). I was really interested in this idea that the numbers of positive tests presented on public dashboards or discussed in the news were a direct result of testing access and testing behavior, and I really wondered how we could better think about and display the genuine uncertainty about those values.</p>
-<p>I also thought about this when I’d hear comparisons among case burdens among states, because when we have such differences in testing, for instance, here in Massachusetts the testing is among the highest of states in the U.S. (switch image), it will impact the difference between the infections we observe and the number truly infected.</p>
+<p>In particular, my curiosity about the impact of how incomplete testing affects our understanding of the pandemic was motivated by spending a much of the height of the pandemic in Idaho, where views of the pandemic were pretty mixed, and testing not very accessible. Relative to other states, the testing rate was pretty low (switch image). As I talked to peers across the U.S., in particular in Massachusetts, I became really interested in this distinction between the positive tests we observe and the true number of infections that may exist, and how that was changing our perception of the COVID-19 burden throughout the pandemic.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -419,8 +418,9 @@
 </ul></li>
 </ul>
 <aside class="notes">
-<p>An important question to think about in the context is – why do we want to know/estimate the number of true infections, or why it is not enough to just look at hospitalizations or deaths, given these are indicators of the impacts we care most about. However, there are several reasons that thinking about the true infections is important.</p>
+<p>An important question to think about in the context is – why do we want to know/estimate the number of true infections when hospitalizations or deaths are reported more reliably. However, there are several reasons that thinking about the true infections is important.</p>
 <p>For one, …</p>
+<p>We can imagine in some of these analyses how the unobserved infections could produce bias in the sense that if we’re looking at the effect of a policy and look at observed tests alone, differences in the proportion of infections we’re detecting.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -562,7 +562,7 @@ Figure from Wu <em>et al..</em> (2020) showing the ratio of total estimated infe
 <ul>
 <li>Recall:
 <ul>
-<li>Wu <em>et. al.</em> estimated infections as of mid-April 2020</li>
+<li>Wu <em>et al.</em> estimated infections as of mid-April 2020</li>
 <li>State-level</li>
 </ul></li>
 <li>Here:
@@ -631,9 +631,9 @@ Figure from Wu <em>et al..</em> (2020) showing the ratio of total estimated infe
 <li>Event <span class="math inline">\(\text{test}_{+}\)</span> denotes they <em>would</em> test positive if they were tested </li>
 </ul></li>
 </ul>
-</div><div class="column" style="width:50%;">
-<div style="width:45%">
-<p><img src="./figure/symptom_diagram.png" style="position:absolute;text-align:right;float:right;width:60%;margin-left:10%;"></p>
+</div><div class="column" style="width:60%;">
+<div style="width:90%;float:right;">
+<p><img src="./figure/symptom_diagram.png" style="position:absolute;text-align:right;float:right;width:50%;margin-left:10%;"></p>
 </div>
 </div>
 </div>
@@ -816,7 +816,7 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 <ul>
 <li><p>Informing <span class="math inline">\(\Pr(S_1|\text{untested})\)</span></p>
 <ul>
-<li>Percentage of population experiencing COVID-19-like symptoms</li>
+<li>Percentage of the population experiencing COVID-19-like symptoms</li>
 </ul>
 <p><br></p></li>
 <li><p>Informing <span class="math inline">\(\beta\)</span></p>
@@ -833,6 +833,12 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 </section>
 <section id="example-informing-beta-with-ctis-data" class="slide level2">
 <h2>Example: Informing <span class="math inline">\(\beta\)</span> with CTIS Data</h2>
+<div class="defbox" style="position:absolute;margin-left:75%;float:right;width=100%;">
+<p><strong>Definitions:</strong></p>
+<ul>
+<li><span class="math inline">\(\beta = \dfrac{\Pr(\text{test}_+ | \; S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
+</ul>
+</div>
 <ul>
 <li>Allows <span class="math inline">\(\beta\)</span> to vary over time</li>
 <li>Center distribution at smoothed survey estimate for that 2-week interval</li>
@@ -872,13 +878,13 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
           display:block!important;
       }</style></aside>
 </section>
-<section id="incorporating-information-on-the-asymptomatic-rate" class="slide level2">
+<section id="incorporating-information-on-the-asymptomatic-rate" class="slide level2 asymp">
 <h2>Incorporating Information on the Asymptomatic Rate</h2>
 <div class="defbox" style="position:absolute;margin-left:75%;float:right;width=100%;">
 <p><strong>Definitions:</strong></p>
 <ul>
-<li><span class="math inline">\(\alpha = \dfrac{\Pr(\text{test}_+|\; S_1,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
-<li><span class="math inline">\(\beta = \dfrac{\Pr(\text{test}_+ | \; S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
+<li><span class="math inline">\(\alpha = \frac{\Pr(\text{test}_+|\; S_1,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
+<li><span class="math inline">\(\beta = \frac{\Pr(\text{test}_+ | \; S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
 <li><span class="math inline">\(S_1\)</span> is symptomatic</li>
 </ul>
 </div>
@@ -888,7 +894,10 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 <li>Relate <span class="math inline">\(\theta = \{ \alpha, \beta, \Pr(S_1|\text{untested})\}\)</span> to the asymptomatic rate <span class="math inline">\(\Pr(S_0|\text{untested, test}_+)\)</span> by function <span class="math inline">\(M\)</span>:</li>
 </ul>
 <div class="mybox2" style="margin-top:4%;margin-bottom:4%;">
-<p><span class="math display">\[\Pr(S_0|\text{test}_+, \text{untested}) =M(\theta) = \dfrac{\beta(1 - \Pr(S_1|\text{untested}))}{\beta(1-\Pr(S_1|\text{untested})) + \alpha \Pr(S_1|\text{untested})}.\]</span></p>
+<p><span class="math display">\[\begin{align*}
+\Pr(S_0|\text{test}_+, \text{untested}) &amp;=M(\theta) \\
+&amp;= \frac{\beta(1 - \Pr(S_1|\text{untested}))}{\beta(1-\Pr(S_1|\text{untested})) + \alpha \Pr(S_1|\text{untested})}.
+\end{align*}\]</span></p>
 </div>
 <ul>
 <li>2 distinct priors for <span class="math inline">\(P(S_0|\text{test}_+, \text{untested})\)</span>:
@@ -901,7 +910,7 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 </section>
 <section id="bayesian-melding-background" class="slide level2">
 <h2>Bayesian Melding: Background</h2>
-<div style="line-height:102%">
+<div style="line-height:105%">
 <ul>
 <li>Proposed by <em>Poole et al.</em> (2000)<span class="citation" data-cites="poole2000a"><sup><a href="#/references" role="doc-biblioref" onclick="">17</a></sup></span></li>
 <li>Applicable when we have a deterministic model <span class="math inline">\(M:\theta \to \phi\)</span> and (different) information about the distributions of inputs <span class="math inline">\(\theta\)</span> and and output/s <span class="math inline">\(\phi\)</span>
@@ -986,6 +995,14 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 
 </div>
 <!-- <iframe src="https://q-w-a.shinyapps.io/bayesian_melding_priors" data-external="1" width="100%" height="100%" ></iframe> -->
+<div class="defbox" style="position:absolute;margin-left:75%;float:right;width=100%;">
+<p><strong>Definitions:</strong></p>
+<ul>
+<li><span class="math inline">\(\alpha = \dfrac{\Pr(\text{test}_+|\; S_1,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
+<li><span class="math inline">\(\beta = \dfrac{\Pr(\text{test}_+ | \; S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
+<li><span class="math inline">\(S_1\)</span> is symptomatic</li>
+</ul>
+</div>
 <p><img src="./figure/irregular_melding_demo.png"></p>
 </section>
 <section id="putting-it-all-together-one-county-one-time-interval" class="slide level2 scrollable">
@@ -1005,23 +1022,26 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 <section>
 <section id="results" class="title-slide slide level1 center">
 <h1>Results</h1>
-<div class="cell">
 
-</div>
-<div class="cell">
-
-</div>
 </section>
 <section id="county-level-in-massachusetts" class="slide level2">
 <h2>County Level in Massachusetts</h2>
 <p><img src="figure/ma_pb_compared_to_observed_3_counties.jpeg"></p>
 </section>
-<section id="summarizing-concordance-with-covidestim" class="slide level2">
-<h2>Summarizing Concordance with Covidestim</h2>
+<section id="summarizing-concordance-with-covidestim-county-level" class="slide level2">
+<h2>Summarizing Concordance with Covidestim (County Level)</h2>
 <ul>
-<li>Proportion of medians contained in the probabilistic bias interval – Massachusetts and Michigan</li>
+<li>Proportion where Covidestim median was contained in the probabilistic bias interval – Massachusetts and Michigan</li>
 </ul>
 <p><img src="figure/prop_contained.jpeg" width="90%"></p>
+</section>
+<section id="state-level-results-michigan-and-massachusetts" class="slide level2">
+<h2>State-level Results: Michigan and Massachusetts</h2>
+<p><img src="figure/state_level_mi_ma.jpeg"></p>
+</section>
+<section id="summarizing-concordance-with-covidestim-state-level" class="slide level2">
+<h2>Summarizing Concordance with Covidestim (State Level)</h2>
+<p><img src="figure/covidestim_concordance_state.jpeg"></p>
 </section>
 <section id="summary" class="slide level2">
 <h2>Summary</h2>
@@ -1059,27 +1079,35 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 <h1>Supplementary Slides</h1>
 
 </section>
+<section id="why-effect-of-melding-on-alpha-is-small" class="slide level2">
+<h2>Why Effect of Melding on <span class="math inline">\(\alpha\)</span> is Small</h2>
+<div class="cell">
+
+</div>
+<div class="mybox2" style="margin-top:1%;margin-bottom:1%;">
+<p><span class="math display">\[\Pr(S_0|\text{test}_+, \text{untested}) =M(\theta) = \frac{\beta(1 - \Pr(S_1|\text{untested}))}{\beta(1-\Pr(S_1|\text{untested})) + \alpha \Pr(S_1|\text{untested})}.\]</span></p>
+</div>
+<p><img src="figure/alpha_little_change.jpeg"></p>
+</section>
+<section id="comparison-to-wastewater-data-suffolk" class="slide level2">
+<h2>Comparison to Wastewater Data (Suffolk)</h2>
+<p><img src="figure/suffolk_wastewater.jpeg"></p>
+</section>
+<section id="county-level-concordance-with-covidestim" class="slide level2">
+<h2>County Level Concordance with Covidestim</h2>
+<p><img src="figure/covidestim_above_below_by_county_ma.jpeg"></p>
+</section>
 <section id="comparison-to-wastewater-data-summary" class="slide level2">
 <h2>Comparison to Wastewater Data (Summary)</h2>
 <p><img src="figure/correlation_observed_pb.jpeg"></p>
-</section>
-<section id="comparison-to-wastewater-data-by-county" class="slide level2">
-<h2>Comparison to Wastewater Data (By County)</h2>
 </section>
 <section id="county-level-for-all-counties-in-massachusetts" class="slide level2 scrollable">
 <h2>County Level for All Counties in Massachusetts</h2>
 <p><img src="figure/ma_pb_compared_to_covidestim.jpeg"></p>
 </section>
-<section id="concordance-with-covidestim" class="slide level2">
-<h2>Concordance with Covidestim</h2>
-<p><img src="figure/covidestim_above_below_by_county_ma.jpeg"></p>
-</section>
-<section id="county-level-for-all-counties-in-michigan" class="slide level2 scrollable">
-<h2>County Level for All Counties in Michigan</h2>
-</section>
-<section id="abovebelow-for-most-concordant-version-ma" class="slide level2">
-<h2>Above/Below for Most Concordant Version (MA)</h2>
-<p><img src="figure/covidestim_above_below_by_county_ma.jpeg"></p>
+<section id="state-level-results-different-data-source" class="slide level2">
+<h2>State-level Results: Different Data Source</h2>
+<p><img src="figure/covidestim_concordance_state_jhu.jpeg"></p>
 </section>
 <section id="positivity-rate-for-hampshire-county" class="slide level2">
 <h2>Positivity Rate for Hampshire County</h2>
@@ -1106,18 +1134,70 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 </ol>
 </div>
 </section>
-<section id="state-level-results" class="slide level2">
-<h2>State-level Results</h2>
-</section>
-<section id="details-of-covid-19-trends-and-impact-survey" class="slide level2">
-<h2>Details of COVID-19 Trends and Impact Survey</h2>
-</section>
-<section id="choice-of-time-interval" class="slide level2">
-<h2>Choice of Time Interval</h2>
-</section>
 <section id="correlation-between-alpha-and-beta" class="slide level2">
 <h2>Correlation Between <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span></h2>
+<ul>
+<li>Relationship between <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>:
+<ul>
+<li>Depends on several other probabilities, including <span class="math inline">\(\Pr(\text{tested})\)</span>, <span class="math inline">\(\Pr(S_1)\)</span>, and <span class="math inline">\(\Pr(S_1|\text{tested})\)</span></li>
+<li>Differs depending on how these other probabilities are changing</li>
+</ul></li>
+</ul>
+<p><img src="figure/alpha_beta_negative_corr.jpeg" style="float:right" width="50%"></p>
+<p><img src="figure/alpha_beta_positive_corr.jpeg" style="float:right" width="50%"></p>
 </section>
+<section id="shiny-app-to-explore-implications-of-changing-priors" class="slide level2 scrollable">
+<h2>Shiny App to Explore Implications of Changing Priors</h2>
+<iframe src="https://q-w-a.shinyapps.io/bayesian_melding_priors" data-external="1" width="100%" height="100%">
+</iframe>
+</section>
+<section id="comparison-to-covidestim" class="slide level2">
+<h2>Comparison to Covidestim</h2>
+<div class="cell">
+<style type="text/css">
+#color-slide, 
+#comparison-to-covidestim li {
+ font-size: 80% !important;
+// line-height: 97%;
+ padding: .008%;
+}
+</style>
+</div>
+<p>:::: {.columns} ::: {.column width=“50%”}</p>
+<ul>
+<li><a href="https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1010465">Covidestim</a><sup>1</sup> is a Bayesian evidence synthesis model that estimates several quantities
+<ul>
+<li>Includes incident infections at the county and state-level, <span class="math inline">\(R_t\)</span></li>
+</ul></li>
+<li>Model:
+<ul>
+<li>Mechanistic model with states for asymptomatic/pre-symptomatic infection, symptomatic but mild infection, severe COVID-19 presentations, and death</li>
+<li>Allowed fraction diagnosed to vary by time</li>
+<li>Probabilities of transitioning from asymptomatic <span class="math inline">\(\implies\)</span> symptomatic and symptomatic <span class="math inline">\(\implies\)</span> severe are time invariant</li>
+<li>Probability of transitioning from severe to death varied by time
+<ul>
+<li>Informed by age-specific infection fatality rates</li>
+<li>Adjusted for a given state or county based on age distributions and the prevalence of risk factors for COVID-19</li>
+</ul></li>
+<li>Assigned distributions for reporting delays of cases and deaths</li>
+<li>Negative binomial likelihood functions to fit model to observed case and death data</li>
+</ul></li>
+</ul>
+<p>:::</p>
+<p>::: {.column width=“49%”}</p>
+<div class="r-stack">
+<img data-src="./figure/covidestim_fig1.PNG" class="fragment" style="height:60.0%">
+
+</div>
+<aside><ol class="aside-footnotes"><li id="fn1"><p>Chitwood, M. H., Russi, M., Gunasekera, K., Havumaki, J., Klaassen, F., Pitzer, V. E., Salomon, J. A., Swartwood, N. A., Warren, J. L., Weinberger, D. M., Cohen, T., &amp; Menzies, N. A. (2022). Reconstructing the course of the COVID-19 epidemic over 2020 for US states and counties: Results of a Bayesian evidence synthesis model. PLOS Computational Biology, 18(8), e1010465. https://doi.org/10.1371/journal.pcbi.1010465</p></li></ol></aside></section>
+<section id="adjustment-for-sensitivity-and-specificity" class="slide level2">
+<h2>Adjustment for Sensitivity and Specificity</h2>
+<ul>
+<li><span class="math inline">\(S_e\)</span> = test sensitivity = the probability an individual tests positive if they have COVID-19 (probability of a true positive), that is, <span class="math inline">\(P(\text{test}_+ | +)\)</span>.</li>
+<li><span class="math inline">\(S_p\)</span> = test specificity = probability an individual tests negative if they do not have COVID-19 (probability of a true negative), that is, <span class="math inline">\(P(\text{test}_- |-)\)</span>.</li>
+</ul>
+<p>Then, given that we have the number <span class="math inline">\(N^*\)</span> who (would) tested positive, <span class="math inline">\(S_p\)</span>, the sensitivity <span class="math inline">\(S_e\)</span>, and the total population size <span class="math inline">\(N\)</span>, we can calculate the true positives with the formula<sup>1</sup>: <span class="math display">\[\text{Number Truly Positive} = \dfrac{N^* - (1-S_p) \times N}{S_e+S_p-1}\]</span></p>
+<aside><ol class="aside-footnotes"><li id="fn2"><p><span class="citation" data-cites="rothman2008"><sup><a href="#/references" role="doc-biblioref" onclick="">20</a></sup></span></p></li></ol></aside></section>
 <section id="references" class="slide level2 smaller scrollable">
 <h2>References</h2>
 <div id="refs" class="references csl-bib-body" role="doc-bibliography">
@@ -1178,11 +1258,15 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 <div id="ref-sah2021b" class="csl-entry" role="doc-biblioentry">
 <div class="csl-left-margin">19. </div><div class="csl-right-inline">Sah P, Fitzpatrick MC, Zimmer CF, et al. Asymptomatic <span>SARS-CoV-2</span> infection: <span>A</span> systematic review and meta-analysis. <em>Proc Natl Acad Sci USA</em>. 2021;118(34):e2109229118. doi:<a href="https://doi.org/10.1073/pnas.2109229118">10.1073/pnas.2109229118</a></div>
 </div>
+<div id="ref-rothman2008" class="csl-entry" role="doc-biblioentry">
+<div class="csl-left-margin">20. </div><div class="csl-right-inline">Rothman KJ, Greenland S, Lash TL. <em>Modern Epidemiology</em>. Third edition. <span>Wolters Kluwer Health, Lippincott Williams &amp; Wilkins</span>; 2008.</div>
+</div>
 </div>
 <div class="footer footer-default">
 
 </div>
 </section></section>
+
     </div>
   </div>
 

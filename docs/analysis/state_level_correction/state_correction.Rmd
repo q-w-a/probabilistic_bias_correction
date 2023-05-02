@@ -1,0 +1,555 @@
+---
+title: "State Level Correction"
+author: "Quinn White"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, results = 'hide')
+library(tidyverse)
+library(here)
+library(latex2exp)
+library(viridis)
+
+theme_c <- function(...){ 
+    font <- "Helvetica"   #assign font family up front
+    theme_bw() %+replace%    #replace elements we want to change
+    
+    theme(
+      
+      
+      #text elements
+      plot.title = element_text(             #title
+                   size = 20,                #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = .5,
+                   vjust = 3),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   size = 14,
+                   hjust = .5,
+                   face = 'italic',
+                   vjust = 3),               #font size
+      axis.title = element_text(size  = 16),
+      
+      axis.text.x = element_text(              #axis text
+                   size = 18),
+      legend.text = element_text(size = 16),
+      strip.background = element_rect(fill = "#3E3D3D"),
+      # t, r, b, l
+      plot.margin = unit(c(1,.5,.5,.5), "cm"),
+      legend.position = "bottom",
+      strip.text = element_text(size = 14, face = "bold", color = "white")
+      ) %+replace%
+      theme(...)
+   
+}
+
+
+```
+
+
+
+# Base Functions
+
+
+```{r load functions, eval =TRUE}
+
+source(here('analysis','base_functions','base_functions.R'))
+source(here('analysis','base_functions','get_melded.R'))
+
+```
+
+
+
+# Initial Setup
+
+
+## Set Prior Parameters
+
+```{r set prior_params, eval= TRUE}
+
+# include slow plots comparing melded distributions for modified priors to original melded distribution
+include_slow <- TRUE
+# only include subset of rows for testing 
+testing <- FALSE
+# whether to save results adj_v*.RDS (if testing, don't save results)
+save <- TRUE
+
+set.seed(123)
+
+
+prior_params <- list(
+  alpha_mean = .95,
+  alpha_sd = 0.08,
+  alpha_bounds = NA,
+ # alpha_bounds = c(.8,1),
+  beta_mean = .15,
+  beta_sd =.09,
+  beta_bounds = NA,
+#  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .03,
+  s_untested_sd = .0225,
+#  s_untested_bounds = c(0.0018, Inf),
+  s_untested_bounds = NA,
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+ p_s0_pos_bounds = NA,
+#  p_s0_pos_bounds = c(.25, .7),
+  pre_nsamp = 1e6,
+  post_nsamp = 1e5)
+
+corrected_sample_reps <- 1e3
+
+# relevant for versions 2,3
+beta_smoothing_span <- .33
+# relevant for versions 3,4
+s_untested_smoothing_span <- .2
+
+
+```
+
+# Implementation
+
+## Version 1 
+
+```{r}
+
+state_testing <- readRDS(here("data/state_level/tests_biweekly_all_states.RDS"))
+
+
+state_testing <- state_testing %>%
+  rename(fips = state)%>%
+  select(-date) %>% 
+  distinct()
+
+
+# only use a few rows if testing
+state_testing <- if(testing) state_testing %>% filter(biweek >=6) %>% slice_sample(n=15) else state_testing
+
+results_path <- here("analysis/results/adj_biweekly_state/")
+
+```
+
+```{r correction v1, eval=FALSE}
+priors_version <- "v1"
+
+melded <- do.call(get_melded, prior_params)
+
+
+# check there are no NAs
+# covid_county %>% 
+#   filter(if_any(everything(), is.na))
+
+tictoc::tic()
+corrected <- pmap_df(
+  state_testing,
+ # covid_county,
+  ~ {
+    # message("biweek=", list(...)$biweek, 
+    #         "\ncounty=", list(...)$county,
+    #         "\n-------\n")
+    
+    process_priors_per_county(
+      priors = melded$post_melding,
+      county_df = list(...),
+      nsamp = prior_params$post_nsamp) %>%
+      generate_corrected_sample(., num_reps = corrected_sample_reps) %>%
+      summarize_corrected_sample()
+    })
+tictoc::toc()
+
+
+
+```
+
+
+```{r, eval = FALSE}
+saveRDS(corrected,
+        paste0(results_path,
+        "adj_",
+               priors_version, 
+               ".RDS"))
+
+```
+
+## COVID-19 Trends and Impact Survey Data by State
+
+```{r, eval = TRUE}
+
+fb_symptoms <- readRDS(here("data/state_level/screeningpos_all_states.RDS"))
+
+dates <- readRDS(here("data/date_to_biweek.RDS"))
+
+################################
+# SCREENING PLOTS
+################################
+
+symp <- fb_symptoms %>% 
+  select(signal, date, value, state = geo_value) %>% 
+  pivot_wider(names_from = signal,
+              values_from = c(value)) %>%
+  mutate(beta_est = smoothed_wscreening_tested_positive_14d/smoothed_wtested_positive_14d)
+
+symp %>% 
+  ggplot(aes(x=date, y = beta_est)) +
+  geom_line() +
+  theme_c(axis.text.x = element_text(angle =30, size = 12),
+          axis.title = element_text(size =16),
+          plot.title = element_text(size = 35)) +
+  facet_wrap(~toupper(state), ncol =10) +
+  labs(title = TeX("Empirical Estimate of $\\beta$ from COVID-19 Trends and Impact Survey Data"),
+       y = "Screening Test Positivity / Overall Test Positivity")
+
+ggsave(here('thesis/figure/ctis_beta_states.pdf'), height = 11, width = 16)
+
+
+
+
+symp %>% 
+#  filter(keep) %>%
+  ggplot(aes(x=date, y = smoothed_wcli)) +
+  geom_line() +
+  theme_c(axis.text.x = element_text(angle =30, size = 12),
+          plot.title = element_text(size = 35)) +
+  facet_wrap(~toupper(state), ncol=10) +
+  labs(title = TeX("Empirical Estimate of $P(S_1|untested)$\n from COVID-19 Trends and Impact Survey Data"),
+       y = "Percentage with COVID-19-like Illness")
+
+ggsave(here('thesis/figure/ctis_s_untested_states.pdf'), height =11, width = 16)
+
+
+################################################
+# FILTER TO STATES WITH >= 0.6 observations
+################################################
+symp <- symp %>%
+  group_by(state) %>%
+  mutate(m = sum(!is.na(beta_est)),
+            n = n()) %>%
+  mutate(prop_with_data = m/n) %>%
+  mutate(keep = ifelse(prop_with_data > .6, TRUE, FALSE)) %>%
+  ungroup()
+
+symp %>%
+  select(keep,state) %>%
+  distinct() %>%
+  group_by(keep) %>%
+  summarize(n=n())
+
+states_keep <- symp %>%
+  filter(keep) %>%
+  pull(state) %>%
+  unique()
+
+symp <- symp %>% 
+  filter(state %in% states_keep)
+
+```
+
+```{r impute missing}
+################################
+# IMPUTE MISSING OBSERVATIONS
+################################
+
+# make sure each state has all dates
+symp_all <- symp %>% 
+  select(date,state,beta_est) %>% 
+  pivot_wider(names_from = date, values_from =beta_est) %>% 
+  pivot_longer(cols =2:ncol(.), values_to = "beta_est", names_to = "date") %>%
+  mutate(date=as_date(date))
+
+symp <- symp_all %>%
+  left_join(symp)
+
+symp_imputed <- symp %>%
+  group_by(state) %>%
+  arrange(date) %>%
+  mutate(imputed_beta = imputeTS::na_ma(beta_est, k = 30, weighting = "simple"),
+         imputed_s_untested  = imputeTS::na_ma(smoothed_wcli, k = 30, weighting = "simple") ) 
+
+
+symp_imputed %>%
+  mutate(was_na = ifelse(is.na(beta_est), "Missing", "Not Missing")) %>%
+  ggplot(aes(x=date, y = imputed_beta, color = was_na)) +
+  geom_point(size = .5, alpha = .5) +
+ # geom_line() +
+#  geom_line(size = .7) +
+  theme_c(axis.text.x = element_text(angle = 60)) +
+  facet_wrap(~toupper(state)) +
+  labs(title = "Imputing Missing Observations for Empirical Estimate of Beta\n from COVID-19 Trends and Impact Survey Data") +
+  scale_x_date(date_breaks = "2 months", date_labels = "%b %Y") +
+  viridis::scale_color_viridis(discrete=TRUE,
+                               end = .8,
+                               begin= .2,
+                               option="rocket") +
+  labs(color = '') +
+  guides(color = guide_legend(override.aes = list(size = 4)))
+
+```
+
+```{r smooth beta}
+################################
+# SMOOTH EMPIRICAL BETA
+################################
+
+
+state_beta <- symp_imputed %>%
+  # select(-beta_est) %>%
+  # rename(beta_est = imputed_beta) %>%
+  group_by(state) %>%
+  arrange(date) %>%
+  mutate(index = row_number()) %>%
+  group_split() %>%
+  map_df(~ {
+    smoothed_s_untested <- loess(imputed_s_untested~index, data = .x, span = s_untested_smoothing_span)
+    smoothed <- loess(imputed_beta~index, data = .x, span = beta_smoothing_span)
+
+    .x %>%
+      mutate(beta_estimate_smoothed = predict(smoothed),
+             s_untested_smoothed = predict(smoothed_s_untested)) 
+  } ) 
+
+
+################################
+# PLOT SMOOTHED EMPIRICAL BETA
+################################
+
+ state_beta %>%
+   ggplot(aes(x=date, y = beta_est)) +
+  geom_line() +
+   geom_line(aes(y = beta_estimate_smoothed), color = "darkred") +
+  theme_c(axis.text.x = element_text(angle = 60)) +
+  facet_wrap(~toupper(state)) +
+  labs(title = "Comparing Prior for Beta to Empirical Distribution (CTIS)") +
+  scale_x_date(date_breaks = "2 months", date_labels = "%b %Y")
+
+
+################################
+# PLOT SMOOTHED P(S|untested) 
+################################
+ state_beta %>%
+   ggplot(aes(x=date, y = imputed_s_untested)) +
+  geom_line() +
+   geom_line(aes(y = s_untested_smoothed), color = "darkred") +
+  theme_c(axis.text.x = element_text(angle = 60)) +
+  facet_wrap(~toupper(state)) +
+  labs(title = TeX("Comparing Prior for $P(S_1|untested)$ to Empirical Distribution (CTIS)",
+                   bold=TRUE)) +
+  scale_x_date(date_breaks = "2 months", date_labels = "%b %Y")
+
+
+######################################################
+# MEAN BY BIWEEK OF SMOOTHED EMPIRICAL BETA
+######################################################
+
+# add biweek information; take mean for each biweek
+state_beta <- state_beta %>%
+  left_join(dates) %>%
+  group_by(biweek, state) %>%
+  slice_max(n=1, order_by=date) %>%
+  select(-date)
+
+# each biweek has all observations
+state_beta %>% 
+  group_by(biweek) %>% 
+  summarize(n=n()) %>% 
+  arrange(desc(n))
+
+```
+
+
+```{r compare to original unmelded }
+
+compare_priors <- state_beta %>%
+  filter(state == "ca") %>%
+  # only need biweeks in dates data frame
+  filter(!is.na(biweek)) %>%
+  pmap_df(~ {
+    df <- tibble(...)
+    #glimpse(df)
+    #print(df$beta_estimate_smoothed)
+    tibble(empirical = sample_beta_density(
+      1e4, 
+      mean = df$beta_estimate_smoothed, 
+      sd = prior_params$beta_sd),
+      original_prior = sample_beta_density(
+        1e4,
+        mean = prior_params$beta_mean,
+        sd = prior_params$beta_sd),
+      biweek = df$biweek)
+    })
+
+
+# compare (unconstrained) distributions
+compare_priors %>%
+  pivot_longer(c(empirical,original_prior), 
+               names_to = "Prior") %>%
+  mutate(biweek = as.factor(biweek)) %>%
+  ggplot(aes(x = value, y=fct_reorder(biweek, 
+                                      as.numeric(biweek),
+                                      .desc=TRUE), 
+             fill = Prior)) +
+  ggridges::geom_density_ridges(alpha = .6) +
+  labs(y = "Biweek",
+       title = "Comparing Distribution Centered\nat Empirical Estimate of Beta\nto Original Prior\n(Not Melded)") +
+  theme_c(legend.title = element_text(face="bold", size = 16)) +
+  scale_fill_viridis(discrete=TRUE, option = "mako", begin =.2, end=.8)
+
+
+
+
+state <- state_testing %>% 
+  mutate(fips = tolower(fips)) %>%
+  inner_join(state_beta, by =c('fips'='state', 'biweek'='biweek')) %>%
+  # only have CTIS data starting at week 6
+  # filter out the beginning dates where beta_estimate_smoothed is NA
+  filter(!is.na(beta_estimate_smoothed))
+
+
+```
+
+## Version 2
+
+```{r correction v2,eval=FALSE}
+
+
+priors_version <- "v2"
+
+
+
+corrected <- state %>% 
+ # filter(fips %in% c("ca"), biweek %in% c(6,7)) %>%
+  # select(-date) %>%
+  # distinct() %>%
+#  select(biweek,beta_estimate_smoothed) %>%
+  arrange(biweek) %>%
+  # there will be more than one observation per county since
+  # beta estimates are at the state level
+  distinct() %>%
+  pmap_df(~ {
+    state_data <- list(...) %>%  as.data.frame()
+   # message(paste0("before: ",prior_params$beta_mean))
+    prior_params$beta_mean <- state_data$beta_estimate_smoothed
+   # message(paste0("after: ",prior_params$beta_mean))
+    res <- do.call(get_melded, prior_params)
+    constrained <- res$post_melding
+    
+    glimpse(constrained)
+    
+    process_priors_per_county(
+       priors = constrained, 
+       county_df = state_data,
+        nsamp = prior_params$post_nsamp) %>%
+       generate_corrected_sample(., num_reps = 1e3) %>%
+       summarize_corrected_sample()
+})
+
+
+
+saveRDS(corrected,
+        paste0(results_path,
+        "adj_",
+               priors_version, 
+               ".RDS"))
+
+
+```
+
+
+## Version 3
+
+```{r correction v3}
+
+priors_version <- "v3"
+
+
+state <- state_testing %>% 
+  mutate(fips = tolower(fips)) %>%
+  inner_join(state_beta, by =c('fips'='state', 'biweek'='biweek')) %>%
+  # only have CTIS data starting at week 6
+  # filter out the beginning dates where beta_estimate_smoothed is NA
+  filter(!is.na(beta_estimate_smoothed)) %>% 
+  select(-c(smoothed_wcli, smoothed_wscreening_tested_positive_14d, smoothed_wtested_positive_14d)) %>%
+#  select(-date) %>%
+  distinct() 
+
+
+corrected <- state %>% 
+ # filter(fips %in% c("ca"), biweek %in% c(6,7)) %>%
+  arrange(biweek) %>%
+  # there will be more than one observation per county since
+  # beta estimates are at the state level
+  distinct() %>%
+  pmap_df(~ {
+    state_data <- list(...) %>%  as.data.frame()
+    message(paste0("before: ",prior_params$beta_mean))
+    prior_params$beta_mean <- state_data$beta_estimate_smoothed
+    prior_params$s_untested_mean <- state_data$s_untested_smoothed
+    message(paste0("after: ",prior_params$beta_mean))
+    res <- do.call(get_melded, prior_params)
+    constrained <- res$post_melding
+    
+    glimpse(constrained)
+    
+    process_priors_per_county(
+       priors = constrained, 
+       county_df = state_data,
+        nsamp = prior_params$post_nsamp) %>%
+       generate_corrected_sample(., num_reps = 1e3) %>%
+       summarize_corrected_sample()
+})
+
+
+
+saveRDS(corrected,
+        paste0(results_path,
+        "adj_",
+               priors_version, 
+               ".RDS"))
+```
+
+
+
+
+## Version 4
+
+```{r correction v4}
+
+priors_version <- "v4"
+
+
+corrected <- state %>% 
+ # filter(fips %in% c("ca"), biweek %in% c(6,7)) %>%
+  arrange(biweek) %>%
+  # there will be more than one observation per county since
+  # beta estimates are at the state level
+  distinct() %>%
+  pmap_df(~ {
+    state_data <- list(...) %>%  as.data.frame()
+   # message(paste0("before: ",prior_params$beta_mean))
+   # prior_params$beta_mean <- state_data$beta_estimate_smoothed
+    prior_params$s_untested_mean <- state_data$s_untested_smoothed
+   # message(paste0("after: ",prior_params$beta_mean))
+    res <- do.call(get_melded, prior_params)
+    constrained <- res$post_melding
+    
+    glimpse(constrained)
+    
+    process_priors_per_county(
+       priors = constrained, 
+       county_df = state_data,
+        nsamp = prior_params$post_nsamp) %>%
+       generate_corrected_sample(., num_reps = 1e3) %>%
+       summarize_corrected_sample()
+})
+
+
+
+saveRDS(corrected,
+        paste0(results_path,
+        "adj_",
+               priors_version, 
+               ".RDS"))
+```
+

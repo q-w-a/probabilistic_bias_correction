@@ -1,0 +1,1249 @@
+---
+title: "Compare County-Level to Covidestim"
+author: "Quinn White"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    df_print: paged
+    code_folding: hide
+    css: ../../css/template.css
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 18, fig.height= 12)
+
+library(tidyverse)
+library(latex2exp)
+library(here)
+library(scales)
+library(viridis)
+
+theme_c <- function(...){ 
+   # font <- "Helvetica"   #assign font family up front
+    theme_bw() %+replace%    #replace elements we want to change
+    
+    theme(
+      
+      
+      #text elements
+      plot.title = element_text(             #title
+                   size = 20,                #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = .5,
+                   vjust = 3),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   size = 14,
+                   hjust = .5,
+                   face = 'italic',
+                   vjust = 3),               #font size
+      
+      axis.title = element_text(             #axis titles
+                   size = 25),               #font size
+      
+      axis.text.x = element_text(              #axis text
+                   size = 18),
+      legend.text = element_text(size = 18),
+      # t, r, b, l
+      plot.margin = unit(c(1,.5,.5,.5), "cm"),
+      legend.position = "right",
+      strip.text.x = element_text(size = 16, face = "bold", color="white"),
+      strip.background = element_rect(fill = "#3E3D3D")
+      ) %+replace%
+      theme(...)
+   
+}
+
+```
+
+
+
+# Massachusetts
+
+```{r}
+
+state <-  "ma"
+
+priors_versions <- c("v1", "v2", "v3", "v4")
+
+
+versions <- tibble(
+  version = c("v1", "v2", "v3", "v4"),
+  vlabel = factor(
+    c( "$Priors\\,Do\\,Not\\,Vary\\,by\\,County\\,and\\,Date$", 
+    "$\\beta$ Centered at Emp. Value",
+    "$P(S_1|untested)$ and $\\beta$ Centered at Emp. Values",
+    "$P(S_1|untested)$ Centered at Emp. Value"),
+    levels = c(
+        "$Priors\\,Do\\,Not\\,Vary\\,by\\,County\\,and\\,Date$", 
+        "$\\beta$ Centered at Emp. Value",
+        "$P(S_1|untested)$ and $\\beta$ Centered at Emp. Values",
+        "$P(S_1|untested)$ Centered at Emp. Value"
+    ) )
+)
+
+
+state_corrected_path <- here("analysis/results/adj_biweekly_county/", state, "/")
+
+################################
+# read fips 
+################################
+fips <- read_tsv(here::here("data/demographic/county_fips.tsv")) %>%
+  rename_with(tolower)
+
+fips <- fips %>% 
+  mutate(fips =ifelse( name %in% c("Dukes", "Nantucket") & state == "MA", 
+                              "25007,25019", fips),
+         name = ifelse(name %in% c("Dukes", "Nantucket") & state == "MA",
+                              "Nantucket Dukes", name)) %>%
+  distinct() %>%
+  select(fips,county_name = name)
+
+################################
+# ESTIMATED
+################################
+dates <- readRDS(here("data/date_to_biweek.RDS")) %>%
+  group_by(biweek) 
+
+corrected <- map_df(priors_versions, ~readRDS(
+        paste0(state_corrected_path, "adj_",
+               .x, 
+               ".RDS")) %>% 
+          mutate(version = .x)) %>%
+  left_join(dates, relationship = "many-to-many") %>%
+  inner_join(fips)
+  
+
+corrected <- corrected %>%
+  left_join(versions)
+
+covidestim <- readRDS(here("data/covidestim/covidestim_biweekly_all_counties.RDS")) %>%
+  select(-c(date,week)) %>%
+  distinct() 
+
+
+joined <- corrected %>%
+  left_join(covidestim, relationship="many-to-many") %>%
+  left_join(versions)
+
+
+# for facet_wrap latex formatting
+joined <- joined %>%
+   mutate(county_name = paste0("$", county_name, "$"),
+         county_name = gsub(" ", "\\,", county_name))  
+
+  
+  
+
+
+```
+
+## Faceted by version
+
+
+```{r}
+
+
+pal <- c("#10BAC5", "#1B10C5", "#EFB719", "#900C3F")
+
+names(pal) <- c(#"$observed$", 
+                '$P(S_1|untested)$ Centered at Emp. Value',
+                '$P(S_1|untested)$ and $\\beta$ Centered at Emp. Values',
+               "$Priors\\,Do\\,Not\\,Vary\\,by\\,County\\,and\\,Date$",
+               "$\\beta$ Centered at Emp. Value"
+               )
+
+
+
+
+
+joined %>%
+  filter(biweek >=6) %>%
+  group_by(biweek) %>%
+  mutate(xmin = min(date),
+         xmax = max(date)) %>%
+  ungroup() %>%
+   ggplot() +
+  geom_ribbon(aes(x = date, 
+             ymin = exp_cases_lb,
+             ymax = exp_cases_ub,
+             fill = vlabel),
+             alpha = .5,
+             show.legend=FALSE) +
+   geom_linerange(aes(xmin = xmin,
+                      xmax=xmax,
+                      y = positive,
+                      color = 'obs')) +
+  facet_grid(county_name~vlabel, scales = "free_y",
+              labeller=as_labeller(
+               latex2exp::TeX, default = label_parsed)) +
+  scale_y_continuous(labels = comma) +
+  scale_x_date(date_breaks = "2 months", 
+               date_labels = "%b %Y") +
+  theme_c(axis.text.x = element_text(angle = 60, size = 16),
+          plot.title=element_text(face = "bold",
+                                  hjust = .5, 
+                                  size = 20,
+                                  margin=margin(5,5,15,5,'pt')),
+          strip.background = element_rect(fill = "#393939"),
+          strip.text = element_text(color =  "white", size = 16),
+          strip.text.y = element_text(margin = margin(5,5,5,5,'pt'),
+                                      size = 14,
+                                      face="bold"),
+          strip.text.x =  element_text(margin = margin(5,3,5,3,'pt'),
+                                       face = "bold",
+                                       size = 10),
+          plot.subtitle = ggtext::element_markdown(size = 25,margin = margin(3,5,10,5,'pt'),
+                                       face = "italic"),
+          legend.position = "top",
+          legend.text =element_text(size = 14)) +
+  scale_fill_manual(values = pal)  +
+  labs(y = "Estimated Cases",
+       title = paste0("Estimated Cases by Version in ", toupper(state))) +
+  scale_color_manual(values = c('obs' = 'red'), labels = 'Positive Tests',
+                     name = '') +
+  guides(color = guide_legend(override.aes = list(linewidth =2)))
+
+
+
+
+ggsave(here::here(paste0('thesis/figure/', state, '_pb_compared_to_observed.pdf')), 
+       height=15, width = 15, dpi=400)
+
+
+
+
+
+
+
+
+
+################################
+# figure for presentation
+#################################
+
+
+
+
+```
+
+## All versions together 
+
+```{r}
+
+joined %>% 
+  group_by(biweek) %>%
+ filter(biweek >=6) %>%
+  mutate(xmin = min(date),
+         xmax = max(date)) %>%
+  ungroup() %>%
+   ggplot() +
+  geom_ribbon(aes(x = date,
+             ymin = exp_cases_lb,
+             ymax = exp_cases_ub,
+             fill = vlabel),
+             alpha = .5,
+             show.legend=TRUE) +
+   # geom_linerange(aes(xmin = xmin,
+   #                    xmax=xmax,
+   #                    y = exp_cases_median,
+   #                    color =vlabel)) +
+  facet_wrap(~county_name, scales = "free_y",
+              labeller=as_labeller(
+               latex2exp::TeX, default = label_parsed),
+             ncol = 3) +
+  scale_y_continuous(labels = comma) +
+  scale_x_date(date_breaks = "2 months", 
+               date_labels = "%b %Y") +
+  theme_c(axis.text.x = element_text(angle = 60, size = 16),
+          plot.title=element_text(face = "bold",
+                                  hjust = .5, 
+                                  size = 22,
+                                  margin=margin(5,5,15,5,'pt')),
+          strip.background = element_rect(fill = "#393939"),
+          strip.text = element_text(color =  "white", size = 16),
+          strip.text.y = element_text(margin = margin(5,5,5,5,'pt'),
+                                      size = 14,
+                                      face="bold"),
+          strip.text.x =  element_text(margin = margin(5,3,5,3,'pt'),
+                                       face = "bold",
+                                       size = 10),
+          plot.subtitle = ggtext::element_markdown(size = 25,margin = margin(3,5,10,5,'pt'),
+                                       face = "italic"),
+          legend.position = "top",
+          legend.text =element_text(size = 14)) +
+#  scale_color_manual(values = pal, labels =TeX(names(pal)))  +
+   scale_fill_manual(values = pal, labels =TeX(names(pal)),
+                     name ='') +
+  labs(y = "Estimated Cases",
+       title = paste0("Estimated Cases by Version in Massachusetts")) 
+
+
+ggsave(here::here(paste0('thesis/figure/', state, '_pb_compare_versions.pdf')), 
+       height=15, width = 16, dpi=400)
+
+```
+
+
+## Compare to Covidestim
+
+
+
+```{r}
+
+
+joined %>%
+  filter(biweek >=6) %>%
+  # covidestim does not report estimates for Nantucket 
+  filter(!grepl("Nantucket", county_name )) %>%
+  group_by(biweek) %>%
+  mutate(xmin = min(date),
+         xmax = max(date)) %>%
+  ungroup() %>%
+   ggplot() +
+  geom_ribbon(aes(x = date, 
+             ymin = exp_cases_lb,
+             ymax = exp_cases_ub,
+             fill = vlabel),
+             alpha = .5,
+             show.legend=FALSE) +
+   geom_linerange(aes(xmin = xmin,
+                      xmax=xmax,
+                      y = infections,
+                      color = 'covidestim')) +
+  facet_grid(county_name~vlabel, scales = "free_y",
+              labeller=as_labeller(
+               latex2exp::TeX, default = label_parsed)) +
+  scale_y_continuous(labels = comma) +
+  scale_x_date(date_breaks = "2 months", 
+               date_labels = "%b %Y") +
+  theme_c(axis.text.x = element_text(angle = 60, size = 16),
+          plot.title=element_text(face = "bold",
+                                  hjust = .5, 
+                                  size = 20,
+                                  margin=margin(5,5,15,5,'pt')),
+          strip.background = element_rect(fill = "#393939"),
+          strip.text = element_text(color =  "white", size = 16),
+          strip.text.y = element_text(margin = margin(5,5,5,5,'pt'),
+                                      size = 14,
+                                      face="bold"),
+          strip.text.x =  element_text(margin = margin(5,3,5,3,'pt'),
+                                       face = "bold",
+                                       size = 10),
+          plot.subtitle = ggtext::element_markdown(size = 25,
+                                                   margin = margin(3,5,10,5,'pt'),
+                                       face = "italic"),
+          legend.position = "top",
+          legend.text =element_text(size = 14)) +
+  scale_fill_manual(values = pal)  +
+  labs(y = "Estimated Cases",
+       title = paste0("Estimated Cases by Version in ", toupper(state))) +
+  scale_color_manual(values = c('covidestim' = 'darkblue'), labels = 'Covidestim Estimates',
+                     name = '') +
+  guides(color = guide_legend(override.aes = list(linewidth =2)))
+
+ggsave(here::here(paste0('thesis/figure/', state, '_pb_compared_to_covidestim.pdf')), 
+       height=15, width = 15, dpi=400)
+
+
+ggsave(here::here(paste0('presentation/figure/', state, '_pb_compared_to_covidestim.jpeg')), 
+       height=15, width = 15, dpi=400)
+
+
+
+```
+
+## Summarizing Concordance with Covidestim
+
+```{r}
+
+
+
+ma_concordance <- joined %>%
+  filter(biweek >=6) %>%
+  # covidestim does not report estimates for Nantucket 
+  filter(!grepl("Nantucket", county_name )) %>%
+  select(-date) %>%
+  distinct() %>%
+  select(exp_cases_lb, exp_cases_ub, county_name, biweek, vlabel, infections) %>%
+  mutate(in_interval = case_when(
+    exp_cases_lb <= infections & infections <= exp_cases_ub ~ "In Interval",
+    exp_cases_lb  > infections  ~ "Below Interval",
+    exp_cases_ub < infections ~ "Above Interval"
+  ) ) %>%
+  group_by(in_interval, county_name, vlabel) %>%
+  summarize(n_per_county=n()) %>%
+  group_by(vlabel, in_interval) %>%
+  summarize(n_per_version = sum(n_per_county)) %>%
+  group_by(vlabel) %>%
+  mutate(total = sum(n_per_version)) %>%
+  ungroup() %>%
+  mutate(prop=n_per_version/total)
+
+
+
+
+
+#######################################################################
+# CONCORDANCE BY ABOVE, BELOW, WITHIN FOR MOST CONCORDANT VERSION 
+#######################################################################
+ma_concordance_by_county <- joined %>%
+  filter(biweek >=6) %>%
+  # covidestim does not report estimates for Nantucket 
+  filter(!grepl("Nantucket", county_name )) %>%
+  select(-date) %>%
+  mutate(county_name = gsub("$", "", county_name, fixed=TRUE)) %>%
+  distinct() %>%
+  select(exp_cases_lb, exp_cases_ub, county_name, biweek, vlabel, infections) %>%
+  mutate(in_interval = case_when(
+    exp_cases_lb <= infections & infections <= exp_cases_ub ~ "In Interval",
+    exp_cases_lb  > infections  ~ "Below Interval",
+    exp_cases_ub < infections ~ "Above Interval"
+  ) ) %>%
+  group_by(in_interval, county_name, vlabel) %>%
+  summarize(n_per_county=n()) %>%
+  group_by(county_name,vlabel) %>%
+  mutate(total = sum(n_per_county),
+         prop = n_per_county/total) %>%
+  mutate(state="MA")
+
+
+
+#########################################################
+# CONCORDANCE BY COUNTY (NOT VERSION)
+#########################################################
+best_by_county <- ma_concordance_by_county %>%
+  group_by(county_name) %>%
+  filter(in_interval=="In Interval" )%>%
+  summarize(vlabel = vlabel[which.max(prop)],
+            m = max(prop)) 
+
+ma_concordance_by_county %>%
+  inner_join(best_by_county) %>%
+  ggplot(aes(x= fct_reorder(county_name,m), 
+             fill = in_interval, y =prop)) + 
+  geom_bar(stat="identity",position="dodge") +
+  theme_c() +
+  coord_flip()+
+  scale_fill_manual(values=c("In Interval" = "#79D2AF",
+                             "Above Interval" = "#D2AF79",
+                      "Below Interval"="#7997D2")) +
+  labs(x="", 
+       y= "Proportion",
+       fill = "Covidestim Median:",
+       title = "Proportion Where Covidestim Median\nWas Within, Above, or Below the Median",
+       subtitle = "For Implementation with Greatest Concordance") +
+  theme_c() +
+  theme(legend.position="right",
+          legend.title = element_text(face="bold", size = 15),
+          legend.text= element_text( size = 15),
+          legend.spacing.y = unit(3, 'pt'),
+          axis.text.y = element_text(size = 17, hjust=1))
+  
+ggsave(here('presentation/figure/covidestim_above_below_by_county_ma.jpeg'),height=7, width=12)
+
+
+
+
+
+#########################################################
+# CONCORDANCE BY COUNTY (MOST CONC. VERSION) 
+#########################################################
+ma_concordance_by_county  %>%
+  filter(in_interval=="In Interval") %>%
+  group_by(county_name) %>%
+  summarize(max_prop =max(prop),
+         type = vlabel[which.max(prop)]) %>%
+  ungroup() %>%
+  ggplot(aes(y = fct_reorder(county_name, max_prop),
+             fill = type,
+             x= max_prop)) +
+  geom_bar(stat="identity",position="dodge", alpha=.8)+
+  scale_fill_manual(values = pal,labels=TeX(names(pal)))  +
+  theme_c(legend.position="right",
+          legend.text=element_text(hjust=0, size = 15),
+          axis.title=element_text(size=16),
+          axis.text.x=element_text(size=11),
+          axis.text.y = element_text(size=14)) +
+  labs(y = "", x="Proportion Containing Covidestim Median",
+       fill="") 
+
+ggsave(here('presentation/figure/best_version_by_county_ma.jpeg'), height=8,width=11)
+
+
+
+top_versions <- ma_concordance %>%
+  filter(in_interval == "In Interval") %>%
+  mutate(n_interval = n_per_version) %>%
+  select(vlabel, n_interval)
+
+labels <- ma_concordance %>%
+  arrange((m)) %>%
+  pull(vlabel) %>%
+  unique() %>%
+  as.character()
+
+
+#########################################################
+# CONCORDANCE BY VERSION 
+#########################################################
+ma_concordance %>%
+  ggplot(aes(y =fct_reorder(vlabel,m),
+             x = prop, 
+             fill=in_interval)) +
+  #facet_wrap(~fct_reorder((vlabel),m), ncol=1) +
+  geom_bar(stat="identity",position="dodge", color="darkgray", linewidth=.2) +
+#  viridis::scale_fill_viridis(option="mako", begin=.2, discrete=TRUE) +
+  theme_c(legend.position="right",
+          legend.title = element_text(face="bold", size = 15),
+          legend.text= element_text( size = 15),
+          legend.spacing.y = unit(3, 'pt'),
+          axis.text.y = element_text(size = 17, hjust=1)) +
+  scale_y_discrete(labels=unname(TeX(labels))) +
+  labs(y ="",
+       x="Proportion",
+       fill = "Covidestim Median:") +
+  scale_fill_manual(values=c("In Interval" = "#79D2AF",
+                             "Above Interval" = "#D2AF79",
+                      "Below Interval"="#7997D2")) +
+  guides(fill=guide_legend(byrow=TRUE)) +
+  scale_x_continuous(n.breaks = 7, expand=c(0,0),limits=c(-.05,1))
+
+
+
+joined %>%
+  filter(biweek >=6) %>%
+  # covidestim does not report estimates for Nantucket 
+  filter(!grepl("Nantucket", county_name )) %>%
+  group_by(biweek) %>%
+  mutate(xmin = min(date),
+         xmax = max(date)) %>%
+  ungroup() %>%
+   ggplot() +
+  geom_ribbon(aes(x = date, 
+             ymin = exp_cases_lb,
+             ymax = exp_cases_ub,
+             fill = vlabel),
+             alpha = .5,
+             show.legend=FALSE) +
+   geom_linerange(aes(xmin = xmin,
+                      xmax=xmax,
+                      y = infections,
+                      color = 'covidestim')) +
+  facet_grid(county_name~vlabel, scales = "free_y",
+              labeller=as_labeller(
+               latex2exp::TeX, default = label_parsed)) +
+  scale_y_continuous(labels = comma) +
+  scale_x_date(date_breaks = "2 months", 
+               date_labels = "%b %Y") +
+  theme_c(axis.text.x = element_text(angle = 60, size = 16),
+          plot.title=element_text(face = "bold",
+                                  hjust = .5, 
+                                  size = 20,
+                                  margin=margin(5,5,15,5,'pt')),
+          strip.background = element_rect(fill = "#393939"),
+          strip.text = element_text(color =  "white", size = 16),
+          strip.text.y = element_text(margin = margin(5,5,5,5,'pt'),
+                                      size = 14,
+                                      face="bold"),
+          strip.text.x =  element_text(margin = margin(5,3,5,3,'pt'),
+                                       face = "bold",
+                                       size = 10),
+          plot.subtitle = ggtext::element_markdown(size = 25,
+                                                   margin = margin(3,5,10,5,'pt'),
+                                       face = "italic"),
+          legend.position = "top",
+          legend.text =element_text(size = 14)) +
+  scale_fill_manual(values = pal)  +
+  labs(y = "Estimated Infections",
+       title = paste0("Estimated Infections by Version in ", toupper(state))) +
+  scale_color_manual(values = c('covidestim' = 'darkblue'), labels = 'Covidestim Estimates',
+                     name = '') +
+  guides(color = guide_legend(override.aes = list(linewidth =2)))
+
+
+
+
+```
+
+
+
+
+
+```{r}
+
+# hampshire
+
+county_cols <- viridis(length(unique(joined$county_name))- 1, option = "mako")
+county_cols <- c("red",county_cols )
+
+names(county_cols ) <- c("$Hampshire$", unique(joined$county_name)[  unique(joined$county_name) != "$Hampshire$"])
+
+joined %>%
+  mutate(posrate = positive/total,
+         size = ifelse(grepl("Hampshire", county_name),'Hampshire', 'not'))  %>% 
+  select(biweek, county_name, posrate,size) %>% 
+  distinct() %>% 
+  ggplot(aes(x=biweek,y=posrate, color = county_name,
+             linewidth=size, alpha = size)) + 
+  geom_line() +
+  scale_linewidth_manual(values=c('Hampshire'=2, 'not'=.5)) +
+  scale_alpha_manual(values = c('Hampshire' = 1, 'not'=.4)) +
+  scale_color_manual(values=county_cols, labels = TeX(names(county_cols))) +
+  theme_c(legend.position = "right",
+          legend.title = element_text(size  =16, face="bold"),
+          axis.text.x = element_text(size = 9)) +
+  guides(linewidth="none",
+         alpha = "none",
+         color = guide_legend(override.aes = list(linewidth = 2.5))) +
+  labs(color = "County Name",
+       y = "Positivity Rate",
+       x= "Biweek",
+       title="Hampshire County Positivity Rate\nCompared to Other Counties in Massachusetts") +
+  scale_x_continuous(n.breaks = 7)
+  
+
+ggsave(here::here('thesis/figure/hampshire.pdf'), 
+       height=8, width = 14, dpi=400)
+
+
+
+
+ggsave(here::here('presentation/figure/hampshire.jpeg'), 
+       height=8, width = 14, dpi=400)
+
+```
+
+
+
+```{r}
+
+joined %>%
+  mutate(county_name = gsub("$","", county_name,fixed=TRUE)) %>%
+  select(-date) %>% 
+  distinct() %>%
+  mutate(in_interval = infections <= exp_cases_ub & infections >= exp_cases_lb) %>%
+  filter(!is.na(in_interval)) %>%
+  group_by(vlabel, in_interval, county_name) %>%
+  summarize(n=n()) %>%
+  group_by(county_name, vlabel) %>%
+  mutate(tot=sum(n),
+         prop_contained = n/tot) %>%
+ filter(in_interval) %>%
+  group_by(county_name) %>%
+  mutate(m = max(prop_contained)) %>%
+  ggplot(aes(x=fct_reorder(county_name, m, .desc=TRUE),
+             y = prop_contained, color = vlabel)) +
+  geom_point(size = 2.3) +
+  labs(y = "Proportion of Biweeks Containing Covidestim Estimate",
+       x = "County",
+       title = "Comparing the Proportion of Biweeks\nWhere Probabilistic Bias Interval Contains Covidestim Estimate")+
+    scale_color_manual(values = pal, labels =TeX(names(pal)), name ='')  +
+  theme_c(axis.text.x = element_text(angle = 15, size = 14),
+          legend.position ="right",
+          axis.title = element_text(size = 16))
+
+ggsave(here::here(paste0('thesis/figure/', 
+                         state, 
+                         '_pb_compared_to_covidestim_proportions.pdf')), 
+       height=8, width = 15, dpi=400)
+
+
+
+# 
+# joined %>%
+#   mutate(county_name = gsub("$","", county_name,fixed=TRUE)) %>%
+#   select(-date) %>% 
+#   distinct() %>%
+#   mutate(in_interval = infections <= exp_cases_ub & infections >= exp_cases_lb,
+#          posrate=positive/population) %>%
+#   group_by(county_name) %>%
+#   mutate(posrate=mean(posrate)) %>%
+#   filter(!is.na(in_interval)) %>%
+#   group_by(vlabel, in_interval, county_name, posrate) %>%
+#   summarize(n=n()) %>%
+#   group_by(county_name, vlabel,posrate) %>%
+#   mutate(tot=sum(n),
+#          prop_contained = n/tot) %>%
+#   ggplot(aes(x=posrate, y =prop_contained, color = vlabel)) +
+#   geom_point()
+
+```
+
+
+
+
+## Michigan
+
+
+```{r load michigan data}
+
+state <- "mi"
+
+
+state_corrected_path <- here("analysis/results/adj_biweekly_county/", state, "/")
+
+################################
+# read fips 
+################################
+fips <- read_tsv(here::here("data/demographic/county_fips.tsv")) %>%
+  rename_with(tolower)
+
+fips <- fips %>% 
+  mutate(fips =ifelse( name %in% c("Dukes", "Nantucket") & state == "MA", 
+                              "25007,25019", fips),
+         name = ifelse(name %in% c("Dukes", "Nantucket") & state == "MA",
+                              "Nantucket Dukes", name)) %>%
+  distinct() %>%
+  select(fips,county_name = name)
+
+################################
+# ESTIMATED
+################################
+dates <- readRDS(here("data/date_to_biweek.RDS")) %>%
+  group_by(biweek) 
+
+corrected <- map_df(priors_versions, ~readRDS(
+        paste0(state_corrected_path, "adj_",
+               .x, 
+               ".RDS")) %>% 
+          mutate(version = .x)) %>%
+  left_join(dates, relationship = "many-to-many") %>%
+  inner_join(fips)
+  
+
+corrected <- corrected %>%
+  left_join(versions)
+
+covidestim <- readRDS(here("data/covidestim/covidestim_biweekly_all_counties.RDS")) %>%
+  select(-c(date,week)) %>%
+  distinct() 
+
+
+joined <- corrected %>%
+  left_join(covidestim, relationship="many-to-many") %>%
+  left_join(versions)
+
+
+# for facet_wrap latex formatting
+# joined <- joined %>%
+# #  mutate(county_name = gsub(" ", "~", county_name)) %>%
+#    mutate(county_name = paste0('$"', county_name,'"$' ))
+          
+          # ,
+          # county_name= paste0("$ $", county_name))
+          # 
+          # 
+  
+
+
+```
+
+
+
+```{r}
+
+
+pal <- c("#10BAC5", "#1B10C5", "#EFB719", "#900C3F")
+
+names(pal) <- c(#"$observed$", 
+                '$P(S_1|untested)$ Centered at Emp. Value',
+                '$P(S_1|untested)$ and $\\beta$ Centered at Emp. Values',
+               "$Priors\\,Do\\,Not\\,Vary\\,by\\,County\\,and\\,Date$",
+               "$\\beta$ Centered at Emp. Value"
+               )
+
+n_counties <- joined$fips %>% unique() %>% length()
+
+size <- ceiling(n_counties/3)
+
+ind <- c(rep(1, size), rep(2, size), rep(3, n_counties - 2*size))
+
+groups <- tibble(group = ind, fips = unique(joined$fips))
+# 
+# name_f <- function(variable, x) {
+#   if (variable == "county_name") {
+#     return(as.character(x))
+#   }
+#   else { 
+#     plyr::llply( as.character(x), function(x) parse(x))
+#   }
+# }
+
+joined %>%
+  left_join(groups) %>%
+  group_by(group) %>%
+  group_split() %>%
+  iwalk( ~ { 
+    .x %>%
+    filter(biweek >=6) %>%
+    group_by(biweek) %>%
+    mutate(xmin = min(date),
+           xmax = max(date)) %>%
+    ungroup() %>%
+     ggplot() +
+    geom_ribbon(aes(x = date, 
+               ymin = exp_cases_lb,
+               ymax = exp_cases_ub,
+               fill = vlabel),
+               alpha = .5,
+               show.legend=FALSE) +
+     geom_linerange(aes(xmin = xmin,
+                        xmax=xmax,
+                        y = positive,
+                        color = 'obs')) +
+       facet_grid(county_name ~ vlabel, 
+             labeller = labeller(vlabel =as_labeller(TeX, default=label_parsed)),
+             scales="free_y") +
+    scale_y_continuous(labels = comma) +
+    scale_x_date(date_breaks = "2 months", 
+                 date_labels = "%b %Y") +
+    theme_c(axis.text.x = element_text(angle = 60, size = 16),
+            plot.title=element_text(face = "bold",
+                                    hjust = .5, 
+                                    size = 20,
+                                    margin=margin(5,5,15,5,'pt')),
+            strip.background = element_rect(fill = "#393939"),
+            strip.text = element_text(color =  "white", size = 16),
+            strip.text.y = element_text(margin = margin(5,5,5,5,'pt'),
+                                        size = 14,
+                                        face="bold"),
+            strip.text.x =  element_text(margin = margin(5,3,5,3,'pt'),
+                                         face = "bold",
+                                         size = 10),
+            axis.text = element_text(size = 8),
+            plot.subtitle = ggtext::element_markdown(size = 25,
+                                                     margin = margin(3,5,10,5,'pt'),
+                                         face = "italic"),
+            legend.position = "top",
+            legend.text =element_text(size = 14)) +
+    scale_fill_manual(values = pal)  +
+    labs(y = "Estimated Infections",
+         title = paste0("Estimated Cases by Version in ", toupper(state))) +
+    scale_color_manual(values = c('obs' = 'red'), labels = 'Positive Tests',
+                       name = '') +
+    guides(color = guide_legend(override.aes = list(linewidth =2)))
+  
+  
+    ggsave(here::here(paste0('thesis/figure/', state, .y, '_pb_compared_to_observed.pdf')),
+           height=22, width = 15, dpi=400) }
+)
+
+
+```
+
+
+```{r}
+
+joined %>% 
+  group_by(biweek) %>%
+ filter(biweek >=6) %>%
+  mutate(xmin = min(date),
+         xmax = max(date)) %>%
+  ungroup() %>%
+   ggplot() +
+  geom_ribbon(aes(x = date,
+             ymin = exp_cases_lb,
+             ymax = exp_cases_ub,
+             fill = vlabel),
+             alpha = .5,
+             show.legend=TRUE) +
+   # geom_linerange(aes(xmin = xmin,
+   #                    xmax=xmax,
+   #                    y = exp_cases_median,
+   #                    color =vlabel)) +
+  facet_wrap(~county_name, scales = "free_y",
+              labeller=labeller(vlabel =as_labeller(TeX, default=label_parsed)),
+             ncol = 3) +
+  scale_y_continuous(labels = comma) +
+  scale_x_date(date_breaks = "2 months", 
+               date_labels = "%b %Y") +
+  theme_c(axis.text.x = element_text(angle = 60, size = 16),
+          plot.title=element_text(face = "bold",
+                                  hjust = .5, 
+                                  size = 22,
+                                  margin=margin(5,5,15,5,'pt')),
+          strip.background = element_rect(fill = "#393939"),
+          strip.text = element_text(color =  "white", size = 16),
+          strip.text.y = element_text(margin = margin(5,5,5,5,'pt'),
+                                      size = 14,
+                                      face="bold"),
+          strip.text.x =  element_text(margin = margin(5,3,5,3,'pt'),
+                                       face = "bold",
+                                       size = 10),
+          plot.subtitle = ggtext::element_markdown(size = 25,margin = margin(3,5,10,5,'pt'),
+                                       face = "italic"),
+          legend.position = "top",
+          legend.text =element_text(size = 14)) +
+#  scale_color_manual(values = pal, labels =TeX(names(pal)))  +
+   scale_fill_manual(values = pal, labels =TeX(names(pal)),
+                     name ='') +
+  labs(y = "Estimated Cases",
+       title = paste0("Estimated Cases by Version in Michigan")) 
+
+
+ggsave(here::here(paste0('thesis/figure/', state, '_pb_compare_versions.pdf')), 
+       height=17, width = 17, dpi=400)
+
+```
+
+
+```{r}
+
+joined %>%
+  mutate(county_name = gsub("$","", county_name,fixed=TRUE),
+         county_name = gsub('"', '', county_name, fixed=TRUE)) %>%
+  select(-date) %>% 
+  distinct() %>%
+  mutate(in_interval = infections <= exp_cases_ub & infections >= exp_cases_lb) %>%
+  filter(!is.na(in_interval)) %>%
+  group_by(vlabel, in_interval, county_name) %>%
+  summarize(n=n()) %>%
+  group_by(county_name, vlabel) %>%
+  mutate(tot=sum(n),
+         prop_contained = n/tot) %>%
+ filter(in_interval) %>%
+  group_by(county_name) %>%
+  mutate(m = max(prop_contained)) %>%
+  ggplot(aes(x=fct_reorder(county_name, m, .desc=TRUE),
+             y = prop_contained, color = vlabel)) +
+  geom_point(size = 3.5) +
+  labs(y = "Proportion of Biweeks Containing Covidestim Estimate",
+       x = "County",
+       title = "Comparing the Proportion of Biweeks Where Probabilistic Bias Interval Contains Covidestim Estimate")+
+    scale_color_manual(values = pal, labels =TeX(names(pal)), name ='')  +
+  theme_c(axis.text.x = element_text( size =16, angle =60, hjust=.95,vjust=.9),
+          axis.text.y = element_text(size = 12),
+          legend.text = element_text(size = 28),
+          axis.title= element_text(size = 25),
+          legend.position ="top",
+          plot.title = element_text(size = 38, face="bold", margin = margin(2,0,3,0))) +
+  scale_y_continuous(n.breaks = 6) +
+  guides(color = guide_legend(override.aes = list(size = 8), nrow=4,
+                              byrow=TRUE))
+
+ggsave(here::here(paste0('thesis/figure/', 
+                         state, 
+                         '_pb_compared_to_covidestim_proportions.pdf')), 
+       height=14, width = 28, dpi=400)
+
+```
+
+
+### Summarizing Concordance with Covidestim 
+
+
+#### By Version
+
+
+```{r}
+
+mi_concordance <- joined %>%
+  filter(biweek >=6) %>%
+  # covidestim does not report estimates for Nantucket 
+  filter(!grepl("Nantucket", county_name )) %>%
+  select(-date) %>%
+  distinct() %>%
+  select(exp_cases_lb, exp_cases_ub, county_name, biweek, vlabel, infections) %>%
+  mutate(in_interval = case_when(
+    exp_cases_lb <= infections & infections <= exp_cases_ub ~ "In Interval",
+    exp_cases_lb  > infections  ~ "Below Interval",
+    exp_cases_ub < infections ~ "Above Interval"
+  ) ) %>%
+  group_by(in_interval, county_name, vlabel) %>%
+  summarize(n_per_county=n()) %>%
+  group_by(vlabel, in_interval) %>%
+  summarize(n_per_version = sum(n_per_county)) %>%
+  group_by(vlabel) %>%
+  mutate(total = sum(n_per_version)) %>%
+  ungroup() %>%
+  mutate(prop=n_per_version/total)%>%
+  group_by(vlabel) %>%
+  mutate(m =prop[which(in_interval=="In Interval")]) %>%
+  ungroup()
+
+
+
+labels <- mi_concordance %>%
+  arrange((m)) %>%
+  pull(vlabel) %>%
+  unique() %>%
+  as.character()
+
+mi_concordance %>%
+  ggplot(aes(y =fct_reorder(vlabel,m),
+             x = prop, 
+             fill=in_interval)) +
+  #facet_wrap(~fct_reorder((vlabel),m), ncol=1) +
+  geom_bar(stat="identity",
+           position="dodge",
+           color="darkgray", 
+           linewidth=.2) +
+#  viridis::scale_fill_viridis(option="mako", begin=.2, discrete=TRUE) +
+  theme_c(legend.position="right",
+          legend.title = element_text(face="bold", size = 15),
+          legend.text= element_text( size = 15),
+          legend.spacing.y = unit(3, 'pt'),
+          axis.text.y = element_text(size = 17, hjust=1)) +
+  scale_y_discrete(labels=unname(TeX(labels))) +
+  labs(y ="",
+       x="Proportion",
+       fill = "Covidestim Median:") +
+  scale_fill_manual(values=c("In Interval" = "#79D2AF", 
+                             "Above Interval" = "#D2AF79",
+                      "Below Interval"="#7997D2")) +
+  guides(fill=guide_legend(byrow=TRUE)) +
+  scale_x_continuous(n.breaks = 7, 
+                     expand=c(0,0),
+                     limits=c(-.05,1))
+
+
+
+
+
+
+```
+
+
+## By County
+
+```{r, height=8, width=11}
+
+
+#######################################################################
+# CONCORDANCE BY ABOVE, BELOW, WITHIN FOR MOST CONCORDANT VERSION 
+#######################################################################
+mi_concordance_by_county <- joined %>%
+  filter(biweek >=6) %>%
+  # covidestim does not report estimates for Nantucket 
+  select(-date) %>%
+  mutate(county_name = gsub("$", "", county_name, fixed=TRUE)) %>%
+  distinct() %>%
+  select(exp_cases_lb, exp_cases_ub, county_name, biweek, vlabel, infections) %>%
+  mutate(in_interval = case_when(
+    exp_cases_lb <= infections & infections <= exp_cases_ub ~ "In Interval",
+    exp_cases_lb  > infections  ~ "Below Interval",
+    exp_cases_ub < infections ~ "Above Interval"
+  ) ) %>%
+  group_by(in_interval, county_name, vlabel) %>%
+  summarize(n_per_county=n()) %>%
+  group_by(county_name,vlabel) %>%
+  mutate(total = sum(n_per_county),
+         prop = n_per_county/total) %>%
+  mutate(state="MA")%>%
+  group_by(county_name)
+
+
+
+#########################################################
+# CONCORDANCE BY COUNTY FOR MOST CONCORDANT VERSION 
+#########################################################
+
+  
+  
+ggsave(here('presentation/figure/best_version_by_county_mi.jpeg'), height=8,width=11)
+
+
+mi_concordance_by_county %>%
+  ggplot(aes(y = fct_reorder(county_name, max_prop),
+             fill = type,
+             x= max_prop)) +
+  geom_bar(stat="identity",position="dodge", alpha=.8)+
+  scale_fill_manual(values = pal,labels=TeX(names(pal)))  +
+  theme_c(legend.position="right",
+          legend.text=element_text(hjust=0, size = 15),
+          axis.title=element_text(size=16),
+          axis.text.x=element_text(size=11),
+          axis.text.y = element_text(size=14)) +
+  labs(y = "", x="Proportion Containing Covidestim Median",
+       fill="")
+
+
+
+
+
+
+#########################################################
+# CONCORDANCE BY COUNTY (NOT VERSION)
+#########################################################
+best_by_county <- mi_concordance_by_county %>%
+  group_by(county_name) %>%
+  filter(in_interval=="In Interval" )%>%
+  summarize(vlabel = vlabel[which.max(prop)]) 
+
+mi_concordance_by_county %>%
+  inner_join(best_by_county) %>%
+  ggplot(aes(x= fct_reorder(county_name,m), 
+             fill = in_interval, y =prop)) + 
+  geom_bar(stat="identity",position="dodge") +
+  theme_c() +
+  coord_flip()+
+  scale_fill_manual(values=c("In Interval" = "#79D2AF",
+                             "Above Interval" = "#D2AF79",
+                      "Below Interval"="#7997D2")) +
+  labs(x="", 
+       y= "Proportion",
+       fill = "Covidestim Median:",
+       title = "Proportion Where Covidestim Median\nWas Within, Above, or Below the Median",
+       subtitle = "For Implementation with Greatest Concordance")+
+  theme_c(legend.position="right",
+          legend.title = element_text(face="bold", size = 15),
+          legend.text= element_text( size = 15),
+          legend.spacing.y = unit(3, 'pt'),
+          axis.text.y = element_text(size = 17, hjust=1))
+  
+ggsave(here('presentation/figure/covidestim_above_below_by_county_mi.jpeg'), height=8,width=11)
+
+
+
+
+
+
+
+mi_concordance_by_county<- mi_concordance_by_county %>%
+  mutate(state="MI")
+
+
+ma_concordance_by_county  <- ma_concordance_by_county %>%
+  mutate(state="MA")
+
+# 
+# ma_concordance_by_county %>%
+#   bind_rows(mi_concordance_by_county) %>%
+#   ggplot(aes(x=prop)) +
+#   geom_histogram(bins=15) +
+#   facet_grid(state~vlabel, scales="free_y")
+
+
+
+#########################################################
+# CONCORDANCE BY COUNTY (NOT VERSION)
+#########################################################
+best_by_county <- mi_concordance_by_county %>%
+  group_by(county_name) %>%
+  filter(in_interval=="In Interval" )%>%
+  summarize(vlabel = vlabel[which.max(prop)]) 
+
+mi_concordance_by_county %>%
+  inner_join(best_by_county) %>%
+  ggplot(aes(x= fct_reorder(county_name,m), 
+             fill = in_interval, y =prop)) + 
+  geom_bar(stat="identity",position="dodge") +
+  theme_c() +
+  coord_flip()+
+  scale_fill_manual(values=c("In Interval" = "#79D2AF",
+                             "Above Interval" = "#D2AF79",
+                      "Below Interval"="#7997D2")) +
+  labs(x="", 
+       y= "Proportion",
+       fill = "Covidestim Median:",
+       title = "Proportion Where Covidestim Median\nWas Within, Above, or Below the Median",
+       subtitle = "For Implementation with Greatest Concordance")+
+  theme_c(legend.position="right",
+          legend.title = element_text(face="bold", size = 15),
+          legend.text= element_text( size = 15),
+          legend.spacing.y = unit(3, 'pt'),
+          axis.text.y = element_text(size = 12, hjust=1))
+  
+ggsave(here('presentation/figure/covidestim_above_below_by_county_mi.jpeg'), height=15,width=11)
+
+
+
+
+
+
+
+#########################################################
+# CONCORDANCE BY COUNTY (MOST CONC. VERSION) 
+#########################################################
+mi_concordance_by_county  %>%
+  filter(in_interval=="In Interval") %>%
+  group_by(county_name) %>%
+  summarize(max_prop =max(prop),
+         type = vlabel[which.max(prop)]) %>%
+  ungroup() %>%
+  ggplot(aes(y = fct_reorder(county_name, max_prop),
+             fill = type,
+             x= max_prop)) +
+  geom_bar(stat="identity",position="dodge", alpha=.8)+
+  scale_fill_manual(values = pal,labels=TeX(names(pal)))  +
+  theme_c(legend.position="right",
+          legend.text=element_text(hjust=0, size = 15),
+          axis.title=element_text(size=16),
+          axis.text.x=element_text(size=11),
+          axis.text.y = element_text(size=14)) +
+  labs(y = "", x="Proportion Containing Covidestim Median",
+       fill="") 
+
+ggsave(here('presentation/figure/best_version_by_county_mi.jpeg'), height=8,width=11)
+
+
+
+
+```
+
+
+
+```{r, width=14, height=8}
+
+
+concordance_both <- mi_concordance %>%
+  bind_rows(ma_concordance) %>%
+  group_by(vlabel, in_interval) %>%
+  summarize(n_per_version_both = sum(n_per_version)) %>%
+  group_by(vlabel) %>%
+  mutate(total = sum(n_per_version_both)) %>%
+  mutate(prop = n_per_version_both/total) %>%
+  mutate(m = n_per_version_both[which(in_interval=="In Interval")])  
+
+
+labels <- ma_concordance %>%
+  arrange((m)) %>%
+  pull(vlabel) %>%
+  unique() %>%
+  as.character()
+
+concordance_both %>%
+  ggplot(aes(y =fct_reorder(vlabel,m),
+             x = prop, 
+             fill=in_interval)) +
+  #facet_wrap(~fct_reorder((vlabel),m), ncol=1) +
+  geom_bar(stat="identity",position="dodge", color="darkgray", linewidth=.2) +
+#  viridis::scale_fill_viridis(option="mako", begin=.2, discrete=TRUE) +
+  theme_c(legend.position="right",
+          legend.title = element_text(face="bold", size = 15),
+          legend.text= element_text( size = 15),
+          legend.spacing.y = unit(3, 'pt'),
+          axis.text.y = element_text(size = 17, hjust=1)) +
+  scale_y_discrete(labels=unname(TeX(labels))) +
+  labs(y ="",
+       title = "Proportion of Observations Where Covidestim Medians\nAre Within, Above, or Below Probabilistic Bias Intervals",
+       x="Proportion",
+       fill = "Covidestim Median:\n") +
+  scale_fill_manual(values=c("In Interval" = "#79D2AF", 
+                             "Above Interval" = "#D2AF79",
+                      "Below Interval"="#7997D2")) +
+  guides(fill=guide_legend(byrow=TRUE)) +
+  scale_x_continuous(n.breaks = 7, expand=c(0,0),limits=c(-.05,1))
+
+
+ggsave(here('presentation/figure/prop_contained.jpeg'), width=14, height=8, dpi=400)
+
+
+```
+
+
+## By County
+
+```{r}
+
+```
+
+
+
+
+
+
+

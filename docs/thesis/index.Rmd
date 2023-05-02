@@ -20,12 +20,12 @@ acknowledgements: |
   Will add
 dedication: |
   You can have a dedication here if you wish. 
-preface: |
-  I am unsure as to what goes here.
-bibliography: "bibliography.json"
+bibliography: "bibliography.bib"
 csl: csl/apa.csl
-lot: true
-lof: true
+lot: false
+lof: false
+urlcolor: blue
+linkcolor: blue
 ---
 
 ```{r,eval=FALSE,include=FALSE}
@@ -91,8 +91,8 @@ library(pioneerdown)
 options(width = 70, echo = FALSE)
 ```
 
-```{r}
-knitr::opts_chunk$set(fig.width = 10, echo = FALSE)
+```{r,include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 

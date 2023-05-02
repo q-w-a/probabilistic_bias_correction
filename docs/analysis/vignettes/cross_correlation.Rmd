@@ -1,0 +1,785 @@
+---
+title: "Cross Correlation Analysis"
+author: "Quinn White"
+date: '`r Sys.Date()`'
+output:
+  rmdformats::readthedown:
+    df_print: paged
+    code_folding: hide
+    css: ../../css/template.css
+    toc-depth: 4
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE,warning=FALSE)
+
+library(latex2exp)
+library(tidyverse)
+
+theme_c <- function(...) {
+  theme_bw() + 
+    theme(
+          ...,
+          axis.title = element_text(size = 14),
+          axis.text.x = element_text(size = 10),
+          plot.title =element_text(size = 16,
+                                   face="bold",
+                                   hjust = .5),
+        plot.subtitle =element_text(size = 14,
+                                   face="italic",
+                                   hjust = .5),
+          strip.text = element_text(size = 13),
+          legend.text = element_text(size = 14))
+}
+```
+
+question to consider here -- this measures *linear* dependence, but I assume that okay given the curves will be highly linearly dependent if they are showing similar shapes.
+
+# Defining Cross Correlation
+
+
+Denote the set of time points of a time series $T$. For any time series $(x_t)_{t\in T}$, we define the auto-correlation function (ACF)  as 
+
+$$\rho_{XX}(\tau) = \dfrac{E[(X_{t + \tau} - \mu_{X_{t+\tau}}) (X_t - \mu_{X_t})]}{sd(X_{t+\tau}) sd(X_t)}.\tag{1}$$
+
+Assuming second order stationarity^[Second order stationarity is also referred to as weak stationarity, and implies that the mean, variance are constant over time and the autocovariance function depends only on the difference between time points (i.e., the lag).], we have $\mu_{X_{t+\tau}}=\mu_{X_{t}}$
+and similarly $\text{Var}({X_{t+\tau}})=\text{Var}({X_{t}})$, so (1) simplifies to 
+$$=\dfrac{E[(X_{t + \tau} - \mu_{X}) (X_t - \mu_{X})]}{Var(X)}$$ 
+The auto-correlation function $\rho_{XX}(\tau)$ measures the linear dependence between $X_{1+\tau}, \dots X_n$ and $X_1, \dots, X_{n-\tau}$, that is, the difference between the original time series and the time series shifted forward by $\tau$ time units.
+
+We can extend this definition to quantify the linear relationship between distinct lagged time series  $X_1, X_2, \dots, X_t$ and $Y_1, Y_2, \dots, Y_t$ by defining the cross correlation function. The function is only defined on two time series that are over the same time interval and sampled at the same frequency. We compute the cross-correlation function (CCF) as
+
+$$\rho_{XY}(s,t) = \dfrac{E[(X_s - \mu_{X_s})(Y_t-\mu_{Y_t})]}{\sqrt{\text{Var}(X_s) \text{Var}(Y_t)}}.$$
+Again assuming the series satisfy second-order stationarity, we have
+
+$$\rho_{XY}(s,t) = \dfrac{E[(X_s - \mu_{X})(Y_t-\mu_{Y})]}{\sqrt{\text{Var}(X) \text{Var}(Y)}}.$$
+
+```{r,eval=FALSE,include=FALSE}
+##### scratch
+
+
+# sim <- tibble(y =  as.numeric(arima.sim(list(order = c(1,1,0), ar = 0.5), n = 10)),
+#         x = 1:length(y))
+
+
+sim  %>%
+  ggplot(aes(x=x, y =y)) +
+  geom_point() 
+
+n <- length(sim$y)
+
+res <- acf(sim$y, demean=TRUE, type = "covariance") %>% View()
+
+lag(sim$y,1)[2:length(sim$y)]
+
+
+cor(sim$y[2:(length(sim$y))], lag(sim$y,1)[2:length(sim$y)])
+
+cor(sim$y[1:(length(sim$y)-1)], lead(sim$y,1)[1:(length(sim$y) - 1)])
+
+cor(sim$y[1:(10-1)], sim$y[2:10])
+
+sim$y[1:(length(sim$y)-1)]
+
+(sim$y[1:(n-1)] - mean(sim$y[1:(10-1)])) %*% (sim$y[2:10] - mean(sim$y[2:10]))
+  
+(sim$y[1:(n-1)] - mean(sim$y)) %*% (sim$y[2:n] - mean(sim$y))
+
+
+
+
+# cross correlations between x and y lagged by lag_val units
+# crosscorr <- function(lag_val, x, y) {
+#   n <- length(x)
+#   denom <- sqrt(var(x)*(n/(n-1))^2*var(y))
+#   num <- (1/n) * (x[1:(n-lag_val)] - mean(x)) %*% (y[(lag_val+1):n] - mean(y))
+#   num /denom
+# }
+  
+# crosscorr(lag_val = 0, sim$y, sim$z)
+# crosscorr(lag_val = 0, sim$z, sim$y)
+```
+
+
+## Without Differencing
+
+Making the time series stationary via [differencing.](https://otexts.com/fpp3/stationarity.html) 
+
+$z$ is $y$ lagged by 3 time units with some added noise. Without differencing, max correlation is not at -3.
+
+
+```{r}
+
+library(tidyverse)
+
+nsamp <- 50
+lagged <- 3
+
+# y is lagged 3 units behind z
+set.seed(999)
+y <-  as.numeric(arima.sim(list(order = c(1,1,0), ar = 0.7),
+                           n = nsamp+lagged-1))
+n <- length(y)
+z <- y[1:(n-lagged)]
+z <- z + rnorm(length(z), -5, .5)
+y <- y[(lagged+1):length(y)]
+
+sim <- tibble(y = y,
+              z= z,
+              x = 1:length(y))
+
+sim %>% 
+  pivot_longer(c(y,z)) %>%
+  ggplot(aes(x=x, y = value, color = name)) +
+  geom_point() +
+  geom_line() +
+  viridis::scale_color_viridis(discrete=TRUE, begin = .2, end = .8) +
+  theme_bw()
+
+
+res <- ccf(sim$y, sim$z, plot=FALSE)
+
+
+ccf_res <- tibble(lag = res$lag[,,1], correlation=res$acf[,,1]) 
+
+ccf_res %>%
+  mutate(max = ifelse(correlation == max(correlation), 
+                      lag, NA)) %>%
+  ggplot(aes(x=lag, y = correlation)) +
+  geom_point() +
+  geom_linerange(aes(ymin = 0, ymax=correlation)) +
+  theme_c() +
+  labs(title =TeX("Cross Correlation between $(Y_t)$ and $(Z_t)$")) +
+  geom_label(aes(x = max, y = correlation,
+                 label = paste0("Max Correlation at Lag: ", max)),
+             hjust = -.1)
+
+
+```
+
+```{r, fig.show='hide', results = 'hide'}
+
+
+##############################
+# IMPLEMENTING FROM SCRATCH
+##############################
+autocorr <- function(lag_val, vec) {
+  n <- length(vec)
+  denom <- sum( (vec -mean(vec))  %*% (vec -mean(vec)) )
+  num <- (vec[(lag_val+1):n] - mean(vec)) %*% (vec[1:(n-lag_val)] - mean(vec))
+  as.numeric(num /denom)
+}
+  
+
+
+# cross correlations between x and y, where x is lagged by lag_val units
+crosscorr <- function(lag_val, x, y) {
+  n <- length(x)
+  var_x <- (sum( (x -mean(x))  %*% (x -mean(x)) ))
+  var_y <- (sum( (y -mean(y))  %*% (y -mean(y)))) 
+  denom <- sqrt(var_x*var_y)                                     
+  num <- (x[1:(n-lag_val)] - mean(x)) %*% (y[(lag_val+1):n] - mean(y))
+  as.numeric(num /denom)
+}
+
+
+
+
+
+cross_all_pos <- map_df(0:12, ~{
+  tibble(lag = .x, 
+         correlation =crosscorr(lag_val = .x,
+                                 sim$z, sim$y))
+})
+
+cross_all_neg <- map_df(1:12, ~{
+  tibble(lag = (-1)* .x, 
+         correlation = crosscorr(lag_val =.x,
+                                 sim$y, sim$z))
+})
+
+
+cross_all <- bind_rows(cross_all_pos,
+          cross_all_neg)
+
+################################################
+# compare implementation to stats implementation
+################################################
+cross_all %>%
+   ggplot(aes(x=lag, y = correlation)) +
+    geom_point() +
+    geom_linerange(aes(ymin = 0, ymax=correlation)) +
+    theme_c() 
+
+res <- ccf(sim$y, sim$z, plot = FALSE)
+
+
+tibble(lag = res$lag[,,1], corr=res$acf[,,1]) %>%
+  filter(corr==max(corr))
+
+
+```
+
+## With Differencing
+
+
+$z$ is $y$ lagged by 3 time units with some added noise. With differencing, max correlation is at -3.
+
+```{r}
+
+library(tidyverse)
+
+
+
+################################
+# z is lagged 3 units behind y
+################################
+nsamp <- 50
+lagged <- 3
+
+
+set.seed(999)
+y <-  as.numeric(arima.sim(list(order = c(1,1,0), ar = 0.7),
+                           n = nsamp+lagged-1))
+n <- length(y)
+
+z <- y[1:(n-lagged)]
+# add noise
+z <- z + rnorm(length(z), -5, .5)
+y <- y[(lagged+1):n]
+
+# apply differencing 
+sim <- tibble(y = y -lag(y,1),
+              z=  z - lag(z,1),
+              x = 1:length(y)) %>%
+  filter(!is.na(y))
+
+
+
+sim %>% 
+  pivot_longer(c(y, z)) %>%
+  ggplot(aes(x=x, y = value, color = name)) +
+  geom_point() +
+  geom_line() +
+  viridis::scale_color_viridis(discrete=TRUE, begin = .2, end = .8) +
+  theme_c() +
+  labs(title ="Time Series Model with Differencing",
+       color = "")
+
+# compute cross correlation 
+res <- ccf(sim$y, sim$z, plot=FALSE)
+
+
+tibble(lag = res$lag[,,1], correlation=res$acf[,,1]) %>%
+  mutate(max = ifelse(correlation == max(correlation), 
+                      lag, NA)) %>%
+  ggplot(aes(x=lag, y = correlation)) +
+  geom_point() +
+  geom_linerange(aes(ymin = 0, ymax=correlation)) +
+  theme_c() +
+  labs(title =TeX("Cross Correlation between $(Y_t)$ and $(Z_t)$")) +
+  geom_label(aes(x = max, y = correlation,
+                 label = paste0("Max Correlation at Lag: ", max)),
+             hjust = -.1)
+
+
+
+```
+
+```{r, fig.show='hide', results='hide'}
+
+autocorr <- function(lag_val, vec) {
+  n <- length(vec)
+  denom <- sum( (vec -mean(vec))  %*% (vec -mean(vec)) )
+  num <- (vec[(lag_val+1):n] - mean(vec)) %*% (vec[1:(n-lag_val)] - mean(vec))
+  as.numeric(num /denom)
+}
+  
+
+
+# cross correlations between x and y, where x is lagged by lag_val units
+crosscorr <- function(lag_val, x, y) {
+  n <- length(x)
+  var_x <- (sum( (x -mean(x))  %*% (x -mean(x)) ))
+  var_y <- (sum( (y -mean(y))  %*% (y -mean(y)))) 
+  denom <- sqrt(var_x*var_y)                                     
+  num <- (x[1:(n-lag_val)] - mean(x)) %*% (y[(lag_val+1):n] - mean(y))
+  as.numeric(num /denom)
+}
+
+
+# split up due to implementation of crosscor function
+# firt lag y
+cross_all_pos <- map_df(0:12, ~{
+  tibble(lag = .x, 
+         correlation =crosscorr(lag_val = .x,
+                                 sim$z, sim$y))
+})
+
+cross_all_neg <- map_df(1:12, ~{
+  tibble(lag = (-1)* .x, 
+         correlation = crosscorr(lag_val =.x,
+                                 sim$y, sim$z))
+})
+
+
+cross_all <- bind_rows(cross_all_pos,
+          cross_all_neg)
+
+cross_all %>%
+  mutate(max = ifelse(correlation == max(correlation), 
+                      lag, NA)) %>%
+  ggplot(aes(x=lag, y = correlation)) +
+  geom_point() +
+  geom_linerange(aes(ymin = 0, ymax=correlation)) +
+  theme_c() +
+  geom_label(aes(x = max, y = correlation,
+                 label = paste0("Max Correlation at Lag: ", max)),
+             hjust = -.1)
+
+
+
+#############################################
+# IMPLEMENTATION FROM STATS
+#############################################
+
+res <- ccf(sim$y, sim$z) 
+
+
+# res <- tibble(acf =as.numeric(res$acf),
+#               lag = as.numeric(res$lag))
+# res %>% filter(acf==max(acf))
+
+# cor(sim$y,sim$z)
+
+tibble(lag = res$lag[,,1], corr=res$acf[,,1]) %>%
+  filter(corr==max(corr))
+
+tibble(lag = res$lag[,,1], corr=res$acf[,,1])
+
+
+```
+
+
+## Additional Simulations
+
+### By Noise Added
+
+#### No Noise Term
+
+
+```{r plot_corr function}
+
+library(cowplot)
+
+
+plot_ccf <- function(ccf_df, differencing = FALSE) {
+  ccf_df %>%
+    mutate(max = ifelse(correlation == max(correlation), 
+                        lag, NA)) %>%
+    ggplot(aes(x=lag, y = correlation)) +
+    geom_point() +
+    geom_linerange(aes(ymin = 0, ymax=correlation)) +
+    theme_c() +
+    labs(title =TeX("Cross Correlation between $(Y_t)$ and $(Z_t)$"),
+                    subtitle = ifelse(differencing, "With Differencing", "")) +
+    geom_label(aes(x = max, y = correlation,
+                   label = paste0("Max Correlation at Lag: ", max)),
+               hjust = -.1) +
+    ylim(-1,1)
+  
+}
+
+plot_corr <- function(mean, sd, lagged, title ="") {
+  
+  set.seed(999)
+  y <-  as.numeric(arima.sim(list(order = c(1,1,0), ar = 0.7),
+                           n = nsamp+lagged-1))
+  n <- length(y)
+
+  z <- y[1:(n-lagged)]
+
+  z <- z + rnorm(length(z), mean = mean, sd = sd)
+  y <- y[(lagged+1):length(y)]
+  
+
+  
+  sim_diff <- tibble(y = y -lag(y,1),
+              z=  z - lag(z,1),
+              x = 1:length(y)) %>%
+  filter(!is.na(y))
+  
+
+  sim <- tibble(y = y,
+                z= z,
+                x = 1:length(y))
+
+  
+  plt1 <- sim %>% 
+    pivot_longer(c(y,z)) %>%
+    ggplot(aes(x=x, y = value, color = name)) +
+    geom_point() +
+    geom_line() +
+    viridis::scale_color_viridis(discrete=TRUE, begin = .2, end = .8) +
+    theme_bw() +
+    labs(color = "") +
+    guides(color = guide_legend(override.aes = list(size = 2)))
+  
+  
+  res <- ccf(sim$y, sim$z, plot=FALSE)
+  res_diff <- ccf(sim_diff$y, sim_diff$z, plot=FALSE)
+
+  
+  ccf_res <- tibble(lag = res$lag[,,1], 
+                    correlation=res$acf[,,1]) 
+  ccf_res_diff <- tibble(lag = res_diff$lag[,,1],
+                         correlation=res_diff$acf[,,1]) 
+
+  shared_title <- ggdraw() + 
+  draw_label(
+    title,
+    fontface = 'bold',
+    x = 0,
+    hjust =0
+  ) +
+  theme(
+    plot.margin = margin(0, 0, 5, 10)
+  )
+
+  
+  plt2 <- ccf_res %>%
+    plot_ccf(differencing=FALSE)
+  
+  plt3 <- ccf_res_diff %>%
+    plot_ccf(differencing=TRUE)
+  
+  plot_row <- plot_grid(plt1, plt2, plt3, nrow =1)
+  plot_grid(shared_title, plot_row, ncol=1, rel_heights = c(0.1, 1))
+
+  
+}
+
+
+
+
+
+```
+
+```{r, include = FALSE, eval= FALSE}
+
+
+set.seed(999)
+nsamp <- 50 
+lagged <- 3
+#
+y <-  as.numeric(arima.sim(list(order = c(1,1,0), ar = 0.7),
+                           n = nsamp+lagged-1))
+n <- length(y)
+z <- y[1:(n-lagged)]
+y <- y[(lagged+1):length(y)]
+
+cor(z[4:50], y[1:47])
+
+
+# x 
+crosscorr <- function(lag_val, x, y) {
+  n <- length(x)
+  sq_diff_x <- (sum( (x -mean(x))  %*% (x -mean(x)) ))
+  sq_diff_y <- (sum( (y -mean(y))  %*% (y -mean(y)))) 
+  denom <- sqrt(sq_diff_x*sq_diff_y)                                     
+  num <- (x[1:(n-lag_val)] - mean(x)) %*% (y[(lag_val+1):n] - mean(y))
+  as.numeric(num /denom)
+}
+
+
+lag_val <- 0
+sq_diff_x <- (sum( (x -mean(x))  %*% (x -mean(x)) ))
+sq_diff_y <- (sum( (y -mean(y))  %*% (y -mean(y)))) 
+denom <- sqrt(sq_diff_x*sq_diff_y)                                     
+num <- (x[1:(n-lag_val)] - mean(x)) %*% (y[(lag_val+1):n] - mean(y))
+as.numeric(num /denom)
+
+
+
+# lag y by 3
+crosscorr(3, y, z)
+
+res <- ccf(z,y)
+
+res$acf %>% filter(lag ==3)
+
+
+
+
+ccf_res <- tibble(lag = res$lag[,,1], 
+                    correlation=res$acf[,,1]) 
+
+
+#   
+
+n <- length(x)
+var_x <- (sum( (x -mean(x))  %*% (x -mean(x)) )) /(n-1)
+var_y <- (sum( (y -mean(y))  %*% (y -mean(y))))  / (n-1)
+denom <- sqrt(var_x*var_y)                                     
+num <- (x[1:(n-lag_val)] - mean(x)) %*% (y[(lag_val+1):n] - mean(y)) / (n-1)
+as.numeric(num /denom)
+  
+
+n <- length(x)
+var_x <- (sum( (x -mean(x))  %*% (x -mean(x)) )) 
+var_y <- (sum( (y -mean(y))  %*% (y -mean(y)))) 
+denom <- sqrt(var_x*var_y)                                     
+num <- (x[1:(n-lag_val)] - mean(x)) %*% (y[(lag_val+1):n] - mean(y)) 
+as.numeric(num /denom)
+  
+
+  
+```
+
+```{r, fig.width = 14, fig.height =4}
+  
+# no noise
+plot_corr(mean = 0, sd = 0, lagged =3, title = "No Noise")
+
+# cross correlations between x and y, where x is lagged by lag_val units
+crosscorr <- function(lag_val, x, y) {
+  n <- length(x)
+  var_x <- (sum( (x -mean(x))  %*% (x -mean(x)) ))
+  var_y <- (sum( (y -mean(y))  %*% (y -mean(y)))) 
+  denom <- sqrt(var_x*var_y)                                     
+  num <- (x[1:(n-lag_val)] - mean(x)) %*% (y[(lag_val+1):n] - mean(y))
+  as.numeric(num /denom)
+}
+
+
+
+
+
+```
+
+#### Changing SD of Noise Term
+
+```{r, fig.width = 14, fig.height =4}
+
+
+
+walk(c(1:5), ~ { 
+  plt <- plot_corr(mean = 0, sd = .x, lagged = 3, 
+                   title = paste0("SD of Noise Term: ", .x, ", Mean = 0"))
+  print(plt)
+  })
+
+
+```
+
+```{r, include = FALSE, eval= FALSE}
+#### Changing Mean of Noise Term
+
+# ```{r, fig.width = 14, fig.height =4 }
+
+
+
+# no noise term
+walk(c(0:5), ~ { 
+  plt <- plot_corr(mean = .x, sd = 1, lagged = 3, 
+                   title = paste0("Mean of Noise Term: ", .x, ", SD = 1"))
+  print(plt)
+  })
+
+
+```
+
+### Different Models
+
+
+
+```{r}
+plot_sim <- function(y, lagged, 
+                     title ="",
+                     mean = 5,
+                     sd = .5) {
+  
+   set.seed(999)
+  
+  n <- length(y)
+
+  z <- y[1:(n-lagged)]
+  z <- z + rnorm(length(z), mean = mean, sd = sd)
+  y <- y[(lagged+1):length(y)]
+  
+
+  
+  sim_diff <- tibble(y = y -lag(y,1),
+              z=  z - lag(z,1),
+              x = 1:length(y)) %>%
+  filter(!is.na(y))
+  
+
+  sim <- tibble(y = y,
+                z= z,
+                x = 1:length(y))
+
+  
+  plt1 <- sim %>% 
+    pivot_longer(c(y,z)) %>%
+    ggplot(aes(x=x, y = value, color = name)) +
+    geom_point() +
+    geom_line() +
+    viridis::scale_color_viridis(discrete=TRUE, begin = .2, end = .8) +
+    theme_bw()
+  
+  
+  res <- ccf(sim$y, sim$z, plot=FALSE)
+  res_diff <- ccf(sim_diff$y, sim_diff$z, plot=FALSE)
+
+  
+  ccf_res <- tibble(lag = res$lag[,,1], 
+                    correlation=res$acf[,,1]) 
+  ccf_res_diff <- tibble(lag = res_diff$lag[,,1],
+                         correlation=res_diff$acf[,,1]) 
+
+  shared_title <- ggdraw() + 
+  draw_label(
+    title,
+    fontface = 'bold',
+    x = 0,
+    hjust =0
+  ) +
+  theme(
+    plot.margin = margin(0, 0, 5, 10)
+  )
+
+  
+  plt2 <- ccf_res %>%
+    plot_ccf(differencing=FALSE)
+  
+  plt3 <- ccf_res_diff %>%
+    plot_ccf(differencing=TRUE)
+  
+  plot_row <- plot_grid(plt1, plt2, plt3, nrow =1)
+  plot_grid(shared_title, plot_row, ncol=1, rel_heights = c(0.1, 1))
+
+  
+}
+```
+
+```{r, fig.width = 16, fig.height =4}
+
+
+walk(seq(0,.99, by = .1), ~{
+  set.seed(999)
+  y_sim <- as.numeric(arima.sim(list(order = c(1,1,1), ar=.x, ma=10),
+                           n = nsamp+lagged-1))
+  plt <- plot_sim(y_sim, lagged=3)
+  print(plt)
+
+} )
+
+
+
+walk(seq(0,.99, by = .1), ~{ 
+  set.seed(999)
+  y_sim <- as.numeric(arima.sim(list(order = c(1,1,0), ar=.x),
+                           n = nsamp+lagged-1))
+  plt <- plot_sim(y_sim, lagged=3)
+  print(plt)
+
+} )
+
+```
+
+```{r, include=FALSE,eval=FALSE}
+
+plot_corr(mean = 0, sd = 0, lagged = 3)
+
+# y is lagged 3 units behind z
+set.seed(999)
+
+dat <- map_df(seq(0.1, .99, length = 10), ~{
+  set.seed(999)
+  tibble(y = as.numeric(arima.sim(list(order = c(1,1,1), ar =.x),
+                           n = nsamp+lagged-1)),
+                           x = 1:length(y),
+         ar = .x)})
+
+dat %>%
+  mutate(ar=factor(ar)) %>%
+  ggplot(aes(x=x, y =y, color = ar)) +
+  geom_line() 
+
+
+tibble(y = as.numeric(arima.sim(list(order = c(1,1,1), ma = 2),
+                           n = nsamp+lagged-1)),
+                           x = 1:length(y)) %>%
+  ggplot(aes(x=x, y =y)) +
+  geom_line() 
+
+
+set.seed(999)
+y <-  as.numeric(arima.sim(list(order = c(1,1,1), ar=.1, ma=10),
+                           n = nsamp+lagged-1))
+tibble(x=1:length(y),
+       y = y) %>%
+  ggplot(aes(x=x, y =y)) +
+  geom_line() 
+
+
+walk(seq(0,1.5, by = .1), ~{ 
+  y_sim <- as.numeric(arima.sim(list(order = c(1,1,1), ar=.x, ma=10),
+                           n = nsamp+lagged-1))
+  plt <- plot_sim(y_sim, lagged=3)
+  print(plt)
+
+} )
+
+```
+
+```{r,include=FALSE,eval=FALSE}
+
+z <- y[1:(n-lagged)]
+z <- z + rnorm(length(z), -5, .5)
+y <- y[(lagged+1):length(y)]
+
+sim <- tibble(y = y,
+              z= z,
+              x = 1:length(y))
+
+sim %>% 
+  pivot_longer(c(y,z)) %>%
+  ggplot(aes(x=x, y = value, color = name)) +
+  geom_point() +
+  geom_line() +
+  viridis::scale_color_viridis(discrete=TRUE, begin = .2, end = .8) +
+  theme_bw()
+
+
+res <- ccf(sim$y, sim$z, plot=FALSE)
+
+
+ccf_res <- tibble(lag = res$lag[,,1], correlation=res$acf[,,1]) 
+
+ccf_res %>%
+  mutate(max = ifelse(correlation == max(correlation), 
+                      lag, NA)) %>%
+  ggplot(aes(x=lag, y = correlation)) +
+  geom_point() +
+  geom_linerange(aes(ymin = 0, ymax=correlation)) +
+  theme_c() +
+  labs(title =TeX("Cross Correlation between $(Y_t)$ and $(Z_t)$")) +
+  geom_label(aes(x = max, y = correlation,
+                 label = paste0("Max Correlation at Lag: ", max)),
+             hjust = -.1)
+
+
+
+tibble(x = 1:length(y),
+       y = y) %>%
+  ggplot()
+```
+
+
+```{r, include=FALSE}
+
+# https://www.bbk.ac.uk/ms/brooms/teaching/TSF/SMTS-06.pdf
+```
+

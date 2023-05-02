@@ -1,54 +1,391 @@
 
-# Comparison to the Covidestim Model
-
-### Overview
-
-One challenge in correcting for biases in general is that although we may have some information about the influence of possible biases, we do not have a ground truth for comparison. However, one approach to handle the fact that the true cases are unobserved is comparing our estimates to those from other approaches seeking to estimate a similar quantity. In particular, if other approaches make different assumptions and come to a similar result, this can give us more confidence in our estimates. 
-
-The most notable project seeking to estimate the true infection burden at the county-level over time is the COVIDestim project. In this work, Chitwood et al. proposed a mechanistic model that includes states for asymptomatic/pre-symptomatic infection, symptomatic but mild infection, severe COVID-19 presentations, and death. This approach also enables the estimation of $R_t$, the number of secondary infections a single infected individual causes at time $t$.  
-This is a useful quantity to estimate, but is sensitive to reporting delays and changes in testing practices (https://academic.oup.com/aje/article/190/9/1908/6217341).
-
-### The Covidestim Model
-
-Chitwood *et al.* propose a Bayesian evidence synthesis model to correct for reporting delays and time varying case ascertainment testing rate in the estimation of incident infections and $R_t$.
-
- To estimate the expected cases and deaths at a particular point in time, the model uses a convolution of the time series of observed cases and deaths and reporting delay distributions that are specific to the health state categories. This enables the model to account for the fact that reporting delay is different  For any health state, for example, asymptomatic, the individual can either transition to the next health state (symptomatic) or recover. Thus, with each transition between a defined health state, for example, asymptomatic, there is a probability of transitioning to the next health state (in this case, asymptomatic → symptomatic); the complement of this probability is the probability of recovery. 
-
-Each of these transitions is defined by a delay distribution. For example, the distribution for moving from asymptomatic to symptomatic represents the probability an individual moves to the symptomatic state at a point in time. The probabilities asymptomatic to symptomatic and symptomatic to severe are modeled as not varying with time. Meanwhile, the probability of transitioning from severe to death was defined to be higher in 2020 due to higher case fatalities early in the pandemic. The infection fatality rates, adjusted to be specific to a given state or county based on age distributions and the prevalence of risk factors for COVID-19, are used to inform the probability of moving from the severe category to the death category. 
-
-The change in daily infections from the previous day (i.e., the new infections) is calculated as a function of the estimated effective reproductive number $R_t$  and the mean serial interval, where serial interval is the time from the onset of infection of a primary case to the time of onset of infection in the secondary case. $R_t$ is estimated using a log-transformed cubic spline, under the assumption individuals can only be infected once.
-
-They also defined a distribution for the delay to diagnosis, which was distinct by health state category to reflect differences in diagnosis delays that occur depending on the disease severity. 
-The probability of diagnosis among different health states was allowed to vary by time to reflect changing testing rates throughout the pandemic.
-
-A separate distribution models the reporting delay to correct the total number of diagnoses on a given day for the fact that these diagnoses correspond to past infections. 
-
-The observed cases and death data for each state to the model were fitted using negative binomial likelihood functions. 
-
-### Assumptions
-
-This approach relies on infection fatality ratios and death counts to estimate the true case counts. Thus, it is sensitive to estimates of infection fatality rate, with higher infection fatality ratio estimates resulting in lower estimated infections. The infection fatality ratio is defined as the proportion of COVID-19 infections that lead to death, which means there is uncertainty in estimating both the numerator and the denominator of the ratio. The true cumulative incidence depends on the same uncertainties in estimating the true case burden at any point in time. Estimating the infection fatality ratio itself is a challenging task. 
-
-The COVIDestim model uses age-specific estimates of IFR produced by O’Driscoll et al (https://www.nature.com/articles/s41586-020-2918-0).  This group used national-level age-stratified, and when possible sex-stratified, COVID-19 death counts and cumulative infection estimates from seroprevalence studies. Of note, the estimates of infection fatality ratio are assumed to be constant over time, which may not be the case due to improving treatments (FIND EXAMPLE) or different variants leading to less severe presentations (FIND PAPER ON OMICRON SEVERITY). 
-
-One thing to consider is that infection fatality rate may vary over time, as treatments may vary, as well as the demographics of individuals being infected. For example, during the school year, more students may test positive but will be less likely to die on average than adults (PROVIDE SOURCE FOR THIS). However, these estimates are difficult to acquire; COVIDestim assumed a higher case fatality in 2020 given the novelty of the virus and consequent lack of available treatments.
 
 
-## Comparison to Other Indicators
-
-There are known issues with seroprevalence estimates. For one, these samples are drawn from a convenience (i.e. nonrandom) sample of individuals with blood specimens taken for purposes other than COVID-19 antibody detection (https://www.cdc.gov/coronavirus/2019-ncov/cases-updates/commercial-lab-surveys.html). Secondly, while a positive serological test is evidence for infection, a negative serological test is less clear to interpret. The person may have been infected but not yet have developed antibodies, or their immune system may not have produced antibodies at a detectable level (https://www.cdc.gov/coronavirus/2019-ncov/covid-data/serology-surveillance/index.html). 
-
- Indeed, Chitwood et al. found limited concordance between their estimates and seroprevalence data. However, there was a stronger correlation between estimates of cumulative infection and cumulative hospitalizations and cumulative deaths \footnote{ The correlation employed here is the Spearman rank correlation, which measures the strength of the monotonic relationship rather than the strength of the linear relationship, in which case the Pearson correlation coefficient is the usual choice. The Spearman rank correlation is equivalent to the Pearson correlation of the rank values rather than the values themselves (https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient). This distinction is important here since we are interested in the strength of the monotonic relationship rather than the linear relationship between these values. }. 
-
-
-## Seropositivity Data
-
-To add
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      eval = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      cache = FALSE,
+                      fig.align='c',
+                      out.width="100%")
 
 
-# Results
+library(here)
+library(tidyverse)
+library(latex2exp)
 
-## County-level
 
-## State-level
+theme_c <- function(...) {
+  theme_bw() + 
+    theme(
+          ...,
+          axis.title = element_text(size = 11),
+          axis.text.x = element_text(size = 8),
+          plot.title =element_text(size = 11,
+                                   face="bold",
+                                   hjust = .5),
+        plot.subtitle =element_text(size = 11,
+                                   face="italic",
+                                   hjust = .5),
+          strip.text = element_text(size = 11, color = "white"),
+          strip.background = element_rect(fill = "#3E3D3D"),
+          legend.text = element_text(size = 13))
+}
+```
+
+# Details of Implementation
+
+To make the implementation more concrete, we will illustrate the steps of the probabilistic bias analysis with the infections in Suffolk County, Massachusetts in from May 9, 2021 to May 23, 2021.   
+
+
+## Version 1: Priors do Not Vary by State or Date
+
+
+
+```{r}
+
+
+
+
+# include slow plots comparing melded distributions for modified priors to original melded distribution
+include_slow <- TRUE
+# only include subset of rows for testing 
+testing <- FALSE
+# whether to save results adj_v*.RDS (if testing, don't save results)
+save <- TRUE
+
+set.seed(123)
+
+
+prior_params <- list(
+  alpha_mean = .95,
+  alpha_sd = 0.08,
+  alpha_bounds = NA,
+ # alpha_bounds = c(.8,1),
+  beta_mean = .15,
+  beta_sd =.09,
+  beta_bounds = NA,
+#  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .03,
+  s_untested_sd = .0225,
+#  s_untested_bounds = c(0.0018, Inf),
+  s_untested_bounds = NA,
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+ p_s0_pos_bounds = NA,
+#  p_s0_pos_bounds = c(.25, .7),
+  pre_nsamp = 1e6,
+  post_nsamp = 1e5)
+
+corrected_sample_reps <- 1e3
+
+# relevant for versions 2,3
+beta_smoothing_span <- .33
+# relevant for versions 3,4
+s_untested_smoothing_span <- .2
+
+
+```
+
+
+
+
+```{r load functions, eval =TRUE}
+
+source(here('analysis','base_functions','base_functions.R'))
+source(here('analysis','base_functions','get_melded.R'))
+
+```
+
+
+As we did in the [Background](#sampling) section, we denote the sample size as $m$ and the posterior (resample) size as $r$.
+
+
+We begin by sampling $m$ times from the defined prior distributions $\theta = \Big\{ \alpha, \beta, P(S_1| \text{untested})\Big\}$, as we see in Figure \ref{fig:sample-priors}.
+
+```{r, fig.width=7, fig.height=3.9, fig.cap = "\\label{fig:sample-priors}"}
+
+ma <- readRDS(here("data/county_level/ma/ma_county_biweekly.RDS"))
+
+example <- ma %>% filter(county_name == "Suffolk" & biweek == 10)
+
+theta <-  with(prior_params, { 
+tibble(alpha = sample_gamma_density(pre_nsamp,
+                                               mean = alpha_mean,
+                                               sd = alpha_sd,
+                                               bounds = alpha_bounds),
+                  beta= sample_beta_density(pre_nsamp,
+                                            mean = beta_mean,
+                                            sd = beta_sd,
+                                            bounds = beta_bounds),
+                  P_S_untested = sample_beta_density(pre_nsamp,
+                                                     mean = s_untested_mean,
+                                                     sd = s_untested_sd,
+                                                     bounds = s_untested_bounds)) %>%
+    mutate(phi_induced = est_P_A_testpos(P_S_untested = P_S_untested,
+                                         alpha = alpha,
+                                         beta=beta))} )
+
+theta %>% 
+  pivot_longer(everything()) %>%
+  mutate(name = case_when(
+    name == "alpha" ~"$\\alpha$",
+    name =="beta" ~"$\\beta$",
+    name == "phi_induced" ~"$M(\\theta) = P(S_0|test_+,untested)$",
+    name=="P_S_untested" ~ "$P(S_1|untested)$"
+  )) %>%
+  mutate(name = factor(name, levels = c("$\\alpha$",
+                                        "$\\beta$",
+                                        "$P(S_1|untested)$",
+                                        "$M(\\theta) = P(S_0|test_+,untested)$"))) %>%
+  ggplot(aes(x=value)) +
+    geom_density(fill="black", alpha=.8) +
+    facet_wrap(~name, labeller=as_labeller(TeX, default=label_parsed),
+               ncol=3) +
+  theme_c() +
+  xlim(0,1.1)
+  
+  
+                                         
+                                         
+```
+
+At this point, we use Bayesian melding to obtain $r$ observations from the constrained priors for $\alpha, \; \beta, \;P(S_1|\text{untested})$, and $P(S_0|\text{test}_+,\text{untested})$.
+
+We also sample $r$ values from the priors for sensitivity and specificity, which we use to correct for imperfect testing accuracy. However, these parameters are not involved in the Bayesian melding. 
+
+
+
+```{r, results = 'hide', fig.height=7}
+
+library(patchwork)
+
+
+melded <- do.call(get_melded, prior_params)
+
+title <- paste0("Mean of ${\\alpha}$: ")
+
+melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = prior_params$p_s0_pos_mean,
+                                      p_s0_pos_sd = prior_params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = prior_params$p_s0_pos_bounds,
+                                      pre_nsamp = prior_params$pre_nsamp)
+
+plt_melded <- plot_melded(melded_long,
+            pre_nsamp=prior_params$pre_nsamp,
+            post_nsamp=prior_params$post_nsamp) +
+  theme_c() 
+       
+
+
+nsamp <- prior_params$post_nsamp
+dist_Se <- truncdist::rtrunc(n = nsamp,spec = "beta",a = 0.65,b = 1,
+                               shape1 = get_beta_params(mu = 0.8,
+                                                        sd = (0.4)^2)$a,
+                               shape2 = get_beta_params(mu = 0.8,
+                                                        sd = (0.4)^2)$b)
+dist_Sp <- truncdist::rtrunc(n = nsamp,spec = "beta",a = 0.9998,b = 1,
+                               shape1 = get_beta_params(mu = 0.99995,
+                                                        sd = (0.01)^2)$a,
+                               shape2 = get_beta_params(mu = 0.99995,
+                                                        sd = (0.01)^2)$b)
+
+
+title_gg <- ggplot() + 
+  labs(title =latex2exp::TeX("Set of Priors for Probabilistic Bias Analysis", bold = TRUE)) + 
+  theme(plot.title=element_text(face="bold", hjust = .5, size = 14, margin =margin(5,0,2,0)))
+
+
+
+
+plt <- tibble(Sensitivity = dist_Se,
+              Specificity = dist_Sp) %>%
+  pivot_longer(cols=everything()) %>%
+  ggplot(aes(x=value)) +
+  geom_density(fill="black", alpha =.8) +
+  theme_c() +
+  xlim(0,1) +
+  facet_wrap(~name, scales="free_y")
+
+
+
+cowplot::plot_grid(title_gg,
+                   plt_melded, plt, ncol = 1,
+                   rel_heights = c(.05, .7, .25))
+
+# 
+# 
+# theta <- melded$pre_melding %>%
+#   pivot_longer(cols=everything()) %>%
+#   mutate(source = "Before Melding")
+# 
+# 
+# theta_melded <- melded$post_melding %>%
+#   pivot_longer(cols=everything())
+# 
+# melded$post_melding %>%
+#   mutate(x = est_P_A_testpos(P_S_untested, alpha, beta)) %>%
+#   ggplot(aes(x=x)) +
+#   geom_histogram()
+
+
+
+
+```
+
+
+
+From here, we obtain the bias corrected estimates by sampling from the $r$ observations of the bias parameters and computing the unobserved infections. 
+
+For example, suppose we sample a value from each of $\beta,\alpha,P(S_1|\text{untested}), S_p$ and $S_e$.
+
+We  first compute the number of untested individuals as the population size $N$ minus the number of individuals tested:
+
+\[ N_{\text{untested}} =  N - N_{\text{tested}} .\]
+
+We then use $\alpha$ and $\beta$ to estimate the test positivity rates of the symptomatic and asymptomatic partitions of the population, giving us the positivity rates
+\[ P( \text{test}_+ | S_1, \text{untested})  = P( \text{test}_+ | \text{tested}) \cdot  \alpha  \]
+and
+\[ P( \text{test}_+ | S_0, \text{untested})  = P( \text{test}_+ | \text{tested}) \cdot  \beta. \]
+
+
+We use these positivity rates to calculate the number of positive tests among the untested as 
+
+
+\begin{align*}
+N^*_{\text{untested},S_1} &= P( \text{test}_+ | S_1, \text{untested}) ( N_{S_1,\text{untested}}) \\
+&= P( \text{test}_+ | S_1, \text{untested}) (N_{\text{untested}} ) P(S_1|\text{untested})\\
+N^*_{\text{untested},S_0} &= P( \text{test}_+ | S_0, \text{untested}) ( N_{S_0,\text{untested}})\\
+&== P( \text{test}_+ | S_1, \text{untested}) (N_{\text{untested}} ) (1- P(S_1|\text{untested}))
+\end{align*}
+
+We use $N^*$ to denote the number of people who would test positive, not the number who are infected. This distinction is important because we are not yet correcting for diagnostic test inaccuracy. With this notation, $N^*_{\text{untested}}$ is the number of people among the untested population we expect to test positive if they were all tested, while $N^*_{\text{tested}}$ is simply the number of positive tests reported for this 2-week interval. This means we can write the total number of individuals who we expect to test positive as
+
+
+\begin{align*}
+ N^*_{\text{untested}}
+ &= N^*_{\text{tested}} + N^*_{\text{untested}} \\
+ &= N^*_{\text{tested}} + N^*_{\text{untested}, S_0} + N^*_{\text{untested}, S_1}.
+\end{align*}
+
+
+ To estimate the infections $N^+$, rather than positive tests $N^*$, we must correct for diagnostic test inaccuracy, which we can do by applying the [formula](#correct-test-inaccuracy) for correcting for diagnostic test inaccuracy discussed previously.
+ 
+That is, we take the sampled value of sensitivity $S_e$ and specificty $S_p$ and compute
+
+$$N^+ = \dfrac{(N^* - (1 - S_p) N) } { (S_e + S_p - 1) }.$$
+
+
+Repeating this process with sampled values of the bias parameters gives us a distribution for the corrected counts, as we see in Figure \ref{fig:correctedsuffolk}. The 95% simulation intervals presented in the [Results](#res) section are the 2.5% and 97.5% percentiles for each geographic unit and 2-week time interval, as we see in the second panel of Figure \ref{fig:correctedsuffolk}. 
+
+
+
+```{r, fig.cap='\\label{fig:correctedsuffolk}', fig.show='hold', out.width='50%'}
+
+# dist_Se <- truncdist::rtrunc(n = nsamp,spec = "beta",a = 0.65,b = 1,
+#                                shape1 = get_beta_params(mu = 0.8,
+#                                                         sd = (0.4)^2)$a,
+#                                shape2 = get_beta_params(mu = 0.8,
+#                                                         sd = (0.4)^2)$b)
+# dist_Sp <- truncdist::rtrunc(n = nsamp,spec = "beta",a = 0.9998,b = 1,
+#                                shape1 = get_beta_params(mu = 0.99995,
+#                                                         sd = (0.01)^2)$a,
+#                                shape2 = get_beta_params(mu = 0.99995,
+#                                                         sd = (0.01)^2)$b)
+
+
+all_priors <- process_priors_per_county(
+      priors = melded$post_melding,
+      county_df = example,
+      nsamp = prior_params$post_nsamp)
+
+
+corrected_sample <- all_priors %>%
+      generate_corrected_sample(priors_by_county_df = ., num_reps = 1e4)
+
+
+corrected_sample %>%
+  select(exp_cases) %>%
+  ggplot(aes(x=exp_cases)) +
+  geom_histogram() +
+  geom_vline(xintercept = unique(corrected_sample$positive),
+             color = 'red',
+             linewidth = 1.2) +
+  annotate(geom="label",x= unique(corrected_sample$positive)+250,
+             y = 1000, color = "red",label= "Observed", size = 6) +
+  theme_c() +
+  theme(plot.title = element_text(face="bold", hjust = .5, size = 20),
+        axis.title = element_text(size = 16)) +
+  labs(title = "Distribution of Bias-Corrected Cases",
+       y = "Frequency",
+       x = "Infections")
+
+
+
+
+
+corrected_sample %>%
+  select(exp_cases) %>%
+  mutate(lower = quantile(exp_cases, 0.025),
+         upper = quantile(exp_cases, 0.975)) %>%
+  ggplot(aes(x=exp_cases)) +
+  geom_histogram(alpha=.8) +
+  geom_vline(aes(xintercept = lower),
+             color = '#DBC37F',
+             linewidth = 1.5) +
+  geom_vline(aes(xintercept = upper),
+             color = '#DBC37F',
+             linewidth = 1.5) +
+  theme_c() +
+  theme(plot.title = element_text(face="bold", hjust = .5, size = 20),
+        axis.title = element_text(size = 16)) +
+  labs(title = "95% Simulation Interval",
+       y = "Frequency",
+       x = "Infections")
+
+
+
+# 
+# 
+# process_priors_per_county(
+#       priors = melded$post_melding,
+#       county_df = list(...),
+#       nsamp = prior_params$post_nsamp) %>%
+#       generate_corrected_sample(., num_reps = corrected_sample_reps) %>%
+#       summarize_corrected_sample()
+#     })
+# 
+# 
+# 
+# process_priors_per_county(
+#       priors = melded$post_melding,
+#       county_df = list(...),
+#       nsamp = prior_params$post_nsamp) %>%
+#       generate_corrected_sample(., num_reps = corrected_sample_reps) %>%
+#       summarize_corrected_sample()
+#     })
+
+
+
+```
+
+
+## Version 2-4: Allowing Some Prior Parameters to Vary 
+
+The implementation for versions 2-4 when considering a single time and geographic unit are almost identical to version 1; the difference is in the source of the priors.
+
+For one version, we allow $\beta$ to vary by date and state by using the COVID-19 Trends and Impact Survey [@salomon2021a]. Since $\beta$ represents the ratio of $\dfrac{P(\text{test}_+|\text{untested},S_0)}{P(\text{test}_+|\text{tested})}$, one way we can think about estimating this quantity empirically is as the screening test positivity over the overall test positivity. Since both these quantities are reported by the COVID-19 Trends and Impact Survey, we can center the distribution for $\beta$ for a given location and time interval at this ratio, after performing LOESS smoothing. That is, we use the same standard deviation assumed in the first version, where we do not allow priors to vary by state or date, but we set the mean to be the empirical estimate of beta.
+
+For another version, we allow $P(S_1|\text{untested})$ to vary by date and state by centering the distribution for  $P(S_1|\text{untested})$ at the percentage of COVID-19-like illness reported by the COVID-19 Trends and Impact Survey, since this variable reflects the presents of symptoms related to COVID-19 among the general population.
+
+Lastly, in one version we center both the distribution for  $P(S_1|\text{untested})$ and $\beta$ at their empirical values.
+
+While we recognize taking values of the survey may in itself introduce biases, in the United States, there is little alternative to inform the priors for $\beta$ or $P(S_1|untested)$, particularly at a fine geographic scale. Some countries, for example, the United Kingdom, conducted PCR tests and recorded symptoms for a random sample of the population to estimate community prevalence of COVID-19  [@riley2021]. A study like this would be able to estimate the test positivity rate among the untested population directly (and the asymptomatic or symptomatic positivity rates as well) rather than defining random variables $\alpha$ and $\beta$ to correct the observed test positivity rate.
+
+In this sense, looking at the empirical estimates of $P(S_1|untested)$ and $\beta$ using the COVID-19 Trends and Impact Survey can provide a useful baseline for plausible values these parameters can take on, and allows us to see how the bias-corrected estimates differ depending on the data used to inform the priors. 
+
+
+
 

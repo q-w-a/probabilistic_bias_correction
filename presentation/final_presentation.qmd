@@ -88,7 +88,7 @@ theme_c <- function(...){
 * Testing rate varies widely across states
 * Interested in the distinction between:
   * Positive tests we observe
-  * True number infections that exist
+  * True number of infections that exist
 ::: 
 
 
@@ -113,6 +113,51 @@ jhu %>%
   ggplot(aes(x = date, y = testrate)) +
     geom_point() +
     geom_line()
+
+
+dates <- readRDS(here('data/date_to_biweek.RDS'))
+
+
+
+state_testing <- jhu %>%
+  mutate(date=as_date(date, format= "%m/%d/%Y")) %>%
+  filter(date >= "2021-02-26" & date <= "2022-02-25") %>% 
+  left_join(dates) %>%
+  arrange(date) %>%
+ # mutate(across(where(is.numeric), abs)) %>%
+  mutate(people_viral_positive = people_viral_positive - lag(people_viral_positive, n = 1),
+         people_viral_total = people_viral_total - lag(people_viral_total, n = 1)) %>%
+#  filter(people_viral_positive < people_viral_total) %>%
+  group_by(biweek,state) %>%
+   # mutate(across(where(is.numeric), abs)) %>%
+  mutate(across(c(people_viral_positive,people_viral_total), sum, na.rm=TRUE)) %>%
+  select(date, biweek, people_viral_positive, people_viral_total, state) %>%
+  group_by(state) %>%
+  summarize(n=n_distinct(biweek))
+
+
+jhu %>%
+  filter(state== "MA") %>%
+  mutate(date=as_date(date, format= "%m/%d/%Y")) %>%
+  filter(date >= "2021-03-03" & date <= "2022-03-02") %>% 
+  left_join(dates) %>%
+  arrange(date) %>%
+ # mutate(across(where(is.numeric), abs)) %>%
+  mutate(people_viral_positive = people_viral_positive - lag(people_viral_positive, n = 1),
+         people_viral_total = people_viral_total - lag(people_viral_total, n = 1)) %>%
+  filter(people_viral_positive < people_viral_total) %>%
+  group_by(biweek,state) %>%
+   # mutate(across(where(is.numeric), abs)) %>%
+  mutate(across(c(people_viral_positive,people_viral_total), sum, na.rm=TRUE)) %>%
+  select(date, biweek, people_viral_positive, people_viral_total) %>%
+  mutate(testrate =  people_viral_positive/people_viral_total) %>%
+    filter(testrate >0)%>%
+  select(date, testrate) %>%
+  ggplot(aes(x = date, y = testrate)) +
+    geom_point() +
+    geom_line()
+
+
 
 testing %>% 
   filter(state=="MA") %>% 
@@ -319,11 +364,9 @@ Throughout the pandemic, the number of state-wide or county-wide positive tests 
 
 That said, these numbers are a direct result of access to tests (and willingness to test), which varies widely across states, which we see in the figure here.
 
-In particular, my curiosity about the impact of how incomplete testing affects our understanding of the pandemic was motivated by spending a substantial portion of the pandemic in Idaho, where views of the pandemic were pretty mixed, and testing not particularly accessible. Relative to other states, the testing rate was pretty low (switch image). I was really interested in this idea that the numbers of positive tests presented on public dashboards or discussed in the news were a direct result of testing access and testing behavior, and I really wondered how we could better think about and display the genuine uncertainty about those values.
+In particular, my curiosity about the impact of how incomplete testing affects our understanding of the pandemic was motivated by spending a much of the height of the pandemic in Idaho, where views of the pandemic were pretty mixed, and testing not very accessible. Relative to other states, the testing rate was pretty low (switch image). As I talked to peers across the U.S., in particular in Massachusetts, I became really interested in this distinction between the positive tests we observe and the true number of infections that may exist, and how that was changing our perception of the COVID-19 burden throughout the pandemic.
 
-I also thought about this when I'd hear comparisons among case burdens among states, because when we have such differences in testing, for instance, here in Massachusetts the testing is among the highest of states in the U.S. (switch image), it will impact the difference between the infections we observe and the number truly infected.
 ::: 
-
 
 
 ## Relevance of Approximating True Infections
@@ -338,9 +381,13 @@ I also thought about this when I'd hear comparisons among case burdens among sta
 
 
 ::: {.notes}
-An important question to think about in the context is -- why do we want to know/estimate the number of true infections, or why it is not enough to just look at hospitalizations or deaths, given these are indicators of the impacts we care most about.  However, there are several reasons that thinking about the true infections is important. 
+An important question to think about in the context is -- why do we want to know/estimate the number of true infections when hospitalizations or deaths are reported more reliably.  However, there are several reasons that thinking about the true infections is important. 
 
 For one, ...
+
+We can imagine in some of these analyses how the unobserved infections could produce bias in the sense that 
+if we're looking at the effect of a policy and look at observed tests alone, differences in the proportion of infections we're detecting.
+
 ::: 
 
 ## Other Work on Estimating True Number of Infections
@@ -449,7 +496,7 @@ The paper this work was based on is *Substantial Underestimation of COVID-19 in 
 <div style="font-size:130% !important">
 
 * Recall: 
-  *  Wu *et. al.* estimated infections as of mid-April 2020
+  *  Wu *et al.* estimated infections as of mid-April 2020
   * State-level
 * Here:
   * Time period March 2021 to March 2022 
@@ -511,10 +558,10 @@ The paper this work was based on is *Substantial Underestimation of COVID-19 in 
 
 ::: 
 
-::: {.column width="50%"}
+::: {.column width="60%"}
 
-::: {style="width:45%"}
-<img src="./figure/symptom_diagram.png"  style="position:absolute;text-align:right;float:right;width:60%;margin-left:10%;">
+::: {style="width:90%;float:right;"}
+<img src="./figure/symptom_diagram.png"  style="position:absolute;text-align:right;float:right;width:50%;margin-left:10%;">
 ::: 
 
 ::: 
@@ -816,7 +863,7 @@ ggsave(width=5, height = 3, "./presentation/figure/s_untested.jpeg", dpi=300)
 
 
 * Informing $\Pr(S_1|\text{untested})$
-  * Percentage of population experiencing COVID-19-like symptoms
+  * Percentage of the population experiencing COVID-19-like symptoms
   
   <br>
   
@@ -1099,6 +1146,14 @@ smoothed_screening %>%
 
 ## Example: Informing $\beta$ with CTIS Data
 
+
+::: {.defbox style="position:absolute;margin-left:75%;float:right;width=100%;"}
+
+**Definitions:**
+
+* $\beta =  \dfrac{\Pr(\text{test}_+ | \; S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}$
+:::
+
 * Allows $\beta$ to vary over time
 * Center distribution at smoothed survey estimate for that 2-week interval
 
@@ -1122,7 +1177,7 @@ smoothed_screening %>%
 Describe how we estimate beta by taking screening test positivity / overall test positivity  
 ::: 
 
-## Incorporating Information on the Asymptomatic Rate 
+## Incorporating Information on the Asymptomatic Rate {class="asymp"}
 
 
 
@@ -1130,8 +1185,8 @@ Describe how we estimate beta by taking screening test positivity / overall test
 
 **Definitions:**
 
-* $\alpha =  \dfrac{\Pr(\text{test}_+|\; S_1,\text{untested})}{\Pr(\text{test}_+|\text{tested})}$
-* $\beta =  \dfrac{\Pr(\text{test}_+ | \; S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}$
+* $\alpha =  \frac{\Pr(\text{test}_+|\; S_1,\text{untested})}{\Pr(\text{test}_+|\text{tested})}$
+* $\beta =  \frac{\Pr(\text{test}_+ | \; S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}$
 * $S_1$ is symptomatic
  
 :::
@@ -1145,7 +1200,10 @@ Describe how we estimate beta by taking screening test positivity / overall test
 
 ::: {.mybox2 style="margin-top:4%;margin-bottom:4%;"}
 
- $$\Pr(S_0|\text{test}_+, \text{untested}) =M(\theta) = \dfrac{\beta(1 - \Pr(S_1|\text{untested}))}{\beta(1-\Pr(S_1|\text{untested})) + \alpha \Pr(S_1|\text{untested})}.$$ 
+ \begin{align*}
+ \Pr(S_0|\text{test}_+, \text{untested}) &=M(\theta) \\
+ &= \frac{\beta(1 - \Pr(S_1|\text{untested}))}{\beta(1-\Pr(S_1|\text{untested})) + \alpha \Pr(S_1|\text{untested})}.
+ \end{align*}
 ::: 
 
 
@@ -1157,7 +1215,7 @@ Describe how we estimate beta by taking screening test positivity / overall test
 
 ## Bayesian Melding: Background
 
-::: {style='line-height:102%'}
+::: {style='line-height:105%'}
 
 * Proposed by *Poole et al.* (2000) @poole2000a
 * Applicable when we have a deterministic model $M:\theta \to \phi$ and (different) information about the distributions of inputs $\theta$ and and output/s $\phi$
@@ -1289,7 +1347,6 @@ ggsave(width=10, height = 8, "./presentation/figure/theta_samp_specific.jpeg", d
 <img width="75%" class = "fragment fade-in" src="figure/theta_samp_specific.jpeg" style="position:absolute;bottom:5%;top:10%;">
 
 <!-- <span class ="fragment fade-in" style = "float:right;margin-right: 0%;font-size:110%;"><br><br> A 94%<br>asymptomatic rate? </span> -->
-
 
 
 ```{r,eval=FALSE}
@@ -1627,6 +1684,18 @@ ggsave(here('presentation/figure/irregular_melding_demo.png'), width=9, height=5
 
 <!-- <iframe src="https://q-w-a.shinyapps.io/bayesian_melding_priors" data-external="1" width="100%" height="100%" ></iframe> -->
 
+
+::: {.defbox style="position:absolute;margin-left:75%;float:right;width=100%;"}
+
+**Definitions:**
+
+* $\alpha =  \dfrac{\Pr(\text{test}_+|\; S_1,\text{untested})}{\Pr(\text{test}_+|\text{tested})}$
+* $\beta =  \dfrac{\Pr(\text{test}_+ | \; S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}$
+* $S_1$ is symptomatic
+ 
+:::
+
+
 <img src="./figure/irregular_melding_demo.png"> 
 
 ## Putting It All Together: *One county, One Time Interval* {.scrollable}
@@ -1842,25 +1911,33 @@ ggsave(here('presentation/figure/correction_step.jpeg'), width = 3, height = 2)
 
 
 
-```{r}
-```
-
-
-```{r}
-```
-
-
-
 ## County Level in Massachusetts 
 
 <img src="figure/ma_pb_compared_to_observed_3_counties.jpeg">
 
 
-## Summarizing Concordance with Covidestim
 
-* Proportion of medians contained in the probabilistic bias interval -- Massachusetts and Michigan 
+## Summarizing Concordance with Covidestim (County Level)
+
+* Proportion where Covidestim median was contained in the probabilistic bias interval -- Massachusetts and Michigan 
 
 <img src= 'figure/prop_contained.jpeg' width="90%">
+
+
+
+
+## State-level Results: Michigan and Massachusetts
+
+
+<img src='figure/state_level_mi_ma.jpeg'>
+
+
+
+## Summarizing Concordance with Covidestim (State Level)
+
+<img src='figure/covidestim_concordance_state.jpeg'>
+
+
 
 
 ## Summary
@@ -1876,6 +1953,7 @@ ggsave(here('presentation/figure/correction_step.jpeg'), width = 3, height = 2)
   
 </span>
 :::
+
 
 
 
@@ -1896,11 +1974,56 @@ ggsave(here('presentation/figure/correction_step.jpeg'), width = 3, height = 2)
 # Supplementary Slides 
 
 
+## Why Effect of Melding on $\alpha$ is Small
+
+```{r,eval=FALSE}
+
+
+M <- function(input1, input2) {
+ # x <- 0.5
+  x <- 0.03
+  input1*(1-x) / (input1*(1-x) + input2*x)
+}
+
+M  <- Vectorize(M )
+
+inp1 <- seq(0.01,.4, length = 50) 
+names(inp1) <- inp1
+inp2 <- seq(.7,1.3, length = 50)  
+names(inp2) <- inp2
+z <- outer(inp1,inp2, FUN =M)
+
+
+# 3D plot
+par(mar = c(0, 0, 0, 0)) 
+jpeg(here('presentation/figure/alpha_little_change.jpeg'), height=550,width=600)
+persp(inp1, inp2, z,  xlab = "beta", ylab= "alpha", zlab = TeX("$M(\\theta)$"), theta = 30, phi = 25, nticks=5,axes=TRUE)
+dev.off()
+
+```
+
+
+::: {.mybox2 style="margin-top:1%;margin-bottom:1%;"}
+
+ $$\Pr(S_0|\text{test}_+, \text{untested}) =M(\theta) = \frac{\beta(1 - \Pr(S_1|\text{untested}))}{\beta(1-\Pr(S_1|\text{untested})) + \alpha \Pr(S_1|\text{untested})}.$$ 
+ 
+::: 
+
+<img src='figure/alpha_little_change.jpeg'>
+
+
+## Comparison to Wastewater Data (Suffolk)
+
+<img src="figure/suffolk_wastewater.jpeg">
+
+## County Level Concordance with Covidestim 
+
+<img src="figure/covidestim_above_below_by_county_ma.jpeg">
+
+
 ## Comparison to Wastewater Data (Summary)
 
 <img src="figure/correlation_observed_pb.jpeg">
-
-## Comparison to Wastewater Data (By County)
 
 
 ## County Level for All Counties in Massachusetts {.scrollable}
@@ -1909,17 +2032,10 @@ ggsave(here('presentation/figure/correction_step.jpeg'), width = 3, height = 2)
 
 
 
-## Concordance with Covidestim 
 
-<img src="figure/covidestim_above_below_by_county_ma.jpeg">
+## State-level Results: Different Data Source
 
-
-## County Level for All Counties in Michigan {.scrollable}
-
-## Above/Below for Most Concordant Version (MA)
-
-<img src="figure/covidestim_above_below_by_county_ma.jpeg">
-
+<img src='figure/covidestim_concordance_state_jhu.jpeg'>
 
 ## Positivity Rate for Hampshire County
 
@@ -1959,16 +2075,67 @@ $$w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))
 
 :::
 
-## State-level Results
-
-## Details of COVID-19 Trends and Impact Survey
-
-## Choice of Time Interval
 
 ## Correlation Between $\alpha$ and $\beta$
 
+* Relationship between $\alpha$ and $\beta$:
+  * Depends on several other probabilities, including $\Pr(\text{tested})$, $\Pr(S_1)$, and $\Pr(S_1|\text{tested})$
+  * Differs depending on how these other probabilities are changing
+
+<img src='figure/alpha_beta_negative_corr.jpeg' style='float:right' width="50%">
+
+<img src='figure/alpha_beta_positive_corr.jpeg' style='float:right' width="50%">
 
 
+## Shiny App to Explore Implications of Changing Priors {.scrollable}
+
+<iframe src="https://q-w-a.shinyapps.io/bayesian_melding_priors" data-external="1" width="100%" height="100%" ></iframe>
+
+
+## Comparison to Covidestim
+
+
+```{css, echo=FALSE}
+#color-slide, 
+#comparison-to-covidestim li {
+ font-size: 80% !important;
+// line-height: 97%;
+ padding: .008%;
+}
+```
+
+:::: {.columns}
+::: {.column width="50%"}
+
+* [Covidestim](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1010465)^[Chitwood, M. H., Russi, M., Gunasekera, K., Havumaki, J., Klaassen, F., Pitzer, V. E., Salomon, J. A., Swartwood, N. A., Warren, J. L., Weinberger, D. M., Cohen, T., & Menzies, N. A. (2022). Reconstructing the course of the COVID-19 epidemic over 2020 for US states and counties: Results of a Bayesian evidence synthesis model. PLOS Computational Biology, 18(8), e1010465. https://doi.org/10.1371/journal.pcbi.1010465] is a Bayesian evidence synthesis model that estimates several quantities
+  * Includes incident infections at the county and state-level, $R_t$
+* Model:
+  * Mechanistic model with states for asymptomatic/pre-symptomatic infection, symptomatic but mild infection, severe COVID-19 presentations, and death 
+  * Allowed fraction diagnosed to vary by time
+  * Probabilities of transitioning from asymptomatic $\implies$ symptomatic and symptomatic $\implies$ severe are time invariant
+  * Probability of transitioning from severe to death varied by time
+    * Informed by age-specific infection fatality rates
+    * Adjusted for a given state or county based on age distributions and the prevalence of risk factors for COVID-19
+  * Assigned distributions for reporting delays of cases and deaths
+  * Negative binomial likelihood functions to fit model to observed case and death data
+ 
+:::
+
+::: {.column width="49%"}
+
+::: {.r-stack}
+![](./figure/covidestim_fig1.PNG){.fragment height="60%"}
+</center>
+:::
+
+
+## Adjustment for Sensitivity and Specificity
+
+* $S_e$ = test sensitivity = the probability an individual tests positive if they have COVID-19 (probability of a true positive), that is, $P(\text{test}_+ | +)$. 
+* $S_p$ = test specificity = probability an individual tests negative if they do not have COVID-19 (probability of a true negative), that is, $P(\text{test}_- |-)$.
+
+Then, given that we have the number $N^*$ who (would) tested positive, $S_p$, the sensitivity $S_e$, and the total population size $N$, we can calculate the true positives with the formula^[@rothman2008]:
+$$\text{Number Truly Positive} = \dfrac{N^* - (1-S_p) \times N}{S_e+S_p-1}$$
 
 ## References
 

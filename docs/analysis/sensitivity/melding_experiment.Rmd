@@ -1,0 +1,2670 @@
+---
+title: "Melding Experiment"
+author: "Quinn White"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    df_print: paged
+    code_folding: hide
+  html_document:
+    df_print: paged
+---
+
+```{r, include=FALSE,eval=FALSE}
+---
+title: "Melding Experiment"
+author: "Quinn White"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    df_print: paged
+    code_folding: hide
+    css: ../css/template.css
+  html_document:
+    df_print: paged
+---
+```
+
+
+```{css, echo = FALSE}
+#content{
+max-width:2300px;
+}
+  
+``` 
+
+
+
+```{r setup, include=FALSE, eval= TRUE}
+knitr::opts_chunk$set(echo = TRUE,message=FALSE,warning=FALSE, results='hide',fig.width = 10, fig.height = 9)
+library(truncdist)
+library(tidyverse)
+library(latex2exp)
+library(patchwork)
+```
+
+# Formulas for Reference
+
+* $\alpha$ and $\beta$:
+  * $P(+|S_1,untested) = \alpha P(test + | tested)$
+  * $P(+|S_0, untested) = \beta P(test + | tested)$
+* Positives among symptom categories:
+  * $N^+_{untested,S_0} = N_{untested} (1-P(S_1|untested)) P(test+|S_0,untested)$
+  * $N^+_{untested,S_1} = N_{untested}( P(S_1|untested) ) P(test+|S_1,untested)$
+  * $N^+_{untested} = N^+_{untested,S_0} + N^+_{untested,S_1}$
+* Total positives
+  * $N^+ = N^+_{untested} + N^+_{tested}$
+* At this point there is a correction for test inaccuracy, but not relevant here since those things are left the same for all changes.
+
+# Broad Takeaways
+
+* Effect of truncation is really dramatic
+  * Particularly true when there is little agreement between the induced and melded priors
+* Changes to $\alpha$ have what seems to be a very small effect on the other distributions. This makes sense when we look at the function $M$ given by
+
+$$M(\theta) = P(S_0|test +, untested) = \dfrac{ \beta (1-P(S_1|untested))} {\beta (1-P(S_1|untested)) + \alpha  P(S_1|untested)}  $$
+$P(S_1|untested)$ is always very small relative to $1-P(S_1|untested)$, so changes in alpha don't have a major impact. The lack of sensitivity to the definition of $\alpha$ is somewhat fortunate because I'm having trouble finding sources to inform the definition of $\alpha$.
+* Changing $P(S_1|untested)$ seems to have the greatest impact on the agreement between the induced and direct priors
+* Changing $P(S_0| test +, untested)$ has smaller impact compared to changing $P(S_1|untested)$, $\alpha$, $\beta$
+* In all cases changing the sd has a smaller impact than the changes in the means
+* In general, it seems like removing the truncation on all distributions makes sense -- the only case where a bound might make sense is placing a lower bound on $P(S_1|untested)$, which leads to more agreement between the direct and induced priors and seems justified from a logical perspective 
+
+* In post melding distributions, we almost always see:
+  * $\alpha$ is basically unchanged
+  * $\beta$ has more density toward zero
+  * $P(S_1|untested)$ has more density higher than it was originally
+
+
+
+
+# Read Data
+
+```{r, eval= TRUE}
+
+# Read Data -----------
+state_name <- "ma"
+covid_county <- paste0(here::here(),
+                          "/data/county_level/",
+                          state_name,
+                          "/",
+                          state_name,
+                          "_county_biweekly.RDS") %>%
+  readRDS()  %>%
+  select(-date) %>%
+  distinct() %>%
+  filter(fips == "25025")
+
+#covid_county <- covid_county[1,]
+
+corrected_original <- readRDS(paste0(here::here(),
+               "/app/example_county_data/example_county.RDS"))
+
+
+dates <- readRDS(paste0(here::here(),
+                        "/data/date_to_biweek.RDS"))
+
+```
+
+# Base Functions
+
+```{r base functions, eval= TRUE}
+
+###############################################################
+# BETA PARAMETERS FROM DESIRED MEAN AND VARIANCE
+###############################################################
+get_beta_params <- function(mu, sd) {
+    var = sd^2
+    alpha <- ((1 - mu) / var - 1 / mu) * mu ^ 2
+    beta <- alpha * (1 / mu - 1)
+    return(params = list(alpha = alpha,
+                         beta = beta))
+}
+
+
+
+
+###############################################################
+# BETA DENSITY WITH DESIRED MEAN AND VARIANCE
+###############################################################
+beta_density <- function(x, mean, sd, bounds=NA) {
+    shape_params <-  get_beta_params(
+        mu = mean,
+        sd = sd)
+
+    if(!length(bounds) == 1){
+        # message("here")
+        dtrunc(x,
+               spec = "beta",
+               a = bounds[1],
+               b = bounds[2],
+              shape1 = shape_params$alpha,
+              shape2 = shape_params$beta) %>%
+            return()
+    }else{
+        dbeta(x,
+          shape1 = shape_params$alpha,
+          shape2 = shape_params$beta)  %>%
+            return()
+        }
+}
+
+
+
+
+###############################################################
+# SAMPLE FROM BETA DENSITY WITH DESIRED MEAN AND VARIANCE
+###############################################################
+
+sample_beta_density <- function(n, mean, sd, bounds = NA) {
+
+    shape_params <-  get_beta_params(
+        mu = mean,
+        sd = sd)
+
+    rbeta(n,
+          shape1 = shape_params$alpha,
+          shape2 = shape_params$beta)
+
+    if(!length(bounds) == 1){
+        # message("here")
+        rtrunc(n,
+               spec = "beta",
+               a = bounds[1],
+               b = bounds[2],
+               shape1 = shape_params$alpha,
+               shape2 = shape_params$beta) %>%
+            return()
+    }else{
+        rbeta(n,
+              shape1 = shape_params$alpha,
+              shape2 = shape_params$beta)  %>%
+            return()
+    }
+}
+
+
+
+
+###############################################################
+# GAMMA PARAMETERS FROM DESIRED MEAN AND VARIANCE
+###############################################################
+get_gamma_params <- function(mu, sd) {
+    var = (mu/sd)^2
+    shape = (mu/sd)^2
+    scale = sd^2/mu
+    return(params = list(shape = shape,
+                         scale = scale))
+}
+
+
+###############################################################
+# GAMMA DENSITY WITH DESIRED MEAN AND VARIANCE
+###############################################################
+gamma_density <- function(x, mean, sd, bounds=NA) {
+
+    shape_params <-  get_gamma_params(
+        mu = mean,
+        sd = sd)
+
+    if(!length(bounds) == 1){
+        #message("here")
+        dtrunc(x,
+               spec = "gamma",
+               a = bounds[1],
+               b = bounds[2],
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }else{
+        dgamma(x,
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }
+}
+
+
+sample_gamma_density <- function(n, mean, sd, bounds = NA) {
+
+    shape_params <-  get_gamma_params(
+        mu = mean,
+        sd = sd)
+
+    if(!length(bounds) == 1){
+        #message("here")
+        rtrunc(n,
+               spec = "gamma",
+               a = bounds[1],
+               b = bounds[2],
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }else{
+        rgamma(n,
+               shape = shape_params$shape,
+               scale = shape_params$scale) %>%
+            return()
+    }
+}
+
+
+
+
+
+###############################################################
+# INDUCED PRIOR ON ASYMPTOMATIC RATE  P(S_0|test+,untested)
+###############################################################
+
+# input sampled values of theta and compute M(\theta)
+est_P_A_testpos = function(P_S_untested, alpha, beta){
+    (beta * (1 - P_S_untested)) / (( beta * (1 - P_S_untested)) + (alpha * P_S_untested))
+}
+
+
+
+##########################################
+# County Correction Functions -----------
+##########################################
+
+
+#' Add sensitivity and specificity
+process_priors_per_county <-  function(priors, df){
+  dist_Se <- truncdist::rtrunc(n = 1e5,spec = "beta",a = 0.65,b = 1,
+                               shape1 = get_beta_params(mu = 0.8,
+                                                        sd = (0.4)^2)$alpha,
+                               shape2 = get_beta_params(mu = 0.8,
+                                                        sd = (0.4)^2)$beta)
+  dist_Sp <- truncdist::rtrunc(n = 1e5,spec = "beta",a = 0.9998,b = 1,
+                               shape1 = get_beta_params(mu = 0.99995,
+                                                        sd = (0.01)^2)$alpha,
+                               shape2 = get_beta_params(mu = 0.99995,
+                                                        sd = (0.01)^2)$beta)
+  priors_out <- priors %>%
+    mutate(
+      # calculate P(+|S_1, untested) and P(+|S_0, untested)
+      P_testpos_S = priors$Z_S  * df$posrate,
+      P_testpos_A = priors$Z_A  * df$posrate,
+      empirical_testpos = df$posrate,
+      population = df$population,
+      total = df$total,
+      positive = df$positive,
+      negative = df$negative) %>%
+    mutate(Se = dist_Se,
+           Sp = dist_Sp,
+           biweek = df$biweek,
+           fips = df$fips) %>%
+    # compute with constrained priors
+    mutate(P_A_testpos = est_P_A_testpos(
+      P_S_untested = priors$P_S_untested,
+      alpha = priors$Z_S,
+      beta = priors$Z_A))
+  return(priors_out)
+}
+
+
+#' correct for test inaccuracy
+calc_A_star <- function(N, N_tested,
+                        N_pos_obs,
+                        P_testpos_est,
+                        P_S_untested,
+                        P_A_testpos,
+                        Z_S,
+                        Z_A,
+                        Se,
+                        Sp){
+
+  N_untested = N - N_tested
+
+  # number symptomatic and asymptomatic among tested
+  Npos_tested_S = N_pos_obs * (1 - P_A_testpos)
+  Npos_tested_A = N_pos_obs - Npos_tested_S
+
+  #  prob testpos among untested
+  P_testpos_S = P_testpos_est * Z_S
+  P_testpos_A = P_testpos_est * Z_A
+
+  # estimate number of positives among untested
+  Npos_untested_S = P_S_untested * N_untested * P_testpos_S
+  Npos_untested_A = (1 - P_S_untested) * N_untested * P_testpos_A
+
+  A_star = Npos_tested_S   + Npos_tested_A +
+    Npos_untested_S + Npos_untested_A
+
+  # correct for imperfect sensitivity and specificity
+  A = (A_star - ((1 - Sp) * N)) / (Se + Sp - 1)
+
+  return(max(A,0))
+
+}
+
+#' compute corrected counts for randomly sampled combination of parameters
+correct_bias <- function(priors_by_county_df){
+  # N, N_tested, N_pos_obs, P_testpos_est,
+
+  # sample index to draw from distribution
+  sample_ind = sample(1:nrow(priors_by_county_df),
+                      size = 1,
+                      replace=TRUE)
+
+  # randomly sample from each distribution
+  sampled_priors = priors_by_county_df[sample_ind,]
+
+  # corrected case count
+  Astar = calc_A_star(N = sampled_priors$population,
+                      N_tested =sampled_priors$total,
+                      N_pos_obs = sampled_priors$positive,
+                      P_testpos_est = sampled_priors$empirical_testpos,
+                      P_S_untested = sampled_priors$P_S_untested,
+                      P_A_testpos = sampled_priors$P_A_testpos,
+                      Z_S = sampled_priors$Z_S,
+                      Z_A = sampled_priors$Z_A,
+                      Se = sampled_priors$Se,
+                      Sp = sampled_priors$Sp
+  )
+
+  out = cbind(sampled_priors, exp_cases=Astar)
+
+  return(out)
+}
+
+
+#' generate distribution of corrected counts
+generate_corrected_sample = function(priors_by_county_df,
+                                     num_reps){
+
+  # Obtain corrected case estimates
+  reps = num_reps
+
+  # need to set seed here to ensure that the same random draws are
+  # used for a given time period / location with same priors
+  set.seed(123)
+
+  # perform probabilistic bias analysis
+  result = replicate(reps, correct_bias(priors_by_county_df ), simplify=FALSE) %>%
+    bind_rows()
+
+  return(result)
+
+}
+
+
+#' summarize distribution of corrected counts
+summarize_corrected_sample <- function(priors_by_county_df_exp_cases) {
+
+  summarized <-  tibble(
+    exp_cases_median = median(priors_by_county_df_exp_cases$exp_cases),
+    exp_cases_lb = quantile(priors_by_county_df_exp_cases$exp_cases,
+                            prob = 0.025) %>% unlist(),
+    exp_cases_ub = quantile(priors_by_county_df_exp_cases$exp_cases,
+                            prob = 0.975) %>% unlist(),
+    biweek = unique(priors_by_county_df_exp_cases$biweek),
+    fips = unique(priors_by_county_df_exp_cases$fips),
+    empirical_testpos = unique(priors_by_county_df_exp_cases$empirical_testpos),
+    population = unique(priors_by_county_df_exp_cases$population),
+    negative = unique(priors_by_county_df_exp_cases$negative),
+    positive = unique(priors_by_county_df_exp_cases$positive),
+    total = unique(priors_by_county_df_exp_cases$total))
+
+  return(summarized)
+
+}
+
+
+get_corrected_counts <- function(county_df, melded_df) {
+
+  melded_df <- melded_df %>%
+    rename(Z_S = alpha,
+           Z_A = beta)
+
+  corrected <- pmap_df(county_df, ~ {
+    process_priors_per_county(
+      priors = melded_df,
+      df = list(...)) %>%
+      generate_corrected_sample(., num_reps = 1e3) %>%
+      summarize_corrected_sample() })
+
+  corrected %>%
+    left_join(dates)
+}
+
+
+
+get_melded <- function(alpha_mean = 0.9,
+                       alpha_sd = 0.04,
+                       alpha_bounds = NA,
+                       beta_mean = .15,
+                       beta_sd =.09,
+                       beta_bounds = NA,
+                       s_untested_mean = .025,
+                       s_untested_sd = .0225,
+                       s_untested_bounds = NA,
+                       p_s0_pos_mean = .4,
+                       p_s0_pos_sd = .1225,
+                       p_s0_pos_bounds = NA,
+                       nsamp = 1e3) {
+
+  given_args <- as.list(environment())
+  # cat("Arguments to get_melded:\n")
+  # print(given_args)
+
+
+    theta <- tibble(alpha = sample_gamma_density(nsamp,
+                                                mean = alpha_mean,
+                                                sd = alpha_sd,
+                                                bounds = alpha_bounds),
+                    beta= sample_beta_density(nsamp,
+                                              mean = beta_mean,
+                                              sd = beta_sd,
+                                              bounds = beta_bounds),
+                    P_S_untested = sample_beta_density(nsamp,
+                                                       mean = s_untested_mean,
+                                                       sd = s_untested_sd,
+                                                       bounds = s_untested_bounds)) %>%
+        mutate(phi_induced = est_P_A_testpos(P_S_untested = P_S_untested,
+                                             alpha = alpha,
+                                             beta=beta))
+
+    # theta contains values sampled from alpha, beta, P_S_untested, and M(theta) = phi_induced
+    # induced phi
+    phi <- theta$phi_induced
+
+    # approximate induced distribution via a density approximation
+    phi_induced_density <- density(x = phi, n = nsamp, adjust = 2, kernel = "gaussian")
+
+
+    indexes <- findInterval(phi, phi_induced_density$x)
+
+
+    phi_sampled_density <- phi_induced_density$y[indexes]
+
+    dp_s0_pos <- function(x) {
+
+      beta_density(x,
+                   mean=p_s0_pos_mean,
+                   sd = p_s0_pos_sd,
+                   bounds=p_s0_pos_bounds)
+    }
+
+
+    weights <- (phi_sampled_density/ dp_s0_pos(phi))^(.5)
+
+
+    post_samp_ind <-sample.int(n=nsamp,
+                               size=nsamp,
+                               prob=1/weights,
+                               replace=TRUE)
+
+
+    pi_samp <- cbind(theta[post_samp_ind,],
+                     P_A_testpos =  phi[post_samp_ind]) %>%
+        select(-phi_induced)
+
+
+    return(list(post_melding = pi_samp, pre_melding = theta))
+
+}
+
+
+#' reformat for plot generation
+reformat_melded <- function(melded_df,
+                            theta_df,
+                            nsamp,
+                            p_s0_pos_mean,
+                            p_s0_pos_sd,
+                            p_s0_pos_bounds) {
+
+  melded_df_long <- melded_df %>%
+    pivot_longer(cols=everything()) %>%
+    mutate(type = "After Melding")
+
+
+  melded <- theta_df %>%
+    mutate(P_A_testpos = sample_beta_density(nsamp,
+                                             mean = p_s0_pos_mean,
+                                             sd = p_s0_pos_sd,
+                                             bounds = p_s0_pos_bounds)) %>%
+    pivot_longer(cols=everything()) %>%
+    mutate(type = ifelse(
+      name == "phi_induced",
+      "Induced", "Before Melding")) %>%
+    mutate(name = ifelse(name == "phi_induced",
+                         "P_A_testpos",
+                         name)) %>%
+    bind_rows(melded_df_long) %>%
+    mutate(name = case_when(
+      name == "alpha" ~"$\\alpha$",
+      name == "beta" ~"$\\beta$",
+      name == "P_A_testpos" ~ "$P(S_0|test+,untested)$",
+      name == "P_S_untested" ~ "$P(S_1|untested)$")
+    ) %>%
+    mutate(name = factor(name,
+                         levels = c(
+                           "$\\alpha$",
+                           "$\\beta$",
+                           "$P(S_1|untested)$",
+                           "$P(S_0|test+,untested)$")))
+
+}
+
+
+
+plot_melded <- function(melded, custom_title="", nsamp) {
+  
+  
+  p1 <- melded %>%
+    filter(name != "$P(S_0|test+,untested)$") %>%
+    ggplot(aes(x = value, fill = type)) +
+    geom_density(alpha = .5, show.legend=FALSE) +
+    facet_wrap(~name,
+               labeller = as_labeller(
+                 TeX,   default = label_parsed),
+               ncol = 3,
+               scales = "fixed") +
+    theme_bw() +
+    theme(
+          # axis.text.y = element_blank(),
+          # axis.ticks.y = element_blank(),
+          axis.title = element_text(size = 18),
+          axis.text.x = element_text(size = 10),
+          plot.title =element_text(size = 18,
+                                   margin =margin(0,0, .5,0, 'cm')),
+          strip.text = element_text(size = 16),
+          legend.text = element_text(size = 16)) +
+    labs(title = TeX(custom_title,bold=TRUE),
+         subtitle =paste0("Number of Samples: ", nsamp),
+         fill = "",
+         y = "Density") +
+    scale_fill_manual(values = c("#5670BF", "#418F6A","#B28542")) +
+    guides(fill = guide_legend(keyheight = 2,  keywidth = 2))
+  
+  p2 <- melded %>%
+    filter(name == "$P(S_0|test+,untested)$") %>%
+    ggplot(aes(x = value, fill = type)) +
+    geom_density(alpha = .5) +
+    facet_wrap(~name,
+               labeller = as_labeller(
+                 TeX,   default = label_parsed),
+               ncol = 3,
+               scales = "fixed") +
+    theme_bw() +
+    theme(
+          # axis.text.y = element_blank(),
+          # axis.ticks.y = element_blank(),
+          axis.title = element_text(size = 18),
+          axis.text.x = element_text(size = 10),
+          plot.title =element_text(size = 18,
+                                   margin =margin(0,0, .5,0, 'cm')),
+          strip.text = element_text(size = 16),
+          legend.text = element_text(size = 18)) +
+    labs(
+      #title = paste0("Number of Samples: ", nsamp),
+         fill = "",
+         y = "Density") +
+    scale_fill_manual(values = c("#5670BF", "#418F6A","#B28542")) +
+    guides(fill = guide_legend(keyheight = 2,  keywidth = 2)) +
+    xlim(0,1)
+  
+  
+  p1 / p2 +  plot_layout(nrow =2, widths = c(4,1))
+  
+}
+
+
+
+plot_corrected <- function(corrected_df) {
+  
+  corrected_original  %>%
+    bind_rows(corrected_df) %>%
+    ggplot(aes(x = date,
+               ymin = exp_cases_lb,
+               ymax= exp_cases_ub,
+               fill = version)) +
+    geom_ribbon(alpha = .6) +
+    labs(x = "Date",
+         y = "Estimated Total Cases\nfor 2-week Interval",
+         fill = "",
+         title = "Corrected Estimates for Suffolk County") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 30,
+                                     vjust = .5,
+                                     size = 12),
+          axis.title = element_text(size = 16,
+                                    face = "bold"),
+          legend.text = element_text(size = 16),
+          legend.position = "right",
+          plot.title = element_text(face = "bold",
+                                    hjust = .5,
+                                    size =22)) +
+    scale_y_continuous(labels = scales::comma) +
+    scale_x_date(date_breaks = "2 months", date_labels = "%b %Y") +
+    scale_fill_manual(values = c("#C94136", "#4297F8")) +
+    guides(fill = guide_legend(keyheight = 2, keywidth = 2))
+
+  
+}
+
+
+
+
+```
+
+
+```{r, eval= TRUE}
+
+
+##############################
+# ORIGINAL PRIORS
+##############################
+# alpha_mean = 0.9
+# alpha_sd = 0.04
+# alpha_bounds = c(.8,1)
+# beta_mean = .15
+# beta_sd =.09
+# beta_bounds = c(0.002, 0.4)
+# s_untested_mean = .025
+# s_untested_sd = .0225
+# s_untested_bounds = c(0, 0.15)
+# p_s0_pos_mean = .4
+# p_s0_pos_sd = .1225
+# p_s0_pos_bounds = c(.25, .7)
+# nsamp = 1e4
+
+
+##############################
+# ORIGINAL PRIORS (AS LIST)
+##############################
+params_original <- list(
+  alpha_mean = 0.9,
+  alpha_sd = 0.04,
+  alpha_bounds = c(.8,1),
+  beta_mean = .15,
+  beta_sd =.09,
+  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .025,
+  s_untested_sd = .0225,
+  s_untested_bounds = c(0, 0.15),
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+  p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+
+
+```
+
+
+```{r,eval= TRUE}
+
+```
+
+# Effect of Changing Means
+
+## Changing the Mean of $\alpha$
+
+All parameters left as the original except for $\alpha$, left untruncated for simplicity of changing the mean.
+
+$(\alpha) \cdot  P(test +|tested) = P(test + | S_1, untested)$
+
+Observations:
+
+* Setting the mean of $\alpha$ higher leads to an induced distribution with less density toward 1
+* In the final corrected estimates, as we expect, changing the mean of $\alpha$ to be higher corresponds to higher adjusted estimates. 
+  * The effect seems to be substantially larger for the upper bound than the lower bound
+    * I think this may be because even if all the values of $\alpha$ are large, if $P(S_1|untested)$ is very near zero, $\alpha P(S_1|untested)$ will be near zero, which means the minimum number of cases would be observed + untested asymptomatic
+* Major differences between the original implementation in the corrected counts begin when $E(\alpha) \geq 1.3$
+
+
+```{r, fig.width = 11, fig.height = 11, results ='hide', fig.show='hold', out.width='50%'}
+
+params_original <- list(
+  alpha_mean = 0.9,
+  alpha_sd = 0.04,
+  # alpha_bounds = c(.8,1),
+  alpha_bounds = NA,
+  beta_mean = .15,
+  beta_sd =.09,
+  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .025,
+  s_untested_sd = .0225,
+  s_untested_bounds = c(0, 0.15),
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+  p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+
+results <- map(seq(.7, 3, by = .2),
+     ~ {
+       params <- params_original
+       params$alpha_mean <- .x
+       # print(params)
+       melded <- do.call(get_melded, params)
+       
+       title <- paste0("Mean of ${\\alpha}$: ", .x)
+       
+       melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = params$p_s0_pos_mean,
+                                      p_s0_pos_sd = params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                      nsamp = params$nsamp)
+       
+      corrected <- get_corrected_counts(
+                              county_df = covid_county,
+                              melded_df = melded$post_melding) %>%
+                              mutate(version = "User-specified Priors")
+      
+      return(list(title = title, melded_long = melded_long, corrected = corrected))})
+
+
+lims <- map_df(results, ~
+       {
+         counts_max <- max(.x$corrected$exp_cases_ub)
+         
+         vals <- .x$melded_long %>% 
+           filter(type == "Induced") %>%
+       #    filter(name == "$P(S_0|test+,untested)$") %>%
+           pull(value)
+         
+          density_est <- density(x = vals)$y
+         
+         tibble(title = .x$title,
+                counts_max = counts_max, 
+                density_max = max(density_est))
+       })
+
+
+walk(results, ~{
+       
+       p1 <- .x$melded_long %>%
+         plot_melded(custom_title = .x$title,
+                     nsamp = params_original$nsamp) +
+         ylim(0, max(lims$density_max) + .1)
+       
+       p2 <- .x$corrected %>%
+         plot_corrected() +
+         ylim(0, max(lims$counts_max) + max(lims$counts_max)/4)
+       
+       plt <- cowplot::plot_grid(p1,p2, nrow = 2, rel_heights = c(2,1),
+                                 rel_widths = c(2, 1))
+       
+       print(plt)
+       
+})
+
+
+```
+
+```{r,eval=FALSE}
+
+results <- map(seq(.7, 3, by = .2),
+     ~ {
+       params <- params_original
+       params$alpha_mean <- .x
+       # print(params)
+       melded <- do.call(get_melded, params)
+       
+       title <- paste0("Mean of ${\\alpha}$: ", .x)
+       
+       melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = params$p_s0_pos_mean,
+                                      p_s0_pos_sd = params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                      nsamp = params$nsamp)
+       
+      corrected <- get_corrected_counts(
+                              county_df = covid_county,
+                              melded_df = melded$post_melding) %>%
+                              mutate(version = "User-specified Priors")
+
+       
+       return(list(title = title, melded_long = melded_long, corrected = corrected))})
+
+
+lims <- map_df(results, ~
+       {
+         counts_max <- max(.x$corrected$exp_cases_ub)
+         
+         vals <- .x$melded_long %>% 
+           filter(type == "Induced") %>%
+       #    filter(name == "$P(S_0|test+,untested)$") %>%
+           pull(value)
+         
+          density_est <- density(x = vals)$y
+         
+         tibble(title = .x$title,
+                counts_max = counts_max, 
+                density_max = max(density_est))
+       })
+
+
+walk(results, ~{
+       
+       p1 <- .x$melded_long %>%
+         plot_melded(custom_title = .x$title,
+                     nsamp = params_original$nsamp) +
+         ylim(0, max(lims$density_max) + .1)
+       
+       p2 <- .x$corrected %>%
+         plot_corrected() +
+         ylim(0, max(lims$counts_max) + max(lims$counts_max)/4)
+       
+       plt <- cowplot::plot_grid(p1,p2, nrow = 2, rel_heights = c(2,1),
+                                 rel_widths = c(2, 1))
+       
+       print(plt)
+       
+})
+
+
+
+```
+
+
+## Changing the Mean of $\beta$
+
+
+All parameters left as the original except for $\beta$, left untruncated for simplicity of changing the mean.
+
+$(\beta) \cdot P(test +|tested) = P(test + | S_0, untested)$
+
+Observations:
+
+ * Higher values of $\beta$ correspond to lower agreement between the induced and direct priors
+ * Particularly when $P(S_0|test+,untested)$ is bounded, the low agreement can lead to strange-looking melded distributions. I suspect this is because the region of shared support between the induced and direct priors is restricted, so with limited choices, `sample.int()` samples some indexes more frequently, leading to the bumpy appearance we see. When we leave  $P(S_0|test+,untested)$ (in the following section), we see this problem is reduced.
+* Both the lower and upper bound of the corrected counts are shifted upwards with higher value of $\beta$
+
+
+
+```{r,fig.width = 11, fig.height = 11, results ='hide', fig.show='hold', out.width='50%'}
+
+
+params_original <- list(
+  alpha_mean = 0.9,
+  alpha_sd = 0.04,
+  alpha_bounds = c(.8,1),
+  beta_mean = .15,
+  beta_sd =.09,
+  beta_bounds =  NA,
+  # beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .025,
+  s_untested_sd = .0225,
+  s_untested_bounds = c(0, 0.15),
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+  p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+
+results <- map(seq(.05, .5, by = .1),
+     ~ {
+       params <- params_original
+       params$beta_mean <- .x
+       # print(params)
+       melded <- do.call(get_melded, params)
+       
+       title <- paste0("Mean of ${\\beta}$: ", .x)
+       
+       melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = params$p_s0_pos_mean,
+                                      p_s0_pos_sd = params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                      nsamp = params$nsamp)
+       
+      corrected <- get_corrected_counts(
+                              county_df = covid_county,
+                              melded_df = melded$post_melding) %>%
+                              mutate(version = "User-specified Priors")
+
+       
+    return(list(title = title, melded_long = melded_long, corrected = corrected))})
+
+
+lims <- map_df(results, ~
+       {
+         counts_max <- max(.x$corrected$exp_cases_ub)
+         
+         vals <- .x$melded_long %>% 
+           filter(type == "Induced") %>%
+       #    filter(name == "$P(S_0|test+,untested)$") %>%
+           pull(value)
+         
+          density_est <- density(x = vals)$y
+         
+         tibble(title = .x$title,
+                counts_max = counts_max, 
+                density_max = max(density_est))
+       })
+
+
+walk(results, ~{
+       
+       p1 <- .x$melded_long %>%
+         plot_melded(custom_title = .x$title,
+                     nsamp = params_original$nsamp) +
+         ylim(0, max(lims$density_max) + .1)
+       
+       p2 <- .x$corrected %>%
+         plot_corrected() +
+         ylim(0, max(lims$counts_max) + max(lims$counts_max)/4)
+       
+       plt <- cowplot::plot_grid(p1,p2, nrow = 2, rel_heights = c(2,1),
+                                 rel_widths = c(2, 1))
+       
+       print(plt)
+       
+})
+
+```
+
+
+
+### Changing the Mean of $\beta$ with $P(S_0| test + , untested)$ unbounded
+
+
+All parameters left as the original except for $\beta$, left untruncated for simplicity of changing the mean. Removing bounds on $P(S_0| test + , untested)$ to see if we get a more reasonable melded distribution. 
+
+$(\beta) \cdot P(test +|tested) = P(test + | S_0, untested)$
+
+
+
+```{r,fig.width = 11, fig.height = 11, results ='hide', fig.show='hold', out.width='50%'}
+
+
+params_original <- list(
+  alpha_mean = 0.9,
+  alpha_sd = 0.04,
+  alpha_bounds = c(.8,1),
+  beta_mean = .15,
+  beta_sd =.09,
+  beta_bounds =  NA,
+  # beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .025,
+  s_untested_sd = .0225,
+  s_untested_bounds = c(0, 0.15),
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+  p_s0_pos_bounds = NA,
+#  p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+
+results <- map(seq(.05, .5, by = .1),
+     ~ {
+       params <- params_original
+       params$beta_mean <- .x
+       # print(params)
+
+       title <- paste0("Mean of ${\\beta}$: ", .x)
+       
+       melded <- do.call(get_melded, params)
+       
+
+       melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = params$p_s0_pos_mean,
+                                      p_s0_pos_sd = params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                      nsamp = params$nsamp)
+       
+      corrected <- get_corrected_counts(
+                              county_df = covid_county,
+                              melded_df = melded$post_melding) %>%
+                              mutate(version = "User-specified Priors")
+
+       
+       return(list(title = title, melded_long = melded_long, corrected = corrected))})
+
+
+lims <- map_df(results, ~
+       {
+         counts_max <- max(.x$corrected$exp_cases_ub)
+         
+         vals <- .x$melded_long %>% 
+           filter(type == "Induced") %>%
+       #    filter(name == "$P(S_0|test+,untested)$") %>%
+           pull(value)
+         
+          density_est <- density(x = vals)$y
+         
+         tibble(title = .x$title,
+                counts_max = counts_max, 
+                density_max = max(density_est))
+       })
+
+
+walk(results, ~{
+       
+       p1 <- .x$melded_long %>%
+         plot_melded(custom_title = .x$title,
+                     nsamp = params_original$nsamp) +
+         ylim(0, max(lims$density_max) + .1)
+       
+       p2 <- .x$corrected %>%
+         plot_corrected() +
+         ylim(0, max(lims$counts_max) + max(lims$counts_max)/4)
+       
+       plt <- cowplot::plot_grid(p1,p2, nrow = 2, rel_heights = c(2,1),
+                                 rel_widths = c(2, 1))
+       
+       print(plt)
+       
+})
+
+```
+
+
+## Changing the Mean of $P(S_1|untested)$
+
+All parameters left as the original except for $P(S_1|untested)$, left untruncated for simplicity of changing the mean.
+
+Observations:
+
+* Changing the mean of $P(S_1|untested)$ makes a really substantial difference in the induced distribution
+* Means around 0.11 to 0.16 seem to be in highest agreement with the direct prior 
+* This is one prior where truncation might be justified given we know it's impossible that 0% of the untested population has symptoms, so a distribution with high density at 0 is pretty implausible
+  * In Wu *et al.*'s implementation, they did not have a lower bound for $P(S_1|untested)$
+* In general, higher $P(S_1|untested) \to$ higher corrected estimates 
+  * this is not *always* true -- because we are partitioning into symptomatic and asymptomatic and then defining who are positive among those categories, there are cases where lower symptom prevalence  P(S_1|untested) leads to a *lower* upper bound in the corrected cases (see the following plot)
+  
+  
+
+```{r,fig.width = 11, fig.height = 11, results ='hide', fig.show='hold', out.width='50%'}
+
+
+params_original <- list(
+  alpha_mean = 0.9,
+  alpha_sd = 0.04,
+  alpha_bounds = c(.8,1),
+  beta_mean = .15,
+  beta_sd =.09,
+  # beta_bounds =  NA,
+   beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .025,
+  s_untested_sd = .0225,
+  s_untested_bounds = NA,
+  # s_untested_bounds = c(0, 0.15),
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+  p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+
+results <- map(seq(.02, .3, by = .03),
+     ~ {
+       params <- params_original
+       params$s_untested_mean <- .x
+       # print(params)
+       melded <- do.call(get_melded, params)
+       
+       title <- paste0("Mean of $P(S_1|untested)$: ", .x)
+
+       
+       melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = params$p_s0_pos_mean,
+                                      p_s0_pos_sd = params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                      nsamp = params$nsamp)
+       
+      corrected <- get_corrected_counts(
+                              county_df = covid_county,
+                              melded_df = melded$post_melding) %>%
+                              mutate(version = "User-specified Priors")
+
+       
+       return(list(title = title, melded_long = melded_long, corrected = corrected))})
+
+
+lims <- map_df(results, ~
+       {
+         counts_max <- max(.x$corrected$exp_cases_ub)
+         
+         vals <- .x$melded_long %>% 
+           filter(type == "Induced") %>%
+       #    filter(name == "$P(S_0|test+,untested)$") %>%
+           pull(value)
+         
+          density_est <- density(x = vals)$y
+         
+         tibble(title = .x$title,
+                counts_max = counts_max, 
+                density_max = max(density_est))
+       })
+
+
+walk(results, ~{
+       
+       p1 <- .x$melded_long %>%
+         plot_melded(custom_title = .x$title,
+                     nsamp = params_original$nsamp) +
+         ylim(0, max(lims$density_max) + .1)
+       
+       p2 <- .x$corrected %>%
+         plot_corrected() +
+         ylim(0, max(lims$counts_max) + max(lims$counts_max)/4)
+       
+       plt <- cowplot::plot_grid(p1,p2, nrow = 2, rel_heights = c(2,1),
+                                 rel_widths = c(2, 1))
+       
+       print(plt)
+       
+})
+
+```
+
+
+
+  
+The effect of $P(S_1|untested)$ and final corrected estimates will depend on the relationship between $P(test+|S_0,untested)$ and $P(test+|S_1,untested)$. 
+
+We can see this by looking at $N^+_{untested,S_0} + N^+_{untested,S_1}$:
+
+$$N^+_{untested,S_0} = N_{untested} (1-P(S_1|untested)) P(test+|S_0,untested)$$
+$$N^+_{untested,S_1} = N_{untested}( P(S_1|untested) ) P(test+|S_1,untested)$$
+$$N^+_{untested} = N^+_{untested,S_1} + N^+_{untested,S_0 } $$
+$$ =  N_{untested} (1-P(S_1|untested)) P(test+|S_0,untested) +  N_{untested}( P(S_1|untested) ) P(test+|S_1,untested)$$
+$$ = N_{untested}P(test+|S_0,untested)  -  N_{untested} P(S_1|untested) P(test+|S_0,untested) + N_{untested}( P(S_1|untested) ) P(test+|S_1,untested) $$
+$$ = N_{untested}P(test+|S_0,untested)  -  \Big( N_{untested} P(S_1|untested) \Big) \Big(  P(test+|S_0,untested) - P(test+|S_1,untested) \Big)$$
+
+which allows us to see if $P(test + | S_0,untested) > P(test + |S_1,untested)$, the untested positives will *decrease* with increasing values of $P(S_1|untested)$, but if $P(test + | S_0,untested) < P(test + |S_1,untested)$, the untested positives will *increase* with increasing values of $P(S_1|untested)$. 
+
+We can see this more clearly visually by ploting $P(S_1|untested)$ against $N^+_{untested}$ for various combinations of 
+the asymptomatic positivity $P(test + | S_0,untested)$ and symptomatic positivity $P(test + |S_1,untested)$.
+
+
+  
+```{r, fig.width = 16, fig.height = 12, eval = TRUE}
+
+n_untested <- 1e5
+p_s_untested <- .01
+p_testpos_asymp <- 0.015
+p_testpos_symp <-0.09
+
+
+map_df(seq(0.005, 0.3, length = 1000),
+        ~tibble(npos_untested_s0 = n_untested * ( 1- .x) * p_testpos_asymp,
+                npos_untested_s1 = n_untested * ( .x) * p_testpos_symp ))
+
+
+p_symp <- seq(0.005, 0.5, length = 1000)
+
+
+# df <- expand.grid(p_symp_untested = p_symp, 
+#                   n_untested= n_untested, 
+#                   p_s_untested = p_s_untested, 
+#                   p_testpos_asymp = p_testpos_asymp,
+#                   p_testpos_symp = p_testpos_symp) %>%
+#   mutate(npos_untested_s0 = n_untested * ( 1- p_symp_untested) * p_testpos_asymp,
+#                 npos_untested_s1 = n_untested * ( p_symp_untested) * p_testpos_symp )
+
+
+df <- expand.grid(p_symp_untested = p_symp, 
+                  n_untested= n_untested, 
+                  p_s_untested = p_s_untested, 
+                  p_testpos_asymp = seq(0.07, .14, length = 10), 
+                  p_testpos_symp =  seq(0.07, .14, length = 10)) %>%
+  mutate(npos_untested_s0 = n_untested * ( 1- p_symp_untested) * p_testpos_asymp,
+                npos_untested_s1 = n_untested * ( p_symp_untested) * p_testpos_symp ) %>%
+  mutate(asymp_greater = case_when(
+    p_testpos_asymp > p_testpos_symp ~ "Asymptomatic Test Positivity Higher",
+     p_testpos_asymp < p_testpos_symp ~ "Symptomatic Test Positivity Higher",
+    p_testpos_asymp == p_testpos_symp ~ "Equal"))
+
+
+
+df %>% 
+  mutate(p_testpos_asymp_lab = paste0(
+    "$P(test + | S_0, untested)$ = ", 
+    round(p_testpos_asymp, 3)),
+              p_testpos_asymp_lab = forcats::fct_reorder(
+                p_testpos_asymp_lab, p_testpos_asymp ),
+              p_testpos_symp_lab = paste0(
+                "$P(test + | S_1, untested)$ = ", 
+                round(p_testpos_symp, 3)),
+              p_testpos_symp_lab = forcats::fct_reorder(
+                p_testpos_symp_lab, p_testpos_symp )) %>%
+  ggplot(aes(x = p_symp_untested,
+             y = npos_untested_s0 + npos_untested_s1, 
+             color = asymp_greater)) +
+  geom_point(size = .5) +
+  facet_grid(p_testpos_asymp_lab~p_testpos_symp_lab, 
+             labeller = as_labeller(latex2exp::TeX, default = label_parsed ) ) +
+  viridis::scale_color_viridis(discrete = TRUE, begin =0, end = .9) +
+  labs(color = latex2exp::TeX(
+    "\\overset{Relationship Between }{ $P(test +| S_1, untested)$ and  $P(test +|S_0,untested)}$"),
+    y = latex2exp::TeX("$N^+_{untested} = N^+_{untested,S_0} +  N^+_{untested,S_1}$"),
+    x = latex2exp::TeX("$P(S_1|untested)$",),
+    title =  latex2exp::TeX("Relationship between $P(S_1|untested)$ and $N^+_{untested}$")) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = .5, size = 18),
+        axis.title = element_text(size =18),
+        strip.text = element_text(size =4),
+        legend.text = element_text(size = 16),
+        legend.title = element_text(size = 16)) + 
+  guides(color = guide_legend(override.aes = list(size = 4)))
+
+
+
+
+```
+  
+
+
+### Changing the Mean of $P(S_1|untested)$, with $P(S_0 | test +, untested)$ Unbounded
+
+
+```{r,fig.width = 11, fig.height = 11, results ='hide', fig.show='hold', out.width='50%'}
+
+
+params_original <- list(
+  alpha_mean = 0.9,
+  alpha_sd = 0.04,
+  alpha_bounds = c(.8,1),
+  beta_mean = .15,
+  beta_sd =.09,
+  # beta_bounds =  NA,
+   beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .025,
+  s_untested_sd = .0225,
+  s_untested_bounds = NA,
+  # s_untested_bounds = c(0, 0.15),
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+  p_s0_pos_bounds = NA,
+ # p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+
+results <- map(seq(.02, .3, by = .05),
+     ~ {
+       params <- params_original
+       params$s_untested_mean <- .x
+       # print(params)
+       melded <- do.call(get_melded, params)
+       
+       title <- paste0("Mean of $P(S_1|untested)$: ", .x)
+       
+       melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = params$p_s0_pos_mean,
+                                      p_s0_pos_sd = params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                      nsamp = params$nsamp)
+       
+      corrected <- get_corrected_counts(
+                              county_df = covid_county,
+                              melded_df = melded$post_melding) %>%
+                              mutate(version = "User-specified Priors")
+
+       
+     return(list(title = title, melded_long = melded_long, corrected = corrected))})
+
+
+lims <- map_df(results, ~
+       {
+         counts_max <- max(.x$corrected$exp_cases_ub)
+         
+         vals <- .x$melded_long %>% 
+           filter(type == "Induced") %>%
+       #    filter(name == "$P(S_0|test+,untested)$") %>%
+           pull(value)
+         
+          density_est <- density(x = vals)$y
+         
+         tibble(title = .x$title,
+                counts_max = counts_max, 
+                density_max = max(density_est))
+       })
+
+
+walk(results, ~{
+       
+       p1 <- .x$melded_long %>%
+         plot_melded(custom_title = .x$title,
+                     nsamp = params_original$nsamp) +
+         ylim(0, max(lims$density_max) + .1)
+       
+       p2 <- .x$corrected %>%
+         plot_corrected() +
+         ylim(0, max(lims$counts_max) + max(lims$counts_max)/4)
+       
+       plt <- cowplot::plot_grid(p1,p2, nrow = 2, rel_heights = c(2,1),
+                                 rel_widths = c(2, 1))
+       
+       print(plt)
+       
+})
+
+```
+
+## Changing the Mean of $P(S_0 | test +, untested)$
+
+All parameters left as the original except for $P(S_0 | test +, untested)$, left untruncated for simplicity of changing the mean.
+
+```{r,fig.width = 11, fig.height = 11, results ='hide', fig.show='hold', out.width='50%'}
+
+params_original <- list(
+  alpha_mean = 0.9,
+  alpha_sd = 0.04,
+  alpha_bounds = c(.8,1),
+ # alpha_bounds=NA,
+  beta_mean = .15,
+  beta_sd =.09,
+ # beta_bounds =  NA,
+   beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .025,
+  s_untested_sd = .0225,
+  s_untested_bounds = c(0, 0.15),
+  # s_untested_bounds=NA,
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+  p_s0_pos_bounds = NA,
+  # p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+
+results <- map(seq(.3, .7, by = .1),
+     ~ {
+       params <- params_original
+       params$p_s0_pos_mean <- .x
+       # print(params)
+       melded <- do.call(get_melded, params)
+       
+       title <- paste0("Mean of $P(S_0 | test +, untested)$: ", .x)
+       
+      melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = params$p_s0_pos_mean,
+                                      p_s0_pos_sd = params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                      nsamp = params$nsamp)
+       
+      corrected <- get_corrected_counts(
+                              county_df = covid_county,
+                              melded_df = melded$post_melding) %>%
+                              mutate(version = "User-specified Priors")
+
+       
+       return(list(title = title, melded_long = melded_long, corrected = corrected))})
+
+
+lims <- map_df(results, ~
+       {
+         counts_max <- max(.x$corrected$exp_cases_ub)
+         
+         vals <- .x$melded_long %>% 
+           filter(type == "Induced") %>%
+       #    filter(name == "$P(S_0|test+,untested)$") %>%
+           pull(value)
+         
+          density_est <- density(x = vals)$y
+         
+         tibble(title = .x$title,
+                counts_max = counts_max, 
+                density_max = max(density_est))
+       })
+
+
+walk(results, ~{
+       
+       p1 <- .x$melded_long %>%
+         plot_melded(custom_title = .x$title,
+                     nsamp = params_original$nsamp) +
+         ylim(0, max(lims$density_max) + .1)
+       
+       p2 <- .x$corrected %>%
+         plot_corrected() +
+         ylim(0, max(lims$counts_max) + max(lims$counts_max)/4)
+       
+       plt <- cowplot::plot_grid(p1,p2, nrow = 2, rel_heights = c(2,1),
+                                 rel_widths = c(2, 1))
+       
+       print(plt)
+       
+})
+
+```
+
+
+# Effect of Changing SD
+
+
+## Changing the SD of $\alpha$
+
+No notable difference here.
+
+```{r,fig.width = 11, fig.height = 11, results ='hide', fig.show='hold', out.width='50%'}
+
+params_original <- list(
+  alpha_mean = 0.9,
+  alpha_sd = 0.04,
+  alpha_bounds = c(.8,1),
+#  alpha_bounds = NA,
+  beta_mean = .15,
+  beta_sd =.09,
+  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .025,
+  s_untested_sd = .0225,
+  s_untested_bounds = c(0, 0.15),
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+  p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+
+results <- map(seq(.02, .08, by = .02),
+     ~ {
+       params <- params_original
+       params$alpha_sd <- .x
+       # print(params)
+       melded <- do.call(get_melded, params)
+       
+       title <- paste0("SD of ${\\alpha}$: ", .x)
+       
+      melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = params$p_s0_pos_mean,
+                                      p_s0_pos_sd = params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                      nsamp = params$nsamp)
+       
+      corrected <- get_corrected_counts(
+                              county_df = covid_county,
+                              melded_df = melded$post_melding) %>%
+                              mutate(version = "User-specified Priors")
+
+       
+     return(list(title = title, melded_long = melded_long, corrected = corrected))})
+
+
+lims <- map_df(results, ~
+       {
+         counts_max <- max(.x$corrected$exp_cases_ub)
+         
+         vals <- .x$melded_long %>% 
+           filter(type == "Induced") %>%
+       #    filter(name == "$P(S_0|test+,untested)$") %>%
+           pull(value)
+         
+          density_est <- density(x = vals)$y
+         
+         tibble(title = .x$title,
+                counts_max = counts_max, 
+                density_max = max(density_est))
+       })
+
+
+walk(results, ~{
+       
+       p1 <- .x$melded_long %>%
+         plot_melded(custom_title = .x$title,
+                     nsamp = params_original$nsamp) +
+         ylim(0, max(lims$density_max) + .1)
+       
+       p2 <- .x$corrected %>%
+         plot_corrected() +
+         ylim(0, max(lims$counts_max) + max(lims$counts_max)/4)
+       
+       plt <- cowplot::plot_grid(p1,p2, nrow = 2, rel_heights = c(2,1),
+                                 rel_widths = c(2, 1))
+       
+       print(plt)
+       
+})
+
+```
+
+
+
+## Changing the SD of $\beta$
+
+```{r,fig.width = 11, fig.height = 11, results ='hide', fig.show='hold', out.width='50%'}
+
+params_original <- list(
+  alpha_mean = 0.9,
+  alpha_sd = 0.04,
+  alpha_bounds = c(.8,1),
+#  alpha_bounds = NA,
+  beta_mean = .15,
+  beta_sd =.09,
+  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .025,
+  s_untested_sd = .0225,
+  s_untested_bounds = c(0, 0.15),
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+  p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+
+results <- map(seq(.05, .15, by = .03),
+     ~ {
+       params <- params_original
+       params$beta_sd <- .x
+       # print(params)
+       melded <- do.call(get_melded, params)
+       
+       title <- paste0("SD of ${\\beta}$: ", .x)
+       
+       melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = params$p_s0_pos_mean,
+                                      p_s0_pos_sd = params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                      nsamp = params$nsamp)
+       
+      corrected <- get_corrected_counts(
+                              county_df = covid_county,
+                              melded_df = melded$post_melding) %>%
+                              mutate(version = "User-specified Priors")
+
+       
+    return(list(title = title, melded_long = melded_long, corrected = corrected))})
+
+
+lims <- map_df(results, ~
+       {
+         counts_max <- max(.x$corrected$exp_cases_ub)
+         
+         vals <- .x$melded_long %>% 
+           filter(type == "Induced") %>%
+       #    filter(name == "$P(S_0|test+,untested)$") %>%
+           pull(value)
+         
+          density_est <- density(x = vals)$y
+         
+         tibble(title = .x$title,
+                counts_max = counts_max, 
+                density_max = max(density_est))
+       })
+
+
+walk(results, ~{
+       
+       p1 <- .x$melded_long %>%
+         plot_melded(custom_title = .x$title,
+                     nsamp = params_original$nsamp) +
+         ylim(0, max(lims$density_max) + .1)
+       
+       p2 <- .x$corrected %>%
+         plot_corrected() +
+         ylim(0, max(lims$counts_max) + max(lims$counts_max)/4)
+       
+       plt <- cowplot::plot_grid(p1,p2, nrow = 2, rel_heights = c(2,1),
+                                 rel_widths = c(2, 1))
+       
+       print(plt)
+       
+})
+
+
+```
+
+
+
+
+## Changing the SD of $P(S_1|untested)$
+
+```{r,fig.width = 11, fig.height = 11, results ='hide', fig.show='hold', out.width='50%'}
+
+params_original <- list(
+  alpha_mean = 0.9,
+  alpha_sd = 0.04,
+  alpha_bounds = c(.8,1),
+#  alpha_bounds = NA,
+  beta_mean = .15,
+  beta_sd =.09,
+  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .025,
+  s_untested_sd = .0225,
+  s_untested_bounds = c(0, 0.15),
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+  p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+
+results <- map(seq(.01, .04, by = .005),
+     ~ {
+       params <- params_original
+       params$s_untested_sd <- .x
+       # print(params)
+       melded <- do.call(get_melded, params)
+       
+       title <- paste0("SD of $P(S_1|untested)$: ", .x)
+       
+       melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = params$p_s0_pos_mean,
+                                      p_s0_pos_sd = params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                      nsamp = params$nsamp)
+       
+      corrected <- get_corrected_counts(
+                              county_df = covid_county,
+                              melded_df = melded$post_melding) %>%
+                              mutate(version = "User-specified Priors")
+
+       
+   return(list(title = title, melded_long = melded_long, corrected = corrected))})
+
+
+lims <- map_df(results, ~
+       {
+         counts_max <- max(.x$corrected$exp_cases_ub)
+         
+         vals <- .x$melded_long %>% 
+           filter(type == "Induced") %>%
+       #    filter(name == "$P(S_0|test+,untested)$") %>%
+           pull(value)
+         
+          density_est <- density(x = vals)$y
+         
+         tibble(title = .x$title,
+                counts_max = counts_max, 
+                density_max = max(density_est))
+       })
+
+
+walk(results, ~{
+       
+       p1 <- .x$melded_long %>%
+         plot_melded(custom_title = .x$title,
+                     nsamp = params_original$nsamp) +
+         ylim(0, max(lims$density_max) + .1)
+       
+       p2 <- .x$corrected %>%
+         plot_corrected() +
+         ylim(0, max(lims$counts_max) + max(lims$counts_max)/4)
+       
+       plt <- cowplot::plot_grid(p1,p2, nrow = 2, rel_heights = c(2,1),
+                                 rel_widths = c(2, 1))
+       
+       print(plt)
+       
+})
+
+```
+
+
+## Changing the SD of $P(S_0|test +, untested)$
+
+```{r, fig.width = 11, fig.height = 11, results ='hide', fig.show='hold', out.width='50%'}
+
+params_original <- list(
+  alpha_mean = 0.9,
+  alpha_sd = 0.04,
+  alpha_bounds = c(.8,1),
+#  alpha_bounds = NA,
+  beta_mean = .15,
+  beta_sd =.09,
+  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .025,
+  s_untested_sd = .0225,
+  s_untested_bounds = c(0, 0.15),
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+  p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+
+results <- map(seq(.1, .16, by = .02),
+     ~ {
+       params <- params_original
+       params$p_s0_pos_sd <- .x
+       # print(params)
+       melded <- do.call(get_melded, params)
+       
+       title <- paste0("SD of ${P(S_0|untested,test+)}$: ", .x)
+       
+       melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = params$p_s0_pos_mean,
+                                      p_s0_pos_sd = params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                      nsamp = params$nsamp)
+       
+      corrected <- get_corrected_counts(
+                              county_df = covid_county,
+                              melded_df = melded$post_melding) %>%
+                              mutate(version = "User-specified Priors")
+
+       
+        return(list(title = title, melded_long = melded_long, corrected = corrected))})
+
+
+lims <- map_df(results, ~
+       {
+         counts_max <- max(.x$corrected$exp_cases_ub)
+         
+         vals <- .x$melded_long %>% 
+           filter(type == "Induced") %>%
+       #    filter(name == "$P(S_0|test+,untested)$") %>%
+           pull(value)
+         
+          density_est <- density(x = vals)$y
+         
+         tibble(title = .x$title,
+                counts_max = counts_max, 
+                density_max = max(density_est))
+       })
+
+
+walk(results, ~{
+       
+       p1 <- .x$melded_long %>%
+         plot_melded(custom_title = .x$title,
+                     nsamp = params_original$nsamp) +
+         ylim(0, max(lims$density_max) + .1)
+       
+       p2 <- .x$corrected %>%
+         plot_corrected() +
+         ylim(0, max(lims$counts_max) + max(lims$counts_max)/4)
+       
+       plt <- cowplot::plot_grid(p1,p2, nrow = 2, rel_heights = c(2,1),
+                                 rel_widths = c(2, 1))
+       
+       print(plt)
+       
+})
+
+
+```
+
+## Changing the SD of $P(S_0|test +, untested)$, Unbounded
+
+
+```{r, fig.width = 11, fig.height = 11, results ='hide', fig.show='hold', out.width='50%'}
+
+params_original <- list(
+  alpha_mean = 0.9,
+  alpha_sd = 0.04,
+  alpha_bounds = c(.8,1),
+#  alpha_bounds = NA,
+  beta_mean = .15,
+  beta_sd =.09,
+  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .025,
+  s_untested_sd = .0225,
+  s_untested_bounds = c(0, 0.15),
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+  p_s0_pos_bounds = NA,
+ # p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+
+results <- map(seq(.1, .16, by = .02),
+     ~ {
+       params <- params_original
+       params$p_s0_pos_sd <- .x
+       # print(params)
+       melded <- do.call(get_melded, params)
+       
+       title <- paste0("SD of ${P(S_0|untested,test+)}$: ", .x)
+       
+       melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = params$p_s0_pos_mean,
+                                      p_s0_pos_sd = params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                      nsamp = params$nsamp)
+       
+      corrected <- get_corrected_counts(
+                              county_df = covid_county,
+                              melded_df = melded$post_melding) %>%
+                              mutate(version = "User-specified Priors")
+
+       
+     return(list(title = title, melded_long = melded_long, corrected = corrected))})
+
+
+lims <- map_df(results, ~
+       {
+         counts_max <- max(.x$corrected$exp_cases_ub)
+         
+         vals <- .x$melded_long %>% 
+           filter(type == "Induced") %>%
+       #    filter(name == "$P(S_0|test+,untested)$") %>%
+           pull(value)
+         
+          density_est <- density(x = vals)$y
+         
+         tibble(title = .x$title,
+                counts_max = counts_max, 
+                density_max = max(density_est))
+       })
+
+
+walk(results, ~{
+       
+       p1 <- .x$melded_long %>%
+         plot_melded(custom_title = .x$title,
+                     nsamp = params_original$nsamp) +
+         ylim(0, max(lims$density_max) + .1)
+       
+       p2 <- .x$corrected %>%
+         plot_corrected() +
+         ylim(0, max(lims$counts_max) + max(lims$counts_max)/4)
+       
+       plt <- cowplot::plot_grid(p1,p2, nrow = 2, rel_heights = c(2,1),
+                                 rel_widths = c(2, 1))
+       
+       print(plt)
+       
+})
+
+
+```
+
+
+# Effect of Truncation 
+
+## Truncation of $\beta$
+
+
+### Changing Lower Bound, Leaving Upper Untruncated
+
+Observations:
+
+* Increasing the lower bound of $\beta$ corresponds to an increased lower bound of $P(S_0|untested,test+)$ in the melded distribution
+* We can see the difference mainly in the melded distribution rather than the induced distribution 
+
+```{r, fig.width = 11, fig.height = 11, fig.show='hold', out.width='50%'}
+
+results <- map(seq(0, .15, by = .03),
+     ~ {
+       params <- params_original
+       params$beta_bounds <- c(.x,1)
+       # print(params)
+       melded <- do.call(get_melded, params)
+       
+       title <- paste0("Lower Bound of $\\beta$: ", .x)
+       
+      melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = params$p_s0_pos_mean,
+                                      p_s0_pos_sd = params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                      nsamp = params$nsamp)
+       
+      corrected <- get_corrected_counts(
+                              county_df = covid_county,
+                              melded_df = melded$post_melding) %>%
+                              mutate(version = "User-specified Priors")
+
+       
+   return(list(title = title, melded_long = melded_long, corrected = corrected))})
+
+
+lims <- map_df(results, ~
+       {
+         counts_max <- max(.x$corrected$exp_cases_ub)
+         
+         vals <- .x$melded_long %>% 
+           filter(type == "Induced") %>%
+       #    filter(name == "$P(S_0|test+,untested)$") %>%
+           pull(value)
+         
+          density_est <- density(x = vals)$y
+         
+         tibble(title = .x$title,
+                counts_max = counts_max, 
+                density_max = max(density_est))
+       })
+
+
+walk(results, ~{
+       
+       p1 <- .x$melded_long %>%
+         plot_melded(custom_title = .x$title,
+                     nsamp = params_original$nsamp) +
+         ylim(0, max(lims$density_max) + .1)
+       
+       p2 <- .x$corrected %>%
+         plot_corrected() +
+         ylim(0, max(lims$counts_max) + max(lims$counts_max)/4)
+       
+       plt <- cowplot::plot_grid(p1,p2, nrow = 2, rel_heights = c(2,1),
+                                 rel_widths = c(2, 1))
+       
+       print(plt)
+       
+})
+
+```
+
+
+### Changing Upper Bound, Leaving Lower Untruncated
+
+```{r, fig.show='hold', out.width='50%'}
+
+
+
+params_original <- list(
+  alpha_mean = 0.9,
+  alpha_sd = 0.04,
+  alpha_bounds = c(.8,1),
+  beta_mean = .15,
+  beta_sd =.09,
+#  beta_bounds =  NA,
+  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .025,
+  s_untested_sd = .0225,
+  s_untested_bounds = c(0, 0.15),
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+  p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+
+results <- map(seq(.2, .9, by = .1),
+     ~ {
+       params <- params_original
+       params$beta_bounds <- c(0,.x)
+       # print(params)
+       melded <- do.call(get_melded, params)
+       
+       title <- paste0("Upper Bound of $\\beta$: ", .x)
+       
+      melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = params$p_s0_pos_mean,
+                                      p_s0_pos_sd = params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                      nsamp = params$nsamp)
+       
+      corrected <- get_corrected_counts(
+                              county_df = covid_county,
+                              melded_df = melded$post_melding) %>%
+                              mutate(version = "User-specified Priors")
+
+       
+         return(list(title = title, melded_long = melded_long, corrected = corrected))})
+
+
+lims <- map_df(results, ~
+       {
+         counts_max <- max(.x$corrected$exp_cases_ub)
+         
+         vals <- .x$melded_long %>% 
+           filter(type == "Induced") %>%
+       #    filter(name == "$P(S_0|test+,untested)$") %>%
+           pull(value)
+         
+          density_est <- density(x = vals)$y
+         
+         tibble(title = .x$title,
+                counts_max = counts_max, 
+                density_max = max(density_est))
+       })
+
+
+walk(results, ~{
+       
+       p1 <- .x$melded_long %>%
+         plot_melded(custom_title = .x$title,
+                     nsamp = params_original$nsamp) +
+         ylim(0, max(lims$density_max) + .1)
+       
+       p2 <- .x$corrected %>%
+         plot_corrected() +
+         ylim(0, max(lims$counts_max) + max(lims$counts_max)/4)
+       
+       plt <- cowplot::plot_grid(p1,p2, nrow = 2, rel_heights = c(2,1),
+                                 rel_widths = c(2, 1))
+       
+       print(plt)
+       
+})
+```
+
+
+## Truncation of $\alpha$ 
+
+### Changing Lower Bound, Leaving Upper Untruncated
+
+```{r, fig.show='hold', out.width='50%'}
+
+params_original <- list(
+  alpha_mean = 0.9,
+  alpha_sd = 0.04,
+  alpha_bounds = c(.8,1),
+  beta_mean = .15,
+  beta_sd =.09,
+#  beta_bounds =  NA,
+  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .025,
+  s_untested_sd = .0225,
+  s_untested_bounds = c(0, 0.15),
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+  p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+
+
+results <- map(seq(0, .8, by = .2),
+     ~ {
+       params <- params_original
+       params$alpha_bounds <- c(.x,Inf)
+       # print(params)
+       melded <- do.call(get_melded, params)
+       
+       title <- paste0("Lower Bound of $\\alpha$: ", .x)
+       
+       melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = params$p_s0_pos_mean,
+                                      p_s0_pos_sd = params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                      nsamp = params$nsamp)
+       
+      corrected <- get_corrected_counts(
+                              county_df = covid_county,
+                              melded_df = melded$post_melding) %>%
+                              mutate(version = "User-specified Priors")
+
+       
+        return(list(title = title, melded_long = melded_long, corrected = corrected))})
+
+
+lims <- map_df(results, ~
+       {
+         counts_max <- max(.x$corrected$exp_cases_ub)
+         
+         vals <- .x$melded_long %>% 
+           filter(type == "Induced") %>%
+       #    filter(name == "$P(S_0|test+,untested)$") %>%
+           pull(value)
+         
+          density_est <- density(x = vals)$y
+         
+         tibble(title = .x$title,
+                counts_max = counts_max, 
+                density_max = max(density_est))
+       })
+
+
+walk(results, ~{
+       
+       p1 <- .x$melded_long %>%
+         plot_melded(custom_title = .x$title,
+                     nsamp = params_original$nsamp) +
+         ylim(0, max(lims$density_max) + .1)
+       
+       p2 <- .x$corrected %>%
+         plot_corrected() +
+         ylim(0, max(lims$counts_max) + max(lims$counts_max)/4)
+       
+       plt <- cowplot::plot_grid(p1,p2, nrow = 2, rel_heights = c(2,1),
+                                 rel_widths = c(2, 1))
+       
+       print(plt)
+       
+})
+
+
+```
+
+
+### Changing Upper Bound, Leaving Lower Untruncated
+
+```{r, fig.show='hold', out.width='50%'}
+
+params_original <- list(
+  alpha_mean = 0.9,
+  alpha_sd = 0.04,
+  alpha_bounds = c(.8,1),
+  beta_mean = .15,
+  beta_sd =.09,
+#  beta_bounds =  NA,
+  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .025,
+  s_untested_sd = .0225,
+  s_untested_bounds = c(0, 0.15),
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+  p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+
+
+results <- map(seq(1, 1.5, by = .1),
+     ~ {
+       params <- params_original
+       params$alpha_bounds <- c(0,.x)
+       # print(params)
+       melded <- do.call(get_melded, params)
+       
+       title <- paste0("Upper Bound of $\\alpha$: ", .x)
+       
+       melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = params$p_s0_pos_mean,
+                                      p_s0_pos_sd = params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                      nsamp = params$nsamp)
+       
+      corrected <- get_corrected_counts(
+                              county_df = covid_county,
+                              melded_df = melded$post_melding) %>%
+                              mutate(version = "User-specified Priors")
+
+       
+       return(list(title = title, melded_long = melded_long, corrected = corrected))})
+
+
+lims <- map_df(results, ~
+       {
+         counts_max <- max(.x$corrected$exp_cases_ub)
+         
+         vals <- .x$melded_long %>% 
+           filter(type == "Induced") %>%
+       #    filter(name == "$P(S_0|test+,untested)$") %>%
+           pull(value)
+         
+          density_est <- density(x = vals)$y
+         
+         tibble(title = .x$title,
+                counts_max = counts_max, 
+                density_max = max(density_est))
+       })
+
+
+walk(results, ~{
+       
+       p1 <- .x$melded_long %>%
+         plot_melded(custom_title = .x$title,
+                     nsamp = params_original$nsamp) +
+         ylim(0, max(lims$density_max) + .1)
+       
+       p2 <- .x$corrected %>%
+         plot_corrected() +
+         ylim(0, max(lims$counts_max) + max(lims$counts_max)/4)
+       
+       plt <- cowplot::plot_grid(p1,p2, nrow = 2, rel_heights = c(2,1),
+                                 rel_widths = c(2, 1))
+       
+       print(plt)
+       
+})
+
+
+```
+
+
+## Truncation of $P(S_1|untested)$ 
+
+
+### Changing Lower Bound, Leaving Upper Untruncated
+
+Observations:
+
+* Increasing lower bound of $P(S_1|untested)$ leads to induced prior in more agreement with direct prior 
+
+```{r, fig.show='hold', out.width='50%'}
+
+params_original <- list(
+  alpha_mean = 0.9,
+  alpha_sd = 0.04,
+  alpha_bounds = c(.8,1),
+  beta_mean = .15,
+  beta_sd =.09,
+#  beta_bounds =  NA,
+  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .025,
+  s_untested_sd = .0225,
+  s_untested_bounds = c(0, 0.15),
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+  p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+
+
+results <- map(seq(0, .02, by = .001),
+     ~ {
+       params <- params_original
+       params$s_untested_bounds <- c(.x, Inf)
+       # print(params)
+       melded <- do.call(get_melded, params)
+       
+       title <- paste0("Lower Bound of $P(S_1|untested)$: ", .x)
+       
+     melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = params$p_s0_pos_mean,
+                                      p_s0_pos_sd = params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                      nsamp = params$nsamp)
+       
+      corrected <- get_corrected_counts(
+                              county_df = covid_county,
+                              melded_df = melded$post_melding) %>%
+                              mutate(version = "User-specified Priors")
+
+       
+        return(list(title = title, melded_long = melded_long, corrected = corrected))})
+
+
+lims <- map_df(results, ~
+       {
+         counts_max <- max(.x$corrected$exp_cases_ub)
+         
+         vals <- .x$melded_long %>% 
+           filter(type == "Induced") %>%
+       #    filter(name == "$P(S_0|test+,untested)$") %>%
+           pull(value)
+         
+          density_est <- density(x = vals)$y
+         
+         tibble(title = .x$title,
+                counts_max = counts_max, 
+                density_max = max(density_est))
+       })
+
+
+walk(results, ~{
+       
+       p1 <- .x$melded_long %>%
+         plot_melded(custom_title = .x$title,
+                     nsamp = params_original$nsamp) +
+         ylim(0, max(lims$density_max) + .1)
+       
+       p2 <- .x$corrected %>%
+         plot_corrected() +
+         ylim(0, max(lims$counts_max) + max(lims$counts_max)/4)
+       
+       plt <- cowplot::plot_grid(p1,p2, nrow = 2, rel_heights = c(2,1),
+                                 rel_widths = c(2, 1))
+       
+       print(plt)
+       
+})
+
+
+```
+
+
+### Changing Upper Bound, Leaving Lower Untruncated
+
+No notable change from changing the upper bound of $P(S_1|untested)$.
+
+```{r, fig.show='hold', out.width='50%'}
+
+params_original <- list(
+  alpha_mean = 0.9,
+  alpha_sd = 0.04,
+  alpha_bounds = c(.8,1),
+  beta_mean = .15,
+  beta_sd =.09,
+  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .025,
+  s_untested_sd = .0225,
+  s_untested_bounds = c(0, 0.15),
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+  p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+
+
+results <- map(seq(.05, .25, by = .05),
+     ~ {
+       params <- params_original
+       params$s_untested_bounds <- c(0,.x)
+       # print(params)
+       melded <- do.call(get_melded, params)
+       
+       title <- paste0("Upper Bound of $P(S_1|untested)$: ", .x)
+       
+        melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = params$p_s0_pos_mean,
+                                      p_s0_pos_sd = params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                      nsamp = params$nsamp)
+       
+      corrected <- get_corrected_counts(
+                              county_df = covid_county,
+                              melded_df = melded$post_melding) %>%
+                              mutate(version = "User-specified Priors")
+
+       return(list(title = title, melded_long = melded_long, corrected = corrected))})
+
+
+lims <- map_df(results, ~
+       {
+         counts_max <- max(.x$corrected$exp_cases_ub)
+         
+         vals <- .x$melded_long %>% 
+           filter(type == "Induced") %>%
+       #    filter(name == "$P(S_0|test+,untested)$") %>%
+           pull(value)
+         
+          density_est <- density(x = vals)$y
+         
+         tibble(title = .x$title,
+                counts_max = counts_max, 
+                density_max = max(density_est))
+       })
+
+
+walk(results, ~{
+       
+       p1 <- .x$melded_long %>%
+         plot_melded(custom_title = .x$title,
+                     nsamp = params_original$nsamp) +
+         ylim(0, max(lims$density_max) + .1)
+       
+       p2 <- .x$corrected %>%
+         plot_corrected() +
+         ylim(0, max(lims$counts_max) + max(lims$counts_max)/4)
+       
+       plt <- cowplot::plot_grid(p1,p2, nrow = 2, rel_heights = c(2,1),
+                                 rel_widths = c(2, 1))
+       
+       print(plt)
+       
+})
+
+
+```
+
+
+
+# Comparing Agreement of Induced Distribution and Direct Distribution ($P(S_0|untested,test+)$ *Bounded*)
+
+It seems like changing the mean of $P(S_1|untested)$ leads to the most dramatic difference we see in the correspondence between the induced and direct priors. A higher mean leads to greater correspondence, as we see, for example, in 
+
+```{r}
+
+
+
+compare_induced <- function(
+    alpha_mean = 0.9,
+    alpha_sd = 0.04,
+    alpha_bounds = c(.8,1),
+    beta_mean = .15,
+    beta_sd =.09,
+    beta_bounds = c(0.002, 0.4),
+    s_untested_mean = .025,
+    s_untested_sd = .0225,
+    s_untested_bounds = c(0, 0.15),
+    p_s0_pos_mean = .4,
+    p_s0_pos_sd = .1225,
+    p_s0_pos_bounds = c(.25, .7),
+    nsamp = 1e5) {
+    
+   params <- as.list(environment())
+   print(params)
+   
+   theta <- tibble(alpha = sample_gamma_density(nsamp,
+                                                mean = alpha_mean,
+                                                sd = alpha_sd,
+                                                bounds = alpha_bounds),
+                    beta= sample_beta_density(nsamp,
+                                              mean = beta_mean,
+                                              sd = beta_sd,
+                                              bounds = beta_bounds),
+                    P_S_untested = sample_beta_density(
+                      nsamp,
+                      mean = s_untested_mean,
+                      sd = s_untested_sd,
+                      bounds = s_untested_bounds)) %>%
+        mutate(phi_induced = est_P_A_testpos(P_S_untested = P_S_untested,
+                                             alpha = alpha,
+                                             beta=beta))
+   
+   rp_s0_pos <- function(x) {
+
+      sample_beta_density(x,
+                   mean=p_s0_pos_mean,
+                   sd = p_s0_pos_sd,
+                   bounds=p_s0_pos_bounds)
+   }
+   
+   params_title <- paste(names(params),
+                         params,
+                  sep="=",collapse=",\n" )
+   
+   tibble(induced = theta$phi_induced,
+          direct = rp_s0_pos(nsamp)) %>%
+     pivot_longer(cols=everything()) %>%
+     ggplot(aes(x = value, fill = name)) +
+     geom_density(alpha = .5)+
+     scale_fill_manual(values = c( "#5670BF","#B28542")) +
+     theme_bw() +
+     theme(plot.title = element_text(size = 14),
+           legend.text = element_text(size = 16)) + 
+     labs(fill= "",
+          title = params_title ) +
+     guides(fill = guide_legend(keywidth = 2, 
+                                keyheight =2)) +
+     scale_x_continuous(n.breaks = 7)
+}
+
+
+```
+
+```{r fig.show = 'hold', out.width ="25%", dpi = 300, fig.width = 8, fig.height = 8}
+
+
+
+params_original <- list(
+  alpha_mean = 0.9,
+  alpha_sd = 0.04,
+  alpha_bounds = NA,
+ # alpha_bounds = c(.8,1),
+  beta_mean = .15,
+  beta_sd =.09,
+  beta_bounds = NA,
+#  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .025,
+  s_untested_sd = .0225,
+#  s_untested_bounds = c(0, 0.15),
+  s_untested_bounds = NA,
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+# p_s0_pos_bounds = NA,
+  p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+
+
+alpha_mean <- seq(.7, 3, length = 4)
+
+beta_mean <- seq(.05, .5, length = 4)
+
+s_untested_mean <- seq(.01, .3, length = 4)
+
+
+all_combos <- expand.grid(alpha_mean=alpha_mean, 
+            beta_mean = beta_mean, 
+            s_untested_mean = s_untested_mean) %>%
+  as_tibble()
+
+
+
+pwalk(all_combos,
+     ~ {
+       input <- list(...)
+       glimpse(input)
+       params <- params_original
+       params$alpha_mean <- input$alpha_mean
+       params$beta_mean <- input$beta_mean
+       params$s_untested_mean <- input$s_untested_mean
+
+       p <- do.call(compare_induced, params)
+
+       print(p)
+
+     })
+
+```
+
+
+# Comparing Agreement of Induced Distribution and Direct Distribution ($P(S_0|untested,test+)$ *Unbounded*)
+
+
+```{r fig.show = 'hold', out.width ="25%", dpi = 300,fig.width = 8, fig.height = 8}
+
+
+
+params_original <- list(
+  alpha_mean = 0.9,
+  alpha_sd = 0.04,
+  alpha_bounds = NA,
+ # alpha_bounds = c(.8,1),
+  beta_mean = .15,
+  beta_sd =.09,
+  beta_bounds = NA,
+#  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .025,
+  s_untested_sd = .0225,
+#  s_untested_bounds = c(0, 0.15),
+  s_untested_bounds = NA,
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+ p_s0_pos_bounds = NA,
+#  p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+
+
+alpha_mean <- seq(.7, 3, length = 4)
+
+beta_mean <- seq(.05, .5, length = 4)
+
+s_untested_mean <- seq(.01, .3, length = 4)
+
+
+all_combos <- expand.grid(alpha_mean=alpha_mean, 
+            beta_mean = beta_mean, 
+            s_untested_mean = s_untested_mean) %>%
+  as_tibble()
+
+
+
+pwalk(all_combos,
+     ~ {
+       input <- list(...)
+       # glimpse(input)
+       params <- params_original
+       params$alpha_mean <- input$alpha_mean
+       params$beta_mean <- input$beta_mean
+       params$s_untested_mean <- input$s_untested_mean
+
+       p <- do.call(compare_induced, params)
+
+       print(p)
+
+     })
+
+```
+
+# Proposal for Final Distributions
+
+```{r,error=TRUE, fig.height = 12, fig.width= 14}
+
+# increased alpha mean, alpha_sd
+params <- list(
+  alpha_mean = .95,
+  alpha_sd = 0.08,
+  alpha_bounds = NA,
+ # alpha_bounds = c(.8,1),
+  beta_mean = .15,
+  beta_sd =.09,
+  beta_bounds = NA,
+#  beta_bounds = c(0.002, 0.4),
+  s_untested_mean = .03,
+  s_untested_sd = .0225,
+#  s_untested_bounds = c(0.0018, Inf),
+  s_untested_bounds = NA,
+  p_s0_pos_mean = .4,
+  p_s0_pos_sd = .1225,
+ p_s0_pos_bounds = NA,
+#  p_s0_pos_bounds = c(.25, .7),
+  nsamp = 1e5)
+
+
+
+melded <- do.call(get_melded, params)
+       
+title <- paste0("Melding with Proposed Distributions")
+       
+melded_long <- reformat_melded(melded_df =  melded$post_melding,
+                                      theta_df =  melded$pre_melding,
+                                      p_s0_pos_mean = params$p_s0_pos_mean,
+                                      p_s0_pos_sd = params$p_s0_pos_sd,
+                                      p_s0_pos_bounds = params$p_s0_pos_bounds,
+                                      nsamp = params$nsamp)
+       
+corrected <- get_corrected_counts(
+                              county_df = covid_county,
+                              melded_df = melded$post_melding) %>%
+                              mutate(version = "User-specified Priors")
+
+
+vals <- melded_long %>% 
+           filter(type == "Induced") %>%
+       #    filter(name == "$P(S_0|test+,untested)$") %>%
+           pull(value) 
+
+density_est <- density(x = vals)$y
+
+  
+lims <- tibble(title = title,
+               counts_max = max(corrected$exp_cases_ub),
+               density_max = max(density_est))
+
+
+
+
+p1 <- melded_long %>%
+         plot_melded(custom_title = title,
+                     nsamp = params$nsamp) +
+         ylim(0, max(lims$density_max) + .2)
+       
+p2 <- corrected %>%
+         plot_corrected() +
+         ylim(0, max(lims$counts_max) + max(lims$counts_max)/4)
+       
+plt <- cowplot::plot_grid(p1,p2, nrow = 2, rel_heights = c(2,1),
+                                 rel_widths = c(2, 1))
+
+print(plt)
+       
+```
+
+```{eval = FALSE}
+
+screening_data_link <- paste0(
+  "https://api.covidcast.cmu.edu/epidata/covidcast/?data_source=fb-survey",
+  "&signal=smoothed_wscreening_tested_positive_14d,smoothed_wtested_positive_14d,smoothed_wcli",
+  "&geo_type=state&time_type=day&time_values=20210320-20221212&geo_value=",
+  state_name)
+
+fb_screening <- httr::GET(screening_data_link)
+
+library(lubridate)
+
+fb_symptoms <-jsonlite::fromJSON(
+      httr::content(fb_screening,s
+                    as = "text", 
+                    encoding = "UTF-8"))$epidata %>%
+   mutate(date = lubridate::ymd(time_value),
+          week = lubridate::week(date),
+          state = geo_value,
+          value = value/100,
+          stderr = stderr/100) %>% 
+  filter(date <= ymd("2022-03-01")) %>%
+  as_tibble()
+
+
+```
+

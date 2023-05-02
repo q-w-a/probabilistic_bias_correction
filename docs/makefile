@@ -1,13 +1,13 @@
 
 all: data/state_level/tests_daily_all_states.RDS analysis/county_level_correction/county_level_correction_ma.html thesis
 
-thesis/_book/thesis.pdf:  $(shell find thesis -type f)
+thesis/_book/thesis.pdf:  $(wildcard thesis/*) analysis/vignettes/cross_correlation_wastewater.Rmd
       # generate citations based on Rmd files in thesis directory
 			Rscript thesis/generate_citations.R 
 			# knit thesis 
 			# need to change into thesis directory so rendering works correctly
-			#cd thesis; Rscript -e "bookdown::render_book('index.Rmd')"
-			cd thesis;ls;  Rscript -e "bookdown::render_book('index.Rmd', 'bookdown::gitbook')"
+			cd thesis; Rscript -e "bookdown::render_book('index.Rmd')"
+			#cd thesis;ls;  Rscript -e "bookdown::render_book('index.Rmd', 'bookdown::gitbook')"
 
 data/state_level/tests_daily_all_states.RDS: analysis/data_cleaning/data_cleaning.Rmd
 			Rscript -e "rmarkdown::render('analysis/data_cleaning/data_cleaning.Rmd')"
