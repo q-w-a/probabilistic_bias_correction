@@ -467,7 +467,7 @@ Because we define $\beta$ as the ratio of $\frac{P(\text{test}_+ |S_0, \text{unt
 
 ### Defining $P(S_0|\text{test}_+,\text{untested})$
 
-$P(S_0|\text{test}_+)$ is the probability of not having symptoms among those who test positive, that is, the asymptomatic rate of COVID-19.
+$P(S_0|\text{test}_+,\text{tested})$ is the probability of not having symptoms among those who test positive, that is, the asymptomatic rate of COVID-19. Although we can never obtain a true estimate of $P(S_0|\text{test}_+,\text{untested})$ given it is by nature unobserved, we can look to studies that estimate $P(S_0|\text{test}_+,\text{tested})$.
 
 One large meta-analysis found $P(S_0|test+)$ to be 40.50% (95% CI: 33.50%-47.50%), although it did not restrict to screening studies [@ma2021a]. Another meta-analysis, when restricting to screening studies,  found $P(S_0|test+)$ to be 47.3% (95% CI: 34.0% -61.0%) [@sah2021a].
 

@@ -757,7 +757,9 @@ Comparing the induced and direct priors on $P(S_0| \text{test}_+, \text{untested
 We can see the impact of using melded priors in Suffolk county in} Massachusetts in Figure  \ref{fig:suffolkmelding}. Since using the priors without melding allows for asymptomatic rates $P(S_0|\text{test}_+,\text{untested})$ that are extremely high, the upper bound of the estimates will be substantially higher than predicted when using the melded priors, which do not include values where the inputs lead to values of asymptomatic rate that are unsupported by available data (e.g., meta-analyses) on the asymptomatic rate.
 
 ```{r, eval=FALSE}
+source(here('analysis/base_functions/base_functions.R'))
 
+source(here('analysis/base_functions/get_melded.R'))
 
 prior_params <- list(
     alpha_mean = .95,

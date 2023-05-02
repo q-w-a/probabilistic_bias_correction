@@ -1,0 +1,1834 @@
+---
+title: "feedback"
+author: "Quinn White"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    df_print: paged
+    code_folding: hide
+    css: ../css/template.css
+    number_sections: false
+    use_bookdown: TRUE
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE, fig.height=5, out.width="80%",results='hide')
+
+
+
+library(tidyverse)
+library(here)
+library(latex2exp)
+
+
+theme_c <- function(...){ 
+   # font <- "Helvetica"   #assign font family up front
+    font <- "Helvetica"
+    theme_bw() %+replace%    #replace elements we want to change
+    
+    theme(
+      
+      
+      #text elements
+      plot.title = element_text(             #title
+                   family = font,            #set font family
+                   size = 16,                #set font size
+                   face = 'bold',            #bold typeface
+                   hjust = .5,
+                   vjust = 3),               
+      
+      plot.subtitle = element_text(          #subtitle
+                   family = font,            #font family
+                   size = 14,
+                   hjust = .5,
+                   face = 'italic',
+                   vjust = 3),               #font size
+      
+      axis.title = element_text(             #axis titles
+                   family = font,            #font family
+                   size = 12),               #font size
+      
+      axis.text.x = element_text(              #axis text
+                   family = font,           
+                   size = 12),
+      legend.text = element_text(size = 16),
+      # t, r, b, l
+      plot.margin = unit(c(1,.5,.5,.5), "cm"),
+      legend.position = "top",
+      strip.background = element_rect(fill = "#323232"),
+      #strip.text = element_text(size = 16, face = "bold", color = "white")
+         strip.text = element_text(size = 12, face = "bold", color = "white")
+
+      ) %+replace%
+      theme(...)
+   
+}
+
+
+
+
+```
+
+# Losing track of variable definitions
+
+- $\alpha$ and $\beta$ are confusing. Need to think about how to frame them better in the slides.
+- Options include:
+  - footnotes/box in the corner with definitions for reminder 
+  - always writing them as the ratios 
+- I wonder if it would be clearer to abandom $S_1, S_0$ and instead spell out $\Pr(\text{Symptomatic}\,|\,\text{untested})$,  $\Pr(\text{Asymptomatic}\,|\,\text{untested})$  (though clarify that's not *exactly* what they mean)
+
+-- write out meaning in words 
+--table -- this in math, this in words
+- have box, maybe color-coded, with alpha,beta,p_s_untested
+
+
+
+change notation to use complement -- $\Pr(\overline{\text{Symptomatic}}|\text{untested})$
+
+
+
+# Evan's question on dependency of $\alpha$ and $\beta$
+
+* $\alpha = \dfrac{P(\text{test}_+| \text{untested}, S_1)}{P(\text{test}_+|\text{tested})}$
+* $\beta = \dfrac{P(\text{test}_+| \text{untested}, S_0)}{P(\text{test}_+|\text{tested})}$
+* denominator is not treated as a random variable -- this is the test positivity we observe
+
+* do I make multiplication clear in the paper?
+
+## Notes on Independence (Pre-melding)
+
+The number of events included here makes thinking about dependencies difficult, particularly since $\alpha$ and $\beta$ are *related*, but we sample them independently. It's more clear to ignore the denominator since $P(\text{test}_+|\text{tested})$ is just the observed test positivity and is a constant.
+
+Observing $P(\text{test}_+|\text{untested},S_0)$ doesn't tell us anything *directly* about $P(\text{test}_+|\text{untested},S_1)$. For example, if $P(\text{test}_+|\text{untested},S_0)=1$,  $P(\text{test}_+|\text{untested},S_1)$ could be zero, or it could be 1, or anything in between. 
+
+If we had information about $P(\text{test}_+|\text{untested}), P(S_1),$ and $P(S_0)$, we could relate these quantities as  
+
+$$P(\text{test}_+|\text{untested}) = P(\text{test}_+, S_0|\text{untested})  +  P(\text{test}_+, S_1|\text{untested}).$$
+
+Or, we could take 
+
+$$P(\text{test}_+ | \text{untested}) = P(\text{test}_+ | \text{untested},S_0) P(S_0|\text{untested})+P(\text{test}_+ | \text{untested},S_1) P(S_1|\text{untested})$$ 
+
+
+We can also see their relationship with $P(S_1|\text{untested}) = 1 - P(S_0|\text{untested})$ by considering
+
+$$P(\text{test}_+|\text{untested}, S_0) = \dfrac{P(\text{test}_+, \text{untested}, S_0)}{P(\text{untested},S_0)}      = \dfrac{P(\text{test}_+, S_0| \text{untested})}{P(S_0|\text{untested})},$$ 
+and similarly
+
+$$P(\text{test}_+|\text{untested}, S_1)  = \dfrac{P(\text{test}_+, S_1| \text{untested})}{P(S_1|\text{untested})} = \dfrac{P(\text{test}_+, S_1| \text{untested})}{1-P(S_0|\text{untested})},$$ 
+
+
+but that said, with information on $P(S_1|\text{untested})$ alone, we will would not be able to relate $P(\text{test}_+|\text{untested}, S_0)$ and $P(\text{test}_+|\text{untested}, S_1)$ directly because we wouldn't know how the numerators $P(\text{test}_+, S_0| \text{untested}), \;\; P(\text{test}_+, S_1| \text{untested})$ relate.
+
+
+$$M(\theta) = \dfrac{\beta(1- P(S_1|\text{untested}))}{\beta(1-P(S_1|\text{untested})) + \alpha P(S_1|\text{untested})}$$
+
+**Summary:** $\alpha$ and $\beta$ are dependent, but they are dependent on information we don't have, so without this knowledge we sample them independently.
+
+
+- Add to limitations on how they are probably dependent in some way.
+- Maybe tiny example with correlated random variables to see impact on intervals  
+
+
+## Notes on Independence (Post-melding)
+
+During melding, we resample from $\alpha, \beta, P(S_1|\text{untested})$ with the same weights, placing more weight on observations that yield observations with high density in the pooled distribution. If we compute $M(\theta)$ with the constrained distributions of $\theta$, the resulting distribution is the melded distribution.
+
+When we sample from them from the melded priors for use in the probabilistic bias analysis, we account for this dependency by sampling them together.
+
+
+
+```{r,results='hide', fig.height =4}
+
+
+source(here('analysis/base_functions/get_melded.R'))
+
+source(here('analysis/base_functions/base_functions.R'))
+
+
+prior_params <- list(
+    alpha_mean = .95,
+    alpha_sd = 0.08,
+    alpha_bounds = NA,
+   # alpha_bounds = c(.8,1),
+    beta_mean = .15,
+    beta_sd =.09,
+    beta_bounds = NA,
+  #  beta_bounds = c(0.002, 0.4),
+    s_untested_mean = .03,
+    s_untested_sd = .0225,
+  #  s_untested_bounds = c(0.0018, Inf),
+    s_untested_bounds = NA,
+    p_s0_pos_mean = .4,
+    # p_s0_pos_sd = .1225,
+  p_s0_pos_sd = .1,
+   p_s0_pos_bounds = NA,
+  #  p_s0_pos_bounds = c(.25, .7),
+    pre_nsamp = 1e6,
+    post_nsamp = 1e5)
+
+melded <- do.call(get_melded, prior_params)
+
+
+
+
+
+melded$pre_melding %>%
+  slice_sample(n=1e5) %>%
+  mutate(source = "Before Melding") %>%
+  bind_rows(melded$post_melding) %>%
+  mutate(source = ifelse(is.na(source),
+                         "After Melding", 
+                         source)) %>%
+  ggplot(aes(x=alpha,y=beta,color = source)) +
+  geom_point(alpha =.2,size=.5)+
+    scale_color_manual(values = c(
+      "Before Melding"= "#5670BF", 
+      "Induced" = "#B28542",
+      "After Melding" = "#418F6A")) +
+  labs(color = "",
+       x = TeX("$\\alpha$"),
+       y = TeX("$\\beta$"),
+       title = TeX("Relationship between $\\alpha$ and $\\beta$ Before and After Melding")) +
+  theme_c(legend.position="top") +
+  guides(color = guide_legend(override.aes = list(size = 5, alpha = 1)))
+
+
+cor_pre <- cor(melded$pre_melding$alpha, melded$pre_melding$beta)
+
+cor_post <-  cor(melded$post_melding$alpha, melded$post_melding$beta)
+
+
+```
+
+Correlation pre melding: `r cor_pre`.
+Correlation post melding: `r cor_pre`.
+
+
+```{r,eval=FALSE}
+
+melded$post_melding %>%
+  ggplot(aes(x=alpha,y=beta)) +
+  geom_point(alpha =.2,size=.5)
+
+
+
+melded <- do.call(get_melded, prior_params)
+
+
+post <- melded$post_melding %>%
+  select(P_A_testpos) %>%
+  pivot_longer(everything())
+
+
+melded$post_melding %>%
+  mutate(induced_new = est_P_A_testpos(P_S_untested, alpha, beta)) %>%
+  select(induced_new) %>%
+  pivot_longer(everything()) %>%
+  bind_rows(post) %>%
+  ggplot(aes(x=value, fill =name)) +
+  geom_density(alpha=.9)
+
+
+melded$post_melding %>%
+  mutate(induced_new = est_P_A_testpos(P_S_untested, alpha, beta)) %>%
+  filter(induced_new != P_A_testpos)
+
+melded_long <- reformat_melded(melded$post_melding,
+                               melded$pre_melding,
+                               pre_nsamp = prior_params$pre_nsamp,
+                              p_s0_pos_mean = prior_params$p_s0_pos_mean,
+                              p_s0_pos_sd = prior_params$p_s0_pos_sd,
+                              p_s0_pos_bounds = NA)
+
+################################
+# FIRST WITHOUT MELDING 
+################################
+melded_long %>%
+  filter(type == "Before Melding") %>%
+  ggplot(aes(x=value, fill = type)) +
+  geom_density( alpha = .8, show.legend=FALSE) +
+  facet_wrap(~name, labeller=as_labeller(TeX, default = label_parsed), ncol=4) +
+  theme_c(legend.position = "top") +
+  scale_fill_manual(values = list("Before Melding"= "#5670BF", "Induced" = "#B28542")) +
+  labs(fill = "")
+
+plt2 <-  melded_long  %>%
+  filter(type!="After Melding" & name == "$P(S_0|test+,untested)$") %>%
+  ggplot(aes(x=value, fill = type)) +
+  geom_density( alpha = .8, show.legend=TRUE) +
+  facet_wrap(~name, labeller=as_labeller(TeX, default = label_parsed), ncol=4) +
+  theme_c(legend.position = "right",
+          legend.text = element_text(size = 16)) +
+  scale_fill_manual(values = list("Before Melding"= "#5670BF", "Induced" = "#B28542")) +
+  labs(fill = "") 
+
+cowplot::plot_grid(plt1,plt2, ncol=1, rel_widths = c(1,.9))
+
+ggsave(width=9, height = 8, "./presentation/figure/plot_no_melding.jpeg", dpi=300)
+
+
+################################
+# NOW WITH MELDING 
+################################
+plt1 <- melded_long %>%
+  filter(name != "$P(S_0|test+,untested)$") %>%
+  ggplot(aes(x=value, fill = type)) +
+  geom_density( alpha = .8, show.legend=FALSE) +
+  facet_wrap(~name, labeller=as_labeller(TeX, default = label_parsed), ncol=4) +
+  theme_c(legend.position = "top") +
+    scale_fill_manual(values = c("Before Melding"= "#5670BF", "Induced" = "#B28542",
+                                 "After Melding" = "#418F6A")) +
+  labs(fill = "")
+
+plt2 <-  melded_long  %>%
+  filter( name == "$P(S_0|test+,untested)$") %>%
+  ggplot(aes(x=value, fill = type)) +
+  geom_density( alpha = .8, show.legend=TRUE) +
+  facet_wrap(~name, labeller=as_labeller(TeX, default = label_parsed), ncol=4) +
+  theme_c(legend.position = "right",
+          legend.text = element_text(size = 16)) +
+scale_fill_manual(values = c("Before Melding"= "#5670BF", "Induced" = "#B28542",
+                                 "After Melding" = "#418F6A")) +
+  labs(fill = "") 
+
+cowplot::plot_grid(plt1,plt2, ncol=1, rel_widths = c(1,.9))
+
+
+
+```
+
+
+
+## Thinking about Correlation between $\alpha$ and $\beta$
+
+Same denominator, but numerators have different relationship.
+
+
+```{r}
+
+TESTED <- .05
+UNTESTED <- .9
+
+POS_GIVEN_TESTED <- .09
+
+POS <- .08
+
+
+S <- .03
+A <- .97
+
+S_GIVEN_TESTED <- S/TESTED - .08
+
+POS_GIVEN_UNTESTED_A <- .05
+
+
+# note s_given_untested must be < s/tested
+
+
+
+
+# get P(S|untested) from P(S), P(tested), P(S|tested)
+get_s_given_untested <- function(s, tested, s_given_tested) {
+  (s - s_given_tested * tested)/(1-tested)
+}
+
+S_GIVEN_UNTESTED <- get_s_given_untested(s, tested, s_given_tested)
+
+# get P(test +|untested) from P(test +), P(tested), P(test + | tested)
+get_pos_given_untested <- function(pos, 
+                                     tested,
+                                     pos_given_tested) {
+ ( pos - (pos_given_tested * tested)) / (1-tested)
+}
+
+POS_GIVEN_UNTESTED <- get_pos_given_untested(pos = POS, tested= TESTED, pos_given_tested=POS_GIVEN_TESTED)
+
+# get P(S|untested) from P(test+|untested), P(S), P(test +|untested, A)
+get_pos_given_s_untested <- function(pos_given_untested, pos_given_untested_a, s_given_untested) {
+  (pos_given_untested - pos_given_untested_a * (1-s_given_untested))/(1-s_given_untested)
+}
+
+
+# get P(S|untested) 
+get_pos_given_s_untested(pos_given_untested=POS_GIVEN_UNTESTED,
+                         pos_given_untested_a = POS_GIVEN_UNTESTED_A, 
+                         s =S)
+
+
+
+
+TESTED <- .05
+UNTESTED <- .9
+POS_GIVEN_TESTED <- .09
+POS <- .08
+S <- .03
+A <- .97
+S_GIVEN_TESTED <- S/TESTED - .08
+POS_GIVEN_UNTESTED_A <- .05
+
+
+
+
+
+
+# how does relationship between alpha, beta change as we increase P(test+|tested) while keeping everything else constant?
+sim_start <- tibble(tested = rep(TESTED, 30),
+       untested = rep(UNTESTED, 30), 
+       pos = rep(POS,30),
+       s= rep(S, 30),
+       s_given_tested = rep(S_GIVEN_TESTED, 30 ),
+       pos_given_a_untested = rep(POS_GIVEN_UNTESTED_A,30),
+       pos_given_tested =seq(.05, .16, length =30))
+
+
+
+sim_start <- sim_start %>%
+  mutate(
+    s_given_untested =  get_s_given_untested(s, tested, s_given_tested),
+    pos_given_untested = get_pos_given_untested(pos = pos,
+                                                tested= tested, 
+                                                pos_given_tested=pos_given_tested),
+    pos_given_s_untested = get_pos_given_s_untested(pos_given_untested, pos_given_a_untested, s_given_untested))
+
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  pivot_longer(c(alpha,beta)) %>%
+  ggplot(aes(x=pos_given_tested, y = value, color = name)) +
+  geom_point() 
+
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  ggplot(aes(x=alpha, y = beta)) +
+  geom_point() 
+
+
+# suppose P(test+|tested) increases while all other parameters stay the same 
+
+
+# suppose only symptom increases
+
+sim_start <- tibble(tested = rep(TESTED, 30),
+       untested = rep(UNTESTED, 30), 
+       pos = rep(POS,30),
+       s= seq(0.027, 0.09, length =30),
+       s_given_tested = rep(S_GIVEN_TESTED, 30 ),
+       pos_given_a_untested = rep(POS_GIVEN_UNTESTED_A,30),
+       pos_given_tested =rep(POS_GIVEN_TESTED, 30))
+
+
+
+sim_start <- sim_start %>%
+  mutate(
+    s_given_untested =  get_s_given_untested(s, tested, s_given_tested),
+    pos_given_untested = get_pos_given_untested(pos = pos,
+                                                tested= tested, 
+                                                pos_given_tested=pos_given_tested),
+    pos_given_s_untested = get_pos_given_s_untested(pos_given_untested, pos_given_a_untested, s_given_untested))
+
+sim_start %>%
+  filter(if_any(everything(),~.x<0))
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  pivot_longer(c(alpha,beta)) %>%
+  ggplot(aes(x=s, y = value, color = name)) +
+  geom_point() 
+
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  ggplot(aes(x=alpha, y = beta)) +
+  geom_point() 
+
+# suppose  symptom and test positivity increases
+
+sim_start <- tibble(tested = rep(TESTED, 30),
+       untested = rep(UNTESTED, 30), 
+       pos = rep(POS,30),
+       s= seq(0.027, 0.09, length =30),
+       s_given_tested = rep(S_GIVEN_TESTED, 30 ),
+       pos_given_a_untested = rep(POS_GIVEN_UNTESTED_A,30),
+       pos_given_tested =seq(0.05,0.1, length =30))
+
+
+
+sim_start <- sim_start %>%
+  mutate(
+    s_given_untested =  get_s_given_untested(s, tested, s_given_tested),
+    pos_given_untested = get_pos_given_untested(pos = pos,
+                                                tested= tested, 
+                                                pos_given_tested=pos_given_tested),
+    pos_given_s_untested = get_pos_given_s_untested(pos_given_untested, pos_given_a_untested, s_given_untested))
+
+sim_start %>%
+  filter(if_any(everything(),~.x<0))
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  pivot_longer(c(alpha,beta)) %>%
+  ggplot(aes(x=s, y = value, color = name)) +
+  geom_point() 
+
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  ggplot(aes(x=alpha, y = beta)) +
+  geom_point() +
+  xlim(0,1) +
+  ylim(0,1)
+
+
+
+# suppose  symptom and test positivity increases as pos_given_a_untested increases
+
+sim_start <- tibble(tested = rep(TESTED, 30),
+       untested = rep(UNTESTED, 30), 
+       pos = rep(POS,30),
+       s= seq(0.09, 0.027, length =30),
+       s_given_tested = rep(S_GIVEN_TESTED, 30 ),
+       pos_given_a_untested = seq(.009, .04, length=30),
+       pos_given_tested =seq(0.05,0.1, length =30))
+
+
+
+sim_start <- sim_start %>%
+  mutate(
+    s_given_untested =  get_s_given_untested(s, tested, s_given_tested),
+    pos_given_untested = get_pos_given_untested(pos = pos,
+                                                tested= tested, 
+                                                pos_given_tested=pos_given_tested),
+    pos_given_s_untested = get_pos_given_s_untested(pos_given_untested, pos_given_a_untested, s_given_untested))
+
+sim_start %>%
+  filter(if_any(everything(),~.x<0))
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  pivot_longer(c(alpha,beta)) %>%
+  ggplot(aes(x=s, y = value, color = name)) +
+  geom_point() 
+
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  ggplot(aes(x=alpha, y = beta)) +
+  geom_point() +
+  xlim(0,1) +
+  ylim(0,1)
+
+
+
+# suppose  symptom and test positivity increases as pos_given_a_untested decreases
+
+sim_start <- tibble(tested = rep(TESTED, 30),
+       untested = rep(UNTESTED, 30), 
+       pos = rep(POS,30),
+       s= seq(0.09, 0.027, length =30),
+       s_given_tested = rep(S_GIVEN_TESTED, 30 ),
+       pos_given_a_untested = seq(.01,.003, length=30),
+       pos_given_tested =seq(0.05,0.1, length =30))
+
+
+
+sim_start <- sim_start %>%
+  mutate(
+    s_given_untested =  get_s_given_untested(s, tested, s_given_tested),
+    pos_given_untested = get_pos_given_untested(pos = pos,
+                                                tested= tested, 
+                                                pos_given_tested=pos_given_tested),
+    pos_given_s_untested = get_pos_given_s_untested(pos_given_untested, pos_given_a_untested, s_given_untested))
+
+sim_start %>%
+  filter(if_any(everything(),~.x<0))
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  pivot_longer(c(alpha,beta)) %>%
+  ggplot(aes(x=s, y = value, color = name)) +
+  geom_point() 
+
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  ggplot(aes(x=alpha, y = beta)) +
+  geom_point() +
+  xlim(0,1) +
+  ylim(0,1)
+
+
+```
+
+
+Scenario 1: Suppose:
+* $P(S_1)$ is decreasing
+* $P(\text{test}_+|\text{untested},S_0)$ is increasing
+* $P(\text{test}_+|\text{tested})$ is increasing
+
+This might be plausible if a contagious but mild variant of the virus were circulating.
+
+
+```{r}
+# suppose test positivity increases as pos_given_a_untested increases, S constant
+
+reps <- 100
+TESTED <- .02
+S_GIVEN_TESTED <- .8
+
+sim_start <- tibble(tested = rep(TESTED, reps),
+       untested = rep(UNTESTED, reps), 
+       pos = rep(POS,reps),
+       s= seq(.04,.01, length=reps),
+       s_given_tested = rep(S_GIVEN_TESTED, reps ),
+       # pos_given_a_untested = seq(.003,.01, length=30),
+        pos_given_a_untested = seq(.003,.01, length=reps),
+       pos_given_tested =seq(0.05,0.1, length =reps))
+
+
+
+sim_start <- sim_start %>%
+  mutate(
+    s_given_untested =  get_s_given_untested(s, tested, s_given_tested),
+    pos_given_untested = get_pos_given_untested(pos = pos,
+                                                tested= tested, 
+                                                pos_given_tested=pos_given_tested),
+    pos_given_s_untested = get_pos_given_s_untested(pos_given_untested,
+                                                    pos_given_a_untested,
+                                                    s_given_untested))
+
+sim_start %>%
+  filter(if_any(everything(),~.x<0))
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  pivot_longer(c(alpha,beta)) %>%
+  ggplot(aes(x=s, y = value, color = name)) +
+  geom_point() 
+
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  ggplot(aes(x=alpha, y = beta, color=pos_given_tested)) +
+  geom_point() +
+  theme_c(legend.position="right",
+          legend.text=element_text(size=8),
+          legend.title = element_text(size =15),
+          axis.title =element_text(size=16)) +
+  labs(x = TeX("$\\alpha$"), 
+       y= TeX("$\\beta$"),
+       color = TeX("$P(test_+|tested)$"),
+       title = TeX("$P(S_1)$, $P(test_+|tested)$, $P(test_+|tested,S_0)$ All Increasing")) +
+  viridis::scale_color_viridis(option="mako", direction=-1, end=.95) 
+
+
+ggsave(here('presentation/figure/alpha_beta_negative_corr.pdf'))
+
+```
+
+
+Scenario 2:
+* $P(S_1)$ is increasing
+* $P(\text{test}_+|\text{untested},S_0)$ is decreasing
+* $P(\text{test}_+|\text{tested})$ is increasing
+
+This might be the case if a severe variant were circulating.
+
+
+```{r}
+
+reps <- 100
+TESTED <- .02
+S_GIVEN_TESTED <- .8
+
+
+sim_start <- tibble(tested = rep(TESTED, reps),
+       untested = 1-tested, 
+       pos = rep(POS,reps),
+       s= seq(.02,.04, length=reps),
+       s_given_tested = rep(S_GIVEN_TESTED, reps ),
+       # pos_given_a_untested = seq(.003,.01, length=30),
+        pos_given_a_untested = seq(.01,.003, length=reps),
+       pos_given_tested =seq(0.05,0.1, length =reps))
+
+
+
+sim_start <- sim_start %>%
+  mutate(
+    s_given_untested =  get_s_given_untested(s, tested, s_given_tested),
+    pos_given_untested = get_pos_given_untested(pos = pos,
+                                                tested= tested, 
+                                                pos_given_tested=pos_given_tested),
+    pos_given_s_untested = get_pos_given_s_untested(pos_given_untested,
+                                                    pos_given_a_untested,
+                                                    s_given_untested))
+
+sim_start %>%
+  filter(if_any(everything(),~.x<0))
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  pivot_longer(c(alpha,beta)) %>%
+  ggplot(aes(x=s, y = value, color = name)) +
+  geom_point() 
+
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  ggplot(aes(x=alpha, y = beta, color=pos_given_tested)) +
+  geom_point() +
+  theme_c(legend.position="right",
+          legend.text=element_text(size=8),
+          legend.title = element_text(size =15),
+          axis.title =element_text(size=16)) +
+  labs(x = TeX("$\\alpha$"), 
+       y= TeX("$\\beta$"),
+       color = TeX("$P(test_+|tested)$"),
+       title = TeX("$P(S_1)$ and $P(test_+|tested)$ are Increasing but $P(test_+|tested,S_0)$ is Decreasing")) +
+  viridis::scale_color_viridis(option="mako", direction=-1, end=.95) 
+
+
+
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  ggplot(aes(x=alpha, y = beta, color=pos_given_tested)) +
+  geom_point() +
+  theme_c(legend.position="right",
+          legend.text=element_text(size=8),
+          legend.title = element_text(size =15),
+          axis.title =element_text(size=16)) +
+  labs(x = TeX("$\\alpha$"), 
+       y= TeX("$\\beta$"),
+       color = TeX("$P(test_+|tested)$"),
+       title = TeX("$P(S_1)$ and $P(test_+|tested)$ are Increasing, but $P(test_+|tested,S_0)$ is Decreasing")) +
+  viridis::scale_color_viridis(option="mako", direction=-1, end=.95) 
+
+
+
+ggsave(here('presentation/figure/alpha_beta_positive_corr.pdf'))
+
+
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  pivot_longer(c(alpha,beta)) %>%
+  ggplot(aes(x=s, y = value, color = name)) +
+  geom_point() 
+
+
+sim_start %>%
+  # mutate(alpha =  pos_given_s_untested/pos_given_tested,
+  #        beta=  pos_given_a_untested/pos_given_tested) %>%
+  # pivot_longer(c(alpha,beta)) %>%
+  ggplot(aes(x=s_given_untested, y = pos_given_s_untested)) +
+  geom_point() 
+
+
+# 
+# sim_start <- tibble(tested = rep(TESTED, reps),
+#        untested = 1-tested, 
+#        pos = rep(POS,reps),
+#        s= seq(.02,.04, length=reps),
+#        s_given_tested = rep(S_GIVEN_TESTED, reps ),
+#        # pos_given_a_untested = seq(.003,.01, length=30),
+#         pos_given_a_untested = seq(.01,.003, length=reps),
+#        pos_given_tested =seq(0.05,0.1, length =reps))
+# 
+
+
+```
+
+
+Same as above but with test positivity constant.
+
+
+
+```{r}
+
+reps <- 100
+TESTED <- .02
+S_GIVEN_TESTED <- .8
+
+
+sim_start <- tibble(tested = rep(TESTED, reps),
+       untested = 1-tested, 
+       pos = rep(POS,reps),
+       s= seq(.02,.04, length=reps),
+       s_given_tested = rep(S_GIVEN_TESTED, reps ),
+       # pos_given_a_untested = seq(.003,.01, length=30),
+        pos_given_a_untested = seq(.01,.003, length=reps),
+       pos_given_tested =rep(0.05,reps))
+
+
+
+sim_start <- sim_start %>%
+  mutate(
+    s_given_untested =  get_s_given_untested(s, tested, s_given_tested),
+    pos_given_untested = get_pos_given_untested(pos = pos,
+                                                tested= tested, 
+                                                pos_given_tested=pos_given_tested),
+    pos_given_s_untested = get_pos_given_s_untested(pos_given_untested,
+                                                    pos_given_a_untested,
+                                                    s_given_untested))
+
+sim_start %>%
+  filter(if_any(everything(),~.x<0))
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  pivot_longer(c(alpha,beta)) %>%
+  ggplot(aes(x=s, y = value, color = name)) +
+  geom_point() 
+
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  ggplot(aes(x=alpha, y = beta, color=pos_given_tested)) +
+  geom_point() +
+  theme_c(legend.position="right",
+          legend.text=element_text(size=8),
+          legend.title = element_text(size =15),
+          axis.title =element_text(size=16)) +
+  labs(x = TeX("$\\alpha$"), 
+       y= TeX("$\\beta$"),
+       color = TeX("$P(test_+|tested)$"),
+       title = TeX("$P(S_1)$ and $P(test_+|tested)$ are Increasing but $P(test_+|tested,S_0)$ is Decreasing")) +
+  viridis::scale_color_viridis(option="mako", direction=-1, end=.95) 
+
+
+
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  ggplot(aes(x=alpha, y = beta, color=pos_given_tested)) +
+  geom_point() +
+  theme_c(legend.position="right",
+          legend.text=element_text(size=8),
+          legend.title = element_text(size =15),
+          axis.title =element_text(size=16)) +
+  labs(x = TeX("$\\alpha$"), 
+       y= TeX("$\\beta$"),
+       color = TeX("$P(test_+|tested)$"),
+       title = TeX("$P(S_1)$ and $P(test_+|tested)$ are Increasing but $P(test_+|tested,S_0)$ is Decreasing")) +
+  viridis::scale_color_viridis(option="mako", direction=-1, end=.95) 
+
+
+
+
+
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  pivot_longer(c(alpha,beta)) %>%
+  ggplot(aes(x=s, y = value, color = name)) +
+  geom_point() 
+
+
+sim_start %>%
+  # mutate(alpha =  pos_given_s_untested/pos_given_tested,
+  #        beta=  pos_given_a_untested/pos_given_tested) %>%
+  # pivot_longer(c(alpha,beta)) %>%
+  ggplot(aes(x=s_given_untested, y = pos_given_s_untested)) +
+  geom_point() 
+
+
+```
+
+
+```{r}
+sim_start <- tibble(tested = rep(TESTED, 30),
+       untested = rep(UNTESTED, 30), 
+       pos = rep(POS,30),
+       s= S,
+       s_given_tested = rep(S_GIVEN_TESTED, 30 ),
+        pos_given_a_untested = seq(.003,.01, length=30),
+       pos_given_tested =seq(0.05,0.1, length =30))
+
+
+
+sim_start <- sim_start %>%
+  mutate(
+    s_given_untested =  get_s_given_untested(s, tested, s_given_tested),
+    pos_given_untested = get_pos_given_untested(pos = pos,
+                                                tested= tested, 
+                                                pos_given_tested=pos_given_tested),
+    pos_given_s_untested = get_pos_given_s_untested(pos_given_untested, pos_given_a_untested, s_given_untested))
+
+sim_start %>%
+  filter(if_any(everything(),~.x<0))
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  pivot_longer(c(alpha,beta)) %>%
+  ggplot(aes(x=pos_given_tested, y = value, color = name)) +
+  geom_point() 
+
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  ggplot(aes(x=alpha, y = beta)) +
+  geom_point() +
+  xlim(0,1) +
+  ylim(0,1)
+
+
+
+# imagine a scenario where test capacity is increasing
+# P(S|tested) may decrease
+# P(test+|tested) decreases
+
+
+sim_start <- tibble(tested = seq(.01,.06, length=30),
+       untested = 1-tested, 
+       pos = rep(POS,30),
+       s= S+.02,
+       s_given_tested = seq(.9, .7, length =30),
+        pos_given_a_untested = rep(POS_GIVEN_UNTESTED_A),
+       pos_given_tested =seq(0.16,.06, length=30))
+
+
+
+sim_start <- sim_start %>%
+  mutate(
+    s_given_untested =  get_s_given_untested(s, tested, s_given_tested),
+    pos_given_untested = get_pos_given_untested(pos = pos,
+                                                tested= tested, 
+                                                pos_given_tested=pos_given_tested),
+    pos_given_s_untested = get_pos_given_s_untested(pos_given_untested, pos_given_a_untested, s_given_untested))
+
+sim_start %>%
+  filter(if_any(everything(),~.x<0))
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  pivot_longer(c(alpha,beta)) %>%
+  ggplot(aes(x=pos_given_tested, y = value, color = name)) +
+  geom_point() 
+
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  ggplot(aes(x=alpha, y = beta)) +
+  geom_point() +
+  xlim(0,1) +
+  ylim(0,.3)
+
+
+
+
+
+# imagine a scenario where P(S) is increasing due to something else
+
+sim_start <- tibble(tested = rep(TESTED,30),
+       untested = 1-tested, 
+       pos = rep(POS,30),
+       s= seq(0.009, .07, length = 30),
+       s_given_tested = S_GIVEN_TESTED,
+        pos_given_a_untested = rep(POS_GIVEN_UNTESTED_A, 30),
+       pos_given_tested =(seq(.05,.15, length=30)-.5)^2)
+
+
+
+sim_start <- sim_start %>%
+  mutate(
+    s_given_untested =  get_s_given_untested(s, tested, s_given_tested),
+    pos_given_untested = get_pos_given_untested(pos = pos,
+                                                tested= tested, 
+                                                pos_given_tested=pos_given_tested),
+    pos_given_s_untested = get_pos_given_s_untested(pos_given_untested, pos_given_a_untested, s_given_untested))
+
+sim_start %>%
+  filter(if_any(everything(),~.x<0))
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  pivot_longer(c(alpha,beta)) %>%
+  ggplot(aes(x=pos_given_tested, y = value, color = name)) +
+  geom_point() 
+
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  ggplot(aes(x=alpha, y = beta)) +
+  geom_point() +
+  xlim(0,1) +
+  ylim(0,.3)
+
+
+```
+
+
+
+
+# Evan's question on why $\alpha$ doesn't change pre/post melding 
+
+Intuition: we form weights to sample from the log-pooled prior of $\phi$, so since these weights aren't heavily dependent on $\alpha$, we are basically just randomly sampling from $\alpha$.
+
+
+```{r, fig.show='hold', out.width="33%"}
+
+prior_params <- list(
+    alpha_mean = .95,
+    alpha_sd = 0.08,
+    alpha_bounds = NA,
+   # alpha_bounds = c(.8,1),
+    beta_mean = .15,
+    beta_sd =.09,
+    beta_bounds = NA,
+  #  beta_bounds = c(0.002, 0.4),
+    s_untested_mean = .03,
+    s_untested_sd = .0225,
+  #  s_untested_bounds = c(0.0018, Inf),
+    s_untested_bounds = NA,
+    p_s0_pos_mean = .4,
+    # p_s0_pos_sd = .1225,
+  p_s0_pos_sd = .1,
+   p_s0_pos_bounds = NA,
+  #  p_s0_pos_bounds = c(.25, .7),
+    pre_nsamp = 1e6,
+    post_nsamp = 1e5)
+
+
+get_theta <- function(alpha_mean = 0.9,
+                       alpha_sd = 0.04,
+                       alpha_bounds = NA,
+                       beta_mean = .15,
+                       beta_sd =.09,
+                       beta_bounds = NA,
+                       s_untested_mean = .025,
+                       s_untested_sd = .0225,
+                       s_untested_bounds = NA,
+                       p_s0_pos_mean = .4,
+                       p_s0_pos_sd = .1225,
+                       p_s0_pos_bounds = NA,
+                       pre_nsamp = 1e4,
+                      post_nsamp = 1e3,
+                       include_corrected = TRUE,
+                       bde = FALSE) {
+  tibble(alpha = sample_gamma_density(pre_nsamp,
+                                               mean = alpha_mean,
+                                               sd = alpha_sd,
+                                               bounds = alpha_bounds),
+                  beta= sample_beta_density(pre_nsamp,
+                                            mean = beta_mean,
+                                            sd = beta_sd,
+                                            bounds = beta_bounds),
+                  P_S_untested = sample_beta_density(pre_nsamp,
+                                                     mean = s_untested_mean,
+                                                     sd = s_untested_sd,
+                                                     bounds = s_untested_bounds)) %>%
+    mutate(phi_induced = est_P_A_testpos(P_S_untested = P_S_untested,
+                                         alpha = alpha,
+                                         beta=beta))
+  
+
+}
+
+
+
+tibble(alpha =seq(.7,1.3, length =100),
+       beta = .15,
+       P_S_untested = .03,
+       induced =  (beta * (1 - P_S_untested)) / (( beta * (1 - P_S_untested)) + (alpha * P_S_untested))) %>%
+  ggplot(aes(x=alpha, y = induced)) +
+  geom_line() +
+  theme_c() +
+  labs(x= TeX("$\\alpha$"),
+       y= TeX("$M(\\theta)$"),
+       title = TeX("$M(\\theta)$ Across Values of $\\alpha$"),
+       subtitle = TeX("$P(S_1|untested),\\beta$ are Fixed"))+
+  ylim(.4, .95)
+
+
+
+tibble(beta =seq(.05,.45, length =100),
+       alpha = .95,
+       P_S_untested = .03,
+       induced =  (beta * (1 - P_S_untested)) / (( beta * (1 - P_S_untested)) + (alpha * P_S_untested))) %>%
+  ggplot(aes(x=beta, y = induced)) +
+  geom_line()+
+  theme_c() +
+  labs(x= TeX("$\\beta$"),
+       y= TeX("$M(\\theta)$"),
+        title = TeX("$M(\\theta)$ Across Values of $\\beta$"),
+       subtitle = TeX("$P(S_1|untested),\\alpha$ are Fixed")) +
+  ylim(.4, .95)
+
+
+
+tibble(P_S_untested =seq(.05,.18, length =100),
+       alpha = .95,
+       beta=.15,
+       induced =  (beta * (1 - P_S_untested)) / (( beta * (1 - P_S_untested)) + (alpha * P_S_untested))) %>%
+  ggplot(aes(x=P_S_untested, y = induced)) +
+  geom_line()+
+  theme_c() +
+  labs(x= TeX("$\\beta$"),
+       y= TeX("$M(\\theta)$"),
+        title = TeX("$M(\\theta)$ Across Values of $P(S_1|untested)$"),
+       subtitle = TeX("$\\beta,\\alpha$ are Fixed")) +
+  ylim(.4, .95)
+
+```
+
+
+
+```{r}
+
+tibble(alpha =seq(.7,1.3, length =100),
+       beta = .15,
+       P_S_untested = .03,
+       induced =  (beta * (1 - P_S_untested)) / (( beta * (1 - P_S_untested)) + (alpha * P_S_untested))) %>%
+  ggplot(aes(x=alpha, y = induced)) +
+  geom_line() +
+  theme_c() +
+  labs(x= TeX("$\\alpha$"),
+       y= TeX("$M(\\theta)$"),
+       title = TeX("$M(\\theta)$ Across Values of $\\alpha$"),
+       subtitle = TeX("$P(S_1|untested),\\beta$ are Fixed"))+
+  ylim(.4, .95)
+
+```
+
+
+
+
+
+In Figure \@ref(fig:alpha-mean), we see increasing the mean of alpha corresponds to less density toward 1 and greater density at lower values of $\phi$, but the effect is relatively small.
+
+```{r alpha-mean, fig.cap="\\label{fig:alpha-mean}", out.width='75%'}
+
+res <- map_df(seq(.8,1.3, by = .1), ~ {
+  params <- prior_params
+  params$alpha_mean <- .x
+  theta <- do.call(get_theta, params)
+  theta %>%
+    mutate(alpha_mean = .x)
+} )
+
+
+res %>%
+  mutate(alpha_mean = factor(alpha_mean)) %>%
+  ggplot(aes(x=phi_induced, fill = alpha_mean)) +
+  geom_density(alpha =.5) +
+  viridis::scale_fill_viridis(option = "mako", discrete=TRUE, begin=.1, end = .9,direction=-1) +
+  theme_c(legend.position="right",
+          legend.text = element_text(size = 10),
+          legend.title = element_text(size = 14)) +
+  labs(title = TeX("Induced Distribution on $\\phi$ by Mean of Alpha"),
+       x = TeX("$\\phi^{induced}$"),
+       fill = TeX("Mean of $\\alpha$")) +
+  guides(fill = guide_legend(override.aes = list(alpha =1)))
+
+
+```
+
+
+In particular, the effect of $\alpha$ is limited by the small values of $P(S_1|\text{untested})$. When $P(S_1|untested)$ increases, $\alpha$ makes a larger difference in the value of $M(\theta)$ ( \@ref(fig:effect)).
+
+Red line corresponds to where $P(S_1|\text{untested})$ is closest to its mean. 
+
+```{r effect, out.width="50%", fig.show='hold', fig.cap="\\label{fig:effect}", fig.height =4}
+
+
+res <- map_df(seq(0.001, .2, length = 50), ~ {
+  tibble(alpha =seq(.7,1.3, length =100),
+       beta = .15,
+       P_S_untested = .x,
+       induced =  (beta * (1 - P_S_untested)) / (( beta * (1 - P_S_untested)) + (alpha * P_S_untested))) 
+})
+
+realistic <- res %>% 
+  filter(abs(P_S_untested - 0.02536735) < 1e-4)
+
+
+res %>%
+  ggplot(aes(x=alpha, y = induced, color = P_S_untested, group =P_S_untested )) +
+  geom_line() +
+  geom_line(data = realistic,
+            aes(x=alpha,
+                y = induced,
+                color = P_S_untested,
+                group =P_S_untested ),
+            color = 'red',
+            linewidth =1.5) +
+  labs(x= TeX("$\\alpha$"),
+       y= TeX("$M(\\theta)$"),
+       title = TeX("$M(\\theta)$ Across Values of $\\alpha$"),
+       subtitle = TeX("$P(S_1|untested),\\beta$ are Fixed"),
+       color = TeX("$P(S_1|untested)$"))+
+  viridis::scale_color_viridis(option="magma", end=.9, direction = -1)+
+  theme_c(legend.position="right",
+          legend.text = element_text(size = 10),
+          legend.title = element_text(size = 14))
+
+
+
+res <- map_df(seq(0.001, .2, length = 50), ~ {
+  tibble(alpha =.95, 
+       beta = seq(.03,.4, length =100),
+       P_S_untested = .x,
+       induced =  (beta * (1 - P_S_untested)) / (( beta * (1 - P_S_untested)) + (alpha * P_S_untested))) 
+})
+
+
+realistic <- res %>% 
+  filter(abs(P_S_untested - 0.02536735) < 1e-4)
+
+
+res %>%
+  ggplot(aes(x=beta, y = induced, color = P_S_untested, group =P_S_untested )) +
+  geom_line() +
+  geom_line(data = realistic,
+            aes(x=beta,
+                y = induced,
+                color = P_S_untested,
+                group =P_S_untested ),
+            color = 'red',
+            linewidth =1.5) +
+  labs(x= TeX("$\\beta$"),
+       y= TeX("$M(\\theta)$"),
+       title = TeX("$M(\\theta)$ Across Values of $\\beta$"),
+       subtitle = TeX("$P(S_1|untested),\\alpha$ are Fixed"),
+       color = TeX("$P(S_1|untested)$"))+
+  viridis::scale_color_viridis(option="magma", end=.9, direction = -1)+
+  theme_c(legend.position="right",
+          legend.text = element_text(size = 10),
+          legend.title = element_text(size = 14))
+
+```
+
+
+## Comparing Melded Distributions by Mean of $\alpha$
+
+```{r meld-experiment, out.width="100%", fig.height=9}
+
+prior_params <- list(
+    alpha_mean = .95,
+    alpha_sd = 0.08,
+    alpha_bounds = NA,
+   # alpha_bounds = c(.8,1),
+    beta_mean = .15,
+    beta_sd =.09,
+    beta_bounds = NA,
+  #  beta_bounds = c(0.002, 0.4),
+    s_untested_mean = .03,
+    s_untested_sd = .0225,
+  #  s_untested_bounds = c(0.0018, Inf),
+    s_untested_bounds = NA,
+    p_s0_pos_mean = .4,
+    # p_s0_pos_sd = .1225,
+  p_s0_pos_sd = .1,
+   p_s0_pos_bounds = NA,
+  #  p_s0_pos_bounds = c(.25, .7),
+    pre_nsamp = 1e5,
+    post_nsamp = 1e4)
+
+
+
+res <- map_df(seq(.5, 2, length =5),
+      ~ {
+         params <- prior_params
+         params$alpha_mean <- .x
+  
+         melded <- do.call(get_melded, params)
+       
+         reformat_melded(melded$post_melding,
+                         melded$pre_melding, 
+                         params$pre_nsamp,
+                          p_s0_pos_mean = params$p_s0_pos_mean,
+                            p_s0_pos_sd = params$p_s0_pos_sd,
+                            p_s0_pos_bounds = params$p_s0_pos_bounds) %>%
+           mutate(alpha_mean = .x)
+         
+       })
+
+
+res %>%
+  mutate(alpha_mean = factor(round(alpha_mean,1))) %>%
+ # filter(name == "$\\alpha$") %>%
+  ggplot(aes(x = value, fill = type)) +
+  geom_density(alpha=.8) +
+  facet_grid(name~alpha_mean,
+             scales = "free_y",
+             labeller=as_labeller(TeX,
+                                  default=label_parsed)) +
+  scale_fill_manual(values = c("Before Melding"= "#5670BF", "Induced" = "#B28542",
+                                 "After Melding" = "#418F6A")) +
+  theme_c() +
+  labs(fill="")
+
+
+
+```
+
+## Comparing Melded Distributions by Mean of $\alpha$ with Increased $\alpha$ SD
+
+### Increased SD
+
+```{r}
+
+
+res <- map_df(seq(.5, 2, length =5),
+      ~ {
+         params <- prior_params
+         params$alpha_mean <- .x
+         params$alpha_sd <- .3
+
+         # params$s_untested_mean <- .2
+         melded <- do.call(get_melded, params)
+   
+         reformat_melded(melded$post_melding,
+                         melded$pre_melding, 
+                         params$pre_nsamp,
+                          p_s0_pos_mean = params$p_s0_pos_mean,
+                            p_s0_pos_sd = params$p_s0_pos_sd,
+                            p_s0_pos_bounds = params$p_s0_pos_bounds) %>%
+           mutate(alpha_mean = .x)
+         
+       })
+
+
+res %>%
+  mutate(alpha_mean = factor(round(alpha_mean,1))) %>%
+ # filter(name == "$\\alpha$") %>%
+  ggplot(aes(x = value, fill = type)) +
+  geom_density(alpha=.8) +
+  facet_grid(name~alpha_mean,
+             scales = "free_y",
+             labeller=as_labeller(TeX,
+                                  default=label_parsed)) +
+  scale_fill_manual(values = c("Before Melding"= "#5670BF", "Induced" = "#B28542",
+                                 "After Melding" = "#418F6A")) +
+  theme_c() +
+  labs(fill="")
+
+
+
+```
+
+### Decreased SD
+```{r}
+
+res <- map_df(seq(.5, 2, length =5),
+      ~ {
+         params <- prior_params
+         params$alpha_mean <- .x
+         params$alpha_sd <- .04
+
+         # params$s_untested_mean <- .2
+         melded <- do.call(get_melded, params)
+   
+         reformat_melded(melded$post_melding,
+                         melded$pre_melding, 
+                         params$pre_nsamp,
+                          p_s0_pos_mean = params$p_s0_pos_mean,
+                            p_s0_pos_sd = params$p_s0_pos_sd,
+                            p_s0_pos_bounds = params$p_s0_pos_bounds) %>%
+           mutate(alpha_mean = .x)
+         
+       })
+
+
+res %>%
+  mutate(alpha_mean = factor(round(alpha_mean,1))) %>%
+ # filter(name == "$\\alpha$") %>%
+  ggplot(aes(x = value, fill = type)) +
+  geom_density(alpha=.8) +
+  facet_grid(name~alpha_mean,
+             scales = "free_y",
+             labeller=as_labeller(TeX,
+                                  default=label_parsed)) +
+  scale_fill_manual(values = c("Before Melding"= "#5670BF", "Induced" = "#B28542",
+                                 "After Melding" = "#418F6A")) +
+  theme_c() +
+  labs(fill="")
+
+
+```
+
+
+## Comparing Melded Distributions by Mean of $\alpha$ with Increased $P(S_1|\text{untested})$ Mean
+
+
+
+### Upping $P(S_1|\text{untested})$ to be .5 
+
+Unreasonable, but just to see
+
+```{r}
+
+
+res <- map_df(seq(.5, 2, length =5),
+      ~ {
+         params <- prior_params
+         params$alpha_mean <- .x
+         params$s_untested_mean <- .3
+
+         # params$s_untested_mean <- .2
+         melded <- do.call(get_melded, params)
+   
+         reformat_melded(melded$post_melding,
+                         melded$pre_melding, 
+                         params$pre_nsamp,
+                          p_s0_pos_mean = params$p_s0_pos_mean,
+                            p_s0_pos_sd = params$p_s0_pos_sd,
+                            p_s0_pos_bounds = params$p_s0_pos_bounds) %>%
+           mutate(alpha_mean = .x)
+         
+       })
+
+
+res %>%
+  mutate(alpha_mean = factor(round(alpha_mean,1))) %>%
+ # filter(name == "$\\alpha$") %>%
+  ggplot(aes(x = value, fill = type)) +
+  geom_density(alpha=.8) +
+  facet_grid(name~alpha_mean,
+             scales = "free_y",
+             labeller=as_labeller(TeX,
+                                  default=label_parsed)) +
+  scale_fill_manual(values = c("Before Melding"= "#5670BF", "Induced" = "#B28542",
+                                 "After Melding" = "#418F6A")) +
+  theme_c() +
+  labs(fill="")
+
+
+
+```
+
+
+### Upping $P(S_1|\text{untested})$ to be .5 
+
+
+```{r}
+
+
+res <- map_df(seq(.5, 2, length =5),
+      ~ {
+         params <- prior_params
+         params$alpha_mean <- .x
+         params$s_untested_mean <- .5
+
+         # params$s_untested_mean <- .2
+         melded <- do.call(get_melded, params)
+   
+         reformat_melded(melded$post_melding,
+                         melded$pre_melding, 
+                         params$pre_nsamp,
+                          p_s0_pos_mean = params$p_s0_pos_mean,
+                            p_s0_pos_sd = params$p_s0_pos_sd,
+                            p_s0_pos_bounds = params$p_s0_pos_bounds) %>%
+           mutate(alpha_mean = .x)
+         
+       })
+
+
+res %>%
+  mutate(alpha_mean = factor(round(alpha_mean,1))) %>%
+ # filter(name == "$\\alpha$") %>%
+  ggplot(aes(x = value, fill = type)) +
+  geom_density(alpha=.8) +
+  facet_grid(name~alpha_mean,
+             scales = "free_y",
+             labeller=as_labeller(TeX,
+                                  default=label_parsed)) +
+  scale_fill_manual(values = c("Before Melding"= "#5670BF", "Induced" = "#B28542",
+                                 "After Melding" = "#418F6A")) +
+  theme_c() +
+  labs(fill="")
+
+
+
+```
+
+
+
+## Comparing Melded Distributions by Mean of $\alpha$ with Increased $\alpha$ SD
+
+
+### Increased to .15 
+
+
+```{r, out.width="100%", fig.height=9}
+
+prior_params <- list(
+    alpha_mean = .95,
+    alpha_sd = 0.08,
+  # alpha_sd = 0.15,
+    alpha_bounds = NA,
+   # alpha_bounds = c(.8,1),
+    beta_mean = .15,
+    beta_sd =.09,
+    beta_bounds = NA,
+  #  beta_bounds = c(0.002, 0.4),
+    s_untested_mean = .03,
+    s_untested_sd = .0225,
+  #  s_untested_bounds = c(0.0018, Inf),
+    s_untested_bounds = NA,
+    p_s0_pos_mean = .4,
+    # p_s0_pos_sd = .1225,
+  p_s0_pos_sd = .1,
+   p_s0_pos_bounds = NA,
+  #  p_s0_pos_bounds = c(.25, .7),
+    pre_nsamp = 1e5,
+    post_nsamp = 1e4)
+
+
+
+
+res <- map_df(seq(.5, 2, length =5),
+      ~ {
+         params <- prior_params
+         params$alpha_mean <- .x
+         params$alpha_sd <- .15
+
+         params$s_untested_mean <- .03
+         melded <- do.call(get_melded, params)
+         # melded$post_melding %>%
+         #   mutate(alpha_mean = .x) %>%
+         #   cbind(alpha_before = melded$pre_melding$alpha)
+         
+         reformat_melded(melded$post_melding,
+                         melded$pre_melding, 
+                         params$pre_nsamp,
+                          p_s0_pos_mean = params$p_s0_pos_mean,
+                            p_s0_pos_sd = params$p_s0_pos_sd,
+                            p_s0_pos_bounds = params$p_s0_pos_bounds) %>%
+           mutate(alpha_mean = .x)
+         
+       })
+
+
+
+res %>%
+  mutate(alpha_mean = factor(round(alpha_mean,1))) %>%
+ # filter(name == "$\\alpha$") %>%
+  ggplot(aes(x = value, fill = type)) +
+  geom_density(alpha=.8) +
+  facet_grid(name~alpha_mean,
+             scales = "free_y",
+             labeller=as_labeller(TeX,
+                                  default=label_parsed)) +
+  scale_fill_manual(values = c("Before Melding"= "#5670BF", "Induced" = "#B28542",
+                                 "After Melding" = "#418F6A")) +
+  theme_c() +
+  labs(fill="")
+
+
+
+# 
+# res <- map_df(seq(.5, 2, length =5),
+#       ~ {
+#          params <- prior_params
+#          params$alpha_mean <- .x
+#          params$alpha_sd <- .15
+# 
+#          params$s_untested_mean <- .2
+#          melded <- do.call(get_melded, params)
+#          # melded$post_melding %>%
+#          #   mutate(alpha_mean = .x) %>%
+#          #   cbind(alpha_before = melded$pre_melding$alpha)
+#          
+#          reformat_melded(melded$post_melding,
+#                          melded$pre_melding, 
+#                          params$pre_nsamp,
+#                           p_s0_pos_mean = params$p_s0_pos_mean,
+#                             p_s0_pos_sd = params$p_s0_pos_sd,
+#                             p_s0_pos_bounds = params$p_s0_pos_bounds) %>%
+#            mutate(alpha_mean = .x)
+#          
+#        })
+# 
+# 
+# res %>%
+#   mutate(alpha_mean = factor(round(alpha_mean,1))) %>%
+#  # filter(name == "$\\alpha$") %>%
+#   ggplot(aes(x = value, fill = type)) +
+#   geom_density(alpha=.8) +
+#   facet_grid(name~alpha_mean,
+#              scales = "free_y",
+#              labeller=as_labeller(TeX,
+#                                   default=label_parsed)) +
+#   scale_fill_manual(values = c("Before Melding"= "#5670BF", "Induced" = "#B28542",
+#                                  "After Melding" = "#418F6A")) +
+#   theme_c() +
+#   labs(fill="")
+# 
+
+
+```
+
+### Increased to .25
+
+```{r}
+
+res <- map_df(seq(.5, 2, length =5),
+      ~ {
+         params <- prior_params
+         params$alpha_mean <- .x
+         params$alpha_sd <- .25
+
+         params$s_untested_mean <- .03
+         melded <- do.call(get_melded, params)
+         # melded$post_melding %>%
+         #   mutate(alpha_mean = .x) %>%
+         #   cbind(alpha_before = melded$pre_melding$alpha)
+         
+         reformat_melded(melded$post_melding,
+                         melded$pre_melding, 
+                         params$pre_nsamp,
+                          p_s0_pos_mean = params$p_s0_pos_mean,
+                            p_s0_pos_sd = params$p_s0_pos_sd,
+                            p_s0_pos_bounds = params$p_s0_pos_bounds) %>%
+           mutate(alpha_mean = .x)
+         
+       })
+
+
+
+res %>%
+  mutate(alpha_mean = factor(round(alpha_mean,1))) %>%
+ # filter(name == "$\\alpha$") %>%
+  ggplot(aes(x = value, fill = type)) +
+  geom_density(alpha=.8) +
+  facet_grid(name~alpha_mean,
+             scales = "free_y",
+             labeller=as_labeller(TeX,
+                                  default=label_parsed)) +
+  scale_fill_manual(values = c("Before Melding"= "#5670BF", "Induced" = "#B28542",
+                                 "After Melding" = "#418F6A")) +
+  theme_c() +
+  labs(fill="")
+
+
+```
+
+
+## Fixing $\beta,P(S_1|\text{untested})$
+
+```{r}
+
+res <- map_df(seq(.5, 2, length =5),
+      ~ {
+         params <- prior_params
+         params$alpha_mean <- .x
+         params$beta_sd <- 0
+         params$s_untested_sd <- 0
+         melded <- do.call(get_melded, params)
+         # melded$post_melding %>%
+         #   mutate(alpha_mean = .x) %>%
+         #   cbind(alpha_before = melded$pre_melding$alpha)
+         
+         reformat_melded(melded$post_melding,
+                         melded$pre_melding, 
+                         params$pre_nsamp,
+                          p_s0_pos_mean = params$p_s0_pos_mean,
+                            p_s0_pos_sd = params$p_s0_pos_sd,
+                            p_s0_pos_bounds = params$p_s0_pos_bounds) %>%
+           mutate(alpha_mean = .x)
+         
+       })
+
+
+
+res %>%
+  mutate(alpha_mean = factor(round(alpha_mean,1))) %>%
+ # filter(name == "$\\alpha$") %>%
+  ggplot(aes(x = value, fill = type)) +
+  geom_density(alpha=.8) +
+  facet_grid(name~alpha_mean,
+             scales = "free_y",
+             labeller=as_labeller(TeX,
+                                  default=label_parsed)) +
+  scale_fill_manual(values = c("Before Melding"= "#5670BF", "Induced" = "#B28542",
+                                 "After Melding" = "#418F6A")) +
+  theme_c() +
+  labs(fill="")
+
+
+
+```
+
+
+
+## Fixed versus Free Scales
+
+Even allowing for different scales, $\alpha$ does not change substantially.
+
+
+
+### Fixed Scale 
+
+
+```{r, out.width="50%", fig.show='hold'}
+
+
+melded <- do.call(get_melded, prior_params)
+
+
+post <- melded$post_melding %>%
+  select(P_A_testpos) %>%
+  pivot_longer(everything())
+
+
+melded_long <- reformat_melded(melded$post_melding,
+                               melded$pre_melding,
+                               pre_nsamp = prior_params$pre_nsamp,
+                              p_s0_pos_mean = prior_params$p_s0_pos_mean,
+                              p_s0_pos_sd = prior_params$p_s0_pos_sd,
+                              p_s0_pos_bounds = NA)
+
+
+################################
+# NOW WITH MELDING 
+################################
+plt1 <- melded_long %>%
+  filter(name != "$P(S_0|test+,untested)$") %>%
+  ggplot(aes(x=value, fill = type)) +
+  geom_density( alpha = .8, show.legend=FALSE) +
+  facet_wrap(~name, labeller=as_labeller(TeX, default = label_parsed), ncol=3) +
+  theme_c(legend.position = "top") +
+    scale_fill_manual(values = c("Before Melding"= "#5670BF", "Induced" = "#B28542",
+                                 "After Melding" = "#418F6A")) +
+  labs(fill = "")
+
+plt2 <-  melded_long  %>%
+  filter( name == "$P(S_0|test+,untested)$") %>%
+  ggplot(aes(x=value, fill = type)) +
+  geom_density( alpha = .8, show.legend=TRUE) +
+  facet_wrap(~name, labeller=as_labeller(TeX, default = label_parsed), ncol=4) +
+  theme_c(legend.position = "right",
+          legend.text = element_text(size = 16)) +
+scale_fill_manual(values = c("Before Melding"= "#5670BF", "Induced" = "#B28542",
+                                 "After Melding" = "#418F6A")) +
+  labs(fill = "") 
+
+cowplot::plot_grid(plt1,plt2, ncol=1, rel_widths = c(1,.9))
+```
+
+### Free Scale 
+
+
+```{r,out.width="70%"}
+################################
+# NOW WITH MELDING 
+################################
+plt1 <- melded_long %>%
+  filter(name != "$P(S_0|test+,untested)$") %>%
+  ggplot(aes(x=value, fill = type)) +
+  geom_density( alpha = .8, show.legend=FALSE) +
+  facet_wrap(~name, labeller=as_labeller(TeX, default = label_parsed), ncol=4, scales="free_y") +
+  theme_c(legend.position = "top") +
+    scale_fill_manual(values = c("Before Melding"= "#5670BF", "Induced" = "#B28542",
+                                 "After Melding" = "#418F6A")) +
+  labs(fill = "")
+
+
+cowplot::plot_grid(plt1,plt2, ncol=1, rel_widths = c(1,.9))
+
+
+```
+
+
+
+## Conclusions
+
+
+The lack of an effect of $\alpha$ is primarily a result of the functional form of $M$; because $\beta$ has a larger effect
+
+
+```{r}
+
+
+M <- function(input1, input2) {
+ # x <- 0.5
+  x <- 0.03
+  input1*(1-x) / (input1*(1-x) + input2*x)
+}
+
+M  <- Vectorize(M )
+
+inp1 <- seq(0.01,.4, length = 50) 
+names(inp1) <- inp1
+inp2 <- seq(.7,1.3, length = 50)  
+names(inp2) <- inp2
+z <- outer(inp1,inp2, FUN =M)
+
+
+# 3D plot
+par(mar = c(0, 0, 0, 0)) 
+persp(inp1, inp2, z,  xlab = "beta", ylab= "alpha", theta = 60, phi = 30)
+
+
+```
+
+```{r,eval=FALSE}
+library(plotly)
+
+
+
+ax <- list(
+  title = "alpha"
+)
+
+
+ay <- list(
+  title = "beta"
+)
+
+
+
+
+fig <- plot_ly(z=~z)
+
+fig <- plot_ly( x= ~colnames(z), 
+                y =~ rownames(z),  
+                z=~z)
+
+fig %>% add_surface() %>% layout(scene = list(xaxis = ax,
+                                              yaxis = ay))
+
+
+```
+
+
+
+# Aaron's question on notation 
+
+
+
+# Evan's question on $P(S_0|\text{test}_+, \text{untested}) \neq P(S_0|\text{test}_+, \text{tested})$
+
+The fact that $P(S_0|\text{test}_+, \text{untested}) > P(S_0|\text{test}_+, \text{tested})$ is something important to think about. It has been a while since my initial search for meta-analyses, so another look would be good to get a better sense for the estimates from screening studies and the extent to which they differ.
+

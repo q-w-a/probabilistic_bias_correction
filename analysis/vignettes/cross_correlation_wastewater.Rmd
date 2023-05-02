@@ -40,7 +40,7 @@ theme_c <- function(...) {
          strip.background = element_rect(fill = "#3E3D3D"))
 }
 
-include_slow <- FALSE
+include_slow <- TRUE
 
 subset <- TRUE
 subset <- FALSE
@@ -915,7 +915,8 @@ lags_all_pb %>%
   mutate(m = median(max_corr)) %>%
   ungroup() %>%
   mutate(max_lag=factor(max_lag)) %>%
-  ggplot(aes(x=fct_reorder(fips,m, 
+  mutate(county_name = gsub("County, MA", "", county_name)) %>%
+   ggplot(aes(x=fct_reorder(county_name,m, 
                            .desc = TRUE),
              y = max_corr,
              color = source, 
@@ -929,18 +930,18 @@ lags_all_pb %>%
                                    lags_all_pb$vlabel))) +
   theme_bw() +
   theme_c() +
-  theme(
+  theme(plot.title = element_text(size=16,hjust=.5, face="plain"),
     # axis.text.x = element_text(angle  = 60, vjust = .4),
-    axis.text.x = element_text(angle  = 20, vjust = .4),
+    axis.text.x = element_text(angle  = 50, vjust = .95, hjust=1),
     axis.title.x = element_text(margin = margin(3,3,3,3)),
-        legend.text = element_text(size = 14),
+        legend.text = element_text(size = 14, hjust=0),
         axis.text.y = element_text(size = 11),
         legend.title = element_text(face="bold", size = 16)) +
   labs(y = "Maximum Correlation") +
   scale_size_discrete(breaks = c(1.9,2),
                       range = c(1.9,2),
                       labels = c("bias corrected", "observed")) +
-  labs(x = "County FIPS",
+  labs(x = "County",
        y = "Maximum Correlation",
        title = "Comparing Maximum Correlation of Bias Corrected Counts with Wastewater\nto that Between Observed Cases and Wastewater",
        shape = "Maximum Lag:",
@@ -951,9 +952,10 @@ lags_all_pb %>%
 
 
 
+ggsave(here("presentation/figure/correlation_observed_pb.jpeg"), height = 8, width=12.4)
 
 
-ggsave(here("thesis/figure/correlation_observed_pb.jpeg"))
+ggsave(here("thesis/figure/correlation_observed_pb.jpeg"), height = 8, width=12)
 
 
 

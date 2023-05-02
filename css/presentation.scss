@@ -15,7 +15,7 @@ $selection-bg: rgba(0, 0, 0, 0.99);
 // headings
 $presentation-heading-font: "News Cycle", sans-serif !default;
 $border-width: 2px;
-$presentation-font-size-root: 1.7vw;
+$presentation-font-size-root: 1.8vw;
 
 .title {
   background: #204668;
@@ -28,6 +28,30 @@ $presentation-font-size-root: 1.7vw;
 }
 
 
+.math.inline {
+  font-size: 97%  !important;
+  font-family: Asana-Math;
+}
+
+.estpos .math.inline {
+  font-size: 120% !important;
+}
+
+.estpos .MathJax, .MathJax_Display  {
+  font-size: 110% !important;
+  font-family: Asana-Math;
+  text-align: left;
+}
+
+
+
+.testpos .math.inline, .MathJax, .MathJax_Display  {
+  font-size: 100% !important;
+  font-family: Asana-Math;
+  text-align: left;
+}
+
+  
 
 
 .math.inline {
@@ -40,8 +64,8 @@ $presentation-font-size-root: 1.7vw;
     font-family: Asana-Math;
 }
 
-.mybox2, .MathJax, .MathJax_Display {
-  font-size:80% !important;
+.mybox2, .MathJax, .MathJax_Display, .math.inline  {
+  font-size:103% !important;
 }
 
 .m {
@@ -200,6 +224,23 @@ h2 {
 }
 
 
+li li {
+  font-size:95% !important;
+}
+
+
+
+
+.summarybox {
+  padding: 1em;
+  width: 100%;
+  background: white;
+  color: black;
+  border: 2px solid gray;
+  border-radius: 10px;
+}
+
+
 .mybox {
   padding: 1em;
   background: white;
@@ -208,6 +249,14 @@ h2 {
   border-radius: 10px;
 }
 
+.defbox {
+  padding: 1em;
+  background: #F4F5F6;
+  color: black;
+  border: 2px solid gray;
+  border-radius: 10px;
+  font-size:80%;
+}
 
 
 .mybox2 {

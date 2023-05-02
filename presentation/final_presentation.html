@@ -347,13 +347,17 @@
 
 <section id="outline" class="slide level2">
 <h2>Outline</h2>
-<div class="mybox">
-<p><span style="font-size:180%;"></span></p>
-<ol type="1">
-<li>Motivation and Previous Work <br></li>
-<li>Methods <br></li>
-<li>Results <br> </li>
-</ol>
+<div class="mybox" style="font-size:130%">
+<p><span style="font-size:180%;text-align:left;"></span></p>
+<ul>
+<li>Motivation and Previous Work</li>
+<li>Methods
+<ul>
+<li>Definition of Priors</li>
+<li>Constraining Priors</li>
+</ul></li>
+<li>Results </li>
+</ul>
 </div>
 </section>
 <section>
@@ -364,7 +368,7 @@
 <section id="motivation" class="slide level2">
 <h2>Motivation</h2>
 <div class="columns">
-<div class="column" style="width:40%;">
+<div class="column" style="font-size:102%">
 <ul>
 <li>Testing rate varies widely across states</li>
 <li>Interested in the distinction between:
@@ -377,8 +381,10 @@
 
 </div><div class="cell">
 
+</div><div class="cell">
+
 </div><p><img width="55%" src="./figure/testing_all.jpeg" style="position:absolute;top:20%;right:0;"></p><div class="column">
-<p><img width="55%" class="fragment" src="./figure/testing_all.jpeg" style="position:absolute;top:20%;right:0;"> <img width="55%" class="fragment current-visible" src="./figure/idaho_testing.jpeg" style="position:absolute;top:20%;right:0;"> <img width="55%" class="fragment current-visible" src="./figure/ma_testing.jpeg" style="position:absolute;top:20%;right:0;"></p>
+<p><img width="55%" class="fragment" src="./figure/idaho_testing.jpeg" style="position:absolute;top:20%;right:0;"> <img width="55%" class="fragment" src="./figure/ma_testing.jpeg" style="position:absolute;top:20%;right:0;"></p>
 </div>
 </div>
 <aside class="notes">
@@ -434,7 +440,7 @@
 <ul>
 <li>Broad strategy:
 <ul>
-<li>Use IFR and/or seroprevalence data</li>
+<li>Use infection fatality ratio (IFR) and/or seroprevalence data</li>
 </ul></li>
 </ul>
 <div class="fragment fade-in">
@@ -462,6 +468,7 @@
 <li>Includes symptom states asymptomatic, symptomatic, and severe</li>
 <li>Likelihood components incorporating data on deaths and confirmed cases</li>
 <li>Probability of diagnosis varies by time and symptom state</li>
+<li>This model is Covidestim</li>
 </ul></li>
 </ul>
 </div>
@@ -485,12 +492,12 @@
 <section id="substantial-underestimation-of-covid-19-in-the-united-states-wu-et-al.-2020" class="slide level2">
 <h2><span style="font-size:80%"> <em>Substantial Underestimation of COVID-19 in the United States</em> <br> (Wu <em>et al.</em>, 2020) </span></h2>
 <div class="columns">
-<div class="column" style="width:55%;">
+<div class="column" style="font-size:110%">
 <ul>
 <li>Applied probabilistic bias analysis to estimate the true COVID-19 case burden by correcting for:
 <ul>
-<li><strong>incomplete testing</strong></li>
-<li><strong>imperfect diagnostic accuracy</strong></li>
+<li><strong>Incomplete testing</strong></li>
+<li><strong>Imperfect diagnostic accuracy</strong></li>
 </ul></li>
 <li>Time period: March to April 18, 2020</li>
 <li>State-level (one time interval)</li>
@@ -505,7 +512,7 @@ Figure from Wu <em>et al..</em> (2020) showing the ratio of total estimated infe
 </div>
 </div>
 <aside class="notes">
-<p>The paper this work was based on is <em>Substantial Underestimation of COVID-19 in the United States</em> (Wu <em>et al.</em>, 2020)</p>
+<p>The paper this work was based on is <em>Substantial Underestimation of COVID-19 in the United States</em> (Wu <em>et al.</em>, 2020). So, for example, in Rhode Island, this method estimates that for every confirmed positive case there are 3 to 5 actual cases.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -534,7 +541,7 @@ Figure from Wu <em>et al..</em> (2020) showing the ratio of total estimated infe
 <li>Specify prior distributions for bias parameters (e.g., specificity)</li>
 <li>Sample from these distributions to produce corrected estimates
 <ul>
-<li>Sampled values reflect corrected values under different combinations of the bias parameters</li>
+<li>Sampled values reflect “corrected” values under different combinations of the bias parameters</li>
 </ul></li>
 </ul></li>
 </ul>
@@ -551,49 +558,57 @@ Figure from Wu <em>et al..</em> (2020) showing the ratio of total estimated infe
 </section>
 <section id="aims-of-this-work" class="slide level2">
 <h2>Aims of this Work</h2>
-<p><span style="font-size:150%"></span></p>
+<div style="font-size:130% !important">
 <ul>
-<li>Extend Wu <em>et. al.</em>’s analysis to the time period March 2021 to March 2022
+<li>Recall:
 <ul>
+<li>Wu <em>et. al.</em> estimated infections as of mid-April 2020</li>
+<li>State-level</li>
+</ul></li>
+<li>Here:
+<ul>
+<li>Time period March 2021 to March 2022</li>
 <li>2-week interval</li>
 </ul></li>
 <li>Geographic scale:
 <ul>
 <li>State-level across all states</li>
-<li>County-level for two</li>
+<li>County-level for two states</li>
 </ul></li>
 <li>Inform priors with available data</li>
-<li>Compare results to Covidestim<sup>1</sup> model</li>
+<li>Compare results to Covidestim<span class="citation" data-cites="chitwood2022"><sup><a href="#/references" role="doc-biblioref" onclick="">12</a></sup></span> model</li>
 </ul>
-<p></p>
-<aside><ol class="aside-footnotes"><li id="fn1"><p><span class="citation" data-cites="chitwood2022"><sup><a href="#/references" role="doc-biblioref" onclick="">12</a></sup></span></p></li></ol></aside></section>
+</div>
+</section>
+<section id="output" class="slide level2">
+<h2>Output</h2>
+<ul>
+<li>For every two-week interval and location, obtain a distribution of “corrected” infections</li>
+</ul>
+<p><img src="figure/example_output.jpeg"></p>
+</section>
 <section id="methods-outline" class="slide level2">
-<h2><span style="text-align:center;font-size:180%;width:60%;"> Methods Outline </span></h2>
-<span style="font-size:150%">
-<center>
+<h2>Methods Outline</h2>
+<div style="font-size:120%">
 <ol type="1">
-<li>Definition of priors adjusting for <strong>incomplete testing</strong>
-</li></ol></center>
-<span class="math display">\[\downarrow\]</span>
-<center>
+<li>Definition of priors adjusting for <strong>incomplete testing</strong></li>
+</ol>
+<p><br></p>
 <ol start="2" type="1">
-<li>Definition of priors adjusting for <strong>testing inaccuracy</strong>
-</li></ol></center>
-<span class="math display">\[\downarrow\]</span>
-<center>
+<li>Constraining of <strong>incomplete testing</strong> priors with Bayesian melding</li>
+</ol>
+<p><br></p>
 <ol start="3" type="1">
-<li>Full Implementation of probabilistic bias analysis
-</li></ol></center>
-
-
-
-
-<p></p>
-</span></section>
+<li>Full implementation of probabilistic bias analysis
+</li>
+</ol>
+</div>
+</section>
 <section id="correction-for-incomplete-testing" class="slide level2">
 <h2>Correction for Incomplete Testing</h2>
 <div class="columns">
-<div class="column" style="width:20%;">
+<div class="column" style="width:25%;">
+<p><span style="font-size:91%"></span></p>
 <ul>
 <li>Fundamental idea:
 <ul>
@@ -604,14 +619,22 @@ Figure from Wu <em>et al..</em> (2020) showing the ratio of total estimated infe
 <ul>
 <li>Partition the untested population into:
 <ul>
-<li>moderate to severe symptoms (denoted <span class="math inline">\(S_1\)</span>)</li>
-<li>mild/no COVID-19 symptoms (denoted <span class="math inline">\(S_0\)</span>)</li>
+<li>moderate to severe symptoms
+<ul>
+<li>denoted <span class="math inline">\(S_1\)</span></li>
 </ul></li>
-<li>event <span class="math inline">\(\text{test}_{+}\)</span> denotes they <em>would</em> test positive if they were tested</li>
+<li>mild/no COVID-19 symptoms
+<ul>
+<li>denoted <span class="math inline">\(S_0\)</span></li>
+</ul></li>
+</ul></li>
+<li>Event <span class="math inline">\(\text{test}_{+}\)</span> denotes they <em>would</em> test positive if they were tested </li>
 </ul></li>
 </ul>
-</div><div class="column" style="width:60%;">
-<p><img src="./figure/symptom_diagram.png" style="margin-right:0; margin-left:40%;width=50%"></p>
+</div><div class="column" style="width:50%;">
+<div style="width:45%">
+<p><img src="./figure/symptom_diagram.png" style="position:absolute;text-align:right;float:right;width:60%;margin-left:10%;"></p>
+</div>
 </div>
 </div>
 <aside class="notes">
@@ -630,24 +653,48 @@ Figure from Wu <em>et al..</em> (2020) showing the ratio of total estimated infe
 </section>
 <section id="goal-estimate-positives-among-the-untested" class="slide level2">
 <h2>Goal: Estimate Positives Among the Untested</h2>
+<div style="font-size:130%">
+<p>Denote:</p>
 <ul>
-<li>Denote <span class="math inline">\(N^*\)</span> is number of individuals who would test positive</li>
-<li>Using <span class="math inline">\(\Pr(\text{test}_+|S_1,\text{untested})\)</span> and <span class="math inline">\(\Pr(\text{test}_+|S_0,\text{untested})\)</span>, we could take:</li>
-</ul>
-<p><span class="math display">\[\begin{align*}
-N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untested}} \\
-&amp;=\Pr(\text{test}_+|S_1,\text{untested}) ( N_{S_1, \text{untested}} ) + \Pr(\text{test}_+|S_0,\text{untested}) ( N_{S_0, \text{untested}} )
-\end{align*}\]</span></p>
-<div class="fragment fade-in">
+<li><span class="math inline">\(N^*\)</span> as the number of individuals who would test positive</li>
+<li>Indicator variable <span class="math inline">\(S\)</span> for symptom status where:
 <ul>
-<li>To estimate <span class="math inline">\(N_{S_1, \text{untested}}\)</span> and <span class="math inline">\(N_{S_0, \text{untested}}\)</span>, we need <span class="math inline">\(\Pr(S_1|\text{untested})\)</span>:</li>
+<li>Moderate to severe COVID-19-like symptoms is <span class="math inline">\(S_1\)</span></li>
+<li>No or mild COVID-19-like symptoms is <span class="math inline">\(S_0\)</span></li>
+</ul></li>
 </ul>
-<p><span class="math display">\[\begin{align*} N_{S_1, \text{untested}} &amp;= ( N_{\text{untested}} ) \Pr(S_1|\text{untested})\\
-N_{S_0, \text{untested}} &amp;= ( N_{\text{untested}} ) (1-P(S_1|\text{untested})) \end{align*}\]</span></p>
 </div>
+</section>
+<section id="goal-estimate-positives-among-the-untested-continued" class="slide level2">
+<h2>Goal: Estimate Positives Among the Untested (Continued)</h2>
+<div width="25%">
+<div class="defbox" style="position:absolute;margin-left:75%;float:right;width=100%;">
+<p><strong>Definitions:</strong></p>
+<ul>
+<li><span class="math inline">\(S_1\)</span> is moderate to severe symptoms</li>
+<li><span class="math inline">\(S_0\)</span> is no/mild symptoms</li>
+<li><span class="math inline">\(N^*\)</span> is number who <em>would</em> test positive if tested</li>
+</ul>
+</div>
+</div>
+<p><span class="estpos"></span></p>
+<div width="75%">
+<p>Using <span class="math inline">\(\Pr(\text{test}_+|S_1,\text{untested})\)</span> and <span class="math inline">\(\Pr(\text{test}_+|S_0,\text{untested})\)</span>, we could take:</p>
+<div style="text-align:left;float:left">
+<p><span class="math inline">\({ \begin{align*} N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}} + N^*_{S_0, \text{untested}} \\ &amp;=\Pr(\text{test}_+|S_1,\text{untested}) ( N_{S_1, \text{untested}} ) + \Pr(\text{test}_+|S_0,\text{untested}) ( N_{S_0, \text{untested}} )\\ \text{ } \end{align*} }\)</span></p>
 <div class="fragment fade-in">
-<div class="mybox">
-<p><strong>Summary:</strong> to adjust for incomplete testing, we need to define:</p>
+<p>To acquire <span class="math inline">\(N_{S_1, \text{untested}}\)</span> and <span class="math inline">\(N_{S_0,\text{untested}}\)</span>, we need <span class="math inline">\(\Pr(S_1|\text{untested})\)</span>:</p>
+<p><br></p>
+<p><span class="math inline">\({ \begin{align*} N_{S_1, \text{untested}} &amp;= ( N_{\text{untested}} ) \Pr(S_1|\text{untested})\\ N_{S_0, \text{untested}} &amp;= ( N_{\text{untested}} ) (1-\Pr(S_1|\text{untested})) \end{align*} }\)</span></p>
+</div>
+</div>
+<p><!-- left align div --></p>
+</div>
+<p><br> <br> <br></p>
+<div style="position:absolute; width=100%;padding-top:18%;">
+<div class="fragment .fade-in" style="float:left; text-align:left;width=100%;margin-bottom:10%;">
+<div class="summarybox" style="margin-top:10%;width=100%;font-size:102% !important;">
+<p><span style="font-size:110%"><strong>Summary:</strong> </span> to adjust for incomplete testing, we need to define:</p>
 <ul>
 <li><span class="math inline">\(\Pr(\text{test}_+|S_1,\text{untested})\)</span></li>
 <li><span class="math inline">\(\Pr(\text{test}_+|S_0,\text{untested})\)</span></li>
@@ -655,11 +702,14 @@ N_{S_0, \text{untested}} &amp;= ( N_{\text{untested}} ) (1-P(S_1|\text{untested}
 </ul>
 </div>
 </div>
+</div>
+<p></p>
 <aside class="notes">
 <p>If we have priors for the test positivity rates among the symptomatic and asymptomatic partitions of the untested population, we could simply take:</p>
 <p><span class="math display">\[\begin{align*}
+\Large{
 N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untested}} \\
-&amp;=\Pr(\text{test}_+|S_1,\text{untested}) ( N_{S_1, \text{untested}} ) + \Pr(\text{test}_+|S_0,\text{untested}) ( N_{S_0, \text{untested}} )
+&amp;=\Pr(\text{test}_+|S_1,\text{untested}) ( N_{S_1, \text{untested}} ) + \Pr(\text{test}_+|S_0,\text{untested}) ( N_{S_0, \text{untested}} )}
 \end{align*}\]</span></p>
 <p>However, we see we need another prior – one that describes the prevalence of symptoms in the population.</p>
 <p>To summarize, we need the two priors that describe test positivity among the partitions of the population, as well as a prior defining the prevalence of moderate-to-severe COVID_19 symptoms among the population</p>
@@ -675,27 +725,43 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
           display:block!important;
       }</style></aside>
 </section>
-<section id="defining-priors-for-prtexttest_s_1textuntested-and-prtexttest_s_0-texttested" class="slide level2">
-<h2>Defining Priors for <span class="math inline">\(\Pr(\text{test}_+|S_1,\text{untested})\)</span> and <span class="math inline">\(\Pr(\text{test}_+|S_0, \text{tested})\)</span></h2>
+<section id="definition-of-priors" class="slide level2">
+<h2>Definition of Priors</h2>
+<p><img src="./figure/priors_implementations.png"></p>
+</section>
+<section id="defining-priors-for-test-positivities-among-the-untested" class="slide level2 testpos" style="font-size:110%">
+<h2><span style="font-size:90%">Defining Priors for Test Positivities Among the Untested </span></h2>
+<div class="columns">
+<div class="column" style="float:left">
 <ul>
 <li>We only have observed test positivity <span class="math inline">\(\Pr(\text{test}_+|\text{tested})\)</span></li>
-<li>Define:
+</ul>
+<div>
 <ul>
-<li><span class="math inline">\(\alpha = \frac{\Pr(\text{test}_+|S_1,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
-<li><span class="math inline">\(\beta = \frac{\Pr(\text{test}_+|S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
+<li class="fragment">Define:
+<ul>
+<li class="fragment"><span class="math inline">\(\alpha = \dfrac{\Pr(\text{test}_+|\; S_1,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span>
+<ul>
+<li class="fragment">reflects how we would adjust the <strong>observed test positivity</strong> to get the test positivity among the <strong>untested <em>symptomatic</em> population</strong> <span class="math display">\[\text{ }\]</span></li>
+</ul></li>
+<li class="fragment"><span class="math inline">\(\beta = \dfrac{\Pr(\text{test}_+ | \; S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span>
+<ul>
+<li class="fragment">reflects how we would adjust the <strong>observed test positivity</strong> to get the test positivity among the <strong>untested <em>symptom-free</em> population</strong></li>
+</ul></li>
 </ul></li>
 </ul>
-<div class="cell">
-
 </div>
-<center>
-<img src="./figure/alpha_beta.jpeg" style="width:80%">
-</center>
+</div><div class="cell">
+
+</div><div class="column" style="float:right">
+<p><img class="fragment" src="./figure/alpha_beta.jpeg" width="70%;margin-left:15%;"></p>
+</div>
+</div>
 <aside class="notes">
 <ul>
 <li>Defining priors for the test positivity among the symptomatic and asymptomatic partitions of the population is the fundamental source of uncertainty for this work</li>
 <li>Instead of estimating these quantities directly, we define <span class="math inline">\(\alpha\)</span></li>
-<li>We can think of alpha and beta as correction factors for correcting the test positivity we observe to get at the test positivity amongthe untested population</li>
+<li>We can think of alpha and beta as correction factors for correcting the test positivity we observe to get at the test positivity among the untested population</li>
 </ul>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -709,8 +775,8 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
           display:block!important;
       }</style></aside>
 </section>
-<section id="defining-prior-for-prs_1textuntested" class="slide level2">
-<h2>Defining Prior for <span class="math inline">\(\Pr(S_1|\text{untested})\)</span></h2>
+<section id="defining-prior-for-prs_1-textuntested" class="slide level2">
+<h2>Defining Prior for <span class="math inline">\(\Pr(S_1 |\text{untested})\)</span></h2>
 <ul>
 <li>Prevalence of moderate to severe COVID-19-like symptoms in the untested population</li>
 </ul>
@@ -719,10 +785,10 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 </div>
 <p><img src="./figure/s_untested.jpeg" style="width:80%"></p>
 </section>
-<section id="informing-beta-and-prs_1textuntested-with-ctis-data" class="slide level2">
-<h2>Informing <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\Pr(S_1|\text{untested})\)</span> with CTIS Data</h2>
-<div class="columns">
-<div class="column" style="width:30%;">
+<section id="informing-priors-with-survey-data" class="slide level2">
+<h2>Informing Priors with Survey Data</h2>
+<div class="columns" style="font-size:110%">
+<div class="column" style="width:40%;">
 <ul>
 <li><strong>COVID-19 Trends and Impact Survey (CTIS): </strong><span class="citation" data-cites="salomon2021a"><sup><a href="#/references" role="doc-biblioref" onclick="">16</a></sup></span>
 <ul>
@@ -730,14 +796,49 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 <li>Random sample of users directed to survey</li>
 <li>Includes questions on:
 <ul>
-<li>COVID-19 testing</li>
+<li>COVID-19 testing
+<ul>
+<li>Screening test positivity</li>
+<li>Overall test positivity</li>
+</ul></li>
 <li>Prevalence of COVID-19-like symptoms</li>
 </ul></li>
+<li>Provides state-level values</li>
 </ul></li>
 </ul>
-</div><div class="column" style="width:70%;">
-<p><img src="figure/vary_beta_time.jpeg"></p>
+</div><div class="column" style="position:relative">
+<p><img src="figure/covidlike.png" style="margin-left:5%"></p>
 </div>
+</div>
+</section>
+<section id="informing-beta-and-prs_1textuntested-with-survey-data" class="slide level2">
+<h2>Informing <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\Pr(S_1|\text{untested})\)</span> with Survey Data</h2>
+<ul>
+<li><p>Informing <span class="math inline">\(\Pr(S_1|\text{untested})\)</span></p>
+<ul>
+<li>Percentage of population experiencing COVID-19-like symptoms</li>
+</ul>
+<p><br></p></li>
+<li><p>Informing <span class="math inline">\(\beta\)</span></p>
+<ul>
+<li>Recall: <span class="math inline">\(\beta = \dfrac{\Pr(\text{test}_+ | \; S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
+<li>From the survey, we can use:
+<ul>
+<li>Screening positivity as estimate for <span class="math inline">\(\Pr(\text{test}_+ | \; S_0,\text{untested})\)</span></li>
+<li>Overall test positivity as <span class="math inline">\(\Pr(\text{test}_+|\text{tested})\)</span></li>
+</ul></li>
+<li>Estimate of <span class="math inline">\(\beta\)</span> is then the ratio <span class="math inline">\(\dfrac{\text{Screening Test Positivity}}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
+</ul></li>
+</ul>
+</section>
+<section id="example-informing-beta-with-ctis-data" class="slide level2">
+<h2>Example: Informing <span class="math inline">\(\beta\)</span> with CTIS Data</h2>
+<ul>
+<li>Allows <span class="math inline">\(\beta\)</span> to vary over time</li>
+<li>Center distribution at smoothed survey estimate for that 2-week interval</li>
+</ul>
+<div width="40%">
+<p><img src="./figure/vary_beta_time_just_one.jpeg" style="position:absolute;width:60%;"> <img class="fragment" src="figure/vary_beta_time.jpeg" style="position:absolute;width:60%;"></p>
 </div>
 <aside class="notes">
 <ul>
@@ -771,49 +872,38 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
           display:block!important;
       }</style></aside>
 </section>
-<section id="motivation-for-bayesian-melding" class="slide level2">
-<h2>Motivation for Bayesian Melding</h2>
+<section id="incorporating-information-on-the-asymptomatic-rate" class="slide level2">
+<h2>Incorporating Information on the Asymptomatic Rate</h2>
+<div class="defbox" style="position:absolute;margin-left:75%;float:right;width=100%;">
+<p><strong>Definitions:</strong></p>
 <ul>
-<li>Relate <span class="math inline">\(\theta = \{ \alpha, \beta, \Pr(S_1|\text{untested})\}\)</span> to the asymptomatic rate <span class="math inline">\(P(S_0|\text{untested, test}_+)\)</span> by:</li>
+<li><span class="math inline">\(\alpha = \dfrac{\Pr(\text{test}_+|\; S_1,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
+<li><span class="math inline">\(\beta = \dfrac{\Pr(\text{test}_+ | \; S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
+<li><span class="math inline">\(S_1\)</span> is symptomatic</li>
 </ul>
-<div class="mybox2">
-<p><span class="math display">\[M(\theta) = P(S_0|\text{test}_+, \text{untested}) = \dfrac{\beta(1 - P(S_1|\text{untested}))}{\beta(1-P(S_1|\text{untested})) + \alpha P(S_1|\text{untested})}.\]</span></p>
 </div>
-<div class="cell">
-
-</div>
-<p><img width="60%" class="fragment" src="figure/theta_samp.jpeg" style="position:absolute;bottom:5%;"></p>
-<p><img width="60%" class="fragment fade-in" src="figure/theta_samp_specific.jpeg" style="position:absolute;bottom:5%;"></p>
-<p><span class="fragment fade-in" style="float:right;margin-right: 0%;font-size:150%;"><br><br> A 94%<br>asymptomatic rate? </span></p>
-<div class="cell">
-
-</div>
-</section>
-<section id="bayesian-melding-application" class="slide level2">
-<h2>Bayesian Melding: Application</h2>
-<div class="columns">
-<div class="column" style="width:30%;">
+<div style="width:70%">
 <ul>
-<li><span class="math inline">\(P(S_0|+,\text{untested})\)</span> is the <em>asymptomatic rate of infection</em> among the untested population
+<li>At this point, we have defined distributions for <span class="math inline">\(\alpha, \beta,\)</span> and <span class="math inline">\(\Pr(S_1|\text{untested})\)</span></li>
+<li>Relate <span class="math inline">\(\theta = \{ \alpha, \beta, \Pr(S_1|\text{untested})\}\)</span> to the asymptomatic rate <span class="math inline">\(\Pr(S_0|\text{untested, test}_+)\)</span> by function <span class="math inline">\(M\)</span>:</li>
+</ul>
+<div class="mybox2" style="margin-top:4%;margin-bottom:4%;">
+<p><span class="math display">\[\Pr(S_0|\text{test}_+, \text{untested}) =M(\theta) = \dfrac{\beta(1 - \Pr(S_1|\text{untested}))}{\beta(1-\Pr(S_1|\text{untested})) + \alpha \Pr(S_1|\text{untested})}.\]</span></p>
+</div>
 <ul>
-<li>Specify prior based on meta-analyses on asymptomatic infection rate</li>
-<li>Many studies on the topic<span class="citation" data-cites="ma2021b sah2021b"><sup><a href="#/references" role="doc-biblioref" onclick="">17</a>,<a href="#/references" role="doc-biblioref" onclick="">18</a></sup></span></li>
+<li>2 distinct priors for <span class="math inline">\(P(S_0|\text{test}_+, \text{untested})\)</span>:
+<ul>
+<li>One informed by studies on the asymptomatic rate</li>
+<li>The distribution of <span class="math inline">\(M(\theta)\)</span>, determined by inputs <span class="math inline">\(\theta = \{ \alpha, \beta, \Pr(S_1|\text{untested})\}\)</span></li>
 </ul></li>
 </ul>
-</div><div class="column" style="width:70%;">
-<p><img width="60%" src="figure/plot_no_melding.jpeg" style="position:absolute;float:right;margin-right:0;margin-bottom:0;"></p>
-<p><img width="60%" class="fragment fade-in" src="figure/plot_with_melding.jpeg" style="position:absolute;margin-right:0; margin-bottom:0;"></p>
 </div>
-</div>
-</section>
-<section id="impact-of-applying-melding" class="slide level2">
-<h2>Impact of Applying Melding</h2>
-<p><img src="figure/suffolk_bayesian_melding.jpeg"></p>
 </section>
 <section id="bayesian-melding-background" class="slide level2">
 <h2>Bayesian Melding: Background</h2>
+<div style="line-height:102%">
 <ul>
-<li>Proposed by <em>Poole et al.</em> (2000)<span class="citation" data-cites="poole2000a"><sup><a href="#/references" role="doc-biblioref" onclick="">19</a></sup></span></li>
+<li>Proposed by <em>Poole et al.</em> (2000)<span class="citation" data-cites="poole2000a"><sup><a href="#/references" role="doc-biblioref" onclick="">17</a></sup></span></li>
 <li>Applicable when we have a deterministic model <span class="math inline">\(M:\theta \to \phi\)</span> and (different) information about the distributions of inputs <span class="math inline">\(\theta\)</span> and and output/s <span class="math inline">\(\phi\)</span>
 <ul>
 <li>Two separate prior distributions on <span class="math inline">\(\phi\)</span>:
@@ -823,11 +913,12 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 </ul></li>
 <li>Goal of melding:
 <ul>
-<li>Combine two separate prior distributions on <span class="math inline">\(\phi\)</span> <span class="math inline">\(\to\)</span> generate distribution in accordance with knowledge of distributions of inputs and outputs</li>
+<li>Combine two separate prior distributions on <span class="math inline">\(\phi\)</span> <span class="math inline">\(\to\)</span> <br> generate distribution in accordance with knowledge of distributions of inputs and outputs</li>
 <li>Obtain constrained distributions for <span class="math inline">\(\phi\)</span> and <span class="math inline">\(\theta\)</span></li>
 </ul></li>
 </ul></li>
 </ul>
+</div>
 <aside class="notes">
 <p>When <span class="math inline">\(M\)</span> is noninvertible, use <a href="#/sampling-importance-resampling-algorithm"> Sampling-Importance-Resampling Algorithm</a> to approximate constrained distributions on <span class="math inline">\(\theta\)</span></p>
 <style type="text/css">
@@ -842,14 +933,63 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
           display:block!important;
       }</style></aside>
 </section>
-<section id="implications-of-choices-of-priors" class="slide level2 scrollable">
-<h2>Implications of Choices of Priors</h2>
-<iframe src="https://q-w-a.shinyapps.io/bayesian_melding_priors" data-external="1" width="100%" height="100%">
-</iframe>
+<section id="motivation-for-bayesian-melding" class="slide level2">
+<h2>Motivation for Bayesian Melding</h2>
+<div class="defbox" style="position:absolute;margin-left:75%;float:right;width=100%;">
+<p><strong>Definitions:</strong></p>
+<ul>
+<li><span class="math inline">\(\alpha = \dfrac{\Pr(\text{test}_+|\; S_1,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
+<li><span class="math inline">\(\beta = \dfrac{\Pr(\text{test}_+ | \; S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
+<li><span class="math inline">\(S_1\)</span> is symptomatic</li>
+</ul>
+</div>
+<div class="cell">
+
+</div>
+<p><img width="75%" src="figure/theta_samp.jpeg" style="position:absolute;bottom:5%;top:10%;"></p>
+<p><img width="75%" class="fragment fade-in" src="figure/theta_samp_specific.jpeg" style="position:absolute;bottom:5%;top:10%;"></p>
+<!-- <span class ="fragment fade-in" style = "float:right;margin-right: 0%;font-size:110%;"><br><br> A 94%<br>asymptomatic rate? </span> -->
+<div class="cell">
+
+</div>
 </section>
-<section id="putting-it-all-together" class="slide level2">
-<h2>Putting it all together</h2>
-<p><span style="font-size:80%"> * Considering a single county and a single 2-week interval </span></p>
+<section id="bayesian-melding-application" class="slide level2">
+<h2>Bayesian Melding: Application</h2>
+<div class="columns">
+<div class="column" style="width:30%;">
+<ul>
+<li><span class="math inline">\(\Pr(S_0|\text{test}_+,\text{untested})\)</span> is the <em>asymptomatic rate of infection</em> among the untested population
+<ul>
+<li>Specify prior based on meta-analyses on asymptomatic infection rate</li>
+<li>Many studies on the topic<span class="citation" data-cites="ma2021b sah2021b"><sup><a href="#/references" role="doc-biblioref" onclick="">18</a>,<a href="#/references" role="doc-biblioref" onclick="">19</a></sup></span></li>
+</ul></li>
+</ul>
+</div><div class="column" style="width:70%;">
+<p><img width="60%" src="figure/plot_no_melding.jpeg" style="position:absolute;float:right;margin-right:0;margin-bottom:0;"></p>
+<p><img width="60%" class="fragment fade-in" src="figure/plot_with_melding.jpeg" style="position:absolute;margin-right:0; margin-bottom:0;"></p>
+</div>
+</div>
+</section>
+<section id="impact-of-applying-melding" class="slide level2">
+<h2>Impact of Applying Melding</h2>
+<ul>
+<li>Effect of constraining priors with melding on the final estimates of true infections</li>
+</ul>
+<p><img src="figure/suffolk_bayesian_melding.jpeg"></p>
+</section>
+<section id="implications-of-truncated-priors" class="slide level2">
+<h2>Implications of Truncated Priors</h2>
+<ul>
+<li>Wu <em>et al.</em> used several truncated priors (e.g., <span class="math inline">\(\Pr(S_0|\text{test}_+,\text{untested})\)</span>)</li>
+</ul>
+<div class="cell">
+
+</div>
+<!-- <iframe src="https://q-w-a.shinyapps.io/bayesian_melding_priors" data-external="1" width="100%" height="100%" ></iframe> -->
+<p><img src="./figure/irregular_melding_demo.png"></p>
+</section>
+<section id="putting-it-all-together-one-county-one-time-interval" class="slide level2 scrollable">
+<h2>Putting It All Together: <em>One county, One Time Interval</em></h2>
 <div class="cell">
 
 </div>
@@ -859,21 +999,34 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 <div class="cell">
 
 </div>
-<p><img src="figure/first_step.jpeg" width="85%" style="margin:0;padding:0"><span class="math inline">\(\Huge \rightarrow\)</span> <img src="figure/melding_step.jpeg" width="85%" style="margin:0;padding:0;"><span class="math inline">\(\Huge \rightarrow\)</span> <img src="figure/correction_step.jpeg" width="60%" style="margin:0;padding:0;width=50%"></p>
+<p><img src="figure/first_step.jpeg" width="85%" style="margin:0;padding:0"><span class="math inline">\(\overset{\text{melding}}{\Huge \rightarrow}\)</span> <img src="figure/melding_step.jpeg" width="75%" style="margin:0;padding:0;"><span class="math inline">\(\underset{\text{correct for imperfect test accuracy}}{\overset{\text{sample from melded distributions}}{\Huge \rightarrow}}\)</span> <img src="figure/correction_step.jpeg" style="margin:0;padding:0;width:50%;float:left;"></p>
+<p><img src="figure/suffolk_biweek_10.jpeg" style="margin:0;padding:0;width:50%;float:left;"></p>
 </section></section>
 <section>
 <section id="results" class="title-slide slide level1 center">
 <h1>Results</h1>
+<div class="cell">
 
+</div>
+<div class="cell">
+
+</div>
 </section>
-<section id="county-level-in-massachusetts" class="slide level2 scrollable">
+<section id="county-level-in-massachusetts" class="slide level2">
 <h2>County Level in Massachusetts</h2>
-<p><img src="figure/ma_pb_compared_to_covidestim.jpeg"></p>
+<p><img src="figure/ma_pb_compared_to_observed_3_counties.jpeg"></p>
+</section>
+<section id="summarizing-concordance-with-covidestim" class="slide level2">
+<h2>Summarizing Concordance with Covidestim</h2>
+<ul>
+<li>Proportion of medians contained in the probabilistic bias interval – Massachusetts and Michigan</li>
+</ul>
+<p><img src="figure/prop_contained.jpeg" width="90%"></p>
 </section>
 <section id="summary" class="slide level2">
 <h2>Summary</h2>
-<div class="mybox">
-<p><span style="font-size:120%"></span></p>
+<div class="mybox" style="font-size:110% !important;">
+<p><span style="font-size:180%"></span></p>
 <ul>
 <li>Probabilistic bias analysis for approximating COVID-19 infections:
 <ul>
@@ -886,20 +1039,51 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 <p></p>
 </div>
 </section>
-<section id="comparison-to-wastewater-data" class="slide level2">
-<h2>Comparison to Wastewater Data</h2>
+<section id="acknowledgements" class="slide level2">
+<h2>Acknowledgements</h2>
+<div style="font-size:120%">
+<ul>
+<li>Ben and Nick for your advising on this project</li>
+<li>All members of the Reich Lab for thoughtful questions</li>
+<li>My friends &amp; sister for support along the way</li>
+</ul>
+</div>
 </section></section>
+<section id="questions" class="title-slide slide level1 center">
+<h1>Questions</h1>
+
+</section>
+
 <section>
 <section id="supplementary-slides" class="title-slide slide level1 center">
 <h1>Supplementary Slides</h1>
 
 </section>
+<section id="comparison-to-wastewater-data-summary" class="slide level2">
+<h2>Comparison to Wastewater Data (Summary)</h2>
+<p><img src="figure/correlation_observed_pb.jpeg"></p>
+</section>
+<section id="comparison-to-wastewater-data-by-county" class="slide level2">
+<h2>Comparison to Wastewater Data (By County)</h2>
+</section>
+<section id="county-level-for-all-counties-in-massachusetts" class="slide level2 scrollable">
+<h2>County Level for All Counties in Massachusetts</h2>
+<p><img src="figure/ma_pb_compared_to_covidestim.jpeg"></p>
+</section>
+<section id="concordance-with-covidestim" class="slide level2">
+<h2>Concordance with Covidestim</h2>
+<p><img src="figure/covidestim_above_below_by_county_ma.jpeg"></p>
+</section>
+<section id="county-level-for-all-counties-in-michigan" class="slide level2 scrollable">
+<h2>County Level for All Counties in Michigan</h2>
+</section>
+<section id="abovebelow-for-most-concordant-version-ma" class="slide level2">
+<h2>Above/Below for Most Concordant Version (MA)</h2>
+<p><img src="figure/covidestim_above_below_by_county_ma.jpeg"></p>
+</section>
 <section id="positivity-rate-for-hampshire-county" class="slide level2">
 <h2>Positivity Rate for Hampshire County</h2>
 <p><img src="figure/hampshire.jpeg"></p>
-</section>
-<section id="comparison-with-wastewater" class="slide level2">
-<h2>Comparison with Wastewater</h2>
 </section>
 <section id="sampling-importance-resampling-algorithm" class="slide level2">
 <h2>Sampling-Importance-Resampling</h2>
@@ -907,7 +1091,7 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 <div class="mybox">
 <p>Suppose we sample <span class="math inline">\(Y_1, Y_2, \dots, Y_m\)</span> independently and identically distributed with probability density function <span class="math inline">\(g\)</span> and compute the weights <span class="math display">\[w_i =\dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) }\]</span> for some nonnegative function <span class="math inline">\(h\)</span> defined on the support of <span class="math inline">\(Y\)</span>.</p>
 <p>If we sample <span class="math inline">\(Z_1, \dots, Z_r\)</span> from the discrete distribution <span class="math inline">\(Y_1,\dots, Y_m\)</span> such that</p>
-<p><span class="math display">\[P(Z = Y_i) = \dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) } = w_i ,\]</span> then <span class="math inline">\(Z_1, \dots, Z_r\)</span> is approximately a sample with density proportional to <span class="math inline">\(h \cdot g\)</span>.</p>
+<p><span class="math display">\[\Pr(Z = Y_i) = \dfrac{h(Y_i)}{\sum_{i=1}^mh(Y_i) } = w_i ,\]</span> then <span class="math inline">\(Z_1, \dots, Z_r\)</span> is approximately a sample with density proportional to <span class="math inline">\(h \cdot g\)</span>.</p>
 </div>
 </section>
 <section id="sampling-importance-resampling-steps" class="slide level2">
@@ -930,6 +1114,9 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 </section>
 <section id="choice-of-time-interval" class="slide level2">
 <h2>Choice of Time Interval</h2>
+</section>
+<section id="correlation-between-alpha-and-beta" class="slide level2">
+<h2>Correlation Between <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span></h2>
 </section>
 <section id="references" class="slide level2 smaller scrollable">
 <h2>References</h2>
@@ -982,21 +1169,20 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 <div id="ref-salomon2021a" class="csl-entry" role="doc-biblioentry">
 <div class="csl-left-margin">16. </div><div class="csl-right-inline">Salomon JA, Reinhart A, Bilinski A, et al. The <span>US COVID-19 Trends</span> and <span>Impact Survey</span>: <span>Continuous</span> real-time measurement of <span>COVID-19</span> symptoms, risks, protective behaviors, testing, and vaccination. <em>Proc Natl Acad Sci USA</em>. 2021;118(51):e2111454118. doi:<a href="https://doi.org/10.1073/pnas.2111454118">10.1073/pnas.2111454118</a></div>
 </div>
+<div id="ref-poole2000a" class="csl-entry" role="doc-biblioentry">
+<div class="csl-left-margin">17. </div><div class="csl-right-inline">Poole D, Raftery AE. Inference for <span>Deterministic Simulation Models</span>: <span>The Bayesian Melding Approach</span>. <em>Journal of the American Statistical Association</em>. 2000;95(452):1244-1255. doi:<a href="https://doi.org/10.1080/01621459.2000.10474324">10.1080/01621459.2000.10474324</a></div>
+</div>
 <div id="ref-ma2021b" class="csl-entry" role="doc-biblioentry">
-<div class="csl-left-margin">17. </div><div class="csl-right-inline">Ma Q, Liu J, Liu Q, et al. Global <span>Percentage</span> of <span>Asymptomatic SARS-CoV-2 Infections Among</span> the <span>Tested Population</span> and <span>Individuals With Confirmed COVID-19 Diagnosis</span>: <span>A Systematic Review</span> and <span class="nocase">Meta-analysis</span>. <em>JAMA Netw Open</em>. 2021;4(12):e2137257. doi:<a href="https://doi.org/10.1001/jamanetworkopen.2021.37257">10.1001/jamanetworkopen.2021.37257</a></div>
+<div class="csl-left-margin">18. </div><div class="csl-right-inline">Ma Q, Liu J, Liu Q, et al. Global <span>Percentage</span> of <span>Asymptomatic SARS-CoV-2 Infections Among</span> the <span>Tested Population</span> and <span>Individuals With Confirmed COVID-19 Diagnosis</span>: <span>A Systematic Review</span> and <span class="nocase">Meta-analysis</span>. <em>JAMA Netw Open</em>. 2021;4(12):e2137257. doi:<a href="https://doi.org/10.1001/jamanetworkopen.2021.37257">10.1001/jamanetworkopen.2021.37257</a></div>
 </div>
 <div id="ref-sah2021b" class="csl-entry" role="doc-biblioentry">
-<div class="csl-left-margin">18. </div><div class="csl-right-inline">Sah P, Fitzpatrick MC, Zimmer CF, et al. Asymptomatic <span>SARS-CoV-2</span> infection: <span>A</span> systematic review and meta-analysis. <em>Proc Natl Acad Sci USA</em>. 2021;118(34):e2109229118. doi:<a href="https://doi.org/10.1073/pnas.2109229118">10.1073/pnas.2109229118</a></div>
-</div>
-<div id="ref-poole2000a" class="csl-entry" role="doc-biblioentry">
-<div class="csl-left-margin">19. </div><div class="csl-right-inline">Poole D, Raftery AE. Inference for <span>Deterministic Simulation Models</span>: <span>The Bayesian Melding Approach</span>. <em>Journal of the American Statistical Association</em>. 2000;95(452):1244-1255. doi:<a href="https://doi.org/10.1080/01621459.2000.10474324">10.1080/01621459.2000.10474324</a></div>
+<div class="csl-left-margin">19. </div><div class="csl-right-inline">Sah P, Fitzpatrick MC, Zimmer CF, et al. Asymptomatic <span>SARS-CoV-2</span> infection: <span>A</span> systematic review and meta-analysis. <em>Proc Natl Acad Sci USA</em>. 2021;118(34):e2109229118. doi:<a href="https://doi.org/10.1073/pnas.2109229118">10.1073/pnas.2109229118</a></div>
 </div>
 </div>
 <div class="footer footer-default">
 
 </div>
 </section></section>
-
     </div>
   </div>
 
@@ -1049,7 +1235,7 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
         progress: true,
 
         // Display the page number of the current slide
-        slideNumber: false,
+        slideNumber: 'c',
 
         // 'all', 'print', or 'speaker'
         showSlideNumber: 'all',

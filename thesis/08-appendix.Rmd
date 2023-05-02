@@ -23,7 +23,7 @@ knitr::opts_chunk$set(echo = FALSE,
 
 ## Changing Mean and Variance for Prior Distribution Specifications 
 
-## Relationship Between $(X+Y)_\alpha$ and $X_{\alpha}$ +$Y_{\alpha}$ for Dependent Variables $X,Y$
+## Relationship Between $(X+Y)_\alpha$ and $X_{\alpha}$ +$Y_{\alpha}$ for Dependent Variables $X,Y$  {#conservativeintervals}
 
 
 ### Simulation: Bivariate Normal 
@@ -99,7 +99,7 @@ sim <- function(corr, data = FALSE) {
     geom_vline(aes(xintercept = lb_v1), color = "darkred", size = .9) +
     geom_vline(aes(xintercept = ub_v1), color = "darkred", size = .9)+
     geom_hline(aes(yintercept = lb), color = "darkred", size = .9) +
-    geom_hline(aes(yintercept = ub), color = "darkred",, size = .9) +
+    geom_hline(aes(yintercept = ub), color = "darkred", size = .9) +
     theme_bw() +
     theme(plot.title = element_text(size = 11, hjust = .5),
           plot.subtitle = element_text(size = 11, hjust = .5)) +
@@ -343,7 +343,7 @@ $$F_{2X}^{-1}(\alpha) = F^{-1}_X(\alpha) + F^{-1}_X(\alpha).$$
 ```
 
 
-### Derivation of the Distribution of X+Y for Bivariate Normal {#conservativeintervals}
+### Derivation of the Distribution of X+Y for Bivariate Normal
 
 
 We can see why we observe this relationship between intervals based on the the sum of the $\alpha^{th}$ quantiles of the individual distributions, $X_\alpha + Y_\alpha$, and the intervals based on the $\alpha^{th}$ quantile of the distribution of $X+Y$ by considering the definition of the quantile function of the normal distribution. 
