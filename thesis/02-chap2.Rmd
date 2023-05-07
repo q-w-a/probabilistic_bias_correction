@@ -845,7 +845,8 @@ estimates_with_melded %>%
        fill="")
 
 ggsave(here('thesis/figure/', 'suffolk_bayesian_melding.pdf'), width =12, height = 6)
-ggsave(here('presentation/figure/', 'suffolk_bayesian_melding.jpeg'), width =12, height = 6)
+# ggsave(here('presentation/figure/', 'suffolk_bayesian_melding.jpeg'), width =12, height = 6)
+
 
 ```
 
