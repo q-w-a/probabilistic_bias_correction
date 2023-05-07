@@ -153,7 +153,8 @@ last_weeks <- last_weeks %>%
   mutate(week = case_when(
     year == 2022 ~ week + 52,
     year == 2021 ~ week
-  ))
+  )) %>%
+  ungroup()
 
 last_weeks %>%
   head()
@@ -218,6 +219,21 @@ covidestim %>%
   labs(title = "Change in Data Source, Colorado")
 
 
+covidestim %>%
+  filter(state == "Massachusetts") %>%
+  mutate(source = ifelse(date <= ymd("2021-12-02"), "1", "2")) %>%
+  ggplot(aes(x = week, 
+             y = infections,
+             color = source,
+             ymin = infections.lo,
+             ymax = infections.hi)) +
+  geom_ribbon(alpha = .5, aes(fill = source)) +
+  geom_line() +
+  geom_point(alpha = .7) +
+  theme_bw() +
+  labs(title = "Change in Data Source, Massachusetts")
+
+
 ###############
 # add biweek
 ###############
@@ -246,6 +262,23 @@ covidestim_biweekly <- covidestim %>%
     contains("infections"), 
     sum)) %>%
   ungroup()
+
+
+covidestim_biweekly %>%
+  select(-week) %>%
+  filter(state == "Massachusetts") %>%
+  mutate(source = ifelse(date <= ymd("2021-12-02"), "1", "2")) %>%
+  ggplot(aes(x = date, 
+             y = infections,
+             color = source,
+             ymin = infections.lo,
+             ymax = infections.hi)) +
+  geom_ribbon(alpha = .5, aes(fill = source)) +
+  geom_line() +
+  geom_point(alpha = .7) +
+  theme_bw() +
+  labs(title = "Change in Data Source, Massachusetts")
+
 
 
 # add state codes
