@@ -197,12 +197,13 @@ symp %>%
   geom_line() +
   theme_c(axis.text.x = element_text(angle =30, size = 12),
           axis.title = element_text(size =16),
-          plot.title = element_text(size = 35)) +
-  facet_wrap(~toupper(state), ncol =10) +
-  labs(title = TeX("Empirical Estimate of $\\beta$ from COVID-19 Trends and Impact Survey Data"),
-       y = "Screening Test Positivity / Overall Test Positivity")
+          plot.title = element_text(size = 22,margin=margin(0,0,7,0))) +
+  facet_wrap(~toupper(state), ncol =6) +
+  labs(title = TeX("$\\frac{Screening \\, Test  \\, Positivity}{Overall \\,  Test \\,  Positivity}$ from COVID-19 Trends and Impact Survey Data"),
+       y = "Screening Test Positivity / Overall Test Positivity") +
+  scale_y_continuous(labels=scales::percent)
 
-ggsave(here('thesis/figure/ctis_beta_states.pdf'), height = 11, width = 16)
+ggsave(here('thesis/figure/ctis_beta_states.pdf'), height = 14, width = 12)
 
 
 
@@ -212,12 +213,13 @@ symp %>%
   ggplot(aes(x=date, y = smoothed_wcli)) +
   geom_line() +
   theme_c(axis.text.x = element_text(angle =30, size = 12),
-          plot.title = element_text(size = 35)) +
-  facet_wrap(~toupper(state), ncol=10) +
+          plot.title = element_text(size = 24,margin=margin(0,0,4,0))) +
+  facet_wrap(~toupper(state), ncol=7) +
   labs(title = TeX("Empirical Estimate of $P(S_1|untested)$\n from COVID-19 Trends and Impact Survey Data"),
        y = "Percentage with COVID-19-like Illness")
 
-ggsave(here('thesis/figure/ctis_s_untested_states.pdf'), height =11, width = 16)
+ggsave(here('thesis/figure/ctis_s_untested_states.pdf'), height =14, width = 12)+
+  scale_y_continuous(labels=scales::percent)
 
 
 ################################################
