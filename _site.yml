@@ -18,4 +18,6 @@ navbar:
     href: analysis/vignettes/melding_vignette.html
   - text: "Smoothing Bandwidth"
     href: analysis/sensitivity/smoothing_experiment.html
+  - text: "Presentation Slides"
+    href: presentation/final_presentation.html
 output_dir: "docs"
