@@ -185,6 +185,78 @@ ggsave(here('presentation/figure/covidestim_concordance_state.jpeg'), height=8, 
 
 ```
 
+
+# Testing Rate over Time 
+
+```{r}
+
+subset <- corrected %>%
+  filter(vlabel == "$Priors\\,Do\\,Not\\,Vary\\,by\\,County\\,and\\,Date$")
+
+
+subset %>%
+  ggplot(aes(x=date, y =total/population))+
+  geom_line() +
+  facet_wrap(~state) +
+  theme_c() +
+  labs(title ="Biweekly Testing Rate",
+       y = "Total Number of Tests / Population Size")
+
+
+subset %>%
+  ggplot(aes(x=date, y =total/population))+
+  geom_line() +
+  facet_wrap(~state) +
+  theme_c() +
+  labs(title ="Biweekly Testing Rate",
+       y = "Total Number of Tests / Population Size")
+
+###########################################################################
+# plot relationship between ratio of estimated cases to observed 
+# against testing rate 
+###########################################################################
+corrected %>%
+  ggplot(aes(x=total/population, y = exp_cases_median/positive)) +
+  geom_point(alpha=.008, size=.8) +
+  facet_wrap(~vlabel,
+               labeller= labeller(vlabel =as_labeller(TeX, default=label_parsed))) +
+  theme_c(axis.text.x = element_text(size =9),
+          axis.title = element_text(size=16) ) +
+  theme(strip.text.x = element_text(size=11, color="white")) +
+  scale_y_continuous(n.breaks=10) +
+  geom_hline(yintercept=1, linetype=2,color="darkred", alpha=.8, linewidth=.5) +
+  labs(y = "Ratio of Estimated Cases to Observed",
+       x = "Testing Rate",
+       subtitle = "All Time Intervals and All States",
+       title = "Relationship Between Testing Rate and\nRatio of Estimated Cases to Observed")+
+  scale_x_continuous(limits=c(0,.25), n.breaks=4)
+
+
+ggsave(here('thesis/figure/testing_rate_ratio.jpeg'), width=10,height=6)
+
+```
+
+
+```{r}
+# thinking about student populations
+
+# https://nces.ed.gov/ipeds/TrendGenerator/app/trend-table/2/2?trending=column&rid=6
+
+
+students <- read_csv(here('data/demographic/student_population.csv'), skip=2, n_max=4)
+
+students <- students %>%
+  filter(Year =="2020-21") %>% 
+  select(-Total) %>%
+  pivot_longer(-c(Year),
+               names_to="state",
+               values_to="student_population")
+
+
+```
+
+
+
 # Ratio of Unobserved to Observed
 
 Considering version using $P(S_1|\text{untested})$ centered at empirical value.
@@ -192,12 +264,12 @@ Considering version using $P(S_1|\text{untested})$ centered at empirical value.
 
 ```{r}
 
-subset <- corrected %>%
-  filter(vlabel == "$P(S_1|untested)$ Centered at Emp. Value")
-
-
 subset %>% 
-  ggplot(aes(x=date, y = ))
+  ggplot(aes(x=date, ymin = exp_cases_lb/positive,
+             ymax = exp_cases_ub/positive)) +
+  geom_ribbon() +
+  theme_c()+ 
+  facet_wrap(~state)
 
 
 ```
@@ -227,6 +299,7 @@ states_all_versions <- corrected %>%
 
 
 cat(paste0("### Number of states with 4 versions is: ", states_all_versions$state %>% unique() %>% length()))
+cat(paste0("### Number of states with at least 1 versions is: ", corrected$state %>% unique() %>% length()))
 
 
 end <- length(unique(states_all_versions$state))
