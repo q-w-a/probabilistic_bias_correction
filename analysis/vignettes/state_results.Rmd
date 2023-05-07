@@ -178,7 +178,7 @@ by_version %>%
   scale_x_discrete(labels = (TeX(labels)))
 
 
-ggsave(here('presentation/figure/covidestim_concordance_state.jpeg'), height=8, width=10)
+ggsave(here('presentation/figure/covidestim_concordance_state.jpeg'), height=8, width=14)
 
 ```
 
@@ -374,7 +374,8 @@ corrected %>%
   scale_y_continuous(labels = comma) +
   scale_x_date(date_breaks = "2 months", 
                date_labels = "%b %Y") +
-  theme_c(axis.text.x = element_text(angle = 60, size = 16),
+  theme_c(axis.text.x = element_text(angle = 40, size = 10),
+          axis.text.y = element_text( size = 7),
           plot.title=element_text(face = "bold",
                                   hjust = .5, 
                                   size = 20,
@@ -399,7 +400,7 @@ corrected %>%
        title = paste0("Estimated Infections by Version (State Level)")) 
 
 
-ggsave(here('presentation/figure/state_level_mi_ma.jpeg'), width =12, height=10)
+ggsave(here('presentation/figure/state_level_mi_ma.jpeg'), width =13, height=9)
 
 ```
 
