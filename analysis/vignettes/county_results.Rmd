@@ -79,8 +79,9 @@ versions <- tibble(
     levels = c(
         "$Priors\\,Do\\,Not\\,Vary\\,by\\,County\\,and\\,Date$", 
         "$\\beta$ Centered at Emp. Value",
-        "$P(S_1|untested)$ and $\\beta$ Centered at Emp. Values",
-        "$P(S_1|untested)$ Centered at Emp. Value"
+         "$P(S_1|untested)$ Centered at Emp. Value",
+        "$P(S_1|untested)$ and $\\beta$ Centered at Emp. Values"
+       
     ) )
 )
 
@@ -155,10 +156,6 @@ names(pal) <- c(#"$observed$",
                "$\\beta$ Centered at Emp. Value"
                )
 
-
-
-
-
 joined %>%
   filter(biweek >=6) %>%
   group_by(biweek) %>%
@@ -216,13 +213,6 @@ ggsave(here::here(paste0('thesis/figure/', state, '_pb_compared_to_observed.pdf'
 
 
 
-
-
-
-
-################################
-# figure for presentation
-#################################
 
 
 
@@ -353,7 +343,213 @@ ggsave(here::here(paste0('presentation/figure/', state, '_pb_compared_to_covides
 
 
 
+
+
+
+
+
+
+################################
+# figure for presentation
+#################################
+
+
+
+joined %>%
+  filter(grepl("Suffolk|Berkshire|Worcester", county_name)) %>%
+  filter(biweek >=6) %>%
+  # covidestim does not report estimates for Nantucket 
+  filter(!grepl("Nantucket", county_name )) %>%
+  group_by(biweek) %>%
+  mutate(xmin = min(date),
+         xmax = max(date)) %>%
+  ungroup() %>%
+   ggplot() +
+  geom_ribbon(aes(x = date, 
+             ymin = exp_cases_lb,
+             ymax = exp_cases_ub,
+             fill = vlabel),
+             alpha = .5,
+             show.legend=FALSE) +
+   geom_linerange(aes(xmin = xmin,
+                      xmax=xmax,
+                      y = infections,
+                      color = 'covidestim')) +
+  facet_grid(county_name~vlabel, scales = "free_y",
+              labeller=as_labeller(
+               latex2exp::TeX, default = label_parsed)) +
+  scale_y_continuous(labels = comma) +
+  scale_x_date(date_breaks = "2 months", 
+               date_labels = "%b %Y") +
+  theme_c(axis.text.x = element_text(angle = 40, size = 11),
+          axis.text.y=element_text(size=8),
+          plot.title=element_text(face = "bold",
+                                  hjust = .5, 
+                                  size = 20,
+                                  margin=margin(5,5,15,5,'pt')),
+          strip.background = element_rect(fill = "#393939"),
+          strip.text = element_text(color =  "white", size = 16),
+          strip.text.y = element_text(margin = margin(5,5,5,5,'pt'),
+                                      size = 14,
+                                      face="bold"),
+          strip.text.x =  element_text(margin = margin(5,3,5,3,'pt'),
+                                       face = "bold",
+                                       size = 12),
+          plot.subtitle = ggtext::element_markdown(size = 25,
+                                                   margin = margin(3,5,10,5,'pt'),
+                                       face = "italic"),
+          legend.position = "top",
+          legend.text =element_text(size = 14)) +
+  scale_fill_manual(values = pal)  +
+  labs(x = "",
+       y = "Estimated Infections",
+       title = paste0("Estimated Infections by Version in 3 Counties in ", toupper(state))) +
+  scale_color_manual(values = c('covidestim' = 'darkblue'), labels = 'Covidestim Estimates',
+                     name = '') +
+  guides(color = guide_legend(override.aes = list(linewidth =2)))
+
+ggsave(here('presentation/figure/ma_pb_compared_to_observed_3_counties.jpeg'), 
+       height=10, width = 16.5, dpi=600)
+
+
+
+###########################
+# JUST SUFFOLK IN WEEK 10
+###########################
+
+suffolk_10_vals <- joined %>%
+  filter(grepl("Suffolk", county_name))  %>%
+  filter(biweek==10 & version=="v1") %>%
+  select(exp_cases_lb,exp_cases_ub ) %>%
+  distinct()
+
+joined %>%
+  filter(grepl("Suffolk", county_name)) %>%
+  filter( version=="v1") %>%
+  mutate(color = ifelse(biweek ==10, "yes", NA)) %>%
+  filter(biweek >= 8 & biweek <=22) %>%
+  # covidestim does not report estimates for Nantucket 
+  filter(!grepl("Nantucket", county_name )) %>%
+  group_by(biweek) %>%
+  mutate(xmin = min(date),
+         xmax = max(date)) %>%
+  ungroup() %>%
+   ggplot() +
+  geom_ribbon(aes(x = date, 
+             ymin = exp_cases_lb,
+             ymax = exp_cases_ub),
+             show.legend=FALSE,
+             fill="#AEC3CC",
+             alpha=.85) +
+  geom_ribbon(aes(x = date, 
+             ymin = exp_cases_lb,
+             ymax = exp_cases_ub,
+             fill=color),
+             alpha = .4,
+             show.legend=FALSE) +
+  scale_fill_manual(na.value=NA, values=c("red")) +
+  geom_linerange(xmin=as_date("2021-05-07"), xmax=as_date("2021-05-20"),
+                 y=suffolk_10_vals$exp_cases_lb,
+                  color = '#DBC37F',
+             linewidth = 1.5,
+             alpha=1) +
+    geom_linerange(xmin=as_date("2021-05-07"), xmax=as_date("2021-05-20"),
+                 y=suffolk_10_vals$exp_cases_ub,
+                  color = '#DBC37F',
+             linewidth =1.5,
+             alpha=1) +
+  scale_y_continuous(labels = comma) +
+  scale_x_date(date_breaks = "2 months", 
+               date_labels = "%b %Y") +
+  theme_c(axis.text.x = element_text(angle = 0, size = 5),
+          axis.text.y=element_text(size=5),
+          axis.title = element_text(size=7),
+          plot.title=element_text(face = "bold",
+                                  hjust = .5, 
+                                  size = 20,
+                                  margin=margin(5,5,15,5,'pt')),
+          strip.background = element_rect(fill = "#393939"),
+          strip.text = element_text(color =  "white", size = 16),
+          strip.text.y = element_text(margin = margin(5,5,5,5,'pt'),
+                                      size = 14,
+                                      face="bold"),
+          strip.text.x =  element_text(margin = margin(5,3,5,3,'pt'),
+                                       face = "bold",
+                                       size = 12),
+          plot.subtitle = ggtext::element_markdown(size = 25,
+                                                   margin = margin(3,5,10,5,'pt'),
+                                       face = "italic"),
+          legend.position = "top",
+          legend.text =element_text(size = 14)) +
+  labs(x = "",
+       y = "Estimated Infections") 
+  
+  
+  
+  
+ggsave(here('presentation/figure/suffolk_biweek_10.jpeg'), 
+       height=2, width =3, dpi=400)
+
+
+
+
+joined %>%
+  filter(grepl("Berkshire", county_name)) %>%
+  filter( version=="v2") %>%
+  # mutate(color = ifelse(biweek ==10, "yes", NA)) %>%
+  # filter(biweek >= 8 & biweek <=22) %>%
+  # covidestim does not report estimates for Nantucket 
+  filter(!grepl("Nantucket", county_name )) %>%
+  group_by(biweek) %>%
+  mutate(xmin = min(date),
+         xmax = max(date)) %>%
+  ungroup() %>%
+   ggplot() +
+  geom_ribbon(aes(x = date, 
+             ymin = exp_cases_lb,
+             ymax = exp_cases_ub),
+             show.legend=FALSE,
+             fill="#386A7E",
+             alpha=.85) +
+  scale_y_continuous(labels = comma) +
+  scale_x_date(date_breaks = "2 months", 
+               date_labels = "%b %Y") +
+  theme_c(axis.text.x = element_text(angle = 0, size = 14),
+          axis.text.y=element_text(size=7),
+          axis.title = element_text(size=17),
+          plot.title=element_text(face = "bold",
+                                  hjust = .5, 
+                                  size = 20,
+                                  margin=margin(5,5,15,5,'pt')),
+          strip.background = element_rect(fill = "#393939"),
+          strip.text = element_text(color =  "white", size = 16),
+          strip.text.y = element_text(margin = margin(5,5,5,5,'pt'),
+                                      size = 14,
+                                      face="bold"),
+          strip.text.x =  element_text(margin = margin(5,3,5,3,'pt'),
+                                       face = "bold",
+                                       size = 12),
+          plot.subtitle = ggtext::element_markdown(size = 25,
+                                                   margin = margin(3,5,10,5,'pt'),
+                                       face = "italic"),
+          legend.position = "top",
+          legend.text =element_text(size = 14)) +
+  labs(x = "",
+       y = "Estimated Infections") 
+  
+  
+
+
+ggsave(here('presentation/figure/example_output.jpeg'), 
+       height=6, width =10, dpi=400)
+
+
+  
+  
+
 ```
+
+
 
 ## Summarizing Concordance with Covidestim
 
