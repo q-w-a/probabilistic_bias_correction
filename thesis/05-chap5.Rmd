@@ -68,21 +68,6 @@ This approach relies on infection fatality ratios and death counts to estimate t
 The COVIDestim model uses age-specific estimates of IFR produced by @odriscoll2021. This group used national-level age-stratified, and when possible sex-stratified, COVID-19 death counts and cumulative infection estimates from seroprevalence studies. Of note, the estimates of infection fatality ratio are assumed to be constant over time, which may not be the case due to improving treatments (e.g., Paxlovid),  different variants leading to less severe presentations, or changes in the demographics of individuals being infected. However, reliable estimates of infection fatality ratio that vary with time difficult to acquire; COVIDestim assumed a higher case fatality in 2020 given the novelty of the virus and consequent lack of available treatments.
 
 
-### The Model
-
-Chitwood et al. propose a Bayesian evidence synthesis model. To estimate the expected cases and deaths at a particular point in time, the model uses a convolution of the time series of observed cases and deaths and reporting delay distributions that are specific to the health state categories. This enables the model to account for the fact that reporting delay is different  For any health state, for example, asymptomatic, the individual can either transition to the next health state (symptomatic) or recover. Thus, with each transition between a defined health state, for example, asymptomatic, there is a probability of transitioning to the next health state (in this case, asymptomatic → symptomatic); the complement of this probability is the probability of recovery. 
-
-Each of these transitions is defined by a delay distribution. For example, the distribution for moving from asymptomatic to symptomatic represents the probability an individual moves to the symptomatic state at a point in time. The probabilities asymptomatic to symptomatic and symptomatic to severe are modeled as not varying with time. Meanwhile, the probability of transitioning from severe to death was defined to be higher in 2020 due to higher case fatalities early in the pandemic. The infection fatality rates, adjusted to be specific to a given state or county based on age distributions and the prevalence of risk factors for COVID-19, are used to inform the probability of moving from the severe category to the death category. 
-
-The change in daily infections from the previous day (i.e., the new infections) is calculated as a function of the estimated effective reproductive number $R_t$  and the mean serial interval, where serial interval is the time from the onset of infection of a primary case to the time of onset of infection in the secondary case. $R_t$ is estimated using a log-transformed cubic spline, under the assumption individuals can only be infected once.
-
-They also defined a distribution for the delay to diagnosis, which was distinct by health state category to reflect differences in diagnosis delays that occur depending on the disease severity. 
-The probability of diagnosis among different health states was allowed to vary by time to reflect changing testing rates throughout the pandemic.
-
-A separate distribution models the reporting delay to correct the total number of diagnoses on a given day for the fact that these diagnoses correspond to past infections. 
-
-The observed cases and death data for each state to the model were fitted using negative binomial likelihood functions. 
-
 ### Comparison to Serological Data
 
 There are known issues with seroprevalence estimates. For one, these samples are drawn from a convenience (i.e. nonrandom) sample of individuals with blood specimens taken for purposes other than COVID-19 antibody detection [@zotero-1003]. Secondly, while a positive serological test is evidence for infection, a negative serological test is less clear to interpret. The person may have been infected but not yet have developed antibodies, or their immune system may not have produced antibodies at a detectable level [@cdc2020. 
@@ -96,6 +81,62 @@ There are known issues with seroprevalence estimates. For one, these samples are
 At this point in the pandemic, there is no true gold standard to compare to. Covidestim is one model, among many, that makes key assumptions about aspects of the virus. Another note is that estimates from the Covidestim model are reported on the daily timescale for counties, while the probabilistic approach we implemented here is at the biweekly time scale. 
 
 To ensure the comparisons are on the same time scale, we sum the reported 95% credible intervals for the days in each 2-week interval. These intervals do not represent a 95% credible interval for the 2-week interval, and while such an interval would be ideal for the comparison, computation of a 95% credible interval for the two-week interval is not feasible because of the model structure. Due to the correlation between observations for each day for a given location, summing the intervals yields an estimate that is likely to be more conservative than a true 95% credible interval for the two-week interval would be. More detail on this assumption is in [the appendix](#conservativeintervals). 
+
+
+## State-level Results
+ 
+There is much more comprehensive testing data at the state-level than at the county level, as John Hopkins has tracked state-level testing data throughout the pandemic.
+As a result, we can apply probabilistic bias analysis across the United States at the state-level.
+
+However, since versions 2-4 of the analysis utilize empirical estimates of $P(S_1|\text{untested})$ or $\beta$ from the COVID-19 Trends and Impact Survey, these versions are only possible when there is sufficient data. As we see in Figure \ref{fig:statectis}, some states have very little data for the empirical estimate of beta. However in Figure \ref{fig:statectis-s-untested} we see that there is more consistent reporting of $P(S_1|\text{untested})$.
+
+For versions 2-4, we did not attempt the probabilistic bias analysis for states where more than 60% of observations were missing at the daily time step. Missing values for states with sufficient data were imputed before summarizing to the biweek level using a linear weighted moving average. 
+
+```{r, out.width = "90%", fig.cap = '\\label{fig:statectis}'}
+
+knitr::include_graphics('figure/ctis_beta_states.pdf')
+
+```
+
+```{r,out.width = "90%", fig.cap = '\\label{fig:statectis-s-untested}'}
+knitr::include_graphics('figure/ctis_s_untested_states.pdf')
+
+```
+
+In Figures \ref{fig:state-results-1} and \ref{fig:state-results-2}, we compare the 95% credible intervals of Covidestim summed to be on the biweek time scale to the probabilistic bias analysis intervals^[As mentioned in the [limitations](#lims) section, the two week intervals cannot be interpreted as 95% credible intervals. However, the comparison is still useful to contextualize the results of the probabilistic bias analysis.]. We see correspondence is much higher before the Omicron wave in late 2021 through early 2022, where Covidestim estimates the cases to be much higher.
+ 
+```{r,out.width = "100%", fig.cap  = '\\label{fig:state-results-1}'}
+knitr::include_graphics('figure/state_comp_covidestim1.pdf')
+
+```
+ 
+ 
+```{r,out.width = "100%", fig.cap  = '\\label{fig:state-results-2}'}
+knitr::include_graphics('figure/state_comp_covidestim2.pdf')
+
+```
+ 
+ 
+ 
+One question to consider is the relationship between the testing rate and the ratio of estimated cases to observed cases, as we would expect higher testing rates would lead to less underestimation of the true number of infections.
+
+As we see in Figure \ref{fig:testrate}
+
+
+```{r,out.width = "100%", fig.cap  = '\\label{fig:testrate}The ratio of the median estimated infections to observed infections plotted against the testing rate, where the testing rate is calculated as the total number tested in a two-week interval over the population size. When the priors are the same for all time intervals and states, there is minimal variability relationship between the testing rate and the ratio of estimated to observed infections, since the correction for incomplete testing and diagnostic test inaccuracy is identical for each time-interval and location. However, when we allow $\beta$ or $P(S_1|untested)$ to vary by state and time interval, there is much variability in the relationship.'}
+knitr::include_graphics('figure/testing_rate_ratio.jpeg')
+```
+
+
+It is worth noting that in some cases, the ratio of total number of tests for a two-week interval over the population size is incredibly high. For example, there are two-week intervals in Vermont, Rhode Island, and DC where the total number of tests over the census population size exceeds 0.25. 
+
+```{r}
+
+knitr::include_graphics('figure/college_populations.jpeg')
+
+
+```
+
 
 
 ## County-level Results
@@ -186,39 +227,6 @@ knitr::include_graphics('figure/mi_pb_compared_to_covidestim_proportions.pdf')
 
 \newpage
 
-## State-level Results
- 
-There is much more comprehensive testing data at the state-level than at the county level, as John Hopkins has tracked state-level testing data throughout the pandemic.
-As a result, we can apply probabilistic bias analysis across the United States at the state-level.
-
-However, since versions 2-4 of the analysis utilize empirical estimates of $P(S_1|\text{untested})$ or $\beta$ from the COVID-19 Trends and Impact Survey, these versions are only possible when there is sufficient data. As we see in Figure \ref{fig:statectis}, some states have very little data for the empirical estimate of beta. However in Figure \ref{fig:statectis-s-untested} we see that there is more consistent reporting of $P(S_1|\text{untested})$.
-
-For versions 2-4, we did not attempt the probabilistic bias analysis for states where more than 60% of observations were missing at the daily time step. Missing values for states with sufficient data were imputed before summarizing to the biweek level using a linear weighted moving average. 
-
-```{r, out.width = "90%", fig.cap = '\\label{fig:statectis}'}
-
-knitr::include_graphics('figure/ctis_beta_states.pdf')
-
-```
-
-```{r,out.width = "90%", fig.cap = '\\label{fig:statectis-s-untested}'}
-knitr::include_graphics('figure/ctis_s_untested_states.pdf')
-
-```
-
-In Figures \ref{fig:state-results-1} and \ref{fig:state-results-2}, we compare the 95% credible intervals of Covidestim summed to be on the biweek time scale to the probabilistic bias analysis intervals^[As mentioned in the [limitations](#lims) section, the two week intervals cannot be interpreted as 95% credible intervals. However, the comparison is still useful to contextualize the results of the probabilistic bias analysis.]. We see correspondence is much higher before the Omicron wave in late 2021 through early 2022, where Covidestim estimates the cases to be much higher.
- 
-```{r,out.width = "100%", fig.cap  = '\\label{fig:state-results-1}'}
-knitr::include_graphics('figure/state_comp_covidestim1.pdf')
-
-```
- 
- 
-```{r,out.width = "100%", fig.cap  = '\\label{fig:state-results-2}'}
-knitr::include_graphics('figure/state_comp_covidestim2.pdf')
-
-```
- 
 ## Cross Correlation Comparison
 
 ### Background 
