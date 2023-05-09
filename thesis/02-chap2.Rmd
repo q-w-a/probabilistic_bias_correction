@@ -2073,7 +2073,7 @@ get_predicted_all <- function(x_i) {
 
 ```
 
-```{r loess-all, fig.cap = "\\label{loess-all}", fig.asp = .6}
+```{r make loess figure, fig.asp = .6, include=FALSE}
 
 predicted_all <- map_df(data$x, ~tibble(fit = paste0("fit_", .x), 
                                         x_pred = .x,
@@ -2109,7 +2109,17 @@ predicted_all %>%
        y  = TeX("$\\hat{y}$"))
 
 
+ggsave(here::here('thesis/figure/loess.jpeg'), width=8, height=5, dpi=600)
+
 ```
+
+```{r, fig.cap="\\label{fig:loess-all}"}
+
+knitr::include_graphics('figure/loess.jpeg')
+
+```
+
+
 
 ```{r, include = FALSE, eval = FALSE}
 dat <- data %>%
@@ -2680,7 +2690,7 @@ legend_b <- cowplot::get_legend(
 
 
 title_gg <- ggplot() + 
-  labs(title =latex2exp::TeX("Comparing Approaches for Estimating $f_X(x)$,bold=TRUE"),
+  labs(title =latex2exp::TeX("Comparing Approaches for Estimating $f_X(x)$",bold=TRUE),
   subtitle = latex2exp::TeX("for Different Beta Distributions",bold=TRUE)) + 
   theme(plot.title=element_text(face="bold",
                                 hjust = .5, 

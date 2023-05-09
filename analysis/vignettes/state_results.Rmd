@@ -321,27 +321,7 @@ corrected %>%
 
 # Variant Data
 
-```{r}
-# https://dev.socrata.com/foundry/data.cdc.gov/jr58-6ysp
-
-
-variant <- "https://data.cdc.gov/resource/jr58-6ysp.json?$limit=50000&$where=week_ending between '2021-02-18T00:00:00.000' and '2022-02-18T00:00:00.000'&usa_or_hhsregion=USA"
-variant <- httr::GET(URLencode(variant))
-
-
-# only go to the 6th because these are already weekly counts
-# get the last couple weeks of 2021
-variant <-jsonlite::fromJSON(
-  httr::content(variant,
-                as = "text",
-                encoding = "UTF-8"),
-  simplifyVector = TRUE,
-  flatten = TRUE)  %>%
-  as_tibble() 
-
-saveRDS(variant, 'data/variant_prop.RDS')
-
-variant <- readRDS('data/variant_prop.RDS')
+```{r,eval=FALSE}
 # 
 # test %>%
 #   flatten()
@@ -367,11 +347,40 @@ variant <- readRDS('data/variant_prop.RDS')
 # test %>% 
 #   as.data.frame()
 
+
 variant %>% 
   mutate(week_end_date = substr(week_ending, 1,10),
          week_end_date=ymd(week_end_date)) %>%
   filter(week_end_date==max(week_end_date)) %>%
   left_join(names,by=c('variant'='lineage')) 
+
+
+```
+
+```{r,eval=FALSE}
+# https://dev.socrata.com/foundry/data.cdc.gov/jr58-6ysp
+
+
+variant <- "https://data.cdc.gov/resource/jr58-6ysp.json?$limit=50000&$where=week_ending between '2021-02-18T00:00:00.000' and '2022-03-01T00:00:00.000'&usa_or_hhsregion=USA"
+variant <- httr::GET(URLencode(variant))
+
+
+# only go to the 6th because these are already weekly counts
+# get the last couple weeks of 2021
+variant <-jsonlite::fromJSON(
+  httr::content(variant,
+                as = "text",
+                encoding = "UTF-8"),
+  simplifyVector = TRUE,
+  flatten = TRUE)  %>%
+  as_tibble() 
+
+saveRDS(variant, 'data/variant_prop.RDS')
+
+```
+
+```{r}
+variant <- readRDS(here('data/variant_prop.RDS'))
 
 
 # https://www.cdc.gov/coronavirus/2019-ncov/variants/variant-classifications.html
@@ -382,18 +391,19 @@ variant <- variant %>%
      grepl("B[.]1[.]1[.]529|BA[.]1|BA[.]2|BA[.]4|BA[.]5", variant) ~ "Omicron",
      variant %in% c("B.1.621", "B.1.621.1") ~ "Mu",
      variant == "B.1.1.7" ~ "Alpha",
-     grepl("B.1.351", variant) ~ "Beta",
+     grepl("B[.]1[.]351", variant) ~ "Beta",
      grepl("P.1", variant) ~"Gamma",
-     grepl("B.1.617.2", variant) ~ "Delta",
+     grepl("B[.]1[.]617[.]2", variant) ~ "Delta",
      variant %in% c("B.1.427" ,"B.1.429") ~ "Epsilon",
-     variant == "B.1.525" ~ "Eta"
+     variant == "B.1.525" ~ "Eta",
+     variant == "Other" ~ "Other"
   )) %>%
   mutate(share = as.numeric(share),
          creation_date = ymd(substr(creation_date,1,10))) %>%
-  filter(modeltype == "weighted") %>%
-  group_by(variant, week_end_date, variant_category) %>% 
+  filter(modeltype == "weighted" & time_interval=="weekly") %>%
+  group_by(variant, week_end_date, variant_category, time_interval) %>% 
   slice_max(n=1, order_by=creation_date) %>%
-  group_by(variant_category, week_end_date) %>%
+  group_by(variant_category, week_end_date, time_interval) %>%
   summarize(share =sum(share, na.rm=TRUE))
 
 
@@ -401,16 +411,33 @@ variant <- variant %>%
 
 
 
+varpal <- c("#7BD8DA","#709f0f", "#e71761", "#9245c8", 
+            "#97481c", "#5054b1", "#DA7BA8", "#26B392")
 
-variant %>%
+variant <- variant %>%
+   filter(variant_category != "Other") %>%
   select(week_end_date, variant_category, share) %>%
-  filter(!is.na(variant_category)) %>%
-  ggplot(aes(x=week_end_date, y = share,
+  # week beginning rather than week end
+  mutate(week = week_end_date - days(7)) %>%
+  filter(!is.na(variant_category)) 
+
+variant %>% ggplot(aes(x=week, y = share,
              color=variant_category, group = variant_category)) +
   geom_line(linewidth=1.1) +
   geom_point(alpha=.5, size=.8) +
-  scale_color_brewer(palette="Set3") +
-  theme_c()
+  scale_color_manual(values=varpal) +
+ # scale_color_brewer(palette="Set3") +
+  theme_c() +
+  scale_x_date(date_breaks="2 months", date_labels = "%b %Y") +
+  labs(y = "Variant Proportion", x = "Date", color = "Variant") +
+  guides(color =guide_legend(override.aes = list(linewidth=2))) +
+  theme(legend.title = element_text(size = 18, face="bold"),
+        axis.text.y = element_text(size = 15),
+        axis.text.x=element_text(size=13),
+        axis.title=element_text(size=16))
+
+
+ggsave(here('thesis/figure/variant_prop.jpeg'), width =9, height=5, dpi=400)
 
 
 ```
@@ -449,7 +476,6 @@ subset %>%
 
 # Intervals by State and Biweek
 
-
 ```{r}
 
 pal <- c("red", "#10BAC5", "#1B10C5", "#EFB719", "#900C3F")
@@ -460,6 +486,108 @@ names(pal) <- c("Covidestim",
                "$Priors\\,Do\\,Not\\,Vary\\,by\\,State\\,and\\,Date$",
                "$\\beta$ Centered at Emp. Value"
                )
+
+```
+
+
+## Only Michigan
+
+
+```{r}
+
+# pb max
+m1 <- corrected %>%
+  filter(state == "MI") %>%
+  pull(exp_cases_ub) %>%
+  max()
+
+
+# covidestim max
+m2 <- corrected %>%
+  filter(state == "MI") %>%
+  pull(infections.hi) %>%
+  max()
+
+m <- max(m1,m2)
+
+
+varpal <- c("#7BD8DA","#709f0f", "#e71761", "#9245c8", 
+            "#97481c", "#5054b1", "#DA7BA8", "#26B392")
+
+corrected %>%
+  filter(state == "MI" & version %in% c("v1","v4")) %>%
+ # filter(state %in% sample(corrected$state,5)) %>%
+  filter(biweek >=6) %>%
+  group_by(biweek) %>%
+  mutate(xmin = min(date),
+         xmax = max(date)) %>%
+  ungroup() %>%
+   ggplot() +
+  geom_ribbon(aes(x = date, 
+             ymin = exp_cases_lb,
+             ymax = exp_cases_ub,
+             fill = vlabel),
+             alpha = .5,
+             show.legend=FALSE) +
+  geom_ribbon(aes(x = date,
+                  fill = 'Covidestim',
+                  ymin = infections.lo,
+                  ymax = infections.hi),
+              alpha = .5) +
+  facet_grid(~vlabel, scales = "free_y",
+              labeller= labeller(vlabel =as_labeller(TeX, default=label_parsed))) +
+  scale_x_date(date_breaks = "2 months", 
+               date_labels = "%b %Y") +
+  theme_c(axis.text.x = element_text(angle = 60, size = 16),
+          plot.title=element_text(face = "bold",
+                                  hjust = .5, 
+                                  size = 24,
+                                  margin=margin(5,5,15,5,'pt')),
+          strip.background = element_rect(fill = "#393939"),
+          strip.text = element_text(color =  "white", size = 16),
+          strip.text.y = element_text(margin = margin(5,5,5,5,'pt'),
+                                      size = 17,
+                                      face="bold"),
+          strip.text.x =  element_text(margin = margin(5,3,5,3,'pt'),
+                                       face = "bold",
+                                       size = 10),
+          plot.subtitle = ggtext::element_markdown(size = 25,margin = margin(3,5,10,5,'pt'),
+                                       face = "italic"),
+          legend.position = "top",
+          legend.text =element_text(size = 14),
+          legend.title = element_text(size=16, face="bold")) +
+  geom_line(aes(x=week, y=share*m,
+                color =variant_category,
+                group=variant_category),
+            data=variant,
+            linewidth=1.2) +
+  scale_fill_manual(values =pal,
+                    labels = TeX(names(pal)),
+                     breaks='Covidestim',
+                    name='')  +
+  scale_y_continuous(sec.axis = sec_axis( trans=~./m, name="Variant Proportion"),
+                     labels = comma) +
+  labs(y = "Estimated Infections",
+       title = paste0("Estimated Infections by Version in Michigan"),
+       color = "SARS-CoV-2 Variant",
+       x="Date") +
+  guides(color = guide_legend(override.aes = list(linewidth =3),
+                              ncol=2,title.position="top")) +
+ # scale_color_brewer(palette="Accent") 
+  scale_color_manual(values=varpal)
+
+
+
+ggsave(here::here(paste0('thesis/figure/michigan_variant.pdf')), 
+       height=10, width = 15, dpi=400)
+
+
+```
+
+
+## All States -- Break up into 2 groups
+
+```{r}
 
 
 
@@ -526,7 +654,8 @@ corrected %>%
           legend.text =element_text(size = 14)) +
   scale_fill_manual(values =pal,
                     labels = TeX(names(pal)),
-                    name='')  +
+                    name='',
+                    breaks="Covidestim")  +
   labs(y = "Estimated Infections",
        title = paste0("Estimated Infections by Version Across the United States")) +
   scale_color_manual(values = c('obs' = 'red'), labels = 'Positive Tests',
@@ -538,7 +667,7 @@ corrected %>%
 
 
 ggsave(here::here(paste0('thesis/figure/state_comp_covidestim1.pdf')), 
-       height=24, width = 16, dpi=400)
+       height=24, width = 17, dpi=400)
 
 
 
@@ -590,18 +719,20 @@ corrected %>%
           legend.text =element_text(size = 14)) +
   scale_fill_manual(values =pal,
                     labels = TeX(names(pal)),
-                    name='')  +
+                    name='',
+                    breaks="Covidestim")  +
   labs(y = "Estimated Infections",
        title = paste0("Estimated Infections by Version Across the United States")) +
   scale_color_manual(values = c('obs' = 'red'), labels = 'Positive Tests',
                      name = '') +
   guides(color = guide_legend(override.aes = list(linewidth =2),
                               nrow=2,
-                              byrow=TRUE))
+                              byrow=TRUE),
+         fill="none")
 
 
 ggsave(here::here('thesis/figure/state_comp_covidestim2.pdf'), 
-       height=24, width = 16, dpi=400)
+       height=24, width = 17, dpi=400)
 
 
 

@@ -88,7 +88,7 @@ To ensure the comparisons are on the same time scale, we sum the reported 95% cr
 There is much more comprehensive testing data at the state-level than at the county level, as John Hopkins has tracked state-level testing data throughout the pandemic.
 As a result, we can apply probabilistic bias analysis across the United States at the state-level.
 
-However, since versions 2-4 of the analysis utilize empirical estimates of $P(S_1|\text{untested})$ or $\beta$ from the COVID-19 Trends and Impact Survey, these versions are only possible when there is sufficient data. As we see in Figure \ref{fig:statectis}, some states have very little data for the empirical estimate of beta. However in Figure \ref{fig:statectis-s-untested} we see that there is more consistent reporting of $P(S_1|\text{untested})$.
+However, since versions 2-4 of the analysis utilize empirical estimates of $P(S_1|\text{untested})$ or $\beta$ from the COVID-19 Trends and Impact Survey, these versions are only possible when there is sufficient data for the state. As we see in Figure \ref{fig:statectis}, some states have very little data for the empirical estimate of beta. However in Figure \ref{fig:statectis-s-untested} we see that there is more consistent reporting of $P(S_1|\text{untested})$.
 
 For versions 2-4, we did not attempt the probabilistic bias analysis for states where more than 60% of observations were missing at the daily time step. Missing values for states with sufficient data were imputed before summarizing to the biweek level using a linear weighted moving average. 
 
@@ -103,10 +103,8 @@ knitr::include_graphics('figure/ctis_s_untested_states.pdf')
 
 ```
 
-In Figures \ref{fig:state-results-1} and \ref{fig:state-results-2}, we compare the 95% credible intervals of Covidestim summed to be on the biweek time scale to the probabilistic bias analysis intervals^[As mentioned in the [limitations](#lims) section, the two week intervals cannot be interpreted as 95% credible intervals. However, the comparison is still useful to contextualize the results of the probabilistic bias analysis.]. We see correspondence is much higher before the Omicron wave in late 2021 through early 2022, where Covidestim estimates the cases to be much higher. 
+In Figures \ref{fig:state-results-1} and \ref{fig:state-results-2}, we compare the 95% credible intervals of Covidestim summed to be on the biweek time scale to the probabilistic bias analysis intervals^[As mentioned in the [limitations](#lims) section, the two week intervals cannot be interpreted as 95% credible intervals. However, the comparison is still useful to contextualize the results of the probabilistic bias analysis.]. We see correspondence is much higher before the time period spanning December 2021 through January 2022. From Figure \ref{fig:variant-prop}, we see that this period corresponds to the Omicron wave. Omicron wave in late 2021 through early 2022, where Covidestim estimates the cases to be much higher. 
 
-As discussed in the Covidestim model change log, Chitwood *et al.* made substantial changes to handle the rise of the Omicron variant. Because the variant causes much milder infections, the infection fatality for Omicron infections is lower than previous variants. To handle the changes in the infection fatality ratio and very low death counts, rather than fitting model with deaths, they switched to using hospitalizations. They also allowed for the possibility of reinfections, since although reinfections were more rare with previous variants, Omicron is associated with higher reinfection rates [@pulliam2022].
- 
 ```{r,out.width = "100%", fig.cap  = '\\label{fig:state-results-1}'}
 knitr::include_graphics('figure/state_comp_covidestim1.pdf')
 
@@ -118,7 +116,17 @@ knitr::include_graphics('figure/state_comp_covidestim2.pdf')
 
 ```
  
+```{r, out.width = "100%", fig.cap = "\\label{fig:variant-prop.jpeg}Variant proportions for variants designated as Variant of Interest or Variant of Concern by the World Health Organization. We see Delta begins its rise in May 2021 and reaches an estimated proportion of 0.98 of sequenced infections by mid-August 2021. Omicron's rise occurs more quickly, beginning its increase throughout December and becoming almost entirely dominant by mid-January.\nData source: SARS-CoV-2 Variant Proportions from Data.CDC.gov."}
+knitr::include_graphics('figure/variant_prop.jpeg')
+```
  
+ 
+As discussed in the Covidestim model change log, Chitwood *et al.* made substantial changes to handle the rise of the Omicron variant. Because the variant causes much milder infections, the infection fatality for Omicron infections is lower than previous variants. To handle the changes in the infection fatality ratio and very low death counts, rather than fitting model with deaths, they switched to using hospitalizations. They also allowed for the possibility of reinfections, since although reinfections were more rare with previous variants, Omicron is associated with higher reinfection rates [@pulliam2022].
+ 
+ 
+ 
+## Relationship Between the Ratio of Estimated to Observed Infections Compared to Testing Rate
+
  
 One question to consider is the relationship between the testing rate and the ratio of estimated cases to observed cases, as we would expect higher testing rates would lead to less underestimation of the true number of infections.
 
