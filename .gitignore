@@ -9,3 +9,4 @@ app/melding_experiment.html
 app/melding_experiment_files/*
 docs/app/melding_experiment.html
 docs/app/melding_experiment.Rmd
+data/lineage_data_full.json

@@ -1,5 +1,5 @@
 ---
-title: 'Using Sensitivity Analyses to Approximate Total COVID-19 Infections:\nState and County level in the United States, March 2021 - March 2022'
+title: 'Using Sensitivity Analyses to Approximate Total COVID-19 Infections: State and County level in the United States, March 2021 - March 2022'
 author: 'Quinn White'
 date: 'May 2023'
 institution: 'Smith College'

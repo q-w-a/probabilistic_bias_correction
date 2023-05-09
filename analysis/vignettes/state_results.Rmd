@@ -232,7 +232,21 @@ corrected %>%
   scale_x_continuous(limits=c(0,.25), n.breaks=4)
 
 
-ggsave(here('thesis/figure/testing_rate_ratio.jpeg'), width=10,height=6)
+ggsave(here('thesis/figure/testing_rate_ratio.jpeg'), width=11,height=7)
+
+corrected %>%
+  ggplot(aes(x=total, y = exp_cases_median)) +
+  geom_point(alpha=.008, size=.8) +
+  facet_wrap(~vlabel,
+               labeller= labeller(vlabel =as_labeller(TeX, default=label_parsed))) +
+  theme_c(axis.text.x = element_text(size =9),
+          axis.title = element_text(size=16) ) +
+  theme(strip.text.x = element_text(size=11, color="white")) +
+  scale_y_continuous(n.breaks=10) +
+  labs(x = "Total Tests",
+       y = "Estimated Infections",
+       subtitle = "All Time Intervals and All States",
+       title = "Relationship Between Testing Rate and\nEstimated Infections")
 
 ```
 
@@ -284,7 +298,7 @@ corrected %>%
        fill = "Ratio of Student Population\nto Census Population",
        y= "Total Number of Tests Over Population Size",
        subtitle =
-         "Color by Ratio of Student Population to Population\n Reported in the Census",
+         "Color by Ratio of Student Population\nto Population Reported in the Census",
        title = "Testing Rate by State Across All 2-Week Intervals") +
   scale_y_continuous(n.breaks =6)
 
@@ -305,6 +319,102 @@ corrected %>%
 ```
 
 
+# Variant Data
+
+```{r}
+# https://dev.socrata.com/foundry/data.cdc.gov/jr58-6ysp
+
+
+variant <- "https://data.cdc.gov/resource/jr58-6ysp.json?$limit=50000&$where=week_ending between '2021-02-18T00:00:00.000' and '2022-02-18T00:00:00.000'&usa_or_hhsregion=USA"
+variant <- httr::GET(URLencode(variant))
+
+
+# only go to the 6th because these are already weekly counts
+# get the last couple weeks of 2021
+variant <-jsonlite::fromJSON(
+  httr::content(variant,
+                as = "text",
+                encoding = "UTF-8"),
+  simplifyVector = TRUE,
+  flatten = TRUE)  %>%
+  as_tibble() 
+
+saveRDS(variant, 'data/variant_prop.RDS')
+
+variant <- readRDS('data/variant_prop.RDS')
+# 
+# test %>%
+#   flatten()
+# 
+# names <- -jsonlite::fromJSON(readLines("data/lineage_data_full.json"),
+#                              flatten=TRUE)
+# 
+# test <- jsonlite::fromJSON("https://github.com/cov-lineages/lineages-website/blob/master/_data/lineage_data.full.json?raw=true",
+#                            flatten = TRUE,
+#                            simplifyVector = TRUE)
+# 
+# test <- jsonlite::read_json("https://github.com/cov-lineages/lineages-website/blob/master/_data/lineage_data.full.json?raw=true",
+#                            simplifyVector=TRUE)
+# 
+# 
+# test %>%
+#   flatten() %>% 
+#   select(Lineage,)
+#   unnest() %>%
+#   glimpse()
+# 
+# 
+# test %>% 
+#   as.data.frame()
+
+variant %>% 
+  mutate(week_end_date = substr(week_ending, 1,10),
+         week_end_date=ymd(week_end_date)) %>%
+  filter(week_end_date==max(week_end_date)) %>%
+  left_join(names,by=c('variant'='lineage')) 
+
+
+# https://www.cdc.gov/coronavirus/2019-ncov/variants/variant-classifications.html
+variant <- variant %>% 
+  mutate(week_end_date = substr(week_ending, 1,10),
+         week_end_date=ymd(week_end_date)) %>%
+  mutate(variant_category = case_when(
+     grepl("B[.]1[.]1[.]529|BA[.]1|BA[.]2|BA[.]4|BA[.]5", variant) ~ "Omicron",
+     variant %in% c("B.1.621", "B.1.621.1") ~ "Mu",
+     variant == "B.1.1.7" ~ "Alpha",
+     grepl("B.1.351", variant) ~ "Beta",
+     grepl("P.1", variant) ~"Gamma",
+     grepl("B.1.617.2", variant) ~ "Delta",
+     variant %in% c("B.1.427" ,"B.1.429") ~ "Epsilon",
+     variant == "B.1.525" ~ "Eta"
+  )) %>%
+  mutate(share = as.numeric(share),
+         creation_date = ymd(substr(creation_date,1,10))) %>%
+  filter(modeltype == "weighted") %>%
+  group_by(variant, week_end_date, variant_category) %>% 
+  slice_max(n=1, order_by=creation_date) %>%
+  group_by(variant_category, week_end_date) %>%
+  summarize(share =sum(share, na.rm=TRUE))
+
+
+
+
+
+
+
+variant %>%
+  select(week_end_date, variant_category, share) %>%
+  filter(!is.na(variant_category)) %>%
+  ggplot(aes(x=week_end_date, y = share,
+             color=variant_category, group = variant_category)) +
+  geom_line(linewidth=1.1) +
+  geom_point(alpha=.5, size=.8) +
+  scale_color_brewer(palette="Set3") +
+  theme_c()
+
+
+```
+
 
 # Ratio of Unobserved to Observed
 
@@ -322,6 +432,19 @@ subset %>%
 
 
 ```
+
+```{r}
+
+# max average ratio across all states
+subset %>% 
+  mutate(ratio =  exp_cases_median/positive) %>%
+  group_by(biweek) %>%
+  summarize(m = mean(ratio)) %>%
+  filter(m==max(m)) %>%
+  left_join(dates)
+
+```
+
 
 
 # Intervals by State and Biweek

@@ -103,7 +103,9 @@ knitr::include_graphics('figure/ctis_s_untested_states.pdf')
 
 ```
 
-In Figures \ref{fig:state-results-1} and \ref{fig:state-results-2}, we compare the 95% credible intervals of Covidestim summed to be on the biweek time scale to the probabilistic bias analysis intervals^[As mentioned in the [limitations](#lims) section, the two week intervals cannot be interpreted as 95% credible intervals. However, the comparison is still useful to contextualize the results of the probabilistic bias analysis.]. We see correspondence is much higher before the Omicron wave in late 2021 through early 2022, where Covidestim estimates the cases to be much higher.
+In Figures \ref{fig:state-results-1} and \ref{fig:state-results-2}, we compare the 95% credible intervals of Covidestim summed to be on the biweek time scale to the probabilistic bias analysis intervals^[As mentioned in the [limitations](#lims) section, the two week intervals cannot be interpreted as 95% credible intervals. However, the comparison is still useful to contextualize the results of the probabilistic bias analysis.]. We see correspondence is much higher before the Omicron wave in late 2021 through early 2022, where Covidestim estimates the cases to be much higher. 
+
+As discussed in the Covidestim model change log, Chitwood *et al.* made substantial changes to handle the rise of the Omicron variant. Because the variant causes much milder infections, the infection fatality for Omicron infections is lower than previous variants. To handle the changes in the infection fatality ratio and very low death counts, rather than fitting model with deaths, they switched to using hospitalizations. They also allowed for the possibility of reinfections, since although reinfections were more rare with previous variants, Omicron is associated with higher reinfection rates [@pulliam2022].
  
 ```{r,out.width = "100%", fig.cap  = '\\label{fig:state-results-1}'}
 knitr::include_graphics('figure/state_comp_covidestim1.pdf')
@@ -120,17 +122,36 @@ knitr::include_graphics('figure/state_comp_covidestim2.pdf')
  
 One question to consider is the relationship between the testing rate and the ratio of estimated cases to observed cases, as we would expect higher testing rates would lead to less underestimation of the true number of infections.
 
-As we see in Figure \ref{fig:testrate}
+As we see in Figure \ref{fig:testrate}, the nature of the relationship between the testing rate and the ratio of estimated cases to observed cases depends on whether we allow $\beta$ and $P(S_1|\text{untested})$ to vary by location and date. In particular, when we sample from the same priors for every correction (the first panel of Figure \ref{fig:testrate}), we see there is little variability in the relationship between the testing rate and median estimated cases, because the form of the correction is identical for each two-week interval and state considered. Allowing $\beta$ and/or $P(S_1|\text{untested})$ to vary by time and location introduces additional variability in the relationship between the ratio of estimated infections to observed and testing rate.
+
+The nonlinearity of the relationship between the testing rate and the ratio of estimated cases to observed cases is more clear when we think back to the correction formulas.
+
+Denoting $N^*$ again to be the number who would test positive, on the $x$-axis, we have approximately^[This isn't exactly the estimated infections, because for simplicity of notation we are not writing out the correction for test inaccuracy.]
+$$\frac{N^*_{\text{tested}} + N^*_{\text{untested}}}{N^*_{\text{tested}}},$$
+
+where we calculate $N^*_{\text{untested}}$ using the other priors:
+$$N^*_{\text{untested}} =\Pr(\text{test}_+|S_1,\text{untested}) (\Pr(S_1 | \text{untested})) ( N_{\text{untested}} ) + $$
+$$\Pr(\text{test}_+|S_0,\text{untested}) (1-(\Pr(S_1 | \text{untested})) ( N_{\text{untested}} ).$$ 
+On the $x$-axis we have the number tested over the population size, $\dfrac{N_{\text{tested}}}{N}$. Thus, we see the trend in each panel where for small changes in testing rate when the testing rate is very low, the ratio of unobserved to unobserved is very high since $N^*_{untested}$ will be large relative  $N^*_{tested}$. However, with higher testing rates,  $N^*_{untested}$ will be large relative  $N^*_{tested}$, and the ratio of estimated to observed infections nears one.
 
 
-```{r,out.width = "100%", fig.cap  = '\\label{fig:testrate}The ratio of the median estimated infections to observed infections plotted against the testing rate, where the testing rate is calculated as the total number tested in a two-week interval over the population size. When the priors are the same for all time intervals and states, there is minimal variability relationship between the testing rate and the ratio of estimated to observed infections, since the correction for incomplete testing and diagnostic test inaccuracy is identical for each time-interval and location. However, when we allow $\beta$ or $P(S_1|untested)$ to vary by state and time interval, there is much variability in the relationship.'}
+```{r,out.width = "100%", fig.cap  = '\\label{fig:testrate}The ratio of the median estimated infections to observed infections plotted against the testing rate, where the testing rate is calculated as the total number tested in a two-week interval over the population size. When the priors are the same for all time intervals and states, there is minimal variability relationship between the testing rate and the ratio of estimated to observed infections, since the correction for incomplete testing and diagnostic test inaccuracy is identical for each time-interval and location. However, when we allow $\\beta$ or $P(S_1|\text{untested})$ to vary by state and time interval, there is much variability in the relationship. A horizontal line in red at 1 is included to reference; a ratio of exactly one would indicate no infections went unobserved.'}
+
 knitr::include_graphics('figure/testing_rate_ratio.jpeg')
+
+
 ```
 
 
-It is worth noting that in some cases, the ratio of total number of tests for a two-week interval over the population size is incredibly high. For example, there are two-week intervals in Vermont, Rhode Island, and DC where the total number of tests over the census population size exceeds 0.25. 
+It is worth noting that in some cases, the ratio of total number of tests for a two-week interval over the population size is incredibly high. For example, there are two-week intervals in Vermont, Rhode Island, and DC where the total number of tests over the census population size exceeds 0.25. There are two major factors to consider when we interpret these really high testing rates.
 
-```{r}
+For one, there is repeat testing. If people are part of a regular PCR screening program where they are tested multiple times in a 2-week time interval, this will go toward higher numbers of tests relative to the census population size. While some states also report the number of people who tested positive and people who tested total^[A data dictionary on the John Hopkins COVID-19 testing repository provides more detail on these definitions.] (rather than total positive tests and total tests), this level of granularity was not universal.  
+
+Additionally, the census population is not exactly the tested population. This is in part because universities are a major source of PCR testing, and students who are out of state are not reflected in the census counts for the location where they are tested. 
+
+When we look at the testing rates (taken as the total number of tests over the census population size) in Figure \ref{fig:college}, we see that the states with the highest biweekly testing rates are Vermont, Massachusetts, Rhode Island, and the District of Columbia. These are states that haves substantial student populations, who also may be tested more than once in a single two-week interval. 
+
+```{r, fig.cap="\\label{fig:college} Comparing the biweekly testing rate by state across all 2-week intervals considered,  where color is by the ratio of the student population to the census population. States are ordered by median testing rate. Data source for student population by state: the U.S. Department of Education, National Center for Education Statistics, Integrated Postsecondary Education Data System (IPEDS), 12-month Enrollment component provisional data for 2020 to 2021. Student population counts include Title IV postsecondary institutions."}
 
 knitr::include_graphics('figure/college_populations.jpeg')
 
@@ -142,6 +163,8 @@ knitr::include_graphics('figure/college_populations.jpeg')
 ## County-level Results
 
 We performed county-level probabilistic bias analysis for Michigan and Massachusetts. This work can be expanded to consider other states as well where the needed data is available. In particular, we need both county-level positive PCR tests and county-level total PCR tests. Because the assumptions of the bias correction are related to test positivity, it does not make sense to apply the method to a positive cases count that includes positive PCR tests lumped together with probable cases. In some states, this is the only value reported.
+
+While positive tests are more regularly reported, total tests are reported less frequently at the county level. 
 
 ### Massachusetts
 
