@@ -379,7 +379,7 @@ saveRDS(variant, 'data/variant_prop.RDS')
 
 ```
 
-```{r}
+```{r load variant data }
 variant <- readRDS(here('data/variant_prop.RDS'))
 
 
@@ -407,19 +407,23 @@ variant <- variant %>%
   summarize(share =sum(share, na.rm=TRUE))
 
 
-
-
-
-
-varpal <- c("#7BD8DA","#709f0f", "#e71761", "#9245c8", 
-            "#97481c", "#5054b1", "#DA7BA8", "#26B392")
-
 variant <- variant %>%
    filter(variant_category != "Other") %>%
   select(week_end_date, variant_category, share) %>%
   # week beginning rather than week end
   mutate(week = week_end_date - days(7)) %>%
   filter(!is.na(variant_category)) 
+
+
+
+```
+
+```{r plot variant data}
+
+
+varpal <- c("#7BD8DA","#709f0f", "#e71761", "#9245c8", 
+            "#97481c", "#5054b1", "#DA7BA8", "#26B392")
+
 
 variant %>% ggplot(aes(x=week, y = share,
              color=variant_category, group = variant_category)) +
@@ -471,6 +475,124 @@ subset %>%
   left_join(dates)
 
 ```
+
+```{r}
+
+subset %>% 
+  mutate(ratio =exp_cases_median/positive) %>%
+  group_by(biweek) %>%
+  mutate(m=median(ratio)) %>%
+  select(date, m) %>%
+  distinct() %>%
+  ggplot(aes(x=date,  y =m)) +
+  geom_point() +
+  theme_c()
+
+
+
+subset %>% filter(state=="MI") %>%
+  mutate(ratio =positive/total) %>%
+  group_by(biweek) %>%
+  mutate(m=median(ratio)) %>%
+  select(date, m) %>%
+  distinct() %>%
+  ggplot(aes(x=date,  y =m)) +
+  geom_point() +
+  theme_c()
+
+
+
+
+subset %>% filter(state=="MI") %>%
+  mutate(ratio =exp_cases_median) %>%
+  group_by(biweek) %>%
+  mutate(m=median(ratio)) %>%
+  select(date, m) %>%
+  distinct() %>%
+  ggplot(aes(x=date,  y =m)) +
+  geom_point() +
+  theme_c()
+
+
+
+subset %>% filter(state=="MI") %>%
+  mutate(ratio =positive/total) %>%
+  group_by(biweek) %>%
+  mutate(m=median(ratio)) %>%
+  select(date, m) %>%
+  distinct() %>%
+  ggplot(aes(x=date,  y =m)) +
+  geom_point() +
+  theme_c()
+
+
+
+subset %>% filter(state=="MI") %>%
+  mutate(ratio =exp_cases_median) %>%
+  group_by(biweek) %>%
+  mutate(m=median(ratio)) %>%
+  select(date, m) %>%
+  distinct() %>%
+  ggplot(aes(x=date,  y =m)) +
+  geom_point() +
+  theme_c()
+
+
+
+heatmap_dat <- subset %>%
+  group_by(biweek, state, exp_cases_median, positive) %>%
+  summarize(date = min(date)) %>%
+  ungroup() %>%
+  rename(code=state) %>%
+  left_join(codes) %>%
+  select(-c(code,abbrev))
+
+  
+
+# group similar states together
+
+
+wide <- heatmap_dat %>%
+    mutate(ratio= exp_cases_median/positive) %>%
+  select(-c(exp_cases_median, positive)) %>%
+  pivot_wider(names_from=state,values_from =ratio)
+
+dist_mat <- dist(t(wide[3:ncol(wide)]), method = 'euclidean')
+hclust_avg <- hclust(dist_mat, method = 'average')
+
+plot(hclust_avg)
+
+cluster_order <- tibble(order = hclust_avg$order, 
+                        state = hclust_avg$labels[hclust_avg$order])
+
+
+heatmap_dat %>%
+  mutate(state=factor(state, levels= hclust_avg$labels[hclust_avg$order])) %>%
+  mutate(date_lab = format(as.POSIXct(date),format="%b %Y")) %>%
+  ggplot(aes(x=fct_reorder(date_lab, date),
+             y = state,
+             fill =exp_cases_median/positive)) +
+  geom_tile() +
+  scale_x_discrete(breaks=breaks_date, labels = breaks_date)  +
+  viridis::scale_fill_viridis(option="rocket", direction=-1) +
+  labs(x="State",
+       y= "Date",
+       fill = "Ratio of Estimated Cases\nto Observed",
+       title = "Ratio of Median Estimated Infections to Observed Infections") +
+  theme_c() +
+  theme(axis.text.x = element_text(size=11, angle=30),
+        axis.text.y = element_text(size = 13),
+        axis.title = element_text(size=16),
+        legend.title = element_text(face="bold", size=18))
+
+ggsave(here('thesis/figure/heatmap_ratio_est_observed.jpeg'),
+       height=10,
+       width =13,
+       dpi=400)
+
+
+```
+
 
 
 
@@ -538,7 +660,7 @@ corrected %>%
               labeller= labeller(vlabel =as_labeller(TeX, default=label_parsed))) +
   scale_x_date(date_breaks = "2 months", 
                date_labels = "%b %Y") +
-  theme_c(axis.text.x = element_text(angle = 60, size = 16),
+  theme_c(axis.text.x = element_text(angle = 40, size = 16),
           plot.title=element_text(face = "bold",
                                   hjust = .5, 
                                   size = 24,
@@ -546,11 +668,11 @@ corrected %>%
           strip.background = element_rect(fill = "#393939"),
           strip.text = element_text(color =  "white", size = 16),
           strip.text.y = element_text(margin = margin(5,5,5,5,'pt'),
-                                      size = 17,
+                                      size = 22,
                                       face="bold"),
           strip.text.x =  element_text(margin = margin(5,3,5,3,'pt'),
                                        face = "bold",
-                                       size = 10),
+                                       size = 22),
           plot.subtitle = ggtext::element_markdown(size = 25,margin = margin(3,5,10,5,'pt'),
                                        face = "italic"),
           legend.position = "top",
@@ -560,7 +682,7 @@ corrected %>%
                 color =variant_category,
                 group=variant_category),
             data=variant,
-            linewidth=1.2) +
+            linewidth=1.3) +
   scale_fill_manual(values =pal,
                     labels = TeX(names(pal)),
                      breaks='Covidestim',
@@ -580,6 +702,87 @@ corrected %>%
 
 ggsave(here::here(paste0('thesis/figure/michigan_variant.pdf')), 
        height=10, width = 15, dpi=400)
+
+
+corrected %>%
+  filter(state=="MI") %>%
+  filter(biweek >=6) %>%
+  select(date, total, positive,biweek) %>%
+  group_by(biweek) %>%
+  summarize(date=min(date),
+            positive=unique(positive),
+            total=unique(total)) %>%
+  mutate(pct_change_total =( total-lag(total,n=1))/lag(total,n=1),
+         pct_change_positive =( positive-lag(positive,n=1))/lag(positive,n=1)) %>%
+  pivot_longer(c(pct_change_total,pct_change_positive)) %>%
+  mutate(name = gsub("pct_change_", "", name),
+         name = paste(name, "tests")) %>%
+  ggplot(aes(x=date,y=value, color=name, group=name)) +
+  geom_line(linewidth =1.05) +
+  geom_point(alpha = .5) + 
+  scale_y_continuous(labels=scales::percent) +
+  scale_color_manual(values = c("#268DB3", "#B38726"), name='') +
+  theme_c() +
+  theme(axis.title.x =element_text(size=14),
+        axis.title.y =element_text(size=14),
+        axis.text.x =  element_text(size=11.5),
+         axis.text.y = element_text(size=13)) +
+  guides(color = guide_legend(override.aes = list(linewidth=2))) +
+  labs(y = "Percent Change in Tests",
+       x = "Date",
+       title = "Percent Change in Positive Tests and Total Tests\nin Michigan") +
+  scale_x_date(date_breaks="1.5 months", date_labels = "%b %Y")
+
+
+ggsave(here::here(paste0('thesis/figure/test_capacity.pdf')), 
+       height=6, width = 13, dpi=400)
+
+
+corrected %>%
+  filter(state=="MI") %>%
+  select(date, total, positive,biweek) %>%
+  group_by(biweek) %>%
+  summarize(date=min(date),
+            positive=unique(positive),
+            total=unique(total)) %>%
+  ggplot(aes(x=date,y=positive/total)) +
+  geom_line() +
+  geom_point() 
+
+
+corrected %>%
+  select(date, total, positive,biweek,state) %>%
+  distinct() %>%
+  filter(biweek>=6) %>%
+  group_by(biweek,state) %>%
+  summarize(date=min(date),
+            positive=unique(positive),
+            total=unique(total)) %>%
+  group_by(state) %>%
+  mutate(pct_change_total =( total-lag(total,n=1, order_by=date))/lag(total,n=1, order_by=date),
+         pct_change_positive =( positive-lag(positive,n=1, order_by=date))/lag(positive,n=1, order_by=date)) %>%
+  pivot_longer(c(pct_change_total,pct_change_positive)) %>%
+  mutate(name = gsub("pct_change_", "", name),
+         name = paste(name, "tests")) %>%
+  ggplot(aes(x=date,y=value, color=name, group=name)) +
+  geom_line(linewidth =1.05) +
+  geom_point(alpha = .5) + 
+  scale_y_continuous(labels=scales::percent) +
+  scale_color_manual(values = c("#268DB3", "#B38726"), name='') +
+  theme_c() +
+  theme(axis.text.x=element_text(size=12, angle=30),
+        legend.position="top") +
+  facet_wrap(~state,scales="free_y", ncol=7)+
+  guides(color = guide_legend(override.aes = list(linewidth=3)))  +
+  labs(y = "Percent Change in Tests",
+       x = "Date",
+       title = "Percent Change in Positive Tests and Total Tests\nin All States")
+
+
+
+ggsave(here::here(paste0('thesis/figure/test_capacity_all_states.pdf')), 
+       height=13, width = 13, dpi=400)
+
 
 
 ```

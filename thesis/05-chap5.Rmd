@@ -70,7 +70,7 @@ The COVIDestim model uses age-specific estimates of IFR produced by @odriscoll20
 
 ### Comparison to Serological Data
 
-There are known issues with seroprevalence estimates. For one, these samples are drawn from a convenience (i.e. nonrandom) sample of individuals with blood specimens taken for purposes other than COVID-19 antibody detection [@zotero-1003]. Secondly, while a positive serological test is evidence for infection, a negative serological test is less clear to interpret. The person may have been infected but not yet have developed antibodies, or their immune system may not have produced antibodies at a detectable level [@cdc2020. 
+There are known issues with seroprevalence estimates. For one, these samples are drawn from a convenience (i.e. nonrandom) sample of individuals with blood specimens taken for purposes other than COVID-19 antibody detection [@zotero-1003]. Secondly, while a positive serological test is evidence for infection, a negative serological test is less clear to interpret. The person may have been infected but not yet have developed antibodies, or their immune system may not have produced antibodies at a detectable level [@cdc2020]. 
 
  Indeed, Chitwood et al. found limited concordance between their estimates and seroprevalence data. However, there was a stronger correlation between estimates of cumulative infection and cumulative hospitalizations and cumulative deaths \footnote{The correlation employed here is the Spearman rank correlation, which measures the strength of the monotonic relationship rather than the strength of the linear relationship, in which case the Pearson correlation coefficient is the usual choice. The Spearman rank correlation is equivalent to the Pearson correlation of the rank values rather than the values themselves. }. 
 
@@ -121,7 +121,45 @@ knitr::include_graphics('figure/variant_prop.jpeg')
 ```
  
  
-As discussed in the Covidestim model change log, Chitwood *et al.* made substantial changes to handle the rise of the Omicron variant. Because the variant causes much milder infections, the infection fatality for Omicron infections is lower than previous variants. To handle the changes in the infection fatality ratio and very low death counts, rather than fitting model with deaths, they switched to using hospitalizations. They also allowed for the possibility of reinfections, since although reinfections were more rare with previous variants, Omicron is associated with higher reinfection rates [@pulliam2022].
+
+We can take a closer look at Michigan to see the trends in the probabilistic intervals in relation to changes in circulating variants (Figure \ref{fig:michigan-variant}). In particular, we see the moments where the trend differs from Covidestim are in a peak around late July and in December. We see a similar trend in these time periods across most states (Figures  \ref{fig:state-results-1} and \ref{fig:state-results-2}).
+ 
+The peak in July corresponds to the Delta wave, where the more transmissible B.1.617.2 (delta) variant of concern displaced the previously dominant B.1.351 (alpha) variant [@delrio2021]. The peak in December corresponds to the Omicron wave.
+
+
+
+```{r, out.width = "100%", fig.cap = "\\label{fig:michigan-variant}Presenting the probabilistic intervals along with the variant proportions for variants designated as Variant of Interest or Variant of Concern by the World Health Organization. We see the rise in Omicron clearly in the probabilistic bias interva"}
+
+
+knitr::include_graphics('figure/michigan_variant.pdf')
+
+
+```
+ 
+
+As discussed in the Covidestim model change log, Chitwood *et al.* made substantial changes to handle the rise of the Omicron variant. Because the variant causes much milder infections, the infection fatality for Omicron infections is lower than previous variants. To handle the changes in the infection fatality ratio and very low death counts, rather than fitting model with deaths, they switched to using hospitalizations. They also allowed for the possibility of reinfections, since although reinfections were more rare with previous variants, Omicron is associated with higher reinfection rates [@pulliam2022]. The changes in the model may contribute to the differences we see between the probabilistic bias intervals and Covidestim intervals during the Omicron wave.
+
+In July, meanwhile, the difference we see between the Covidestim estimates and probabilistic bias intervals is likely a result of the way these approaches treat incomplete testing. The focus of the probabilistic bias analysis is to correct for incomplete testing, and as such the method is sensitive to changes in the total number tested and the positivity rate. By contrast, while Covidestim models probabilities of diagnosis by symptom state to allow for variation in case ascertainment, the total number of tests is not an input into the model, so model estimates are not affected by changes in testing rate. This is particularly relevant in the time interval where we observe a larger peak in the probabilistic bias intervals. While the trend in observed tests follows a more steady upward trend like that we see in the Covidestim estimates, the probabilistic bias intervals are influenced by the relationship between positive tests and total tests in this time period.
+
+In Figure \ref{fig:test-capacity}, we see in the period from July through September, the positive tests increase at a higher rate than the total tests. Because the number of infections among the untested population is calculated based on the observed test positivity rate, the higher test positivity rate (resulting from positive tests increasing more than total tests) results in the peak we see in this time interval in the probabilistic bias intervals. The same trend is true across states (Supplementary Figure \ref{fig:test-capacity-all-states}). 
+
+
+```{r, fig.cap = "\\label{fig:test-capacity} Percent change in positive tests and the percent change in total tests from March 2021 through the end of February 2022. We see in the period from July through September that the positive tests increase at a higher rate than the total tests, which relates to the peak we see in " }
+
+knitr::include_graphics('figure/test_capacity.pdf')
+
+
+```
+
+
+
+
+
+
+
+
+
+
  
  
  

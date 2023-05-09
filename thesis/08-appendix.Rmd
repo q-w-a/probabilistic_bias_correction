@@ -473,3 +473,16 @@ If you feel it necessary to include an appendix, it goes here.
 ```{r ref.label='include_packages_2', results='hide', echo = TRUE}
 ```
 
+
+
+
+## Total Tests and Positive Tests Across All States
+
+
+```{r, out.width="100%", fig.cap="\\label{fig:test-capacity-all-states} Percent change in positive tests and the percent change in total tests from March 2021 through the end of February 2022. We see in the period from July through September that the positive tests consistently increase at a higher rate than the total tests; this is related to the peaks we observe in the probabilistic bias intervals."}
+
+knitr::include_graphics('figure/test_capacity_all_states.pdf')
+                        
+                        
+```
+
