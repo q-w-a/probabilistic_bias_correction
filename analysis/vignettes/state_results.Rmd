@@ -724,7 +724,7 @@ ggsave(here::here(paste0('thesis/figure/michigan_variant.pdf')),
 corrected %>%
   filter(state == "TX" & version %in% c("v1","v4")) %>%
  # filter(state %in% sample(corrected$state,5)) %>%
-  filter(biweek >=6) %>%
+  filter(biweek >=6 ) %>%
   group_by(biweek) %>%
   mutate(xmin = min(date),
          xmax = max(date)) %>%
@@ -746,8 +746,9 @@ corrected %>%
   scale_x_date(date_breaks = "2 months", 
                date_labels = "%b %Y") +
   theme_c() +
-  theme(axis.text.x = element_text(angle = 40, size = 16),
+  theme(axis.text.x = element_text(angle = 60, size = 16),
           axis.title.y = element_text(size=13),
+         axis.title.x = element_text(size=13),
           plot.title=element_text(face = "bold",
                                   hjust = .5, 
                                   size = 24,
@@ -785,8 +786,8 @@ corrected %>%
 
 
 
-ggsave(here::here(paste0('thesis/figure/texas_lag.pdf')), 
-       height=10, width = 15, dpi=400)
+ggsave(here::here(paste0('thesis/figure/texas-lag.jpeg')), 
+       height=8, width = 15, dpi=400)
 
 
 
@@ -805,6 +806,7 @@ corrected %>%
   mutate(name = gsub("pct_change_", "", name),
          name = paste(name, "tests")) %>%
   ggplot(aes(x=date,y=value, color=name, group=name)) +
+  geom_hline(yintercept=0,alpha=.4) +
   geom_line(linewidth =1.05) +
   geom_point(alpha = .5) + 
   scale_y_continuous(labels=scales::percent) +
@@ -818,7 +820,7 @@ corrected %>%
   labs(y = "Percent Change in Tests",
        x = "Date",
        title = "Percent Change in Positive Tests and Total Tests\nin Michigan") +
-  scale_x_date(date_breaks="1.5 months", date_labels = "%b %Y")
+  scale_x_date(date_breaks="1.5 months", date_labels = "%b %Y") 
 
 
 ggsave(here::here(paste0('thesis/figure/test_capacity.pdf')), 
@@ -847,6 +849,7 @@ corrected %>%
   mutate(name = gsub("pct_change_", "", name),
          name = paste(name, "tests")) %>%
   ggplot(aes(x=date,y=value, color=name, group=name)) +
+    geom_hline(yintercept=0,alpha=.4) +
   geom_line(linewidth =1.05) +
   geom_point(alpha = .5) + 
   scale_y_continuous(labels=scales::percent) +
@@ -947,6 +950,7 @@ covidestim <- read_csv('https://media.githubusercontent.com/media/covidestim/cov
   filter(date >"2021-01-01" & date <= "2022-03-03")%>%
   mutate(week=week(date),
          year=year(date)) %>%
+  # add tiny week to previous week
   mutate(week = ifelse(week==53 & year == 2021,52,week)) %>%
   group_by(year,week, state) %>%
   summarize(date =min(date),cases=sum(cases))
@@ -958,10 +962,12 @@ tests_weekly <- readRDS("data/state_level/tests_daily_all_states.RDS") %>%
   mutate(week = ifelse(week==53 & year == 2021,52,week)) %>%
   group_by(year,week, state) %>%
   summarize(date =min(date), total = sum(total), total=sum(total),positive=sum(positive)) %>%
-  filter(state=="TX") %>%
   mutate(source="CDC Positive Tests") %>%
   rename(cases=positive)
 
+tests_weekly_texas <- tests_weekly %>% 
+  filter(state=="TX") 
+  
 covidestim <- covidestim %>%
   mutate(source="JHU Cases")
 
@@ -977,11 +983,9 @@ dates <- readRDS(here('data/date_to_biweek.RDS'))
 
 
 
-
-
 covidestim %>%
   filter(state=="Texas") %>%
-  bind_rows(tests_weekly) %>%
+  bind_rows(tests_weekly_texas) %>%
   left_join(dates) %>%
   group_by(biweek, state,source) %>%
   summarize(date=min(date),
@@ -992,23 +996,76 @@ covidestim %>%
   ungroup()%>%
   ggplot(aes(x=date))+
   geom_line(aes(y=cases, color=source)) +
-  geom_line(aes(y=testpos*10e5, group=source, color='positivity'),
+  geom_line(aes(y=testpos*10e5, group=source, color='Test Positivity'),
             linetype=2) +
   #scale_linetype_discrete(breaks = c(1,1,2)) +
   scale_color_manual(values=c("JHU Cases" = "#224EAF",
                               "CDC Positive Tests"= "#279143",
                               "Test Positivity"= '#E38E4F')) +
-  guides(color = guide_legend(override.aes = list(linetype = c(1,1,2)),
-                              linewidth=1.5)) +
+  guides(color = guide_legend(override.aes = list(linetype = c(1,1,2)))) +
   theme_c() +
+  theme(axis.title = element_text(size=15),
+        axis.text.x=element_text(size=12)) +
   scale_y_continuous(labels=comma, sec.axis = sec_axis(~./10e5 , name = 'Test Positivity')) +
-  labs(source ='',
-       title = '',
-       y="Value",
+  labs(color ='',
+       title = 'Comparing Data Sources for Texas',
+       y="Total Over 2-week Interval",
        x= "Date")
+# 
+# ggsave(here::here(paste0('thesis/figure/texas_lag.pdf')), 
+#        height=10, width = 15, dpi=400)
 
 
-ggsave(here('thesis/figure/'))
+ggsave(here('thesis/figure/texas-data-sources.jpeg'),height=5, width=10, dpi=400)
+
+
+###########################################
+# across all of U.S., faceted by state
+###########################################
+pltlist <- covidestim %>%
+  left_join(codes ) %>%
+  rename(state_name =state, state=code) %>%
+  bind_rows(tests_weekly) %>%
+  left_join(dates) %>%
+  group_by(biweek, state,source) %>%
+  summarize(date=min(date),
+            total=sum(total),
+            cases=sum(cases)) %>%
+    mutate(testpos = ifelse(source == "CDC Positive Tests", cases/total, NA)) %>%
+  filter(biweek >=2) %>%
+  ungroup()%>%
+  group_by(state) %>%
+  group_split() %>%
+  map( ~{ 
+    adj <- .x %>% pull(cases) %>% max()
+    state <- .x %>%pull(state) %>% unique()
+    
+    .x %>% ggplot(aes(x=date))+
+      geom_line(aes(y=cases, color=source)) +
+      geom_line(aes(y=testpos*adj, group=source, color='Test Positivity'),
+                linetype=2) +
+      #scale_linetype_discrete(breaks = c(1,1,2)) +
+      scale_color_manual(values=c("JHU Cases" = "#224EAF",
+                                  "CDC Positive Tests"= "#279143",
+                                  "Test Positivity"= '#E38E4F')) +
+      guides(color = guide_legend(override.aes = list(linetype = c(1,1,2)))) +
+      theme_c() +
+      theme(axis.title = element_text(size=15),
+            axis.text.x=element_text(size=12),
+            legend.position="none") +
+      scale_y_continuous(labels=comma, sec.axis = sec_axis(~./adj , name = 'Test Positivity')) +
+      labs(color ='',
+           title = state,
+           y="Total Over 2-week Interval",
+           x= "Date") }
+  ) 
+ 
+ 
+
+cowplot::plot_grid(plotlist=pltlist, ncol=5)
+
+
+
   
 ```
 
@@ -1048,13 +1105,13 @@ corrected %>%
              ymin = exp_cases_lb,
              ymax = exp_cases_ub,
              fill = vlabel),
-             alpha = .7,
+             alpha = .5,
              show.legend=FALSE) +
   geom_ribbon(aes(x = date,
                   fill = 'Covidestim',
                   ymin = infections.lo,
                   ymax = infections.hi),
-              alpha = .7) +
+              alpha = .5) +
    # geom_linerange(aes(xmin = xmin,
    #                    xmax=xmax,
    #                    y = positive,
@@ -1186,13 +1243,13 @@ corrected %>%
              ymin = exp_cases_lb,
              ymax = exp_cases_ub,
              fill = vlabel),
-             alpha = .7,
+             alpha = .5,
              show.legend=FALSE) +
   geom_ribbon(aes(x = date,
                   fill = 'Covidestim',
                   ymin = infections.lo,
                   ymax = infections.hi),
-              alpha = .7) +
+              alpha = .5) +
    # geom_linerange(aes(xmin = xmin,
    #                    xmax=xmax,
    #                    y = positive,

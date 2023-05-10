@@ -120,27 +120,33 @@ knitr::include_graphics('figure/state_comp_covidestim2.pdf')
  
  
 ```{r, out.width = "100%", fig.cap = "\\label{fig:variant-prop}Variant proportions for variants designated as Variant of Interest or Variant of Concern by the World Health Organization. We see Delta begins its rise in May 2021 and reaches an estimated proportion of 0.98 of sequenced infections by mid-August 2021. Omicron's rise occurs more quickly, beginning its increase throughout December and becoming almost entirely dominant by mid-January.\nData source: SARS-CoV-2 Variant Proportions from Data.CDC.gov.", fig.height=3.5}
+
 knitr::include_graphics('figure/variant_prop.jpeg')
+
+
 ```
  
-This period of disagreement between the approaches in December 2021 through January 2022 corresponds to the Omicron wave of the pandemic, which we can see in Figure \ref{fig:variant-prop}. This was a major shift in the pandemic: the Omicron variant is highly transmissible compared to previous variants, and it has immune invasion capacity that means vaccine efficacy provides less protection [@https://doi-org.libproxy.smith.edu/10.1038/s41591-022-01753-y]. It also is associated with a lower infection fatality ratio [@liu2022].
-
-
-Beyond the clear differences during the Omicron wave, we also see in several states that there is an additional rise in July with the probabilistic bias analysis implementations that include data from the COVID-19 Trends and Impact Survey (columns 2 through 4), while this peak is smaller in the Covidestim intervals. States exhibiting this trend include Arizona, Maryland, Michigan, Minnesota, Missouri, New Jersey, New York, and Wisconsin. Meanwhile, there are some states where there is a peak in the Covidestim intervals that lags the peak in the probabilistic bias analysis, for example, Colorado, Kentucky, Texas, and Virginia.
-
-
-The peak in July corresponds to the Delta wave, where the more transmissible B.1.617.2 (delta) variant of concern displaced the previously dominant B.1.351 (alpha) variant [@delrio2021]. The peak in December corresponds to the Omicron wave, which began the dominant variant over the course of a single month.
+This period of disagreement between the approaches in December 2021 through January 2022 corresponds to the Omicron wave of the pandemic, which we can see in Figure \ref{fig:variant-prop}. This was a major shift in the pandemic: the Omicron variant is highly transmissible compared to previous variants, and it has immune invasion capacity, which means vaccines provides less protection against infection [@andrews2022]. Omicron also is associated with a lower infection fatality ratio [@liu2022], as well as milder infection overall, which may influence testing behavior. Omicron's rise was rapid too, presumably as a result of this enhanced transmissibility and immune escape;  it became the dominant variant over the course of a single month.
 
 
 
-### Example Where July Peak is Larger in Probablistic Bias Analysis Intervals
-
-We can take a closer look at Michigan to see the trends in the probabilistic intervals in relation to changes in circulating variants (Figure \ref{fig:michigan-variant}). In particular, we see the moments where the trend differs from Covidestim are in a peak around late July and in December. Across states, these periods tended to be the most discordant   (Figure \ref{fig:state-results-1} and Figure \ref{fig:state-results-2}) . 
+Beyond the clear differences during the Omicron wave, we also see in several states that there is an additional rise in July with the probabilistic bias analysis implementations that include data from the COVID-19 Trends and Impact Survey (columns 2 through 4), while this peak is smaller in the Covidestim intervals. States exhibiting this trend include Arizona, Maryland, Michigan, Minnesota, Missouri, New Jersey, New York, and Wisconsin. Meanwhile, there are some states where there is a peak of similar size in the Covidestim intervals that lags the peak in the probabilistic bias analysis, for example, Colorado, Kentucky, Texas, and Virginia.
 
 
+This peak beginning close to July corresponds to the Delta wave, where the more transmissible B.1.617.2 (Delta) variant of concern displaced the previously dominant B.1.351 (Alpha) variant [@delrio2021]. 
 
 
-```{r, out.width = "100%", fig.cap = "\\label{fig:michigan-variant}Presenting the probabilistic intervals along with the variant proportions for variants designated as Variant of Interest or Variant of Concern by the World Health Organization. We see the rise in Omicron clearly in the probabilistic bias intervals in December of 2021."}
+To better understand the differences between the probabilistic bias analysis and Covidestim during the Delta wave in the summer of 2021, we consider two examples that represent different trends. 
+
+
+First, we can take a closer look at Michigan to see the trends in the probabilistic intervals in relation to changes in circulating variants (Figure \ref{fig:michigan-variant}). We see, as we observe across most states in Figure \ref{fig:state-results-1} and Figure \ref{fig:state-results-2}, that the times when the probabilistic bias intervals differ the most from Covidestim are in the increases around late July and in December, where we see that July corresponds to the Delta Wave and December corresponds to the Omicron wave.
+
+
+
+### Example Where July Peak is Larger in Probablistic Bias Analysis Intervals: Michigan
+
+
+```{r, out.width = "100%", fig.cap = "\\label{fig:michigan-variant}Probabilistic intervals for Michigan along with the variant proportions for variants designated as Variant of Interest or Variant of Concern by the World Health Organization. These variant proportions are not specific to Michigan; the estimates are for the United States. The rise in Omicron corresponds to the dramatic increase in both the probabilistic bias intervals and Covidestim estimates in December of 2021 through January of 2022. We also see the increase in the Delta variant that precedes the Delta wave in the summer of 2021."}
 
 
 knitr::include_graphics('figure/michigan_variant.pdf')
@@ -153,7 +159,7 @@ As discussed in the Covidestim model change log, Chitwood *et al.* made substant
 
 In July, meanwhile, the difference we see between the Covidestim estimates and probabilistic bias intervals is likely a result of the way these approaches treat incomplete testing. The focus of the probabilistic bias analysis is to correct for incomplete testing, and as such the method is sensitive to changes in the total number tested and the positivity rate. By contrast, while Covidestim models probabilities of diagnosis by symptom state to allow for variation in case ascertainment, the total number of tests is not an input into the model, so model estimates are not affected by changes in testing rate. This is particularly relevant in the time interval where we observe a larger peak in the probabilistic bias intervals. While the trend in observed tests follows a more steady upward trend like that we see in the Covidestim estimates, the probabilistic bias intervals are influenced by the relationship between positive tests and total tests in this time period.
 
-In Figure \ref{fig:test-capacity}, consider the number of positive and total tests reported in Michigan. In the period from July through September, the positive tests increase at a higher rate than the total tests. Because the number of infections among the untested population is calculated based on the observed test positivity rate, the higher test positivity rate (resulting from positive tests increasing more than total tests) results in the peak we see in this time interval in the probabilistic bias intervals. The same trend is true across states (Supplementary Figure \ref{fig:test-capacity-all-states}). 
+In Figure \ref{fig:test-capacity}, we consider the number of positive and total tests reported in Michigan. In the period from July through September, the positive tests increase at a higher rate than the total tests. Because the number of infections among the untested population is calculated based on the observed test positivity rate, the higher test positivity rate (resulting from positive tests increasing more than total tests) results in the peak we see in this time interval in the probabilistic bias intervals. A similar trend appears across several states, wehre the positive tests increase more rapidly than the total tests during this time period  (Supplementary Figure \ref{fig:test-capacity-all-states}). 
 
 
 ```{r, fig.cap = "\\label{fig:test-capacity} Percent change in positive tests and the percent change in total tests from March 2021 through the end of February 2022. We see in the period from July through September that the positive tests increase at a higher rate than the total tests, which relates to the increase we see beginning in July in the probabilistic bias intervals." }
@@ -163,21 +169,29 @@ knitr::include_graphics('figure/test_capacity.pdf')
 
 ```
 
-### Example Where Covidestim Intervals Lag Probabilistic Bias Intervals
+### Example Where Covidestim Intervals Lag Probabilistic Bias Intervals: Texas
 
 
-Texas is one state where there the peak corresponding to the Delta wave is lagged in the Covidestim intervals compared to the probabilistic bias intervals (Figure \ref{fig:texas}).
+Texas is one state where there the peak corresponding to the Delta wave is lagged in the Covidestim intervals compared to the probabilistic bias intervals.   In Figure \ref{fig:texas}, we narrow in on two implementations of the probabilistic bias analysis: the one that does not incorporate survey data to inform the priors, and the implementation that centers $\beta$ and $\Pr(S_1|\text{untested})$ at the values from the survey data. The presence of the lag in both versions indicates that it is not the survey data that is causing this lag. From Figures \ref{fig:state-results-1} and \ref{fig:state-results-2}, this appears to be the case across the U.S. -- when there is a lag, it is present in all implementations. 
 
-```{r, fig.cap="\\label{fig:texas} Probabilistic bias analysis intervals for Texas across time. Each probabilistic bias interval is a 95% simulation interval for the estimated infections for that entire 2-week period. In red are Covidestim estimates summed to be on the same biweekly time scale. Texas is one state where the Covidestim estimates appear to lag the probabilistic bias analysis for the Delta wave beginning in July."}
+
+```{r, fig.cap="\\label{fig:texas} Probabilistic bias analysis intervals for Texas across time. Each probabilistic bias interval is a 95\\% simulation interval for the estimated infections for that entire 2-week period. In red are Covidestim estimates summed to be on the same biweekly time scale. Texas is one state where the Covidestim estimates appear to lag the probabilistic bias analysis for the Delta wave beginning in July. This is true for both the version that does not incorporate survey data from the COVID-19 Trends and Impact Survey, as well as the version that does, so the difference cannot be explained by the survey data alone."}
 
 
 knitr::include_graphics('figure/texas-lag.jpeg')
 
 ```
 
-To consider the reasons we see this lag, we can first compare the data sources, since for the probabilistic bias analysis we use the CDC's reports of positive and total tests by state, while the Covidestim model uses the Johns Hopkins Center for Systems Science and Engineering (CSSE) case counts. In Figure 
+To consider the reasons we see this lag, we can first compare the data sources. For the probabilistic bias analysis we use the CDC's reports of positive and total tests by state, while the Covidestim model uses the Johns Hopkins Center for Systems Science and Engineering (CSSE) case counts. 
 
-```{r,  fig.cap="\\label{fig:texas-source} Comparing the data sources for the probablistic bias analysis and the Covidestim model to look into the source of the lag observed in Texas, as shown in Figure \ref{fig:texas}. The two solid lines are the data sources: the data source for the probabilistic analysis is PCR tests from the CDC's Diagnostic Laboratory Testing Time series, while the data source for the Covidestim model is Johns Hopkins CSSE case counts. Each source is summed on the biweekly time scale. The test positivity is the positive tests from the CDC source over total tests for the two-week interval. The Johns Hopkins CSSE and  CDC positive tests are largely concordant, so differences in data source do not appear to explain the lag for the delta wave in Texas. The test positivity, however, does clarifies the lag. The test positivity begins increasing in early June, before we see positive tests or cases increasing, due to a drop in total tests. This increase in test positivity is reflected in the probabalistic bias intervals in \ref{fig:texas-source}, where increases corresponding to the delta wave start begin earlier, in early to mid June, compared to July, where the increase is at about a two-week lag."}
+We see that the CDC positive test counts are very similar to the Johns Hopkins CSSE case counts, so the difference in data sources does not appear to be driving the lag. However, the test positivity, calculated as the total number of positive tests over total tests for each 2-week interval, begins to increase in early June, before we see positive tests or cases increasing, due to how total tests are changing relative to positive tests (Supplementary Figure \\ref{fig:test-capacity-all-states}). 
+
+Since the probabilistic bias analysis uses the observed test positivity to estimate the (hypothetical) test positivity in the untested population, increases in test positivity lead to the increases we see in the bias intervals.
+
+
+This means that if positive tests are steady but total tests are decreasing (as is the case in this particular example in mid June), we will see an increase in the probabilistic bias estimates due how we use test positivity to estimate the number of unobserved infections. 
+
+```{r,  fig.cap="\\label{fig:texas-source} Comparing the data sources for the probablistic bias analysis and the Covidestim model to look into the source of the lag observed in Texas, as shown in Figure \\ref{fig:texas}. The two solid lines are the data sources: the data source for the probabilistic analysis is PCR tests from the CDC's Diagnostic Laboratory Testing Time series, while the data source for the Covidestim model is Johns Hopkins CSSE case counts. Each source is summed on the biweekly time scale. The test positivity is the positive tests from the CDC source over total tests for the two-week interval. The Johns Hopkins CSSE and  CDC positive tests are largely concordant, so differences in data source do not appear to explain the lag for the delta wave in Texas. The test positivity, however, does clarifies the lag. The test positivity begins increasing in early June, before we see positive tests or cases increasing, due to total tests at first decreasing and then increasing, but not at the same rate as the positive tests (Supplementary Figure \\ref{fig:test-capacity-all-states}) . This increase in test positivity is reflected in the probabalistic bias intervals in Figure \\ref{fig:texas-source}, where increases corresponding to the Delta wave start begin earlier, in early to mid June, compared to July, where the increase is at about a two-week lag."}
 
 
 knitr::include_graphics('figure/texas-data-sources.jpeg')
@@ -185,6 +199,7 @@ knitr::include_graphics('figure/texas-data-sources.jpeg')
 
 ```
 
+Although we only discuss the example of Texas here in depth, we see similar trends in other states with lags the increase in positive tests relative to total tests across most states near the beginning of the Delta wave.
 
 ## Ratio Between Estimated to Observed Infections
 

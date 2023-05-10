@@ -414,7 +414,7 @@ covidestim_biweekly_all_counties %>%
 
 
 
-# State-level Cases
+# State-level Tests (CDC)
 
 PCR test results at the state-level from healthdata.gov endpoint [here](https://healthdata.gov/dataset/COVID-19-Diagnostic-Laboratory-Testing-PCR-Testing/j8mb-icvb).
 
@@ -510,7 +510,7 @@ cdc_pos %>%
 ```
 
 
-# State-level Cases (JHU)
+# State-level Tests (JHU)
 
 ```{r}
 
