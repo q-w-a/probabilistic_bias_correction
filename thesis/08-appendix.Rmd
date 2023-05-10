@@ -503,3 +503,14 @@ knitr::include_graphics('figure/jhu_cdc_all_states_2.jpeg')
 
 ```
 
+## First Implementation of Probabilistic Bias Analysis (Including All States)
+
+
+Some states have insufficient data from the COVID-19 Trends and Impact Survey to run the implementations that center the distributions of $\beta$ and/or $P(S_1|\text{untested})$ at the survey values (versions 2 through 4). However, because testing data is available for all states, the implementation that does not inform priors based on survey data is possible for all states in the U.S. (Figure \ref{fig:all-states-first-impl}). 
+
+```{r, fig.cap = "\\label{fig:all-states-first-impl}  Probabilistic bias analysis 95\\% simulation intervals for each two-week interval and state for the implementation where priors do not vary by location or time-interval."}
+
+knitr::include_graphics('figure/all-states-first-impl.jpeg')
+
+```
+

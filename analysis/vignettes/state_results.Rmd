@@ -1685,7 +1685,7 @@ corrected %>%
    #                    color = 'obs')) +
   facet_wrap(~state,
              scales = "free_y",
-             ncol=7,
+             ncol=6,
               labeller= labeller(vlabel =as_labeller(TeX, default=label_parsed))) +
   scale_y_continuous(labels = comma) +
   scale_x_date(date_breaks = "2 months", 
@@ -1720,7 +1720,7 @@ corrected %>%
                               byrow=TRUE))
 
 
-ggsave(here('thesis/figure/all-states-first-impl.jpeg'), height=17, width=14)
+ggsave(here('thesis/figure/all-states-first-impl.jpeg'), height=18, width=16)
 
 
 ```

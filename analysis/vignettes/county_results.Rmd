@@ -141,6 +141,69 @@ joined <- joined %>%
 
 ```
 
+
+## Heatmap for Ratio of Estimated to Observed
+
+
+```{r}
+
+######################################################
+# HEATMAP OF RATIO OF ESTIMATED TO OBSERVED
+######################################################
+
+heatmap_dat <- corrected %>%
+  filter(version=="v2") %>%
+  group_by(biweek, county_name, exp_cases_median, positive) %>%
+  summarize(date = min(date)) %>%
+  ungroup() 
+  
+
+# group similar states together
+wide <- heatmap_dat %>%
+    mutate(ratio= exp_cases_median/positive) %>%
+  select(-c(exp_cases_median, positive)) %>%
+  pivot_wider(names_from=county_name,values_from =ratio)
+
+heatmap_dat %>%
+  mutate(ratio=exp_cases_median/positive) %>%
+  mutate(date_lab = format(as.POSIXct(date),format="%b %Y")) %>%
+  group_by(county_name) %>%
+  mutate(m = median(ratio)) %>%
+  ungroup() %>%
+  ggplot(aes(x=fct_reorder(date_lab, date),
+             y = fct_reorder(county_name,m),
+             fill =exp_cases_median/positive)) +
+  geom_tile() +
+ # scale_x_discrete(breaks=breaks_date, labels = breaks_date)  +
+  viridis::scale_fill_viridis(option="rocket", direction=-1) +
+  labs(x="Date",
+       y= "State",
+       fill = "Ratio of Estimated Cases\nto Observed",
+       title = "Ratio of Median Estimated Infections to Observed Infections") +
+  theme_c() +
+  theme(axis.text.x = element_text(size=11, angle=30),
+        axis.text.y = element_text(size = 13),
+        axis.title = element_text(size=16),
+        legend.title = element_text(face="bold", size=18))
+
+
+heatmap_dat %>%
+  mutate(ratio=exp_cases_median/positive) %>%
+  group_by(biweek) %>%
+  summarize(m=median(ratio),
+            date=min(date)) %>%
+  arrange(desc(m))
+
+ggsave(here('thesis/figure/county_heatmap_ratio_est_observed.jpeg'),
+       height=10,
+       width =13,
+       dpi=400)
+
+
+```
+
+
+
 ## Faceted by version
 
 
