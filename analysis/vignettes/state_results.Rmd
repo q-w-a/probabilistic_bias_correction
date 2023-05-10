@@ -292,6 +292,7 @@ corrected %>%
                     option="magma") +
   theme_c()+
   theme(legend.text=element_text(size=8),
+        axis.text.x=element_text(size=8),
         legend.title = element_text(size=19),
         axis.title.x= element_text(size=15)) +
   coord_flip() +
@@ -452,7 +453,18 @@ ggsave(here('thesis/figure/variant_prop.jpeg'), width =9, height=4, dpi=400)
 
 # Ratio of Unobserved to Observed
 
-Considering version using $P(S_1|\text{untested})$ centered at empirical value.
+
+
+```{r}
+
+subset %>% 
+  ggplot(aes(y =state,
+             xmin = exp_cases_lb/positive,
+             xmax = exp_cases_ub/positive)) +
+  geom_errorbar()
+
+
+```
 
 
 ```{r}
@@ -541,6 +553,14 @@ subset %>% filter(state=="MI") %>%
   theme_c()
 
 
+```
+
+
+```{r}
+
+######################################################
+# HEATMAP OF RATIO OF ESTIMATED TO OBSERVED
+######################################################
 
 heatmap_dat <- subset %>%
   group_by(biweek, state, exp_cases_median, positive) %>%
@@ -553,8 +573,6 @@ heatmap_dat <- subset %>%
   
 
 # group similar states together
-
-
 wide <- heatmap_dat %>%
     mutate(ratio= exp_cases_median/positive) %>%
   select(-c(exp_cases_median, positive)) %>%
@@ -563,7 +581,7 @@ wide <- heatmap_dat %>%
 dist_mat <- dist(t(wide[3:ncol(wide)]), method = 'euclidean')
 hclust_avg <- hclust(dist_mat, method = 'average')
 
-plot(hclust_avg)
+# plot(hclust_avg)
 
 cluster_order <- tibble(order = hclust_avg$order, 
                         state = hclust_avg$labels[hclust_avg$order])
@@ -580,7 +598,7 @@ heatmap_dat %>%
              y = fct_reorder(state,m),
              fill =exp_cases_median/positive)) +
   geom_tile() +
-  scale_x_discrete(breaks=breaks_date, labels = breaks_date)  +
+ # scale_x_discrete(breaks=breaks_date, labels = breaks_date)  +
   viridis::scale_fill_viridis(option="rocket", direction=-1) +
   labs(x="Date",
        y= "State",
@@ -944,9 +962,24 @@ ggsave(here::here(paste0('thesis/figure/test_capacity_all_states.pdf')),
 
 ```
 
+
+# Comparing Data Sources
+
+## Texas 
+
+```{r,eval=FALSE}
+source <- read_csv('https://media.githubusercontent.com/media/covidestim/covidestim-sources/master/data-sources/jhu-states.csv')
+
+saveRDS(source, here('data/covidestim/state_source.RDS'))
+
+```
+
+
 ```{r}
 
-covidestim <- read_csv('https://media.githubusercontent.com/media/covidestim/covidestim-sources/master/data-sources/jhu-states.csv') %>%
+source <- readRDS(here('data/covidestim/state_source.RDS'))
+
+covidestim <- source %>%
   filter(date >"2021-01-01" & date <= "2022-03-03")%>%
   mutate(week=week(date),
          year=year(date)) %>%
@@ -956,7 +989,7 @@ covidestim <- read_csv('https://media.githubusercontent.com/media/covidestim/cov
   summarize(date =min(date),cases=sum(cases))
 
 
-tests_weekly <- readRDS("data/state_level/tests_daily_all_states.RDS") %>%
+tests_weekly <- readRDS(here("data/state_level/tests_daily_all_states.RDS")) %>%
   mutate(week=week(date),
          year=year(date)) %>%
   mutate(week = ifelse(week==53 & year == 2021,52,week)) %>%
@@ -1018,6 +1051,14 @@ covidestim %>%
 
 ggsave(here('thesis/figure/texas-data-sources.jpeg'),height=5, width=10, dpi=400)
 
+```
+
+
+## All States 
+
+```{r}
+
+library(cowplot)
 
 ###########################################
 # across all of U.S., faceted by state
@@ -1031,6 +1072,7 @@ pltlist <- covidestim %>%
   summarize(date=min(date),
             total=sum(total),
             cases=sum(cases)) %>%
+  filter(!is.na(state)) %>%
     mutate(testpos = ifelse(source == "CDC Positive Tests", cases/total, NA)) %>%
   filter(biweek >=2) %>%
   ungroup()%>%
@@ -1038,6 +1080,7 @@ pltlist <- covidestim %>%
   group_split() %>%
   map( ~{ 
     adj <- .x %>% pull(cases) %>% max()
+    adj <- 1.8*adj
     state <- .x %>%pull(state) %>% unique()
     
     .x %>% ggplot(aes(x=date))+
@@ -1056,15 +1099,52 @@ pltlist <- covidestim %>%
       scale_y_continuous(labels=comma, sec.axis = sec_axis(~./adj , name = 'Test Positivity')) +
       labs(color ='',
            title = state,
-           y="Total Over 2-week Interval",
+           y="Value",
            x= "Date") }
   ) 
  
  
 
-cowplot::plot_grid(plotlist=pltlist, ncol=5)
+n <- length(pltlist)
+
+names(pltlist) <- 1:length(pltlist)
 
 
+pltlist_1 <-map(1:(n/2), ~ pltlist[[.x]])
+
+pltlist_2 <-map((n/2 +1):n, ~ pltlist[[.x]])
+
+title_gg <- ggplot() + 
+  labs(title = "Comparing CDC Positive Tests to JHU Cases") + 
+  theme(plot.title=element_text(face="bold", hjust = .5, size = 30, margin =margin(5,0,2,0)))
+
+legend <- get_legend(
+  pltlist[[1]] +
+    guides(color = guide_legend(
+      nrow = 1, 
+      override.aes = list(
+      linewidth=4))) +
+    theme(legend.position = "top",
+          legend.text = element_text(size = 20))
+)
+
+# png(here::here("thesis/figure/melded.png"), width =500,height=500)
+
+title_row <- cowplot::plot_grid(title_gg, legend,nrow=2)
+
+plot1 <- plot_grid( plotlist=pltlist_1, ncol=4)
+plot2 <- plot_grid( plotlist=pltlist_2, ncol=4)
+
+
+plot_grid(title_row, plot1, rel_heights=c(.05,.95), nrow=2)
+
+ggsave(here('thesis/figure/jhu_cdc_all_states_1.jpeg'), height=25, width=19)
+
+
+
+plot_grid(title_row, plot2, rel_heights=c(.05,.95), nrow=2)
+
+ggsave(here('thesis/figure/jhu_cdc_all_states_2.jpeg'), height=25, width=19)
 
   
 ```

@@ -184,7 +184,7 @@ knitr::include_graphics('figure/texas-lag.jpeg')
 
 To consider the reasons we see this lag, we can first compare the data sources. For the probabilistic bias analysis we use the CDC's reports of positive and total tests by state, while the Covidestim model uses the Johns Hopkins Center for Systems Science and Engineering (CSSE) case counts. 
 
-We see that the CDC positive test counts are very similar to the Johns Hopkins CSSE case counts, so the difference in data sources does not appear to be driving the lag. However, the test positivity, calculated as the total number of positive tests over total tests for each 2-week interval, begins to increase in early June, before we see positive tests or cases increasing, due to how total tests are changing relative to positive tests (Supplementary Figure \\ref{fig:test-capacity-all-states}). 
+We see that the CDC positive test counts are very similar to the Johns Hopkins CSSE case counts, so the difference in data sources does not appear to be driving the lag. However, the test positivity, calculated as the total number of positive tests over total tests for each 2-week interval, begins to increase in early June, before we see positive tests or cases increasing, due to how total tests are changing relative to positive tests (Supplementary Figure \ref{fig:test-capacity-all-states}). 
 
 Since the probabilistic bias analysis uses the observed test positivity to estimate the (hypothetical) test positivity in the untested population, increases in test positivity lead to the increases we see in the bias intervals.
 
@@ -199,7 +199,7 @@ knitr::include_graphics('figure/texas-data-sources.jpeg')
 
 ```
 
-Although we only discuss the example of Texas here in depth, we see similar trends in other states with lags the increase in positive tests relative to total tests across most states near the beginning of the Delta wave.
+Although we only discuss the example of Texas here in depth, we see similar trends in other states with lags the increase in positive tests relative to total tests across most states near the beginning of the Delta wave (Supplementary Figure \ref{fig:jhu-cdc-all}).
 
 ## Ratio Between Estimated to Observed Infections
 
@@ -278,7 +278,7 @@ These results make sense when we consider that this analysis is much more sensit
 
 \begin{align*}
 N^+_{\text{untested},S_0} &= P(\text{test}_+| S_0,\text{untested}) (N_{S_0,\text{untested}})\\
-&= \Big( \beta P(test_+ |\text{tested}) \Big) N_{\text{untested}} (1-P(S_1|\text{untested}))
+&= \Big( \beta P(\text{test}_+ |\text{tested}) \Big) N_{\text{untested}} (1-P(S_1|\text{untested}))
 \end{align*}
 
 and the number of positive infections among those who are untested and *symptomatic* as  

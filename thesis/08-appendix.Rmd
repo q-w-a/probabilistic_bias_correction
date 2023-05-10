@@ -486,3 +486,20 @@ knitr::include_graphics('figure/test_capacity_all_states.pdf')
                         
 ```
 
+
+## Comparing Johns Hopkins CSSE Cases to CDC Positive Tests
+
+
+
+```{r, out.width="100%", fig.cap = "\\label{fig:jhu-cdc-all}Comparing the data sources for the probablistic bias analysis and the Covidestim model. The two solid lines are the data sources: the data source for the probabilistic analysis is PCR tests from the CDC's Diagnostic Laboratory Testing Time series, while the data source for the Covidestim model is Johns Hopkins CSSE case counts. Each is summed across 2-week intervals time scale. The test positivity is the positive tests from the CDC source over total tests for the two-week interval. Looking at trends in the test positivity are informative for better understanding when Covidestim estimates lag the probabilistic bias intervals. This figure contains half of the states; the next half are in the following figure."}
+
+knitr::include_graphics('figure/jhu_cdc_all_states_1.jpeg')
+
+```
+
+```{r, fig.cap = "\\label{fig:jhu-cdc-all2} This figure provides the same information as \\ref{fig:jhu-cdc-all} for the second half of the states."}
+
+knitr::include_graphics('figure/jhu_cdc_all_states_2.jpeg')
+
+```
+

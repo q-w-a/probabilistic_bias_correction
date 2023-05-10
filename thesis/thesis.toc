@@ -73,4 +73,5 @@
 \contentsline {subsection}{\numberline {7.3.1}Simulation: Bivariate Normal}{47}{subsection.7.3.1}%
 \contentsline {subsection}{\numberline {7.3.2}Derivation of the Distribution of X+Y for Bivariate Normal}{47}{subsection.7.3.2}%
 \contentsline {section}{\numberline {7.4}Total Tests and Positive Tests Across All States}{47}{section.7.4}%
+\contentsline {section}{\numberline {7.5}Comparing Johns Hopkins CSSE Cases to CDC Positive Tests}{47}{section.7.5}%
 \contentsline {chapter}{References}{49}{chapter*.35}%
