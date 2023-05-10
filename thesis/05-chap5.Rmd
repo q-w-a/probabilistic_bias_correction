@@ -88,7 +88,7 @@ To ensure the comparisons are on the same time scale, we sum the reported 95% cr
 There is much more comprehensive testing data at the state-level than at the county level, as John Hopkins has tracked state-level testing data throughout the pandemic.
 As a result, we can apply probabilistic bias analysis across the United States at the state-level.
 
-However, since versions 2-4 of the analysis utilize empirical estimates of $P(S_1|\text{untested})$ or $\beta$ from the COVID-19 Trends and Impact Survey, these versions are only possible when there is sufficient data for the state. As we see in Figure \ref{fig:statectis}, some states have very little data for the empirical estimate of beta. However in Figure \ref{fig:statectis-s-untested} we see that there is more consistent reporting of $P(S_1|\text{untested})$.
+However, since versions 2-4 of the analysis utilize empirical estimates of $P(S_1|\text{untested})$ or $\beta$ from the COVID-19 Trends and Impact Survey, these versions are only possible when there is sufficient data for the state. As we see in Figure \ref{fig:statectis}, some states have very little data for the empirical estimate of beta. However in Figure \ref{fig:statectis-s-untested} we see that there is more consistent reporting of the prevalence of COVID-19-like symptoms, which we can use as an estimate of $P(S_1|\text{untested})$.
 
 For versions 2-4, we did not attempt the probabilistic bias analysis for states where more than 60% of observations were missing at the daily time step. Missing values for states with sufficient data were imputed before summarizing to the biweek level using a linear weighted moving average. 
 
@@ -103,7 +103,8 @@ knitr::include_graphics('figure/ctis_s_untested_states.pdf')
 
 ```
 
-In Figures \ref{fig:state-results-1} and \ref{fig:state-results-2}, we compare the 95% credible intervals of Covidestim summed to be on the biweek time scale to the probabilistic bias analysis intervals^[As mentioned in the [limitations](#lims) section, the two week intervals cannot be interpreted as 95% credible intervals. However, the comparison is still useful to contextualize the results of the probabilistic bias analysis.]. We see correspondence is much higher before the time period spanning December 2021 through January 2022. From Figure \ref{fig:variant-prop}, we see that this period corresponds to the Omicron wave. Omicron wave in late 2021 through early 2022, where Covidestim estimates the cases to be much higher. 
+In Figures \ref{fig:state-results-1} and \ref{fig:state-results-2}, we compare the 95% credible intervals of Covidestim summed to be on the biweek time scale to the probabilistic bias analysis intervals^[As mentioned in the [limitations](#lims) section, the two week intervals cannot be interpreted as 95% credible intervals. However, the comparison is still useful to contextualize the results of the probabilistic bias analysis.]. We see correspondence is much higher before the time period spanning December 2021 through January 2022, where Covidestim intervals tend to be higher than the probabilistic bias intervals. From Figure \ref{fig:variant-prop}, we see that this period corresponds to the Omicron wave of the pandemic.
+
 
 ```{r,out.width = "100%", fig.cap  = '\\label{fig:state-results-1}'}
 knitr::include_graphics('figure/state_comp_covidestim1.pdf')
@@ -116,19 +117,30 @@ knitr::include_graphics('figure/state_comp_covidestim2.pdf')
 
 ```
  
-```{r, out.width = "100%", fig.cap = "\\label{fig:variant-prop.jpeg}Variant proportions for variants designated as Variant of Interest or Variant of Concern by the World Health Organization. We see Delta begins its rise in May 2021 and reaches an estimated proportion of 0.98 of sequenced infections by mid-August 2021. Omicron's rise occurs more quickly, beginning its increase throughout December and becoming almost entirely dominant by mid-January.\nData source: SARS-CoV-2 Variant Proportions from Data.CDC.gov."}
+ 
+ 
+```{r, out.width = "100%", fig.cap = "\\label{fig:variant-prop}Variant proportions for variants designated as Variant of Interest or Variant of Concern by the World Health Organization. We see Delta begins its rise in May 2021 and reaches an estimated proportion of 0.98 of sequenced infections by mid-August 2021. Omicron's rise occurs more quickly, beginning its increase throughout December and becoming almost entirely dominant by mid-January.\nData source: SARS-CoV-2 Variant Proportions from Data.CDC.gov.", fig.height=3.5}
 knitr::include_graphics('figure/variant_prop.jpeg')
 ```
  
- 
-
-We can take a closer look at Michigan to see the trends in the probabilistic intervals in relation to changes in circulating variants (Figure \ref{fig:michigan-variant}). In particular, we see the moments where the trend differs from Covidestim are in a peak around late July and in December. We see a similar trend in these time periods across most states (Figures  \ref{fig:state-results-1} and \ref{fig:state-results-2}).
- 
-The peak in July corresponds to the Delta wave, where the more transmissible B.1.617.2 (delta) variant of concern displaced the previously dominant B.1.351 (alpha) variant [@delrio2021]. The peak in December corresponds to the Omicron wave.
+This period of disagreement between the approaches in December 2021 through January 2022 corresponds to the Omicron wave of the pandemic, which we can see in Figure \ref{fig:variant-prop}. This was a major shift in the pandemic: the Omicron variant is highly transmissible compared to previous variants, and it has immune invasion capacity that means vaccine efficacy provides less protection [@https://doi-org.libproxy.smith.edu/10.1038/s41591-022-01753-y]. It also is associated with a lower infection fatality ratio [@liu2022].
 
 
+Beyond the clear differences during the Omicron wave, we also see in several states that there is an additional rise in July with the probabilistic bias analysis implementations that include data from the COVID-19 Trends and Impact Survey (columns 2 through 4), while this peak is smaller in the Covidestim intervals. States exhibiting this trend include Arizona, Maryland, Michigan, Minnesota, Missouri, New Jersey, New York, and Wisconsin. Meanwhile, there are some states where there is a peak in the Covidestim intervals that lags the peak in the probabilistic bias analysis, for example, Colorado, Kentucky, Texas, and Virginia.
 
-```{r, out.width = "100%", fig.cap = "\\label{fig:michigan-variant}Presenting the probabilistic intervals along with the variant proportions for variants designated as Variant of Interest or Variant of Concern by the World Health Organization. We see the rise in Omicron clearly in the probabilistic bias interva"}
+
+The peak in July corresponds to the Delta wave, where the more transmissible B.1.617.2 (delta) variant of concern displaced the previously dominant B.1.351 (alpha) variant [@delrio2021]. The peak in December corresponds to the Omicron wave, which began the dominant variant over the course of a single month.
+
+
+
+### Example Where July Peak is Larger in Probablistic Bias Analysis Intervals
+
+We can take a closer look at Michigan to see the trends in the probabilistic intervals in relation to changes in circulating variants (Figure \ref{fig:michigan-variant}). In particular, we see the moments where the trend differs from Covidestim are in a peak around late July and in December. Across states, these periods tended to be the most discordant   (Figure \ref{fig:state-results-1} and Figure \ref{fig:state-results-2}) . 
+
+
+
+
+```{r, out.width = "100%", fig.cap = "\\label{fig:michigan-variant}Presenting the probabilistic intervals along with the variant proportions for variants designated as Variant of Interest or Variant of Concern by the World Health Organization. We see the rise in Omicron clearly in the probabilistic bias intervals in December of 2021."}
 
 
 knitr::include_graphics('figure/michigan_variant.pdf')
@@ -141,21 +153,48 @@ As discussed in the Covidestim model change log, Chitwood *et al.* made substant
 
 In July, meanwhile, the difference we see between the Covidestim estimates and probabilistic bias intervals is likely a result of the way these approaches treat incomplete testing. The focus of the probabilistic bias analysis is to correct for incomplete testing, and as such the method is sensitive to changes in the total number tested and the positivity rate. By contrast, while Covidestim models probabilities of diagnosis by symptom state to allow for variation in case ascertainment, the total number of tests is not an input into the model, so model estimates are not affected by changes in testing rate. This is particularly relevant in the time interval where we observe a larger peak in the probabilistic bias intervals. While the trend in observed tests follows a more steady upward trend like that we see in the Covidestim estimates, the probabilistic bias intervals are influenced by the relationship between positive tests and total tests in this time period.
 
-In Figure \ref{fig:test-capacity}, we see in the period from July through September, the positive tests increase at a higher rate than the total tests. Because the number of infections among the untested population is calculated based on the observed test positivity rate, the higher test positivity rate (resulting from positive tests increasing more than total tests) results in the peak we see in this time interval in the probabilistic bias intervals. The same trend is true across states (Supplementary Figure \ref{fig:test-capacity-all-states}). 
+In Figure \ref{fig:test-capacity}, consider the number of positive and total tests reported in Michigan. In the period from July through September, the positive tests increase at a higher rate than the total tests. Because the number of infections among the untested population is calculated based on the observed test positivity rate, the higher test positivity rate (resulting from positive tests increasing more than total tests) results in the peak we see in this time interval in the probabilistic bias intervals. The same trend is true across states (Supplementary Figure \ref{fig:test-capacity-all-states}). 
 
 
-```{r, fig.cap = "\\label{fig:test-capacity} Percent change in positive tests and the percent change in total tests from March 2021 through the end of February 2022. We see in the period from July through September that the positive tests increase at a higher rate than the total tests, which relates to the peak we see in " }
+```{r, fig.cap = "\\label{fig:test-capacity} Percent change in positive tests and the percent change in total tests from March 2021 through the end of February 2022. We see in the period from July through September that the positive tests increase at a higher rate than the total tests, which relates to the increase we see beginning in July in the probabilistic bias intervals." }
 
 knitr::include_graphics('figure/test_capacity.pdf')
 
 
 ```
 
+### Example Where Covidestim Intervals Lag Probabilistic Bias Intervals
 
 
+Texas is one state where there the peak corresponding to the Delta wave is lagged in the Covidestim intervals compared to the probabilistic bias intervals (Figure \ref{fig:texas}).
+
+```{r, fig.cap="\\label{fig:texas} Probabilistic bias analysis intervals for Texas across time. Each probabilistic bias interval is a 95% simulation interval for the estimated infections for that entire 2-week period. In red are Covidestim estimates summed to be on the same biweekly time scale. Texas is one state where the Covidestim estimates appear to lag the probabilistic bias analysis for the Delta wave beginning in July."}
 
 
+knitr::include_graphics('figure/texas-lag.jpeg')
 
+```
+
+To consider the reasons we see this lag, we can first compare the data sources, since for the probabilistic bias analysis we use the CDC's reports of positive and total tests by state, while the Covidestim model uses the Johns Hopkins Center for Systems Science and Engineering (CSSE) case counts. In Figure 
+
+```{r,  fig.cap="\\label{fig:texas-source} Comparing the data sources for the probablistic bias analysis and the Covidestim model to look into the source of the lag observed in Texas, as shown in Figure \ref{fig:texas}. The two solid lines are the data sources: the data source for the probabilistic analysis is PCR tests from the CDC's Diagnostic Laboratory Testing Time series, while the data source for the Covidestim model is Johns Hopkins CSSE case counts. Each source is summed on the biweekly time scale. The test positivity is the positive tests from the CDC source over total tests for the two-week interval. The Johns Hopkins CSSE and  CDC positive tests are largely concordant, so differences in data source do not appear to explain the lag for the delta wave in Texas. The test positivity, however, does clarifies the lag. The test positivity begins increasing in early June, before we see positive tests or cases increasing, due to a drop in total tests. This increase in test positivity is reflected in the probabalistic bias intervals in \ref{fig:texas-source}, where increases corresponding to the delta wave start begin earlier, in early to mid June, compared to July, where the increase is at about a two-week lag."}
+
+
+knitr::include_graphics('figure/texas-data-sources.jpeg')
+
+
+```
+
+
+## Ratio Between Estimated to Observed Infections
+
+
+```{r,  fig.cap = "\\label{fig:ratio-est-observed} The ratio of estimated infections to observed infections for each 2-week interval and each state, only considering the version of the priors that does not vary by state or time. States are ordered from highest to lowest by median ratio of estimated infections to observed infections over all 2-week intervals considered. The two-week intervals with highest ratios are in June 18, 2021 through July 16, 2021."}
+
+knitr::include_graphics('figure/heatmap_ratio_est_observed.jpeg')
+
+
+```
 
 
 
@@ -181,7 +220,7 @@ $$\Pr(\text{test}_+|S_0,\text{untested}) (1-(\Pr(S_1 | \text{untested})) ( N_{\t
 On the $x$-axis we have the number tested over the population size, $\dfrac{N_{\text{tested}}}{N}$. Thus, we see the trend in each panel where for small changes in testing rate when the testing rate is very low, the ratio of unobserved to unobserved is very high since $N^*_{untested}$ will be large relative  $N^*_{tested}$. However, with higher testing rates,  $N^*_{untested}$ will be large relative  $N^*_{tested}$, and the ratio of estimated to observed infections nears one.
 
 
-```{r,out.width = "100%", fig.cap  = '\\label{fig:testrate}The ratio of the median estimated infections to observed infections plotted against the testing rate, where the testing rate is calculated as the total number tested in a two-week interval over the population size. When the priors are the same for all time intervals and states, there is minimal variability relationship between the testing rate and the ratio of estimated to observed infections, since the correction for incomplete testing and diagnostic test inaccuracy is identical for each time-interval and location. However, when we allow $\\beta$ or $P(S_1|\text{untested})$ to vary by state and time interval, there is much variability in the relationship. A horizontal line in red at 1 is included to reference; a ratio of exactly one would indicate no infections went unobserved.'}
+```{r,out.width = "100%", fig.cap  = '\\label{fig:testrate}The ratio of the median estimated infections to observed infections plotted against the testing rate, where the testing rate is calculated as the total number tested in a two-week interval over the population size. When the priors are the same for all time intervals and states, there is minimal variability relationship between the testing rate and the ratio of estimated to observed infections, since the correction for incomplete testing and diagnostic test inaccuracy is identical for each time-interval and location. However, when we allow $\\beta$ or $P(S_1|\\text{untested})$ to vary by state and time interval, there is much variability in the relationship. A horizontal line in red at 1 is included to reference; a ratio of exactly one would indicate no infections went unobserved.'}
 
 knitr::include_graphics('figure/testing_rate_ratio.jpeg')
 
@@ -220,11 +259,11 @@ Figure \ref{fig:pb_counts_ma} shows the bias corrected estimates for each implem
 
 We can see although the trends are broadly similar between versions for each county, centering the distribution at the empirical value of $\beta$ leads to peaks not present in the version where priors do not vary by county and date. However, only centering $P(S_1|\text{untested})$ at the empirical value leads to a distribution that is highly similar to the version  where priors do not vary by county and date.
 
-These results make sense when we consider that this analysis is much more sensitive to the choice of $\beta$ than $P(S_1|\text{untested})$. This follows from the fact we compute the number of positive infections among those who are untested and *asymptomatic* as  
+These results make sense when we consider that this analysis is much more sensitive to the choice of $\beta$ than $P(S_1|\text{untested})$. This follows from the fact we calculate the number of positive infections among those who are untested and *asymptomatic* as  
 
 \begin{align*}
-N^+_{untested,S_0} &= P(\text{test}_+| S_0,\text{untested}) (N_{S_0,\text{untested}})\\
-&= \Big( \beta P(test_+ |tested) \Big) N_{\text{untested}} (1-P(S_1|\text{untested}))
+N^+_{\text{untested},S_0} &= P(\text{test}_+| S_0,\text{untested}) (N_{S_0,\text{untested}})\\
+&= \Big( \beta P(test_+ |\text{tested}) \Big) N_{\text{untested}} (1-P(S_1|\text{untested}))
 \end{align*}
 
 and the number of positive infections among those who are untested and *symptomatic* as  
@@ -241,7 +280,7 @@ knitr::include_graphics('figure/ma_pb_compared_to_observed.pdf')
                         
 ```
 
-To better see the overlap between versions, in Figure \ref{fig:pb_versions_ma} we can look at the versions together. This allows us to see more clearly how the version with both $P(S_1|\text{untested})$ and $\beta$ centered at their empirical values is consistently the highest. Meanwhile, the version with only $P(S_1|untested)$ centered at its empirical value corresponds so closely to the version that does not vary by date or location that there is no part of the intervals for the version not varying by date or location that do not overlap with the $P(S_1|\text{untested})$ version.
+To better see the overlap between versions, in Figure \ref{fig:pb_versions_ma} we can look at the versions together. This allows us to see more clearly how the version with both $P(S_1|\text{untested})$ and $\beta$ centered at their empirical values is consistently the highest. Meanwhile, the version with only $P(S_1|\text{untested})$ centered at its empirical value corresponds so closely to the version that does not vary by date or location that there is no part of the intervals for the version not varying by date or location that do not overlap with the $P(S_1|\text{untested})$ version.
 
 ```{r, out.width ="95%", fig.cap = "\\label{fig:pb_versions_ma}"}
 

@@ -292,7 +292,8 @@ corrected %>%
                     option="magma") +
   theme_c()+
   theme(legend.text=element_text(size=8),
-        legend.title = element_text(size=19)) +
+        legend.title = element_text(size=19),
+        axis.title.x= element_text(size=15)) +
   coord_flip() +
   labs(x="",
        fill = "Ratio of Student Population\nto Census Population",
@@ -438,10 +439,12 @@ variant %>% ggplot(aes(x=week, y = share,
   theme(legend.title = element_text(size = 18, face="bold"),
         axis.text.y = element_text(size = 15),
         axis.text.x=element_text(size=13),
-        axis.title=element_text(size=16))
+        axis.title=element_text(size=16)) +
+  labs(title = "Variant Proportions Over Time in the U.S.",
+       subtitle = "for Variants that the WHO Designated\nVariant of Interest or Variant of Concern")
 
 
-ggsave(here('thesis/figure/variant_prop.jpeg'), width =9, height=5, dpi=400)
+ggsave(here('thesis/figure/variant_prop.jpeg'), width =9, height=4, dpi=400)
 
 
 ```
@@ -567,16 +570,20 @@ cluster_order <- tibble(order = hclust_avg$order,
 
 
 heatmap_dat %>%
+  mutate(ratio=exp_cases_median/positive) %>%
   mutate(state=factor(state, levels= hclust_avg$labels[hclust_avg$order])) %>%
   mutate(date_lab = format(as.POSIXct(date),format="%b %Y")) %>%
+  group_by(state) %>%
+  mutate(m = median(ratio)) %>%
+  ungroup() %>%
   ggplot(aes(x=fct_reorder(date_lab, date),
-             y = state,
+             y = fct_reorder(state,m),
              fill =exp_cases_median/positive)) +
   geom_tile() +
   scale_x_discrete(breaks=breaks_date, labels = breaks_date)  +
   viridis::scale_fill_viridis(option="rocket", direction=-1) +
-  labs(x="State",
-       y= "Date",
+  labs(x="Date",
+       y= "State",
        fill = "Ratio of Estimated Cases\nto Observed",
        title = "Ratio of Median Estimated Infections to Observed Infections") +
   theme_c() +
@@ -584,6 +591,14 @@ heatmap_dat %>%
         axis.text.y = element_text(size = 13),
         axis.title = element_text(size=16),
         legend.title = element_text(face="bold", size=18))
+
+
+heatmap_dat %>%
+  mutate(ratio=exp_cases_median/positive) %>%
+  group_by(biweek) %>%
+  summarize(m=median(ratio),
+            date=min(date)) %>%
+  arrange(desc(m))
 
 ggsave(here('thesis/figure/heatmap_ratio_est_observed.jpeg'),
        height=10,
@@ -661,6 +676,7 @@ corrected %>%
   scale_x_date(date_breaks = "2 months", 
                date_labels = "%b %Y") +
   theme_c(axis.text.x = element_text(angle = 40, size = 16),
+          axis.title.y = element_text(size=13),
           plot.title=element_text(face = "bold",
                                   hjust = .5, 
                                   size = 24,
@@ -676,8 +692,8 @@ corrected %>%
           plot.subtitle = ggtext::element_markdown(size = 25,margin = margin(3,5,10,5,'pt'),
                                        face = "italic"),
           legend.position = "top",
-          legend.text =element_text(size = 14),
-          legend.title = element_text(size=16, face="bold")) +
+          legend.text =element_text(size = 17),
+          legend.title = element_text(size=18, face="bold")) +
   geom_line(aes(x=week, y=share*m,
                 color =variant_category,
                 group=variant_category),
@@ -702,6 +718,77 @@ corrected %>%
 
 ggsave(here::here(paste0('thesis/figure/michigan_variant.pdf')), 
        height=10, width = 15, dpi=400)
+
+
+
+corrected %>%
+  filter(state == "TX" & version %in% c("v1","v4")) %>%
+ # filter(state %in% sample(corrected$state,5)) %>%
+  filter(biweek >=6) %>%
+  group_by(biweek) %>%
+  mutate(xmin = min(date),
+         xmax = max(date)) %>%
+  ungroup() %>%
+   ggplot() +
+  geom_ribbon(aes(x = date, 
+             ymin = exp_cases_lb,
+             ymax = exp_cases_ub,
+             fill = vlabel),
+             alpha = .5,
+             show.legend=FALSE) +
+  geom_ribbon(aes(x = date,
+                  fill = 'Covidestim',
+                  ymin = infections.lo,
+                  ymax = infections.hi),
+              alpha = .5) +
+  facet_grid(~vlabel, scales = "free_y",
+              labeller= labeller(vlabel =as_labeller(TeX, default=label_parsed))) +
+  scale_x_date(date_breaks = "2 months", 
+               date_labels = "%b %Y") +
+  theme_c() +
+  theme(axis.text.x = element_text(angle = 40, size = 16),
+          axis.title.y = element_text(size=13),
+          plot.title=element_text(face = "bold",
+                                  hjust = .5, 
+                                  size = 24,
+                                  margin=margin(5,5,15,5,'pt')),
+          strip.background = element_rect(fill = "#393939"),
+          strip.text = element_text(color =  "white", size = 16),
+          strip.text.y = element_text(margin = margin(5,5,5,5,'pt'),
+                                      size = 22,
+                                      face="bold"),
+          strip.text.x =  element_text(margin = margin(5,3,5,3,'pt'),
+                                       face = "bold",
+                                       size = 22),
+          plot.subtitle = ggtext::element_markdown(size = 25,margin = margin(3,5,10,5,'pt'),
+                                       face = "italic"),
+          legend.position = "top",
+          legend.text =element_text(size = 17),
+          legend.title = element_text(size=18, face="bold")) +
+  # geom_line(aes(x=week, y=share*m,
+  #               color =variant_category,
+  #               group=variant_category),
+  #           data=variant,
+  #           linewidth=1.3) +
+  scale_fill_manual(values =pal,
+                    labels = TeX(names(pal)),
+                     breaks='Covidestim',
+                    name='')  +
+  scale_y_continuous(
+                     labels = comma) +
+  labs(y = "Estimated Infections",
+       title = paste0("Estimated Infections by Version in Texas"),
+       color = "SARS-CoV-2 Variant",
+       x="Date") +
+  guides(color = guide_legend(override.aes = list(linewidth =3),
+                              ncol=2,title.position="top")) 
+
+
+
+ggsave(here::here(paste0('thesis/figure/texas_lag.pdf')), 
+       height=10, width = 15, dpi=400)
+
+
 
 
 corrected %>%
@@ -736,6 +823,73 @@ corrected %>%
 
 ggsave(here::here(paste0('thesis/figure/test_capacity.pdf')), 
        height=6, width = 13, dpi=400)
+
+
+
+
+
+
+
+
+corrected %>%
+  filter(state=="TX" | state=="MI") %>%
+  filter(biweek >=6) %>%
+  select(date, total, positive,biweek,state) %>%
+  group_by(biweek,state) %>%
+  summarize(date=min(date),
+            positive=unique(positive),
+            total=unique(total)) %>%
+  group_by(state) %>%
+  arrange(biweek) %>%
+  mutate(pct_change_total =( total-lag(total,n=1))/lag(total,n=1),
+         pct_change_positive =( positive-lag(positive,n=1))/lag(positive,n=1)) %>%
+  pivot_longer(c(pct_change_total,pct_change_positive)) %>%
+  mutate(name = gsub("pct_change_", "", name),
+         name = paste(name, "tests")) %>%
+  ggplot(aes(x=date,y=value, color=name, group=name)) +
+  geom_line(linewidth =1.05) +
+  geom_point(alpha = .5) + 
+  scale_y_continuous(labels=scales::percent) +
+  scale_color_manual(values = c("#268DB3", "#B38726"), name='') +
+  theme_c() +
+  theme(axis.title.x =element_text(size=14),
+        axis.title.y =element_text(size=14),
+        axis.text.x =  element_text(size=11.5),
+         axis.text.y = element_text(size=13)) +
+  guides(color = guide_legend(override.aes = list(linewidth=2))) +
+  labs(y = "Percent Change in Tests",
+       x = "Date",
+       title = "Percent Change in Positive Tests and Total Tests\nin Michigan") +
+  scale_x_date(date_breaks="1.5 months", date_labels = "%b %Y") +
+  facet_wrap(~state)
+
+corrected %>%
+  filter(state=="TX") %>%
+  filter(version =="v4") %>%
+  group_by(biweek,state) %>%
+  summarize(date=min(date),
+            positive=unique(positive),
+            total=unique(total),
+            infections=unique(infections),
+            exp_cases_median=unique(exp_cases_median)) %>%
+  ggplot(aes(x=date)) +
+  geom_line(aes(y=exp_cases_median)) +
+  geom_line(aes(y=infections),color="red")
+
+
+corrected %>%
+  filter(state=="TX") %>%
+  filter(version =="v4") %>%
+  group_by(biweek,state) %>%
+  summarize(date=min(date),
+            positive=unique(positive),
+            total=unique(total),
+            infections=unique(infections),
+            exp_cases_median=unique(exp_cases_median)) %>%
+  ggplot(aes(x=date)) +
+  geom_line(aes(y=positive)) +
+  geom_line(aes(y=(positive/total)*807598),color="red")
+
 
 
 corrected %>%
@@ -786,6 +940,78 @@ ggsave(here::here(paste0('thesis/figure/test_capacity_all_states.pdf')),
 
 
 ```
+
+```{r}
+
+covidestim <- read_csv('https://media.githubusercontent.com/media/covidestim/covidestim-sources/master/data-sources/jhu-states.csv') %>%
+  filter(date >"2021-01-01" & date <= "2022-03-03")%>%
+  mutate(week=week(date),
+         year=year(date)) %>%
+  mutate(week = ifelse(week==53 & year == 2021,52,week)) %>%
+  group_by(year,week, state) %>%
+  summarize(date =min(date),cases=sum(cases))
+
+
+tests_weekly <- readRDS("data/state_level/tests_daily_all_states.RDS") %>%
+  mutate(week=week(date),
+         year=year(date)) %>%
+  mutate(week = ifelse(week==53 & year == 2021,52,week)) %>%
+  group_by(year,week, state) %>%
+  summarize(date =min(date), total = sum(total), total=sum(total),positive=sum(positive)) %>%
+  filter(state=="TX") %>%
+  mutate(source="CDC Positive Tests") %>%
+  rename(cases=positive)
+
+covidestim <- covidestim %>%
+  mutate(source="JHU Cases")
+
+
+
+covidestim %>%
+  filter(state=="Texas") %>%
+  bind_rows(tests_weekly) %>%
+  ggplot(aes(x=date,y=cases, color=source))+
+  geom_line() 
+
+dates <- readRDS(here('data/date_to_biweek.RDS'))
+
+
+
+
+
+covidestim %>%
+  filter(state=="Texas") %>%
+  bind_rows(tests_weekly) %>%
+  left_join(dates) %>%
+  group_by(biweek, state,source) %>%
+  summarize(date=min(date),
+            total=sum(total),
+            cases=sum(cases)) %>%
+    mutate(testpos = ifelse(source == "CDC Positive Tests", cases/total, NA)) %>%
+  filter(biweek >=2) %>%
+  ungroup()%>%
+  ggplot(aes(x=date))+
+  geom_line(aes(y=cases, color=source)) +
+  geom_line(aes(y=testpos*10e5, group=source, color='positivity'),
+            linetype=2) +
+  #scale_linetype_discrete(breaks = c(1,1,2)) +
+  scale_color_manual(values=c("JHU Cases" = "#224EAF",
+                              "CDC Positive Tests"= "#279143",
+                              "Test Positivity"= '#E38E4F')) +
+  guides(color = guide_legend(override.aes = list(linetype = c(1,1,2)),
+                              linewidth=1.5)) +
+  theme_c() +
+  scale_y_continuous(labels=comma, sec.axis = sec_axis(~./10e5 , name = 'Test Positivity')) +
+  labs(source ='',
+       title = '',
+       y="Value",
+       x= "Date")
+
+
+ggsave(here('thesis/figure/'))
+  
+```
+
 
 
 ## All States -- Break up into 2 groups
