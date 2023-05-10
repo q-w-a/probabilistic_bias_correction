@@ -246,7 +246,8 @@ corrected %>%
                     option="magma") +
   theme_c()+
   theme(legend.text=element_text(size=8),
-        legend.title = element_text(size=19)) +
+        legend.title = element_text(size=19),
+        axis.text.x=element_text(size=8)) +
   coord_flip() +
   labs(x="",
        fill = "Ratio of Student Population\nto Census Population",
@@ -257,8 +258,8 @@ corrected %>%
   scale_y_continuous(n.breaks =6)
 
 
-
-# ggsave(here::here(paste0('thesis/figure/college_populations.jpeg')), 
+# 
+# ggsave(here::here(paste0('thesis/figure/college_populations.jpeg')),
 #        height=11, width = 11, dpi=400)
 
 

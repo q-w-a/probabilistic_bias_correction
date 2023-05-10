@@ -424,7 +424,7 @@ For versions 2-4, we did not attempt the probabilistic bias analysis for states 
 \end{figure}
 In Figures \ref{fig:state-results-1} and \ref{fig:state-results-2}, we compare the 95\% credible intervals of Covidestim summed to be on the biweek time scale to the probabilistic bias analysis intervals\footnote{As mentioned in the \protect\hyperlink{lims}{limitations} section, the two week intervals cannot be interpreted as 95\% credible intervals. However, the comparison is still useful to contextualize the results of the probabilistic bias analysis.}. We see correspondence is much higher before the time period spanning December 2021 through January 2022, where Covidestim intervals tend to be higher than the probabilistic bias intervals. From Figure \ref{fig:variant-prop}, we see that this period corresponds to the Omicron wave of the pandemic.
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/state_comp_covidestim1} \caption{\label{fig:state-results-1}}\label{fig:unnamed-chunk-4}
+\includegraphics[width=1\linewidth]{figure/state_comp_covidestim1} \caption{\label{fig:state-results-1}95\% simulation intervals for each state and two-week interval. Each column represents a distinct implementation of the probabilistic bias analysis. The first is where priors do not vary by state or location; that is, priors are specified once and these same priors are used for all states and time inteervals considered. The second implementation centers the distribution of $\beta$ at the ratio of screening test positivity to overall test positivity from the COVID-19 Trends and Impact Survey. The third implementation centers the distribution of $P(S_1|\text{untested})$ at the percent of the population experiencing COVID-19-like illness. The fourth implementation centers both $\beta$ and $P(S_1|\text{untested})$ at the survey values.}\label{fig:unnamed-chunk-4}
 \end{figure}
 \begin{figure}
 \includegraphics[width=1\linewidth]{figure/state_comp_covidestim2} \caption{\label{fig:state-results-2}}\label{fig:unnamed-chunk-5}
@@ -433,11 +433,11 @@ In Figures \ref{fig:state-results-1} and \ref{fig:state-results-2}, we compare t
 \includegraphics[width=1\linewidth]{figure/variant_prop} \caption{\label{fig:variant-prop}Variant proportions for variants designated as Variant of Interest or Variant of Concern by the World Health Organization. We see Delta begins its rise in May 2021 and reaches an estimated proportion of 0.98 of sequenced infections by mid-August 2021. Omicron's rise occurs more quickly, beginning its increase throughout December and becoming almost entirely dominant by mid-January.
 Data source: SARS-CoV-2 Variant Proportions from Data.CDC.gov.}\label{fig:unnamed-chunk-6}
 \end{figure}
-This period of disagreement between the approaches in December 2021 through January 2022 corresponds to the Omicron wave of the pandemic, which we can see in Figure \ref{fig:variant-prop}. This was a major shift in the pandemic: the Omicron variant is highly transmissible compared to previous variants, and it has immune invasion capacity, which means vaccines provides less protection against infection (\textbf{andrews2022?}). Omicron also is associated with a lower infection fatality ratio (\textbf{liu2022?}), as well as milder infection overall, which may influence testing behavior. Omicron's rise was rapid too, presumably as a result of this enhanced transmissibility and immune escape; it became the dominant variant over the course of a single month.
+This period of disagreement between the approaches in December 2021 through January 2022 corresponds to the Omicron wave of the pandemic, which we can see in Figure \ref{fig:variant-prop}. This was a major shift in the pandemic: the Omicron variant is highly transmissible compared to previous variants, and it has immune invasion capacity, which means vaccines provides less protection against infection (Andrews et al., 2022). Omicron also is associated with a lower infection fatality ratio (Liu, Yu, Zhao, \& He, 2022), as well as milder infection overall, which may influence testing behavior. Omicron's rise was rapid too, presumably as a result of this enhanced transmissibility and immune escape; it became the dominant variant over the course of a single month.
 
 Beyond the clear differences during the Omicron wave, we also see in several states that there is an additional rise in July with the probabilistic bias analysis implementations that include data from the COVID-19 Trends and Impact Survey (columns 2 through 4), while this peak is smaller in the Covidestim intervals. States exhibiting this trend include Arizona, Maryland, Michigan, Minnesota, Missouri, New Jersey, New York, and Wisconsin. Meanwhile, there are some states where there is a peak of similar size in the Covidestim intervals that lags the peak in the probabilistic bias analysis, for example, Colorado, Kentucky, Texas, and Virginia.
 
-This peak beginning close to July corresponds to the Delta wave, where the more transmissible B.1.617.2 (Delta) variant of concern displaced the previously dominant B.1.351 (Alpha) variant (\textbf{delrio2021?}).
+This peak beginning close to July corresponds to the Delta wave, where the more transmissible B.1.617.2 (Delta) variant of concern displaced the previously dominant B.1.351 (Alpha) variant (Del Rio, Malani, \& Omer, 2021).
 
 To better understand the differences between the probabilistic bias analysis and Covidestim during the Delta wave in the summer of 2021, we consider two examples that represent different trends.
 
@@ -448,7 +448,7 @@ First, we can take a closer look at Michigan to see the trends in the probabilis
 \begin{figure}
 \includegraphics[width=1\linewidth]{figure/michigan_variant} \caption{\label{fig:michigan-variant}Probabilistic intervals for Michigan along with the variant proportions for variants designated as Variant of Interest or Variant of Concern by the World Health Organization. These variant proportions are not specific to Michigan; the estimates are for the United States. The rise in Omicron corresponds to the dramatic increase in both the probabilistic bias intervals and Covidestim estimates in December of 2021 through January of 2022. We also see the increase in the Delta variant that precedes the Delta wave in the summer of 2021.}\label{fig:unnamed-chunk-7}
 \end{figure}
-As discussed in the Covidestim model change log, Chitwood \emph{et al.} made substantial changes to handle the rise of the Omicron variant. Because the variant causes much milder infections, the infection fatality for Omicron infections is lower than previous variants. To handle the changes in the infection fatality ratio and very low death counts, rather than fitting model with deaths, they switched to using hospitalizations. They also allowed for the possibility of reinfections, since although reinfections were more rare with previous variants, Omicron is associated with higher reinfection rates (\textbf{pulliam2022?}). The changes in the model may contribute to the differences we see between the probabilistic bias intervals and Covidestim intervals during the Omicron wave.
+As discussed in the Covidestim model change log, Chitwood \emph{et al.} made substantial changes to handle the rise of the Omicron variant. Because the variant causes much milder infections, the infection fatality for Omicron infections is lower than previous variants. To handle the changes in the infection fatality ratio and very low death counts, rather than fitting model with deaths, they switched to using hospitalizations. They also allowed for the possibility of reinfections, since although reinfections were more rare with previous variants, Omicron is associated with higher reinfection rates (Pulliam et al., 2022). The changes in the model may contribute to the differences we see between the probabilistic bias intervals and Covidestim intervals during the Omicron wave.
 
 In July, meanwhile, the difference we see between the Covidestim estimates and probabilistic bias intervals is likely a result of the way these approaches treat incomplete testing. The focus of the probabilistic bias analysis is to correct for incomplete testing, and as such the method is sensitive to changes in the total number tested and the positivity rate. By contrast, while Covidestim models probabilities of diagnosis by symptom state to allow for variation in case ascertainment, the total number of tests is not an input into the model, so model estimates are not affected by changes in testing rate. This is particularly relevant in the time interval where we observe a larger peak in the probabilistic bias intervals. While the trend in observed tests follows a more steady upward trend like that we see in the Covidestim estimates, the probabilistic bias intervals are influenced by the relationship between positive tests and total tests in this time period.
 
@@ -465,7 +465,7 @@ Texas is one state where there the peak corresponding to the Delta wave is lagge
 \end{figure}
 To consider the reasons we see this lag, we can first compare the data sources. For the probabilistic bias analysis we use the CDC's reports of positive and total tests by state, while the Covidestim model uses the Johns Hopkins Center for Systems Science and Engineering (CSSE) case counts.
 
-We see that the CDC positive test counts are very similar to the Johns Hopkins CSSE case counts, so the difference in data sources does not appear to be driving the lag. However, the test positivity, calculated as the total number of positive tests over total tests for each 2-week interval, begins to increase in early June, before we see positive tests or cases increasing, due to how total tests are changing relative to positive tests (Supplementary Figure \textbackslash ref\{fig:test-capacity-all-states\}).
+We see that the CDC positive test counts are very similar to the Johns Hopkins CSSE case counts, so the difference in data sources does not appear to be driving the lag. However, the test positivity, calculated as the total number of positive tests over total tests for each 2-week interval, begins to increase in early June, before we see positive tests or cases increasing, due to how total tests are changing relative to positive tests (Supplementary Figure \ref{fig:test-capacity-all-states}).
 
 Since the probabilistic bias analysis uses the observed test positivity to estimate the (hypothetical) test positivity in the untested population, increases in test positivity lead to the increases we see in the bias intervals.
 
@@ -475,19 +475,50 @@ This means that if positive tests are steady but total tests are decreasing (as 
 \end{figure}
 Although we only discuss the example of Texas here in depth, we see similar trends in other states with lags the increase in positive tests relative to total tests across most states near the beginning of the Delta wave (Supplementary Figure \ref{fig:jhu-cdc-all}).
 
-\hypertarget{ratio-between-estimated-to-observed-infections}{%
-\section{Ratio Between Estimated to Observed Infections}\label{ratio-between-estimated-to-observed-infections}}
+\hypertarget{ratio-between-estimated-infections-and-observed-infections}{%
+\section{Ratio Between Estimated Infections and Observed Infections}\label{ratio-between-estimated-infections-and-observed-infections}}
+
+To get a better sense for number of true infections relative to those that were observed, we can compare the ratio of estimated infections to observed infections, where the number of observed infections is the number of positive PCR tests.
+
+In Figure \ref{fig:ratio-est-observed}, we compare the ratios of estimated to observed infections across locations and two-week intervals. The states are ordered by median ratio of estimated infections to observed infections across the set of time intervals.
+
+For example, we see that in Mississippi, the ratio of estimated infections to observed was often than 10 in several cases, indicating that for every observed positive PCR test in the state, there were 10 true infections. For Mississipi, the ratio exceeded 10 for a third of all two-week intervals considered.
+
+Meanwhile, states with substantial testing tended to have lower ratios across the entire time period considered. For example, in Rhode Island, Massachusetts, and the District of Columbia, the ratio never exceeded 4.
+
+In general, the ratio of estimated to observed infections was highest in the summer of 2021 in the time period spanning June 18, 2021 through July 16, 2021.
+
+The ratio is distinct from considering general peaks -- for example, even though we see the ratio of estimated infections to observed is highest in the summer, the number of estimated infections is far higher during the Omicron wave.
+
+The higher ratio in the summer is related to the drop in testing during this time period (Figure \ref{fig:test-low-summer}).
 \begin{figure}
 \includegraphics[width=1\linewidth]{figure/heatmap_ratio_est_observed} \caption{\label{fig:ratio-est-observed} The ratio of estimated infections to observed infections for each 2-week interval and each state, only considering the version of the priors that does not vary by state or time. States are ordered from highest to lowest by median ratio of estimated infections to observed infections over all 2-week intervals considered. The two-week intervals with highest ratios are in June 18, 2021 through July 16, 2021.}\label{fig:unnamed-chunk-11}
+\end{figure}
+\begin{figure}
+\includegraphics[width=0.8\linewidth]{figure/testrate-low-summer} \caption{\label{fig:test-low-summer}Testing rate, calculated as the etotal number of tests for a 2-week interval in a state over the census population in that state, over time. The median across states for each two-week interval is shown in red. In relation to Figure \ref{fig:ratio-est-observed}, where we see the period where the ratio of estimated to observed infections is the highest in June 18, 2021 through July 16, 2021, we see here that testing rates across states are at a minimum during this time period.}\label{fig:unnamed-chunk-12}
+\end{figure}
+Since the Omicron wave is of interest given the aspects of this variant that were dramatically different to previous variants, we can also look specifically at the ratio of estimated infections to observed during the peak of this wave in December 31, 2021 through January 14, 2022 (Figure \ref{fig:ratio-peak-omicron}).
+\begin{figure}
+\includegraphics[width=1\linewidth]{figure/ratio-peak-omicron} \caption{\label{fig:ratio-peak-omicron}The ratio of estimated infections to observed infections for each state from December 31, 2021 through January 14, 2022; this time interval corresponds to the peak of the Omicron wave. States are ordered by the highest median ratio, which is shown in red.}\label{fig:unnamed-chunk-13}
+\end{figure}
+To get a sense for how states compare to each other across time in the number of infections going unobserved, we can compare how states rank in the ratio of estimated infections to observed across the two-week intervals.
+
+In Figure \ref{fig:rank-ratio-over-time}, we look at the states that consistently had the largest ratios or the smallest ratios across time. More precisely, we consider states that were ranked in the top 10 or bottom 10 by the ratio of estimated to observed infections in at least 80\% of all time intervals considered.
+
+The states that had the lowest ratios of estimated to observed infections were the District of Columbia, Vermont, Massachusetts, New York, Rhode Island, and Alaska, indicating that case ascertainment (the proportion of infections that were detected) was highest in these states.
+
+Meanwhile, the states that had the highest ratios of estimated to observed infections, and as such the lowest case ascertainments rates, were Nebraska, Oklahoma, South Dakota, Mississippi, Tennessee, and Alabama.
+\begin{figure}
+\includegraphics[width=1\linewidth]{figure/rank-ratio-over-time} \caption{\label{fig:rank-ratio-over-time}For each two-week interval, we rank each state's ratio of estimated to observed infections, where 1 corresponds to the state with the \emph{lowest} ratio (indicating less infections are going unobserved), and 51 corresponds to the state with the \emph{highest} ratio (indicating more infections are going unobserved). Then we can see how these rankings changed over time. Visualized here are the states that consistently ranked as among the lowest ratios or highest ratios over time: specifically, states were among the top 10 highest ratios or top 10 lowest ratios for at least 80\% of the time intervals are shown.}\label{fig:unnamed-chunk-14}
 \end{figure}
 \hypertarget{relationship-between-the-ratio-of-estimated-to-observed-infections-compared-to-testing-rate}{%
 \section{Relationship Between the Ratio of Estimated to Observed Infections Compared to Testing Rate}\label{relationship-between-the-ratio-of-estimated-to-observed-infections-compared-to-testing-rate}}
 
-One question to consider is the relationship between the testing rate and the ratio of estimated cases to observed cases, as we would expect higher testing rates would lead to less underestimation of the true number of infections.
+Another question to consider is the relationship between the testing rate and the ratio of estimated infections to observed infections, as we would expect higher testing rates would lead to less underestimation of the true number of infections.
 
-As we see in Figure \ref{fig:testrate}, the nature of the relationship between the testing rate and the ratio of estimated cases to observed cases depends on whether we allow \(\beta\) and \(P(S_1|\text{untested})\) to vary by location and date. In particular, when we sample from the same priors for every correction (the first panel of Figure \ref{fig:testrate}), we see there is little variability in the relationship between the testing rate and median estimated cases, because the form of the correction is identical for each two-week interval and state considered. Allowing \(\beta\) and/or \(P(S_1|\text{untested})\) to vary by time and location introduces additional variability in the relationship between the ratio of estimated infections to observed and testing rate.
+As we see in Figure \ref{fig:testrate}, the nature of the relationship between the testing rate and the ratio of estimated infections to observed infections depends on whether we allow \(\beta\) and \(P(S_1|\text{untested})\) to vary by location and date. In particular, when we sample from the same priors for every correction (the first panel of Figure \ref{fig:testrate}), we see there is little variability in the relationship between the testing rate and median estimated infections, because the form of the correction is identical for each two-week interval and state considered. Allowing \(\beta\) and/or \(P(S_1|\text{untested})\) to vary by time and location introduces additional variability in the relationship between the ratio of estimated infections to observed and testing rate.
 
-The nonlinearity of the relationship between the testing rate and the ratio of estimated cases to observed cases is more clear when we think back to the correction formulas.
+The nonlinearity of the relationship between the testing rate and the ratio of estimated infections to observed infections is more clear when we think back to the correction formulas.
 
 Denoting \(N^*\) again to be the number who would test positive, on the \(x\)-axis, we have approximately\footnote{This isn't exactly the estimated infections, because for simplicity of notation we are not writing out the correction for test inaccuracy.}
 \[\frac{N^*_{\text{tested}} + N^*_{\text{untested}}}{N^*_{\text{tested}}},\]
@@ -497,7 +528,7 @@ where we calculate \(N^*_{\text{untested}}\) using the other priors:
 \[\Pr(\text{test}_+|S_0,\text{untested}) (1-(\Pr(S_1 | \text{untested})) ( N_{\text{untested}} ).\]
 On the \(x\)-axis we have the number tested over the population size, \(\dfrac{N_{\text{tested}}}{N}\). Thus, we see the trend in each panel where for small changes in testing rate when the testing rate is very low, the ratio of unobserved to unobserved is very high since \(N^*_{untested}\) will be large relative \(N^*_{tested}\). However, with higher testing rates, \(N^*_{untested}\) will be large relative \(N^*_{tested}\), and the ratio of estimated to observed infections nears one.
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/testing_rate_ratio} \caption{\label{fig:testrate}The ratio of the median estimated infections to observed infections plotted against the testing rate, where the testing rate is calculated as the total number tested in a two-week interval over the population size. When the priors are the same for all time intervals and states, there is minimal variability relationship between the testing rate and the ratio of estimated to observed infections, since the correction for incomplete testing and diagnostic test inaccuracy is identical for each time-interval and location. However, when we allow $\beta$ or $P(S_1|\text{untested})$ to vary by state and time interval, there is much variability in the relationship. A horizontal line in red at 1 is included to reference; a ratio of exactly one would indicate no infections went unobserved.}\label{fig:unnamed-chunk-12}
+\includegraphics[width=1\linewidth]{figure/testing_rate_ratio} \caption{\label{fig:testrate}The ratio of the median estimated infections to observed infections plotted against the testing rate, where the testing rate is calculated as the total number tested in a two-week interval over the population size. When the priors are the same for all time intervals and states, there is minimal variability relationship between the testing rate and the ratio of estimated to observed infections, since the correction for incomplete testing and diagnostic test inaccuracy is identical for each time-interval and location. However, when we allow $\beta$ or $P(S_1|\text{untested})$ to vary by state and time interval, there is much variability in the relationship. A horizontal line in red at 1 is included to reference; a ratio of exactly one would indicate no infections went unobserved.}\label{fig:unnamed-chunk-15}
 \end{figure}
 It is worth noting that in some cases, the ratio of total number of tests for a two-week interval over the population size is incredibly high. For example, there are two-week intervals in Vermont, Rhode Island, and DC where the total number of tests over the census population size exceeds 0.25. There are two major factors to consider when we interpret these really high testing rates.
 
@@ -507,7 +538,7 @@ Additionally, the census population is not exactly the tested population. This i
 
 When we look at the testing rates (taken as the total number of tests over the census population size) in Figure \ref{fig:college}, we see that the states with the highest biweekly testing rates are Vermont, Massachusetts, Rhode Island, and the District of Columbia. These are states that haves substantial student populations, who also may be tested more than once in a single two-week interval.
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/college_populations} \caption{\label{fig:college} Comparing the biweekly testing rate by state across all 2-week intervals considered,  where color is by the ratio of the student population to the census population. States are ordered by median testing rate. Data source for student population by state: the U.S. Department of Education, National Center for Education Statistics, Integrated Postsecondary Education Data System (IPEDS), 12-month Enrollment component provisional data for 2020 to 2021. Student population counts include Title IV postsecondary institutions.}\label{fig:unnamed-chunk-13}
+\includegraphics[width=1\linewidth]{figure/college_populations} \caption{\label{fig:college} Comparing the biweekly testing rate by state across all 2-week intervals considered,  where color is by the ratio of the student population to the census population. States are ordered by median testing rate. Data source for student population by state: the U.S. Department of Education, National Center for Education Statistics, Integrated Postsecondary Education Data System (IPEDS), 12-month Enrollment component provisional data for 2020 to 2021. Student population counts include Title IV postsecondary institutions.}\label{fig:unnamed-chunk-16}
 \end{figure}
 \hypertarget{county-level-results}{%
 \section{County-level Results}\label{county-level-results}}
@@ -519,14 +550,14 @@ While positive tests are more regularly reported, total tests are reported less 
 \hypertarget{massachusetts}{%
 \subsection{Massachusetts}\label{massachusetts}}
 
-Figure \ref{fig:pb_counts_ma} shows the bias corrected estimates for each implementation, as well as the observed cases. We note that the lower bounds of the bias corrected estimates are always above the observed cases because adding (unobserved) infections among the untested population to the observed positives among the population never results in a decrease in the estimated infections. In theory such a decrease could be possible since we do correct for differences due to imperfect test accuracy, and if the false positive rate was high enough, we might estimate the lower bound of cases as lower than the observed cases. However, the false positive rate of the COVID-19 PCR test is so low that in practice we do not see lower bounds lower than the number of infections.\footnote{The false positive rate differs by platform and laboratory, but multiple analyses estimated that it is less than 0.10\% (Chandler, Bourassa, Mathias, \& Greninger, 2021).}
+Figure \ref{fig:pb_counts_ma} shows the bias corrected estimates for each implementation, as well as the observed infections. We note that the lower bounds of the bias corrected estimates are always above the observed infections because adding (unobserved) infections among the untested population to the observed positives among the population never results in a decrease in the estimated infections. In theory such a decrease could be possible since we do correct for differences due to imperfect test accuracy, and if the false positive rate was high enough, we might estimate the lower bound of cases as lower than the observed infections. However, the false positive rate of the COVID-19 PCR test is so low that in practice we do not see lower bounds lower than the number of infections.\footnote{The false positive rate differs by platform and laboratory, but multiple analyses estimated that it is less than 0.10\% (Chandler, Bourassa, Mathias, \& Greninger, 2021).}
 
 We can see although the trends are broadly similar between versions for each county, centering the distribution at the empirical value of \(\beta\) leads to peaks not present in the version where priors do not vary by county and date. However, only centering \(P(S_1|\text{untested})\) at the empirical value leads to a distribution that is highly similar to the version where priors do not vary by county and date.
 
 These results make sense when we consider that this analysis is much more sensitive to the choice of \(\beta\) than \(P(S_1|\text{untested})\). This follows from the fact we calculate the number of positive infections among those who are untested and \emph{asymptomatic} as
 \begin{align*}
 N^+_{\text{untested},S_0} &= P(\text{test}_+| S_0,\text{untested}) (N_{S_0,\text{untested}})\\
-&= \Big( \beta P(test_+ |\text{tested}) \Big) N_{\text{untested}} (1-P(S_1|\text{untested}))
+&= \Big( \beta P(\text{test}_+ |\text{tested}) \Big) N_{\text{untested}} (1-P(S_1|\text{untested}))
 \end{align*}
 and the number of positive infections among those who are untested and \emph{symptomatic} as\\
 \begin{align*} N^+_{\text{untested},S_1}& = P(\text{test}_+| S_1,\text{untested}) (N_{S_1,\text{untested}})\\
@@ -534,34 +565,34 @@ and the number of positive infections among those who are untested and \emph{sym
 \end{align*}
 Since \(N_{S_1, \text{untested}}\) is so much larger than \(N_{S_1, \text{untested}}\) for any of the specified values of \(P(S_1|\text{untested})\) (since the bulk of this distribution is less than 5\%), \(\beta\) has a larger impact on the number of estimated infections.
 \begin{figure}
-\includegraphics[width=0.95\linewidth]{figure/ma_pb_compared_to_observed} \caption{\label{fig:pb_counts_ma}}\label{fig:unnamed-chunk-14}
+\includegraphics[width=0.95\linewidth]{figure/ma_pb_compared_to_observed} \caption{\label{fig:pb_counts_ma}}\label{fig:unnamed-chunk-17}
 \end{figure}
 To better see the overlap between versions, in Figure \ref{fig:pb_versions_ma} we can look at the versions together. This allows us to see more clearly how the version with both \(P(S_1|\text{untested})\) and \(\beta\) centered at their empirical values is consistently the highest. Meanwhile, the version with only \(P(S_1|\text{untested})\) centered at its empirical value corresponds so closely to the version that does not vary by date or location that there is no part of the intervals for the version not varying by date or location that do not overlap with the \(P(S_1|\text{untested})\) version.
 \begin{figure}
-\includegraphics[width=0.95\linewidth]{figure/ma_pb_compare_versions} \caption{\label{fig:pb_versions_ma}}\label{fig:unnamed-chunk-15}
+\includegraphics[width=0.95\linewidth]{figure/ma_pb_compare_versions} \caption{\label{fig:pb_versions_ma}}\label{fig:unnamed-chunk-18}
 \end{figure}
 Now, we can also compare the extent to which these intervals agree with the Covidestim estimates. In \ref{fig:pb_covidestim_ma}, we see that when Covidestim estimates fall outside the probabilistic bias intervals, they fall below the intervals, estimating that there are less infections. The exception here is Hampshire County, which actually is very likely to be related to the high amount of asymptomatic testing done among the five colleges. Smith College alone, with a student body of about 2,500 and mandatory PCR testing twice a week, would contribute a substantial amount of tests to the test count in Hampshire County. Given the low infection burden, the vast majority of these tests were negative throughout most of 2021, reducing the positivity rate (Figure \ref{fig:hamp}). The extensive amount of asymptomatic testing done here would mean that
 means that our correction factor \(\beta\) in probabilistic analysis\footnote{Recall \(P(\text{test}_+ | S_0, \text{untested}) = \beta \; P(\text{test}_+|\text{tested})\).}, which we use to estimate the positivity rate among the untested asymptomatic population, would be too low. This is because the observed test positivity rate when so much asymptomatic testing is conducted would be closer to what expect the positivity rate among the asymptomatic test positivity rate to be among the untested population. Because the assumptions of the probabilistic bias analysis here did not assume such extensive asymptomatic testing was contributing to the test positivity rate, we are likely underestimating the true number of unobserved infections if there is a substantial amount of screening testing. It would be simple, however, to adjust \(\beta\) to account for cases where there is increased asymptomatic testing.
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/ma_pb_compared_to_covidestim} \caption{\label{fig:pb_covidestim_ma}}\label{fig:unnamed-chunk-16}
+\includegraphics[width=1\linewidth]{figure/ma_pb_compared_to_covidestim} \caption{\label{fig:pb_covidestim_ma}}\label{fig:unnamed-chunk-19}
 \end{figure}
 \begin{figure}
-\includegraphics[width=0.9\linewidth]{figure/hampshire} \caption{\label{fig:hamp} We see that Hampshire County has among the lowest test positivity rates among counties in Massachusetts in the time period considered.}\label{fig:unnamed-chunk-17}
+\includegraphics[width=0.9\linewidth]{figure/hampshire} \caption{\label{fig:hamp} We see that Hampshire County has among the lowest test positivity rates among counties in Massachusetts in the time period considered.}\label{fig:unnamed-chunk-20}
 \end{figure}
-To summarize which versions are most concordant with the Covidestim estimates, we can consider the proportion of the biweeks where the interval contains the Covidestim estimate. As we see in Figure \ref{fig:covidestimprop}, the implementation with the prior for \(P(S_1|\text{untested})\) centered at the empirical value tends to agree most with the Covidestim estimates.
+To summarize which versions are most concordant with the Covidestim estimates, we can consider the proportion of the two-week intervals where the interval contains the Covidestim estimate. As we see in Figure \ref{fig:covidestimprop}, the implementation with the prior for \(P(S_1|\text{untested})\) centered at the empirical value tends to agree most with the Covidestim estimates.
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/ma_pb_compared_to_covidestim_proportions} \caption{\label{fig:covidestimprop}}\label{fig:unnamed-chunk-18}
+\includegraphics[width=1\linewidth]{figure/ma_pb_compared_to_covidestim_proportions} \caption{\label{fig:covidestimprop}}\label{fig:unnamed-chunk-21}
 \end{figure}
 \hypertarget{michigan}{%
 \subsection{Michigan}\label{michigan}}
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/mi1_pb_compared_to_observed} \caption{\label{fig:pb_versions_mi}}\label{fig:unnamed-chunk-19-1}
+\includegraphics[width=1\linewidth]{figure/mi1_pb_compared_to_observed} \caption{\label{fig:pb_versions_mi}}\label{fig:unnamed-chunk-22-1}
 \end{figure}
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/mi2_pb_compared_to_observed} \caption{\label{fig:pb_versions_mi}}\label{fig:unnamed-chunk-19-2}
+\includegraphics[width=1\linewidth]{figure/mi2_pb_compared_to_observed} \caption{\label{fig:pb_versions_mi}}\label{fig:unnamed-chunk-22-2}
 \end{figure}
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/mi3_pb_compared_to_observed} \caption{\label{fig:pb_versions_mi}}\label{fig:unnamed-chunk-19-3}
+\includegraphics[width=1\linewidth]{figure/mi3_pb_compared_to_observed} \caption{\label{fig:pb_versions_mi}}\label{fig:unnamed-chunk-22-3}
 \end{figure}
 \includegraphics[width=1\linewidth]{figure/mi_pb_compared_to_covidestim_proportions}
 
@@ -583,7 +614,7 @@ Wastewater testing has become increasingly widespread throughout the pandemic as
 
 Most notable for this work, several counties in Massachusetts have reported wastewater data for a substantial period throughout 2021 to 2022. This allows us to compare the bias-corrected estimates -- as well as the Covidestim estimates -- to the wastewater concentrations.
 
-Wastewater concentrations are typically a leading indicator of observed cases, though there may be some variability in the lead time during different waves of the pandemic (Hopkins et al., 2023). In particular, the lead time was strongest in the earliest waves of the pandemic, and has since declined (Xiao et al., 2022). Various factors can create the changes we see in lead time over the course of the pandemic; for example, the lead time can be impacted by differences in viral shedding, diagnostic testing turnaround times, and testing capacity and behavior (Olesen, Imakaev, \& Duvallet, 2021).
+Wastewater concentrations are typically a leading indicator of observed infections, though there may be some variability in the lead time during different waves of the pandemic (Hopkins et al., 2023). In particular, the lead time was strongest in the earliest waves of the pandemic, and has since declined (Xiao et al., 2022). Various factors can create the changes we see in lead time over the course of the pandemic; for example, the lead time can be impacted by differences in viral shedding, diagnostic testing turnaround times, and testing capacity and behavior (Olesen, Imakaev, \& Duvallet, 2021).
 
 Since the correlation between the time series as well as the lag at which the maximum correlation occurs are both of interest, we assessed the cross correlation between the series.
 
@@ -617,12 +648,12 @@ Looking at cross correlation can be useful in the sense that we can both conside
 
 In Figure \ref{fig:compdiff}, we consider simulated data where \((Z_t)\) is \((Y_t)\) lagged by 3 time units with noise added. We can see that \(Z_t\) and \(Y_t\) are not second-order stationary since the mean clearly is not constant over time. However, to stabilize the mean, we can apply first order differencing, where we take the differences between consecutive observations.
 \begin{figure}
-\includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-21-1} \caption{\label{fig:compdiff}}\label{fig:unnamed-chunk-21}
+\includegraphics[width=1\linewidth]{thesis_files/figure-latex/unnamed-chunk-24-1} \caption{\label{fig:compdiff}}\label{fig:unnamed-chunk-24}
 \end{figure}
 We can see the effect of applying differencing to the time series when we compute the cross correlations of \((Z_t)\) and \((Y_t)\), as shown in Figure \ref{fig:corzy}. The true lag of \(-3\) time units was recovered when considering the differenced time series, but not when we considered the original time series. In what follows, because the time series we are considering are not stationary, we consider the cross correlation between the differenced time series.
 \vspace{5 cm}
 \begin{figure}
-\includegraphics[width=0.45\linewidth]{thesis_files/figure-latex/unnamed-chunk-22-1} \includegraphics[width=0.45\linewidth]{thesis_files/figure-latex/unnamed-chunk-22-2} \caption{\label{fig:corzy}}\label{fig:unnamed-chunk-22}
+\includegraphics[width=0.45\linewidth]{thesis_files/figure-latex/unnamed-chunk-25-1} \includegraphics[width=0.45\linewidth]{thesis_files/figure-latex/unnamed-chunk-25-2} \caption{\label{fig:corzy}}\label{fig:unnamed-chunk-25}
 \end{figure}
 \hypertarget{cross-correlation-results-comparing-bias-corrected-counts-covidestim-estimates-and-wastewater-concentrations}{%
 \subsection{Cross Correlation Results Comparing Bias Corrected Counts, Covidestim Estimates, and Wastewater Concentrations}\label{cross-correlation-results-comparing-bias-corrected-counts-covidestim-estimates-and-wastewater-concentrations}}
@@ -633,7 +664,7 @@ Since the effective concentration of SARS-CoV-2 in wastewater samples reported b
 
 Looking at the counties in Figure \ref{fig:wastewater_ma_by_county}, we see that, with the exception of Barnstable, MA, the wastewater trends are highly similar to trends captured by the bias corrected infection counts. We also see that the trends are similar both with regard to shape but also with regard to time, with little visible lag between the series. This is expected because although wastewater cases do in general lead cases, lead times generally are not on the order of 2 weeks. This means that since we are summarizing to 2-week intervals we would expect the lag to be very small, if present at all.
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/wastewater_ma_by_county} \caption{\label{fig:wastewater_ma_by_county}}\label{fig:unnamed-chunk-23}
+\includegraphics[width=1\linewidth]{figure/wastewater_ma_by_county} \caption{\label{fig:wastewater_ma_by_county}}\label{fig:unnamed-chunk-26}
 \end{figure}
 \hypertarget{comparison-between-implementations-of-probabilistic-bias-analysis}{%
 \subsubsection{Comparison Between Implementations of Probabilistic Bias Analysis}\label{comparison-between-implementations-of-probabilistic-bias-analysis}}
@@ -642,16 +673,16 @@ In Figure \ref{fig:correlation_observed_pb}, we see that, in general, infections
 
 Given the small size of Barnstable relative to other counties and high variability in its early estimates in 2021 (as seen in Figure \ref{fig:wastewater_ma_by_county}), it is possible that there were still aspects of the SARS-CoV-2 detection process that took time to refine. Another possibility is that the way Biobot aggregated wastewater concentrations by county failed to capture the infection dynamics in this county, since wastewater catchments are not contained within county lines. This is a central challenge in relating cases to wastewater concentrations, since these values are recorded for distinct geographic units.
 
-Comparing the maximum correlations obtained the observed cases, only in Hampshire County were the observed cases more correlated with the wastewater concentrations than all implementations of probabilistic bias analysis. We also see again that in most cases the maximum correlation is obtained at zero lag in observed cases; however, for Barnstable, the correlation is highest when wastewater concentrations lead infections by two biweeks, and for Hampshire the correlation is highest when wastewater concentrations lead infections by 1 biweek.
+Comparing the maximum correlations obtained for the observed infections, only in Hampshire County were the observed infections more correlated with the wastewater concentrations than all implementations of probabilistic bias analysis. We also see again that in most cases the maximum correlation is obtained at zero lag in observed cases; however, for Barnstable, the correlation is highest when wastewater concentrations lead infections by two two-week intervals, and for Hampshire the correlation is highest when wastewater concentrations lead infections by 1 two-week interval.
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/correlation_observed_pb} \caption{\label{fig:correlation_observed_pb}}\label{fig:unnamed-chunk-24}
+\includegraphics[width=1\linewidth]{figure/correlation_observed_pb} \caption{\label{fig:correlation_observed_pb}}\label{fig:unnamed-chunk-27}
 \end{figure}
 \hypertarget{comparison-between-covidestim-observed-cases-and-bias-corrected-counts}{%
 \subsubsection{Comparison Between Covidestim, Observed Cases, and Bias Corrected Counts}\label{comparison-between-covidestim-observed-cases-and-bias-corrected-counts}}
 
 In Figure \ref{fig:correlation_observed_pb_covidestim}, we also compare the Covidestim estimates to the wastewater concentrations. In general, both Covidestim and bias-corrected counts are more correlated with wastewater concentrations than observed infections. Of note, Nantucket County (25019) is not included here because Covidestim does not report estimates are not reported for Nantucket.\footnote{In reporting of COVID-19 data, Nantucket values are grouped with Dukes County, which is likely why Covidestim does not try to estimate the grouped counts.}
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/correlation_observed_pb_covidestim} \caption{\label{fig:correlation_observed_pb_covidestim}}\label{fig:unnamed-chunk-25}
+\includegraphics[width=1\linewidth]{figure/correlation_observed_pb_covidestim} \caption{\label{fig:correlation_observed_pb_covidestim}}\label{fig:unnamed-chunk-28}
 \end{figure}
 \hypertarget{takeaways}{%
 \subsubsection{Takeaways}\label{takeaways}}
@@ -702,6 +733,9 @@ Placeholder
 
 \hypertarget{refs}{}
 \begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-andrews2022}{}}%
+Andrews, N., Stowe, J., Kirsebom, F., Toffa, S., Rickeard, T., Gallagher, E., \ldots{} Lopez Bernal, J. (2022). Covid-19 {Vaccine Effectiveness} against the {Omicron} ({B}.1.1.529) {Variant}. \emph{New England Journal of Medicine}, \emph{386}(16), 1532--1546. http://doi.org/\href{https://doi.org/10.1056/NEJMoa2119451}{10.1056/NEJMoa2119451}
+
 \leavevmode\vadjust pre{\hypertarget{ref-cdc2020}{}}%
 CDC. (2020, February 11). Cases, data, and surveillance to track and analyze {COVID-19}. Retrieved April 12, 2023, from \url{https://www.cdc.gov/coronavirus/2019-ncov/covid-data/serology-surveillance/index.html}
 
@@ -711,11 +745,17 @@ Chandler, C. M., Bourassa, L., Mathias, P. C., \& Greninger, A. L. (2021). Estim
 \leavevmode\vadjust pre{\hypertarget{ref-zotero-1003}{}}%
 Commercial {Laboratory Seroprevalence Surveys} \textbar{} {Coronavirus} \textbar{} {COVID-19} \textbar{} {CDC}. (n.d.). Retrieved April 12, 2023, from \url{https://www.cdc.gov/coronavirus/2019-ncov/cases-updates/commercial-lab-surveys.html}
 
+\leavevmode\vadjust pre{\hypertarget{ref-delrio2021}{}}%
+Del Rio, C., Malani, P. N., \& Omer, S. B. (2021). Confronting the {Delta Variant} of {SARS-CoV-2}, {Summer} 2021. \emph{JAMA}, \emph{326}(11), 1001. http://doi.org/\href{https://doi.org/10.1001/jama.2021.14811}{10.1001/jama.2021.14811}
+
 \leavevmode\vadjust pre{\hypertarget{ref-duvallet2022}{}}%
 Duvallet, C., Wu, F., McElroy, K. A., Imakaev, M., Endo, N., Xiao, A., \ldots{} Matus, M. (2022). Nationwide {Trends} in {COVID-19 Cases} and {SARS-CoV-2 RNA Wastewater Concentrations} in the {United States}. \emph{ACS ES\&T Water}, \emph{2}(11), 1899--1909. http://doi.org/\href{https://doi.org/10.1021/acsestwater.1c00434}{10.1021/acsestwater.1c00434}
 
 \leavevmode\vadjust pre{\hypertarget{ref-hopkins2023}{}}%
 Hopkins, L., Persse, D., Caton, K., Ensor, K., Schneider, R., McCall, C., \& Stadler, L. B. (2023). Citywide wastewater {SARS-CoV-2} levels strongly correlated with multiple disease surveillance indicators and outcomes over three {COVID-19} waves. \emph{Science of The Total Environment}, \emph{855}, 158967. http://doi.org/\href{https://doi.org/10.1016/j.scitotenv.2022.158967}{10.1016/j.scitotenv.2022.158967}
+
+\leavevmode\vadjust pre{\hypertarget{ref-liu2022}{}}%
+Liu, Y., Yu, Y., Zhao, Y., \& He, D. (2022). Reduction in the infection fatality rate of {Omicron} variant compared with previous variants in {South Africa}. \emph{International Journal of Infectious Diseases}, \emph{120}, 146--149. http://doi.org/\href{https://doi.org/10.1016/j.ijid.2022.04.029}{10.1016/j.ijid.2022.04.029}
 
 \leavevmode\vadjust pre{\hypertarget{ref-odriscoll2021}{}}%
 O'Driscoll, M., Ribeiro Dos Santos, G., Wang, L., Cummings, D. A. T., Azman, A. S., Paireau, J., \ldots{} Salje, H. (2021). Age-specific mortality and immunity patterns of {SARS-CoV-2}. \emph{Nature}, \emph{590}(7844), 140--145. http://doi.org/\href{https://doi.org/10.1038/s41586-020-2918-0}{10.1038/s41586-020-2918-0}
@@ -725,6 +765,9 @@ Olesen, S. W., Imakaev, M., \& Duvallet, C. (2021). Making waves: {Defining} the
 
 \leavevmode\vadjust pre{\hypertarget{ref-pitzer2021a}{}}%
 Pitzer, V. E., Chitwood, M., Havumaki, J., Menzies, N. A., Perniciaro, S., Warren, J. L., \ldots{} Cohen, T. (2021). The {Impact} of {Changes} in {Diagnostic Testing Practices} on {Estimates} of {COVID-19 Transmission} in the {United States}. \emph{American Journal of Epidemiology}, \emph{190}(9), 1908--1917. http://doi.org/\href{https://doi.org/10.1093/aje/kwab089}{10.1093/aje/kwab089}
+
+\leavevmode\vadjust pre{\hypertarget{ref-pulliam2022}{}}%
+Pulliam, J. R. C., Van Schalkwyk, C., Govender, N., Von Gottberg, A., Cohen, C., Groome, M. J., \ldots{} Moultrie, H. (2022). Increased risk of {SARS-CoV-2} reinfection associated with emergence of {Omicron} in {South Africa}. \emph{Science}, \emph{376}(6593), eabn4947. http://doi.org/\href{https://doi.org/10.1126/science.abn4947}{10.1126/science.abn4947}
 
 \leavevmode\vadjust pre{\hypertarget{ref-shumway2011}{}}%
 Shumway, R. H., \& Stoffer, D. S. (2011). \emph{Time series analysis and its applications: With {R} examples} (3rd ed). {New York}: {Springer}.

@@ -53,25 +53,25 @@
 \contentsline {section}{\numberline {5.2}State-level Results}{13}{section.5.2}%
 \contentsline {subsection}{\numberline {5.2.1}Example Where July Peak is Larger in Probablistic Bias Analysis Intervals: Michigan}{19}{subsection.5.2.1}%
 \contentsline {subsection}{\numberline {5.2.2}Example Where Covidestim Intervals Lag Probabilistic Bias Intervals: Texas}{20}{subsection.5.2.2}%
-\contentsline {section}{\numberline {5.3}Ratio Between Estimated to Observed Infections}{23}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Relationship Between the Ratio of Estimated to Observed Infections Compared to Testing Rate}{23}{section.5.4}%
-\contentsline {section}{\numberline {5.5}County-level Results}{27}{section.5.5}%
-\contentsline {subsection}{\numberline {5.5.1}Massachusetts}{27}{subsection.5.5.1}%
-\contentsline {subsection}{\numberline {5.5.2}Michigan}{33}{subsection.5.5.2}%
-\contentsline {section}{\numberline {5.6}Cross Correlation Comparison}{37}{section.5.6}%
-\contentsline {subsection}{\numberline {5.6.1}Background}{37}{subsection.5.6.1}%
-\contentsline {subsection}{\numberline {5.6.2}Cross Correlation Results Comparing Bias Corrected Counts, Covidestim Estimates, and Wastewater Concentrations}{40}{subsection.5.6.2}%
-\contentsline {subsubsection}{Comparison Between Implementations of Probabilistic Bias Analysis}{42}{section*.30}%
-\contentsline {subsubsection}{Comparison Between Covidestim, Observed Cases, and Bias Corrected Counts}{43}{section*.32}%
-\contentsline {subsubsection}{Takeaways}{44}{section*.34}%
-\contentsline {chapter}{Chapter 6: Conclusion}{45}{chapter.6}%
-\contentsline {chapter}{Chapter 7: Appendix}{47}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Smoothing Span}{47}{section.7.1}%
-\contentsline {subsection}{\numberline {7.1.1}Changing SPAN for LOESS Smoothing of \(\beta \)}{47}{subsection.7.1.1}%
-\contentsline {section}{\numberline {7.2}Changing Mean and Variance for Prior Distribution Specifications}{47}{section.7.2}%
-\contentsline {section}{\numberline {7.3}Relationship Between \((X+Y)_\alpha \) and \(X_{\alpha }\) +\(Y_{\alpha }\) for Dependent Variables \(X,Y\)}{47}{section.7.3}%
-\contentsline {subsection}{\numberline {7.3.1}Simulation: Bivariate Normal}{47}{subsection.7.3.1}%
-\contentsline {subsection}{\numberline {7.3.2}Derivation of the Distribution of X+Y for Bivariate Normal}{47}{subsection.7.3.2}%
-\contentsline {section}{\numberline {7.4}Total Tests and Positive Tests Across All States}{47}{section.7.4}%
-\contentsline {section}{\numberline {7.5}Comparing Johns Hopkins CSSE Cases to CDC Positive Tests}{47}{section.7.5}%
-\contentsline {chapter}{References}{49}{chapter*.35}%
+\contentsline {section}{\numberline {5.3}Ratio Between Estimated Infections and Observed Infections}{22}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Relationship Between the Ratio of Estimated to Observed Infections Compared to Testing Rate}{26}{section.5.4}%
+\contentsline {section}{\numberline {5.5}County-level Results}{29}{section.5.5}%
+\contentsline {subsection}{\numberline {5.5.1}Massachusetts}{30}{subsection.5.5.1}%
+\contentsline {subsection}{\numberline {5.5.2}Michigan}{36}{subsection.5.5.2}%
+\contentsline {section}{\numberline {5.6}Cross Correlation Comparison}{40}{section.5.6}%
+\contentsline {subsection}{\numberline {5.6.1}Background}{40}{subsection.5.6.1}%
+\contentsline {subsection}{\numberline {5.6.2}Cross Correlation Results Comparing Bias Corrected Counts, Covidestim Estimates, and Wastewater Concentrations}{43}{subsection.5.6.2}%
+\contentsline {subsubsection}{Comparison Between Implementations of Probabilistic Bias Analysis}{45}{section*.33}%
+\contentsline {subsubsection}{Comparison Between Covidestim, Observed Cases, and Bias Corrected Counts}{46}{section*.35}%
+\contentsline {subsubsection}{Takeaways}{47}{section*.37}%
+\contentsline {chapter}{Chapter 6: Conclusion}{49}{chapter.6}%
+\contentsline {chapter}{Chapter 7: Appendix}{51}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Smoothing Span}{51}{section.7.1}%
+\contentsline {subsection}{\numberline {7.1.1}Changing SPAN for LOESS Smoothing of \(\beta \)}{51}{subsection.7.1.1}%
+\contentsline {section}{\numberline {7.2}Changing Mean and Variance for Prior Distribution Specifications}{51}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Relationship Between \((X+Y)_\alpha \) and \(X_{\alpha }\) +\(Y_{\alpha }\) for Dependent Variables \(X,Y\)}{51}{section.7.3}%
+\contentsline {subsection}{\numberline {7.3.1}Simulation: Bivariate Normal}{51}{subsection.7.3.1}%
+\contentsline {subsection}{\numberline {7.3.2}Derivation of the Distribution of X+Y for Bivariate Normal}{51}{subsection.7.3.2}%
+\contentsline {section}{\numberline {7.4}Total Tests and Positive Tests Across All States}{51}{section.7.4}%
+\contentsline {section}{\numberline {7.5}Comparing Johns Hopkins CSSE Cases to CDC Positive Tests}{51}{section.7.5}%
+\contentsline {chapter}{References}{53}{chapter*.38}%
