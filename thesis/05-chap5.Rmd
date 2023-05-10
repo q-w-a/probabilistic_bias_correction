@@ -32,8 +32,6 @@ theme_c <- function(...) {
 }
 ```
 
-# Results {#res}
-
 
 ## Comparison to the Covidestim Model
 
@@ -81,6 +79,10 @@ There are known issues with seroprevalence estimates. For one, these samples are
 At this point in the pandemic, there is no true gold standard to compare to. Covidestim is one model, among many, that makes key assumptions about aspects of the virus. Another note is that estimates from the Covidestim model are reported on the daily timescale for counties, while the probabilistic approach we implemented here is at the biweekly time scale. 
 
 To ensure the comparisons are on the same time scale, we sum the reported 95% credible intervals for the days in each 2-week interval. These intervals do not represent a 95% credible interval for the 2-week interval, and while such an interval would be ideal for the comparison, computation of a 95% credible interval for the two-week interval is not feasible because of the model structure. Due to the correlation between observations for each day for a given location, summing the intervals yields an estimate that is likely to be more conservative than a true 95% credible interval for the two-week interval would be. More detail on this assumption is in [the appendix](#conservativeintervals). 
+
+
+
+# Results {#res}
 
 
 ## State-level Results
@@ -204,7 +206,7 @@ knitr::include_graphics('figure/texas-data-sources.jpeg')
 
 ```
 
-Although we only discuss the example of Texas here in depth, we see similar trends in other states with lags the increase in positive tests relative to total tests across most states near the beginning of the Delta wave (Supplementary Figure \ref{fig:jhu-cdc-all}).
+Although we focus on the example of Texas here, we see similar trends in other states where Covidestim lags the probabilistic bias intervals, where, in these states, there is a lag to the increase in positive tests relative to total tests at the beginning of the Delta wave (Supplementary Figure \ref{fig:jhu-cdc-all}).
 
 ## Ratio Between Estimated Infections and Observed Infections
 
