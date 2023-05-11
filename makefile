@@ -4,7 +4,7 @@ all: data/state_level/tests_daily_all_states.RDS analysis/county_level_correctio
 
 # link on use of wildcard:
 # https://www.gnu.org/software/make/manual/html_node/Wildcard-Function.html
-thesis/_book/thesis.pdf:  $(wildcard thesis/*) analysis/vignettes/cross_correlation_wastewater.Rmd analysis/vignettes/state_results.Rmd analysis/vignettes/county_results.Rmd
+thesis/_book/thesis.pdf:  $(wildcard thesis/*) analysis/vignettes/cross_correlation_wastewater.Rmd analysis/vignettes/state_results.Rmd analysis/vignettes/county_results.Rmd analysis/data_cleaning/data_cleaning.Rmd
       # generate citations based on Rmd files in thesis directory
 			Rscript thesis/generate_citations.R 
 			# knit thesis 
