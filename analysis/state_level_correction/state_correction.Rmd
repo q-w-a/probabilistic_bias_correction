@@ -192,6 +192,10 @@ symp <- fb_symptoms %>%
               values_from = c(value)) %>%
   mutate(beta_est = smoothed_wscreening_tested_positive_14d/smoothed_wtested_positive_14d)
 
+
+
+
+
 symp %>% 
   ggplot(aes(x=date, y = beta_est)) +
   geom_line() +
@@ -204,7 +208,7 @@ symp %>%
        x="Date") +
   scale_y_continuous(labels=scales::percent) 
 
-ggsave(here('thesis/figure/ctis_beta_states.pdf'), height = 14, width = 14)
+# ggsave(here('thesis/figure/ctis_beta_states.pdf'), height = 14, width = 14)
 
 
 
@@ -219,8 +223,8 @@ symp %>%
   labs(title = TeX("Estimate of $P(S_1|untested)$ from COVID-19 Trends and Impact Survey Data"),
        y = "Percentage with COVID-19-like Illness")
 
-ggsave(here('thesis/figure/ctis_s_untested_states.pdf'), height =14, width = 14)+
-  scale_y_continuous(labels=scales::percent)
+# ggsave(here('thesis/figure/ctis_s_untested_states.pdf'), height =14, width = 14)+
+#   scale_y_continuous(labels=scales::percent)
 
 
 ################################################
@@ -245,12 +249,102 @@ states_keep <- symp %>%
   pull(state) %>%
   unique()
 
+
+
+
+symp_smooth<- symp %>%
+  group_by(state) %>%
+  arrange(date) %>%
+  mutate(imputed_beta = ifelse(state %in% states_keep,
+                               imputeTS::na_ma(beta_est, k = 30, weighting = "simple"),
+                               beta_est),
+         imputed_s_untested  =ifelse(state %in% states_keep,
+                                     imputeTS::na_ma(smoothed_wcli, k = 30, weighting = "simple"),
+                                    smoothed_wcli ))
+
+
+symp_smooth <- symp_smooth %>%
+  group_by(state) %>%
+  group_split() %>%
+  map_df(~{
+    if(unique(.x$state) %in% states_keep) {
+       .x <- .x%>% arrange(date) %>% mutate(index=row_number())
+       l <- loess(imputed_beta ~ index, data=.x, span=.33)
+       s <- loess(imputed_s_untested ~ index, data=.x, span=.2)
+
+      .x %>% mutate(smoothed_beta =predict(l),
+                    smoothed_p_s_untested = predict(s))
+                    }
+
+    else { 
+       .x <-.x %>% arrange(date) %>% mutate(index=row_number())
+       s <- loess(imputed_s_untested ~ index, data=.x, span=.2)
+
+      .x %>% mutate(
+                    smoothed_p_s_untested = predict(s))
+    }
+  })
+
+
+
+
+symp_smooth %>% 
+  ggplot(aes(x=date, y = imputed_beta)) +
+  geom_line(alpha=.7, linewidth=.5) +
+  geom_line(aes(x=date,y=smoothed_beta, color='LOESS Smoothed')) +
+  theme_c(axis.text.x = element_text(angle =30, size = 12),
+          axis.title = element_text(size =18),
+          plot.title = element_text(size = 22,margin=margin(0,0,7,0)),
+          legend.position="top") +
+  facet_wrap(~toupper(state), ncol =5) +
+  labs(title = TeX("$\\frac{Screening \\, Test  \\, Positivity}{Overall \\,  Test \\,  Positivity}$ from COVID-19 Trends and Impact Survey Data"),
+       y = "Screening Test Positivity Over Overall Test Positivity",
+       x="Date") +
+  scale_color_manual(values=c(
+    'LOESS Smoothed' = "darkred"),
+    name='') +
+  scale_y_continuous() +
+  guides(color = guide_legend(override.aes = list(size=3)))
+
+
+ggsave(here('thesis/figure/ctis_beta_states.pdf'), height = 18, width = 14)
+
+
+
+
+
+symp_smooth %>% 
+#  filter(keep) %>%
+  ggplot(aes(x=date, y = imputed_s_untested)) +
+  geom_line(alpha=.7, linewidth=.5) +
+  geom_line(aes(x=date,y=smoothed_p_s_untested, color='LOESS Smoothed')) +
+  theme_c(axis.text.x = element_text(angle =30, size = 12),
+          plot.title = element_text(size = 24,margin=margin(0,0,4,0))) +
+  facet_wrap(~toupper(state), ncol=5) +
+  labs(title = TeX("Estimate of $P(S_1|untested)$ from COVID-19 Trends and Impact Survey Data"),
+       y = "Percent with COVID-19-like Illness") +
+  scale_color_manual(values=c(
+    'LOESS Smoothed' = "darkred"),
+    name='') +
+  guides(color = guide_legend(override.aes = list(size=3))) +
+  scale_y_continuous(labels=scales::percent) 
+
+
+
+ggsave(here('thesis/figure/ctis_s_untested_states.pdf'), height =18, width = 14)+
+  scale_y_continuous(labels=scales::percent)
+
+
 symp <- symp %>% 
   filter(state %in% states_keep)
+
+
 
 ```
 
 ```{r impute missing}
+
+
 ################################
 # IMPUTE MISSING OBSERVATIONS
 ################################
@@ -343,10 +437,10 @@ state_beta <- symp_imputed %>%
 
 
 ######################################################
-# MEAN BY BIWEEK OF SMOOTHED EMPIRICAL BETA
+# pick max date since value is for previous 2 weeks
 ######################################################
 
-# add biweek information; take mean for each biweek
+# add biweek information
 state_beta <- state_beta %>%
   left_join(dates) %>%
   group_by(biweek, state) %>%

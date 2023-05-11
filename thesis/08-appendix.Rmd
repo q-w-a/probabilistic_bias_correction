@@ -514,3 +514,19 @@ knitr::include_graphics('figure/all-states-first-impl.jpeg')
 
 ```
 
+## County Level Comparison to Covidestim in Massachusetts
+
+```{r, fig.cap = "\\label{fig:ma-comp-covidestim}Probabilistic bias analysis intervals for each county in Massachusetts. Each probabilistic bias interval is a 95\\% simulation interval for the estimated infections in that particular two-week interval. Each column represents a distinct implementation of the probabilistic bias analysis, where columns 2 through 4 incorporate survey data from the COVID-19 Trends and Impact Survey for informing the prior distributions. The Covidestim medians are presented in blue to compare concordance between each implementation of the bias analysis to Covidestim estimates." }
+
+knitr::include_graphics("figure/ma_pb_compared_to_covidestim.pdf")
+
+```
+
+
+
+## Summarizing Concordance with Covidestim
+
+```{r}
+
+```
+

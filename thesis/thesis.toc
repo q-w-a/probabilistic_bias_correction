@@ -43,35 +43,41 @@
 \contentsline {chapter}{Chapter 4: Details of Implementation}{9}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Version 1: Priors do Not Vary by State or Date}{9}{section.4.1}%
 \contentsline {section}{\numberline {4.2}Version 2-4: Allowing Some Prior Parameters to Vary}{9}{section.4.2}%
-\contentsline {chapter}{Chapter 5: Results}{11}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Comparison to the Covidestim Model}{11}{section.5.1}%
-\contentsline {subsection}{\numberline {5.1.1}Overview}{11}{subsection.5.1.1}%
-\contentsline {subsection}{\numberline {5.1.2}The Covidestim Model}{11}{subsection.5.1.2}%
-\contentsline {subsection}{\numberline {5.1.3}Assumptions}{12}{subsection.5.1.3}%
-\contentsline {subsection}{\numberline {5.1.4}Comparison to Serological Data}{13}{subsection.5.1.4}%
-\contentsline {subsection}{\numberline {5.1.5}Limitations of this Comparison}{13}{subsection.5.1.5}%
-\contentsline {section}{\numberline {5.2}State-level Results}{13}{section.5.2}%
-\contentsline {subsection}{\numberline {5.2.1}Example Where July Peak is Larger in Probablistic Bias Analysis Intervals: Michigan}{19}{subsection.5.2.1}%
-\contentsline {subsection}{\numberline {5.2.2}Example Where Covidestim Intervals Lag Probabilistic Bias Intervals: Texas}{20}{subsection.5.2.2}%
-\contentsline {section}{\numberline {5.3}Ratio Between Estimated Infections and Observed Infections}{22}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Relationship Between the Ratio of Estimated to Observed Infections Compared to Testing Rate}{26}{section.5.4}%
-\contentsline {section}{\numberline {5.5}County-level Results}{29}{section.5.5}%
-\contentsline {subsection}{\numberline {5.5.1}Massachusetts}{30}{subsection.5.5.1}%
-\contentsline {subsection}{\numberline {5.5.2}Michigan}{36}{subsection.5.5.2}%
-\contentsline {section}{\numberline {5.6}Cross Correlation Comparison}{40}{section.5.6}%
-\contentsline {subsection}{\numberline {5.6.1}Background}{40}{subsection.5.6.1}%
-\contentsline {subsection}{\numberline {5.6.2}Cross Correlation Results Comparing Bias Corrected Counts, Covidestim Estimates, and Wastewater Concentrations}{43}{subsection.5.6.2}%
-\contentsline {subsubsection}{Comparison Between Implementations of Probabilistic Bias Analysis}{45}{section*.33}%
-\contentsline {subsubsection}{Comparison Between Covidestim, Observed Cases, and Bias Corrected Counts}{46}{section*.35}%
-\contentsline {subsubsection}{Takeaways}{47}{section*.37}%
-\contentsline {chapter}{Chapter 6: Conclusion}{49}{chapter.6}%
-\contentsline {chapter}{Chapter 7: Appendix}{51}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Smoothing Span}{51}{section.7.1}%
-\contentsline {subsection}{\numberline {7.1.1}Changing SPAN for LOESS Smoothing of \(\beta \)}{51}{subsection.7.1.1}%
-\contentsline {section}{\numberline {7.2}Changing Mean and Variance for Prior Distribution Specifications}{51}{section.7.2}%
-\contentsline {section}{\numberline {7.3}Relationship Between \((X+Y)_\alpha \) and \(X_{\alpha }\) +\(Y_{\alpha }\) for Dependent Variables \(X,Y\)}{51}{section.7.3}%
-\contentsline {subsection}{\numberline {7.3.1}Simulation: Bivariate Normal}{51}{subsection.7.3.1}%
-\contentsline {subsection}{\numberline {7.3.2}Derivation of the Distribution of X+Y for Bivariate Normal}{51}{subsection.7.3.2}%
-\contentsline {section}{\numberline {7.4}Total Tests and Positive Tests Across All States}{51}{section.7.4}%
-\contentsline {section}{\numberline {7.5}Comparing Johns Hopkins CSSE Cases to CDC Positive Tests}{51}{section.7.5}%
-\contentsline {chapter}{References}{53}{chapter*.38}%
+\contentsline {chapter}{Chapter 5: Comparison to the Covidestim Model}{11}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Overview}{11}{section.5.1}%
+\contentsline {section}{\numberline {5.2}The Covidestim Model}{11}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Assumptions}{12}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Comparison to Serological Data}{13}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Limitations of this Comparison}{13}{subsection.5.4.1}%
+\contentsline {chapter}{Chapter 6: Results}{15}{chapter.6}%
+\contentsline {section}{\numberline {6.1}State-level Results}{15}{section.6.1}%
+\contentsline {subsection}{\numberline {6.1.1}Example Where July Peak is Larger in Probablistic Bias Analysis Intervals: Michigan}{22}{subsection.6.1.1}%
+\contentsline {subsection}{\numberline {6.1.2}Example Where Covidestim Intervals Lag Probabilistic Bias Intervals: Texas}{23}{subsection.6.1.2}%
+\contentsline {subsection}{\numberline {6.1.3}Summarizing Concordance with Covidestim}{25}{subsection.6.1.3}%
+\contentsline {section}{\numberline {6.2}Ratio Between Estimated Infections and Observed Infections}{26}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Relationship Between the Ratio of Estimated to Observed Infections Compared to Testing Rate}{29}{section.6.3}%
+\contentsline {section}{\numberline {6.4}County-level Results}{33}{section.6.4}%
+\contentsline {subsection}{\numberline {6.4.1}Massachusetts}{33}{subsection.6.4.1}%
+\contentsline {subsubsection}{Comparing Implementations of Probabilistic Bias Analysis}{33}{section*.23}%
+\contentsline {subsubsection}{Comparing Counties}{40}{section*.29}%
+\contentsline {subsection}{\numberline {6.4.2}Michigan}{44}{subsection.6.4.2}%
+\contentsline {section}{\numberline {6.5}Cross Correlation Comparison}{48}{section.6.5}%
+\contentsline {subsection}{\numberline {6.5.1}Background}{48}{subsection.6.5.1}%
+\contentsline {subsection}{\numberline {6.5.2}Cross Correlation Results Comparing Bias-Corrected Counts, Covidestim Estimates, and Wastewater Concentrations}{51}{subsection.6.5.2}%
+\contentsline {subsubsection}{Comparison Between Implementations of Probabilistic Bias Analysis}{53}{section*.38}%
+\contentsline {subsubsection}{Comparison Between Covidestim, Observed Cases, and Bias-Corrected Counts}{54}{section*.40}%
+\contentsline {subsubsection}{Takeaways}{55}{section*.42}%
+\contentsline {chapter}{Chapter 7: Conclusion}{57}{chapter.7}%
+\contentsline {chapter}{Chapter 8: Appendix}{59}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Smoothing Span}{60}{section.8.1}%
+\contentsline {subsection}{\numberline {8.1.1}Changing SPAN for LOESS Smoothing of \(\beta \)}{60}{subsection.8.1.1}%
+\contentsline {section}{\numberline {8.2}Changing Mean and Variance for Prior Distribution Specifications}{60}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Relationship Between \((X+Y)_\alpha \) and \(X_{\alpha }\) +\(Y_{\alpha }\) for Dependent Variables \(X,Y\)}{60}{section.8.3}%
+\contentsline {subsection}{\numberline {8.3.1}Simulation: Bivariate Normal}{60}{subsection.8.3.1}%
+\contentsline {subsection}{\numberline {8.3.2}Derivation of the Distribution of X+Y for Bivariate Normal}{60}{subsection.8.3.2}%
+\contentsline {section}{\numberline {8.4}Total Tests and Positive Tests Across All States}{60}{section.8.4}%
+\contentsline {section}{\numberline {8.5}Comparing Johns Hopkins CSSE Cases to CDC Positive Tests}{60}{section.8.5}%
+\contentsline {section}{\numberline {8.6}First Implementation of Probabilistic Bias Analysis (Including All States)}{60}{section.8.6}%
+\contentsline {section}{\numberline {8.7}County Level Comparison to Covidestim in Massachusetts}{60}{section.8.7}%
+\contentsline {section}{\numberline {8.8}Summarizing Concordance with Covidestim}{60}{section.8.8}%
+\contentsline {chapter}{References}{61}{chapter*.43}%

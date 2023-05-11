@@ -140,6 +140,8 @@ corrected <- map_df(priors_versions, ~readRDS(
 
 
 by_version <- corrected %>%
+  select(-date) %>%
+  distinct() %>% 
   mutate(in_interval = case_when(
     exp_cases_lb <= infections & infections <= exp_cases_ub ~ "In Interval",
     exp_cases_lb  > infections  ~ "Below Interval",
@@ -160,9 +162,14 @@ labels <- by_version %>%
 
 
 by_version %>%
+  mutate(in_interal = factor(in_interval, 
+                             levels = c("Above Interval",
+                                        "Below Interval",
+                                        "In Interval"
+                                        ))) %>%
    ggplot(aes(x= fct_reorder(vlabel,prop,max), 
              fill = in_interval, y =prop)) + 
-  geom_bar(stat="identity",position="dodge") +
+  geom_bar(stat="identity",position="stack") +
   theme_c() +
   coord_flip()+ scale_fill_manual(values=c("In Interval" = "#79D2AF",
                              "Above Interval" = "#D2AF79",
@@ -171,17 +178,46 @@ by_version %>%
        y= "Proportion",
        fill = "Covidestim Median:",
        title = "Proportion Where Covidestim Median\nWas Within, Above, or Below the Median",
-       subtitle = "State Level") +
+       subtitle = "Including All States") +
   theme_c() +
-  theme(legend.position="right",
+#  viridis::scale_fill_viridis(option="mako", begin=.2, discrete=TRUE) +
+  theme_c(legend.position="right",
           legend.title = element_text(face="bold", size = 15),
           legend.text= element_text( size = 15),
           legend.spacing.y = unit(3, 'pt'),
           axis.text.y = element_text(size = 17, hjust=1)) +
+  theme(
+          plot.subtitle = element_text(size=18, face='italic', margin=margin(4,0,4,0))) +
   scale_x_discrete(labels = (TeX(labels)))
 
 
-ggsave(here('presentation/figure/covidestim_concordance_state.jpeg'), height=8, width=14)
+ggsave(here('presentation/figure/covidestim_concordance_state.pdf'), height=8, width=14, dpi=400)
+ggsave(here('thesis/figure/covidestim_concordance_state.pdf'), height=7, width=16, dpi=400)
+
+
+
+
+concordance_by_state <- corrected %>%
+  select(-date) %>%
+  distinct() %>%
+  filter(biweek >=6) %>%
+  # covidestim does not report estimates for Nantucket 
+  mutate(in_interval = case_when(
+    exp_cases_lb <= infections & infections <= exp_cases_ub ~ "In Interval",
+    exp_cases_lb  > infections  ~ "Below Interval",
+    exp_cases_ub < infections ~ "Above Interval"
+  ) ) %>%
+  group_by(in_interval, state_name, vlabel) %>%
+  summarize(n_per_county=n()) %>%
+  group_by(state_name,vlabel) %>%
+  mutate(total = sum(n_per_county),
+         prop = n_per_county/total) %>%
+  mutate(state="MA")
+
+
+
+
+
 
 ```
 
@@ -232,7 +268,7 @@ corrected %>%
   scale_x_continuous(limits=c(0,.25), n.breaks=4)
 
 
-ggsave(here('thesis/figure/testing_rate_ratio.jpeg'), width=11,height=7)
+ggsave(here('thesis/figure/testing_rate_ratio.pdf'), width=11,height=7, dpi=400)
 
 corrected %>%
   ggplot(aes(x=total, y = exp_cases_median)) +
@@ -306,7 +342,7 @@ corrected %>%
 
 
 
-ggsave(here::here(paste0('thesis/figure/college_populations.jpeg')), 
+ggsave(here::here(paste0('thesis/figure/college_populations.pdf')), 
        height=11, width = 11, dpi=400)
 
 
@@ -445,7 +481,7 @@ variant %>% ggplot(aes(x=week, y = share,
        subtitle = "for Variants that the WHO Designated\nVariant of Interest or Variant of Concern")
 
 
-ggsave(here('thesis/figure/variant_prop.jpeg'), width =9, height=4, dpi=400)
+ggsave(here('thesis/figure/variant_prop.pdf'), width =9, height=4, dpi=400)
 
 
 ```
@@ -481,7 +517,7 @@ subset %>%
        subtitle = "December 31, 2021 through January 14, 2022")
 
 
-ggsave(here('thesis/figure/ratio-peak-omicron.jpeg'), height=11, width=12)
+ggsave(here('thesis/figure/ratio-peak-omicron.pdf'), height=11, width=12, dpi=400)
 
 
 
@@ -611,7 +647,7 @@ subset %>%
   scale_color_manual(values=c(Median="darkred"),name='')
 
 
-ggsave(here('thesis/figure/testrate-low-summer.jpeg'), height=6,width=12)
+ggsave(here('thesis/figure/testrate-low-summer.pdf'), height=6,width=12, dpi=400)
 
 
 
@@ -686,7 +722,7 @@ heatmap_dat %>%
             date=min(date)) %>%
   arrange(desc(m))
 
-ggsave(here('thesis/figure/heatmap_ratio_est_observed.jpeg'),
+ggsave(here('thesis/figure/heatmap_ratio_est_observed.pdf'),
        height=10,
        width =13,
        dpi=400)
@@ -746,7 +782,7 @@ ranks %>%
 r <- ranks %>%
   mutate(rank_group = case_when(
     rank <= 10 ~  "Top 10",
-    rank >= 41 ~ "Bottom 10",
+    rank > 41 ~ "Bottom 10",
     TRUE ~ "Middle" )) %>%
   group_by(state_name, rank_group) %>%
   mutate(n=n()) %>%
@@ -837,7 +873,7 @@ r %>%
   scale_y_reverse(breaks=seq(1,51, by=9))
 
 
-ggsave(here('thesis/figure/rank-ratio-over-time.jpeg'), height=8,width=12)
+ggsave(here('thesis/figure/rank-ratio-over-time.pdf'), height=8,width=12, dpi=400)
 
   
   
@@ -955,7 +991,11 @@ ggsave(here::here(paste0('thesis/figure/michigan_variant.pdf')),
        height=10, width = 15, dpi=400)
 
 
+```
 
+## Only Texas
+
+```{r}
 corrected %>%
   filter(state == "TX" & version %in% c("v1","v4")) %>%
  # filter(state %in% sample(corrected$state,5)) %>%
@@ -1021,11 +1061,15 @@ corrected %>%
 
 
 
-ggsave(here::here(paste0('thesis/figure/texas-lag.jpeg')), 
+ggsave(here::here(paste0('thesis/figure/texas-lag.pdf')), 
        height=8, width = 15, dpi=400)
 
 
+```
 
+## Testing in Michigan
+
+```{r}
 
 corrected %>%
   filter(state=="MI") %>%
@@ -1060,8 +1104,6 @@ corrected %>%
 
 ggsave(here::here(paste0('thesis/figure/test_capacity.pdf')), 
        height=6, width = 13, dpi=400)
-
-
 
 
 
@@ -1114,7 +1156,10 @@ corrected %>%
   geom_line(aes(y=exp_cases_median)) +
   geom_line(aes(y=infections),color="red")
 
+```
 
+
+```{r,eval=FALSE}
 corrected %>%
   filter(state=="TX") %>%
   filter(version =="v4") %>%
@@ -1142,6 +1187,12 @@ corrected %>%
   geom_point() 
 
 
+```
+
+
+## Testing, All States
+
+```{r}
 corrected %>%
   select(date, total, positive,biweek,state) %>%
   distinct() %>%
@@ -1266,7 +1317,7 @@ covidestim %>%
 #        height=10, width = 15, dpi=400)
 
 
-ggsave(here('thesis/figure/texas-data-sources.jpeg'),height=5, width=10, dpi=400)
+ggsave(here('thesis/figure/texas-data-sources.pdf'),height=5, width=10, dpi=600)
 
 ```
 
@@ -1355,20 +1406,22 @@ plot2 <- plot_grid( plotlist=pltlist_2, ncol=4)
 
 plot_grid(title_row, plot1, rel_heights=c(.05,.95), nrow=2)
 
-ggsave(here('thesis/figure/jhu_cdc_all_states_1.jpeg'), height=25, width=19)
+ggsave(here('thesis/figure/jhu_cdc_all_states_1.pdf'), height=25, width=19)
 
 
 
 plot_grid(title_row, plot2, rel_heights=c(.05,.95), nrow=2)
 
-ggsave(here('thesis/figure/jhu_cdc_all_states_2.jpeg'), height=25, width=19)
+ggsave(here('thesis/figure/jhu_cdc_all_states_2.pdf'), height=25, width=19)
 
   
 ```
 
 
 
-# PB Intervals for All States -- Break up into 2 groups
+# PB Intervals for All States
+
+Break up into 2 groups
 
 ```{r}
 
@@ -1430,7 +1483,7 @@ corrected %>%
                                       face="bold"),
           strip.text.x =  element_text(margin = margin(5,3,5,3,'pt'),
                                        face = "bold",
-                                       size = 10),
+                                       size = 13),
           plot.subtitle = ggtext::element_markdown(size = 25,margin = margin(3,5,10,5,'pt'),
                                        face = "italic"),
           legend.position = "top",
@@ -1495,7 +1548,7 @@ corrected %>%
                                       face="bold"),
           strip.text.x =  element_text(margin = margin(5,3,5,3,'pt'),
                                        face = "bold",
-                                       size = 10),
+                                       size = 13),
           plot.subtitle = ggtext::element_markdown(size = 25,margin = margin(3,5,10,5,'pt'),
                                        face = "italic"),
           legend.position = "top",
@@ -1581,7 +1634,7 @@ corrected %>%
        title = paste0("Estimated Infections by Version (State Level)")) 
 
 
-ggsave(here('presentation/figure/state_level_mi_ma.jpeg'), width =13, height=9)
+ggsave(here('presentation/figure/state_level_mi_ma.pdf'), width =13, height=9)
 
 ```
 
@@ -1720,7 +1773,47 @@ corrected %>%
                               byrow=TRUE))
 
 
-ggsave(here('thesis/figure/all-states-first-impl.jpeg'), height=18, width=16)
+ggsave(here('thesis/figure/all-states-first-impl.pdf'), height=18, width=16)
+
+
+```
+
+
+```{r, eval=FALSE}
+# Policy
+
+library(readxl)
+ stay_at_home <- read_excel(here("data/state_level", "COVID-19 US state policy database (CUSP).xlsx"),
+                            sheet ='Stay at Home') %>%
+  select(state = `State Abbreviation`,
+         stay_at_home_start = `Stay at home/shelter in place`,
+         stay_at_home_end = `End stay at home/shelter in place`,
+   ) %>%
+  mutate(across(c(stay_at_home_start,stay_at_home_end), ~ as_date(., origin="1899-12-31"))) %>%
+  filter(!is.na(state)) 
+ 
+ 
+
+  mutate(length_of_order =difftime(stay_at_home_end, stay_at_home_start, units="days") )
+
+  saveRDS(stay_at_home, here('data', 'stay_at_home_bu.RDS'))
+
+
+
+stay_at_home <- readRDS(here('data', 'stay_at_home_bu.RDS'))
+
+ stay_at_home %>%
+   ggplot(aes(xmin = stay_at_home_start, xmax = stay_at_home_end, y = fct_reorder(state,length_of_order))) +
+   geom_errorbar(width = .3) +
+   scale_x_date(date_breaks = "1 months", date_labels = "%b %Y") +
+  theme_bw() +
+  theme(axis.title = element_text(size = 16, face = "bold"),
+        plot.title = element_text(size = 16, face = "bold", hjust = .5),
+        plot.subtitle = element_text(size = 16, face = "italic", hjust = .5)) +
+  labs(y = "State",
+       x = "Date",
+       title = "Stay at Home/Shelter in Place Order")
+
 
 
 ```
