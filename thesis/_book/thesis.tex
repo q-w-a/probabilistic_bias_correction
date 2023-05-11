@@ -520,9 +520,9 @@ The states that had the lowest ratios of estimated to observed infections were t
 
 Meanwhile, the states that had the highest ratios of estimated to observed infections, and as such the lowest case ascertainment rates, were Nebraska, Oklahoma, South Dakota, Mississippi, Tennessee, and Alabama.
 
-Nebraska was one of the only states that did not have a mandatory stay-at-home order in 2020 or recommendations to stay at home; Mississippi and South Dakota never had a mandatory stay-at-home order but did have recommendations to stay at home (\textbf{moreland2020?}).
+Nebraska was one of the only states that did not have a mandatory stay-at-home order in 2020 or recommendations to stay at home; Mississippi and South Dakota never had a mandatory stay-at-home order but did have recommendations to stay at home (Moreland et al., 2020).
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/rank-ratio-over-time} \caption{\label{fig:rank-ratio-over-time}For each two-week interval, we rank each state's ratio of estimated to observed infections, where 1 corresponds to the state with the \emph{lowest} ratio (indicating less infections are going unobserved), and 51 corresponds to the state with the \emph{highest} ratio (indicating more infections are going unobserved). Visualized here are the states that consistently ranked as among the lowest ratios or highest ratios over time: specifically, states were among the top 10 highest ratios or top 10 lowest ratios for at least 80\% of the time intervals are shown.}\label{fig:unnamed-chunk-15}
+\includegraphics[width=1\linewidth]{figure/rank-ratio-over-time} \caption{\label{fig:rank-ratio-over-time}For each two-week interval, we rank each state's ratio of estimated to observed infections, where 1 corresponds to the state with the \emph{lowest} ratio (indicating less infections are going unobserved), and 51 corresponds to the state with the \emph{highest} ratio (indicating more infections are going unobserved relative to those observed). Visualized here are the states that consistently ranked as among the lowest ratios or highest ratios over time: specifically, states were among the top 10 highest ratios or top 10 lowest ratios for at least 80\% of the time intervals are shown.}\label{fig:unnamed-chunk-15}
 \end{figure}
 \hypertarget{relationship-between-the-ratio-of-estimated-to-observed-infections-compared-to-testing-rate}{%
 \section{Relationship Between the Ratio of Estimated to Observed Infections Compared to Testing Rate}\label{relationship-between-the-ratio-of-estimated-to-observed-infections-compared-to-testing-rate}}
@@ -591,11 +591,11 @@ To better see the overlap between versions, in Figure \ref{fig:pb_versions_ma} w
 \end{figure}
 Beyond comparing the versions to each other, we can also compare the extent to which these intervals agree with the Covidestim estimates.
 
-To compare the probabilistic bias intervals to the Covidestim estimates, we can again look at the proportion of time intervals where the probabilistic bias intervals contained the Covidestim median infections. We can summarize concordance for each implementation of the bias analysis by calculating, across all counties and time intervals, the fraction of bias intervals for a particular version that contained the Covidestim median (Figure \textbackslash ref\{fig:summarize-concordance-mass-counties). From Figure \textbackslash ref\{fig:summarize-concordance-mass-counties, we see that for counties in Massachusetts, the implementation of probabilistic bias analysis that centers the prior for \(P(S_1|\text{untested})\) at the percentage experiencing COVID-19-like illness is most concordant with the Covidestim estimates.
+To compare the probabilistic bias intervals to the Covidestim estimates, we can again look at the proportion of time intervals where the probabilistic bias intervals contained the Covidestim median infections. We can summarize concordance for each implementation of the bias analysis by calculating, across all counties and time intervals, the fraction of bias intervals for a particular version that contained the Covidestim median (Figure \ref{fig:summarize-concordance-mass-counties}). From Figure \ref{fig:summarize-concordance-mass-counties}, we see that for counties in Massachusetts, the implementation of probabilistic bias analysis that centers the prior for \(P(S_1|\text{untested})\) at the percentage experiencing COVID-19-like illness is most concordant with the Covidestim estimates.
 \begin{figure}
 \includegraphics[width=1\linewidth]{figure/summarize-concordance-mass-counties} \caption{\label{fig:summarize-concordance-mass-counties} To summarize the concordance with Covidestim for each county in Massachusetts, we consider the proportion of all probabilistic bias intervals (each corresponding to a two-week interval) that contain the Covidestim median for that time interval, or where the Covidestim median falls above or below the interval.}\label{fig:unnamed-chunk-20}
 \end{figure}
-To see how concordance differs by county, we can consider a specific implementation of the priors -- here, we compare the concordance with the version with \(P(S_1|\text{untested})\), since we see this implementation is the most concordant from Figure \ref{summarize-concordance-mass-counties}. Then, for that implementation, we can see what proportion of probabilistic bias intervals for a particular county contain the Covidestim median (Figure \ref{fig:above-below-by-county-ma}).
+To see how concordance differs by county, we can consider a specific implementation of the priors -- here, we compare the concordance with the version with \(P(S_1|\text{untested})\), since we see this implementation is the most concordant from Figure \ref{fig:summarize-concordance-mass-counties}. Then, for that implementation, we can see what proportion of probabilistic bias intervals for a particular county contain the Covidestim median (Figure \ref{fig:above-below-by-county-ma}).
 
 In Figure \ref{fig:above-below-by-county-ma}, we see that for most counties, more than 3/4 of the probabilistic bias intervals contain the Covidestim estimates.
 
@@ -604,7 +604,7 @@ However, Suffolk County and Hampshire County are two notable exceptions, where f
 These exceptions are likely driven by the high amount of testing, particularly screening testing, in counties that contain universities or colleges. For example, in Hampshire County, there is a high amount of asymptomatic testing done among the five colleges. Smith College alone, with a student body of about 2,500 and mandatory PCR testing twice a week, would contribute a substantial amount of tests to the test count in Hampshire County. Given the low infection burden, the vast majority of these tests were negative throughout most of 2021, reducing the positivity rate (Figure \ref{fig:hamp}). The extensive amount of asymptomatic testing done here would mean that
 means that our correction factor \(\beta\) in probabilistic analysis\footnote{Recall \(P(\text{test}_+ | S_0, \text{untested}) = \beta \; P(\text{test}_+|\text{tested})\).}, which we use to estimate the positivity rate among the untested asymptomatic population, would be too low. This is because the observed test positivity rate when so much asymptomatic testing is conducted would be closer to what expect the positivity rate among the asymptomatic test positivity rate to be among the untested population. Because the assumptions of the probabilistic bias analysis here did not assume such extensive asymptomatic testing was contributing to the test positivity rate, we are likely underestimating the true number of unobserved infections if there is a substantial amount of screening testing. It would be simple, however, to adjust \(\beta\) to account for cases where there is increased asymptomatic testing.
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/covidestim_above_below_by_county_ma} \caption{\label{fig:above-below-by-county-ma} To summarize the concordance with Covidestim for each county in Massachusetts, we consider the proportion of all probabilistic bias intervals (each corresponding to a two-week interval) that contain the Covidestim median for that time interval, or where the Covidestim median falls above or below the interval. We }\label{fig:unnamed-chunk-21}
+\includegraphics[width=1\linewidth]{figure/covidestim_above_below_by_county_ma} \caption{\label{fig:above-below-by-county-ma} To summarize the concordance with Covidestim for each county in Massachusetts, we consider the proportion of all probabilistic bias intervals (each corresponding to a two-week interval) that contain the Covidestim median for that time interval, or where the Covidestim median falls above or below the interval. The Covidestim falls *above* the probabilistic bias intervals for Suffolk and Hampshire counties in more two-week intervals than in other counties.}\label{fig:unnamed-chunk-21}
 \end{figure}
 \begin{figure}
 \includegraphics[width=0.9\linewidth]{figure/hampshire} \caption{\label{fig:hamp}Hampshire County has among the lowest test positivity rates among counties in Massachusetts in the time period considered.}\label{fig:unnamed-chunk-22}
@@ -630,18 +630,21 @@ Two counties that consistently had among the highest ratios of estimated infecti
 \end{figure}
 \hypertarget{michigan}{%
 \subsection{Michigan}\label{michigan}}
+
+The figures including probabilistic bias analysis intervals for each county and implementation separately are included in Supplementary Figures \ref{fig:pb_versions_mi-1}, \ref{fig:pb_versions_mi-2}, and \ref{fig:pb_versions_mi-3}.
+
+We can compare to Covidestim again by considering the proportion of probabilistic bias intervals that contain the Covidestim median across all counties for each implementation (Figure \ref{fig:covidestim_above_below_by_county_mi}).
+
+As we saw at the state level across the United States (Figure \ref{fig:summarize-concordance-state}) and in
+Massachusetts at the county level (Figure \ref{fig:summarize-concordance-mass-counties})), we see the version with the highest concordance with Covidestim is that where the prior for \(P(S_1|\text{untested})\) is centered at the percent of the population experiencing COVID-19-like illnes from the COVID-19 Trends and Impact Survey.
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/mi1_pb_compared_to_observed} \caption{\label{fig:pb_versions_mi}}\label{fig:unnamed-chunk-25-1}
+\includegraphics[width=1\linewidth]{figure/summarize-concordance-mich-counties} \caption{\label{fig:covidestim_above_below_by_county_mi} For each implementation, we calculate the proportion of probabilistic bias intervals over all counties and where the Covidestim median falls within, above, or below the interval. We interpret a higher proportion *in interval*, where the Covidestim falls within the probabilistic analysis interval, to indicate higher concordance. As we saw in Massachusetts (Figure \ref{fig:summarize-concordance-mass-counties}), the implementation with the highest concordance with Covidestim is the version that centers the prior for $P(S_1|\text{untested})$ at the survey value.}\label{fig:unnamed-chunk-25}
 \end{figure}
+When we look at the ratio of estimated infections to how counties compare across time, we can
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/mi2_pb_compared_to_observed} \caption{\label{fig:pb_versions_mi}}\label{fig:unnamed-chunk-25-2}
-\end{figure}
-\begin{figure}
-\includegraphics[width=1\linewidth]{figure/mi3_pb_compared_to_observed} \caption{\label{fig:pb_versions_mi}}\label{fig:unnamed-chunk-25-3}
+\includegraphics[width=1\linewidth]{figure/mi_county_heatmap_ratio_est_observed} \caption{\label{fig:mi-county-heatmap}Each row on the heatmap corresponds to a county, while each column is the two-week interval. The color of the tile for a two-week interval in a particular county is the ratio of total estimated infections to the observed infections for that two-week interval. The impelmentation of probabilistic bias analysis used for the total estimated infections is the implementation centering $P(S_1|\text{untesteed})$ at the survey value. Darker colors indicate higher ratios, where more infections were going unobserved relative to those that were observed.}\label{fig:unnamed-chunk-26}
 \end{figure}
 This is true when summarizing across all counties, but it is also true for each county individually; the version centering \(P(S_1|\text{untested})\) at the survey value tends to be the most concordant for each county (Supplementary Figure \ref{fig:mi-county-concordance}).
-
-\includegraphics[width=1\linewidth]{figure/mi_pb_compared_to_covidestim_proportions}
 
 \newpage
 
@@ -778,6 +781,9 @@ Placeholder
 \hypertarget{county-level-comparison-to-covidestim-in-massachusetts}{%
 \section{County Level Comparison to Covidestim in Massachusetts}\label{county-level-comparison-to-covidestim-in-massachusetts}}
 
+\hypertarget{full-set-of-results-at-the-county-level-for-michigan}{%
+\section{Full Set of Results at the County Level for Michigan}\label{full-set-of-results-at-the-county-level-for-michigan}}
+
 \hypertarget{concordance-with-covidestim-by-version-and-county-in-michigan}{%
 \section{Concordance with Covidestim by Version and County in Michigan}\label{concordance-with-covidestim-by-version-and-county-in-michigan}}
 
@@ -815,6 +821,9 @@ Hopkins, L., Persse, D., Caton, K., Ensor, K., Schneider, R., McCall, C., \& Sta
 
 \leavevmode\vadjust pre{\hypertarget{ref-liu2022}{}}%
 Liu, Y., Yu, Y., Zhao, Y., \& He, D. (2022). Reduction in the infection fatality rate of {Omicron} variant compared with previous variants in {South Africa}. \emph{International Journal of Infectious Diseases}, \emph{120}, 146--149. http://doi.org/\href{https://doi.org/10.1016/j.ijid.2022.04.029}{10.1016/j.ijid.2022.04.029}
+
+\leavevmode\vadjust pre{\hypertarget{ref-moreland2020}{}}%
+Moreland, A., Herlihy, C., Tynan, M. A., Sunshine, G., McCord, R. F., Hilton, C., \ldots{} Popoola, A. (2020). Timing of {State} and {Territorial COVID-19 Stay-at-Home Orders} and {Changes} in {Population Movement} --- {United States}, {March} 1--{May} 31, 2020. \emph{MMWR. Morbidity and Mortality Weekly Report}, \emph{69}(35), 1198--1203. http://doi.org/\href{https://doi.org/10.15585/mmwr.mm6935a2}{10.15585/mmwr.mm6935a2}
 
 \leavevmode\vadjust pre{\hypertarget{ref-odriscoll2021}{}}%
 O'Driscoll, M., Ribeiro Dos Santos, G., Wang, L., Cummings, D. A. T., Azman, A. S., Paireau, J., \ldots{} Salje, H. (2021). Age-specific mortality and immunity patterns of {SARS-CoV-2}. \emph{Nature}, \emph{590}(7844), 140--145. http://doi.org/\href{https://doi.org/10.1038/s41586-020-2918-0}{10.1038/s41586-020-2918-0}

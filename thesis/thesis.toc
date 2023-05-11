@@ -60,25 +60,26 @@
 \contentsline {subsection}{\numberline {6.4.1}Massachusetts}{33}{subsection.6.4.1}%
 \contentsline {subsubsection}{Comparing Implementations of Probabilistic Bias Analysis}{33}{section*.23}%
 \contentsline {subsubsection}{Comparing Counties}{39}{section*.29}%
-\contentsline {subsection}{\numberline {6.4.2}Michigan}{43}{subsection.6.4.2}%
-\contentsline {section}{\numberline {6.5}Cross Correlation Comparison}{47}{section.6.5}%
-\contentsline {subsection}{\numberline {6.5.1}Background}{47}{subsection.6.5.1}%
-\contentsline {subsection}{\numberline {6.5.2}Cross Correlation Results Comparing Bias-Corrected Counts, Covidestim Estimates, and Wastewater Concentrations}{50}{subsection.6.5.2}%
-\contentsline {subsubsection}{Comparison Between Implementations of Probabilistic Bias Analysis}{52}{section*.38}%
-\contentsline {subsubsection}{Comparison Between Covidestim, Observed Cases, and Bias-Corrected Counts}{53}{section*.40}%
-\contentsline {subsubsection}{Takeaways}{54}{section*.42}%
-\contentsline {chapter}{Chapter 7: Conclusion}{55}{chapter.7}%
-\contentsline {chapter}{Chapter 8: Appendix}{57}{chapter.8}%
-\contentsline {section}{\numberline {8.1}Smoothing Span}{58}{section.8.1}%
-\contentsline {subsection}{\numberline {8.1.1}Changing SPAN for LOESS Smoothing of \(\beta \)}{58}{subsection.8.1.1}%
-\contentsline {section}{\numberline {8.2}Changing Mean and Variance for Prior Distribution Specifications}{58}{section.8.2}%
-\contentsline {section}{\numberline {8.3}Relationship Between \((X+Y)_\alpha \) and \(X_{\alpha }\) +\(Y_{\alpha }\) for Dependent Variables \(X,Y\)}{58}{section.8.3}%
-\contentsline {subsection}{\numberline {8.3.1}Simulation: Bivariate Normal}{58}{subsection.8.3.1}%
-\contentsline {subsection}{\numberline {8.3.2}Derivation of the Distribution of X+Y for Bivariate Normal}{58}{subsection.8.3.2}%
-\contentsline {section}{\numberline {8.4}Total Tests and Positive Tests Across All States}{58}{section.8.4}%
-\contentsline {section}{\numberline {8.5}Comparing Johns Hopkins CSSE Cases to CDC Positive Tests}{58}{section.8.5}%
-\contentsline {section}{\numberline {8.6}First Implementation of Probabilistic Bias Analysis (Including All States)}{58}{section.8.6}%
-\contentsline {section}{\numberline {8.7}County Level Comparison to Covidestim in Massachusetts}{58}{section.8.7}%
-\contentsline {section}{\numberline {8.8}Concordance with Covidestim by Version and County in Michigan}{58}{section.8.8}%
-\contentsline {section}{\numberline {8.9}Summarizing Concordance with Covidestim}{58}{section.8.9}%
-\contentsline {chapter}{References}{59}{chapter*.43}%
+\contentsline {subsection}{\numberline {6.4.2}Michigan}{41}{subsection.6.4.2}%
+\contentsline {section}{\numberline {6.5}Cross Correlation Comparison}{45}{section.6.5}%
+\contentsline {subsection}{\numberline {6.5.1}Background}{45}{subsection.6.5.1}%
+\contentsline {subsection}{\numberline {6.5.2}Cross Correlation Results Comparing Bias-Corrected Counts, Covidestim Estimates, and Wastewater Concentrations}{48}{subsection.6.5.2}%
+\contentsline {subsubsection}{Comparison Between Implementations of Probabilistic Bias Analysis}{50}{section*.37}%
+\contentsline {subsubsection}{Comparison Between Covidestim, Observed Cases, and Bias-Corrected Counts}{51}{section*.39}%
+\contentsline {subsubsection}{Takeaways}{52}{section*.41}%
+\contentsline {chapter}{Chapter 7: Conclusion}{53}{chapter.7}%
+\contentsline {chapter}{Chapter 8: Appendix}{55}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Smoothing Span}{56}{section.8.1}%
+\contentsline {subsection}{\numberline {8.1.1}Changing SPAN for LOESS Smoothing of \(\beta \)}{56}{subsection.8.1.1}%
+\contentsline {section}{\numberline {8.2}Changing Mean and Variance for Prior Distribution Specifications}{56}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Relationship Between \((X+Y)_\alpha \) and \(X_{\alpha }\) +\(Y_{\alpha }\) for Dependent Variables \(X,Y\)}{56}{section.8.3}%
+\contentsline {subsection}{\numberline {8.3.1}Simulation: Bivariate Normal}{56}{subsection.8.3.1}%
+\contentsline {subsection}{\numberline {8.3.2}Derivation of the Distribution of X+Y for Bivariate Normal}{56}{subsection.8.3.2}%
+\contentsline {section}{\numberline {8.4}Total Tests and Positive Tests Across All States}{56}{section.8.4}%
+\contentsline {section}{\numberline {8.5}Comparing Johns Hopkins CSSE Cases to CDC Positive Tests}{56}{section.8.5}%
+\contentsline {section}{\numberline {8.6}First Implementation of Probabilistic Bias Analysis (Including All States)}{56}{section.8.6}%
+\contentsline {section}{\numberline {8.7}County Level Comparison to Covidestim in Massachusetts}{56}{section.8.7}%
+\contentsline {section}{\numberline {8.8}Full Set of Results at the County Level for Michigan}{56}{section.8.8}%
+\contentsline {section}{\numberline {8.9}Concordance with Covidestim by Version and County in Michigan}{56}{section.8.9}%
+\contentsline {section}{\numberline {8.10}Summarizing Concordance with Covidestim}{56}{section.8.10}%
+\contentsline {chapter}{References}{57}{chapter*.42}%

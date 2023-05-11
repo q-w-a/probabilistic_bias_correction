@@ -522,6 +522,28 @@ knitr::include_graphics("figure/ma_pb_compared_to_covidestim.pdf")
 
 ```
 
+
+## Full Set of Results at the County Level for Michigan
+
+```{r, out.width ="100%", fig.cap = "\\label{fig:pb_versions_mi-1} Probabilistic bias intervals for each implementation of probabilistic bias analysis, for each county in Michigan. Each interval is a 95\\% simulation interval for the total number of infections in that county in that two-week interval. The counties in Michigan are divided into thirds; this figure shows the first third, and the following two figures show the remaining counties."}
+
+knitr::include_graphics(paste0('figure/', 'mi1', '_pb_compared_to_observed.pdf'))
+
+```
+
+```{r, out.width ="100%", fig.cap = "\\label{fig:pb_versions_mi-2} This figure is identical to \\ref{fig:pb_versions_mi-1} but shows the second third of counties in Michigan."}
+
+knitr::include_graphics(paste0('figure/', 'mi2', '_pb_compared_to_observed.pdf'))
+
+```
+
+
+```{r, out.width ="100%", fig.cap = "\\label{fig:pb_versions_mi-3}", fig.cap = "\\label{fig:pb_versions_mi-3} This figure is identical to \\ref{fig:pb_versions_mi-1} but shows the last third of counties in Michigan."}
+
+knitr::include_graphics(paste0('figure/', 'mi3', '_pb_compared_to_observed.pdf'))
+
+```
+
 ## Concordance with Covidestim by Version and County in Michigan
 
 ```{r, fig.cap="\\label{fig:mi-county-concordance} Considering the proportion of probabilistic bias intervals that contained the Covidestim median for each implementation, for each county in Michigan. For most counties, we see that the implementation centering $P(S_1|\\text{untested})$ at the survey value is most concordant with Covidestim."}
@@ -533,11 +555,12 @@ knitr::include_graphics('figure/mi_pb_compared_to_covidestim_proportions.pdf')
 
 ```
 
+## Ratio of Estimated Infections to Observed in Michigan Counties, by Population Size
 
+```{r, fig.cap="\\label{fig:mi-ratio-pop}Comparing the ratio of estimated infections to observed infections over time for counties of different population sizes in Michigan. Counties are split into four groups based on quartiles of the population size. Each point represents the ratio of the estimated infections to the observed infections for a county. Although the group with the smallest population size does have more outliers with very high ratios, the median ratios are highly similar across population sizes."}
 
-## Summarizing Concordance with Covidestim
+knitr::include_graphics('figure/mi-ratio-pop.jpeg')
 
-```{r}
 
 ```
 

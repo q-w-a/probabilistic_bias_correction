@@ -173,7 +173,10 @@ by_version %>%
   theme_c() +
   coord_flip()+ scale_fill_manual(values=c("In Interval" = "#79D2AF",
                              "Above Interval" = "#D2AF79",
-                      "Below Interval"="#7997D2")) +
+                      "Below Interval"="#7997D2"),
+                       breaks = c("Below Interval",
+                               "In Interval",
+                               "Above Interval")) +
   labs(x="", 
        y= "Proportion",
        fill = "Covidestim Median:",

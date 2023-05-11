@@ -14,6 +14,8 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.width = 18, fig.height= 12)
 
+# test 
+
 library(tidyverse)
 library(latex2exp)
 library(here)
@@ -152,7 +154,7 @@ joined <- joined %>%
 ######################################################
 
 heatmap_dat <- corrected %>%
-  filter(version=="v2") %>%
+  filter(vlabel=="$P(S_1|untested)$ Centered at Emp. Value") %>%
   group_by(biweek, county_name, exp_cases_median, positive) %>%
   summarize(date = min(date)) %>%
   ungroup() 
@@ -167,7 +169,7 @@ wide <- heatmap_dat %>%
 heatmap_dat %>%
   mutate(county_name = gsub("Nantucket", "Nantucket and", county_name)) %>%
   mutate(ratio=exp_cases_median/positive) %>%
-  mutate(date_lab = format(as.POSIXct(date),format="%b %Y")) %>%
+  mutate(date_lab = format(as.POSIXct(date),format="%b %d %Y")) %>%
   group_by(county_name) %>%
   mutate(m = median(ratio)) %>%
   ungroup() %>%
@@ -183,7 +185,7 @@ heatmap_dat %>%
        title = "Ratio of Median Estimated Infections to Observed Infections\nfor Counties in Massachusetts",
        subtitle = TeX("Implementation with $P(S_1|untested)$ Centered at Survey Value")) +
   theme_c() +
-  theme(axis.text.x = element_text(size=11, angle=30),
+  theme(axis.text.x = element_text(size=11, angle=90),
         axis.text.y = element_text(size = 17),
         axis.title = element_text(size=16),
         legend.title = element_text(face="bold", size=18),
@@ -206,13 +208,13 @@ ggsave(here('thesis/figure/ma_county_heatmap_ratio_est_observed.pdf'),
 
 ```
 
-## Ranking Ratio of Estimated to Observed
+### Ranking Ratio of Estimated to Observed
 
 
 ```{r}
 
 subset <- corrected %>%
-  filter(version=="v2")
+  filter(vlabel=="$P(S_1|untested)$ Centered at Emp. Value")
 
 ranks <- subset %>%
   mutate(ratio = exp_cases_median/positive,
@@ -224,7 +226,7 @@ ranks <- subset %>%
   # rank for each time interval
   group_by(biweek) %>%
   mutate(rank = rank(ratio),
-         rank_tested=rank(-tested))
+         rank_tested=rank(-tested)) 
 
 
 ranks %>%
@@ -334,7 +336,7 @@ r %>%
            force_pull=9,
            box.padding=.15) +
   theme_c(legend.position="none",
-          axis.text.x = element_text(size=17,angle=30)) +
+          axis.text.x = element_text(size=17,angle=60)) +
   theme(plot.subtitle =element_text(size=19, margin=margin(4,0,4,0)),
         axis.title.x=element_text(size=16),
         axis.title.y=element_text(size=19)) +
@@ -353,8 +355,17 @@ r %>%
 ggsave(here('thesis/figure/rank-ratio-over-time-ma-county.pdf'), height=8,width=13)
 
   
+
+subset %>%
+  filter(county_name == "Alger") %>%
+  ggplot(aes(x= date,y=exp_cases_median)) +
+  geom_line()
   
 
+subset %>%
+  filter(county_name == "Alger") %>%
+  ggplot(aes(x= date,y=exp_cases_median/positive)) +
+  geom_line()
 
 ```
 
@@ -499,7 +510,78 @@ ggsave(here::here(paste0('thesis/figure/', state, '_pb_compare_versions.pdf')),
 ```
 
 
-## Compare to Covidestim
+### Compare Trends in Ratio to Trends in Infections
+
+
+```{r}
+
+
+subset <- corrected %>%
+  filter(vlabel=="$P(S_1|untested)$ Centered at Emp. Value")
+
+library(cowplot)
+
+plot_county <- function(county) {
+  
+  subset_county <- subset%>%
+  filter(county_name==county)
+  
+  subset_county %>%
+  group_by(biweek) %>%
+  mutate(mindate=min(date),
+         maxdate=max(date)) %>%
+  ggplot() +
+  geom_ribbon(aes(x=date,ymin=exp_cases_lb, ymax=exp_cases_ub),
+              alpha=.7) +
+  geom_linerange(aes(xmin=mindate,xmax=maxdate, 
+                     y=(exp_cases_median/positive)*median(subset_county$positive),
+                     color = 'Ratio of Estimated Infections to Observed'),
+                 linewidth =2) +
+  theme_c(legend.position='top') +
+  labs(x ='', y='Estimated Infections',
+       title=county,) +
+  scale_color_manual(values=c('Ratio of Estimated Infections to Observed'='#DA6932'), name='') +
+  scale_y_continuous(sec.axis=sec_axis(~./median(subset_county$positive), 
+                                       name='Ratio of Estimated Infections\nto Observed Infections')) +
+    theme(legend.position="none")
+
+}
+
+set.seed(123)
+
+include <- corrected %>%
+    select(county_name,population) %>%
+    distinct() %>% 
+    arrange(desc(population)) %>% 
+  slice_head(n=30) %>%
+  pull(county_name) %>%
+  unique() %>%
+  sample(5)
+
+
+#plot_county("Washtenaw")
+
+
+pltlist <- map(unique(corrected$county_name), plot_county)
+legend <- get_legend(pltlist[[1]] + theme(legend.position="top"))
+
+
+title_gg <- ggplot() + 
+  labs(title = "Comparing Trends in Ratio of Estimated Infections to Observed\nto Trends in Total Infections") + 
+  theme(plot.title=element_text(face="bold", hjust = .5, size = 30, margin =margin(5,0,2,0)))
+
+
+title_row <- plot_grid(title_gg,legend, nrow=2,rel_heights=c(.6,.4))
+grid <- plot_grid(plotlist = pltlist, nrow =2, rel_heights = c(.05,.95))
+
+plot_grid(title_row,grid, rel_heights = c(.05,.95), nrow=2)
+
+ggsave(here('thesis/figure/compare-ratio-to-total-ma.pdf'), height=12,width=12)
+
+
+```
+
+### Compare to Covidestim
 
 
 
@@ -718,7 +800,7 @@ ggsave(here('presentation/figure/suffolk_biweek_10.jpeg'),
 
 joined %>%
   filter(grepl("Berkshire", county_name)) %>%
-  filter( version=="v2") %>%
+  filter( vlabel=="$P(S_1|untested)$ Centered at Emp. Value") %>%
   # mutate(color = ifelse(biweek ==10, "yes", NA)) %>%
   # filter(biweek >= 8 & biweek <=22) %>%
   # covidestim does not report estimates for Nantucket 
@@ -774,7 +856,7 @@ ggsave(here('presentation/figure/example_output.jpeg'),
 
 
 
-## Summarizing Concordance with Covidestim
+### Summarizing Concordance with Covidestim
 
 ```{r}
 
@@ -981,7 +1063,10 @@ ma_concordance %>%
        subtitle = "By Version, in Massachusetts") +
   scale_fill_manual(values=c("Below Interval"="#7997D2",
                              "In Interval" = "#79D2AF",
-                             "Above Interval" = "#D2AF79")) +
+                             "Above Interval" = "#D2AF79"),
+                     breaks = c("Below Interval",
+                               "In Interval",
+                               "Above Interval")) +
   guides(fill=guide_legend(byrow=TRUE)) +
   scale_x_continuous(n.breaks = 7, expand=c(0,0),limits=c(-.05,1))
 
@@ -1226,6 +1311,8 @@ joined <- corrected %>%
 
 ```{r}
 
+library(scales)
+
 
 pal <- c("#10BAC5", "#1B10C5", "#EFB719", "#900C3F")
 
@@ -1389,27 +1476,30 @@ joined %>%
  filter(in_interval) %>%
   group_by(county_name) %>%
   mutate(m = max(prop_contained)) %>%
-  ggplot(aes(x=fct_reorder(county_name, m, .desc=TRUE),
+  ggplot(aes(x=fct_reorder(county_name, m),
              y = prop_contained, color = vlabel)) +
   geom_point(size = 3.5) +
-  labs(y = "Proportion of Biweeks Containing Covidestim Estimate",
+  labs(y = "Proportion of Two-week Intervals\nContaining Covidestim Estimate",
        x = "County",
-       title = "Comparing the Proportion of Biweeks Where Probabilistic Bias Interval Contains Covidestim Estimate")+
+       title = "Comparing the Proportion of Two-week Intervals\nWhere Probabilistic Bias Interval Contains Covidestim Estimate")+
     scale_color_manual(values = pal, labels =TeX(names(pal)), name ='')  +
-  theme_c(axis.text.x = element_text( size =16, angle =60, hjust=.95,vjust=.9),
-          axis.text.y = element_text(size = 12),
-          legend.text = element_text(size = 28),
+  theme_c(axis.text.x = element_text( size =16, angle =0),
+          axis.text.y = element_text(size = 12,hjust=1),
+          legend.text = element_text(size = 28, hjust=0),
           axis.title= element_text(size = 25),
           legend.position ="top",
           plot.title = element_text(size = 38, face="bold", margin = margin(2,0,3,0))) +
-  scale_y_continuous(n.breaks = 6) +
+  scale_y_continuous(n.breaks = 10) +
   guides(color = guide_legend(override.aes = list(size = 8), nrow=4,
-                              byrow=TRUE))
+                              byrow=TRUE)) +
+  coord_flip() 
+
+
 
 ggsave(here::here(paste0('thesis/figure/', 
                          state, 
                          '_pb_compared_to_covidestim_proportions.pdf')), 
-       height=14, width = 28, dpi=400)
+       height=19, width = 16, dpi=400)
 
 ```
 
@@ -1422,7 +1512,7 @@ ggsave(here::here(paste0('thesis/figure/',
 ######################################################
 
 heatmap_dat <- corrected %>%
-  filter(version=="v2") %>%
+  filter(vlabel=="$P(S_1|untested)$ Centered at Emp. Value") %>%
   group_by(biweek, county_name, exp_cases_median, positive) %>%
   summarize(date = min(date)) %>%
   ungroup() 
@@ -1436,7 +1526,7 @@ wide <- heatmap_dat %>%
 
 heatmap_dat %>%
   mutate(ratio=exp_cases_median/positive) %>%
-  mutate(date_lab = format(as.POSIXct(date),format="%b %Y")) %>%
+  mutate(date_lab = format(as.POSIXct(date),format="%b %d %Y")) %>%
   group_by(county_name) %>%
   mutate(m = median(ratio, na.rm=TRUE)) %>%
   ungroup() %>%
@@ -1454,7 +1544,7 @@ heatmap_dat %>%
        title = "Ratio of Median Estimated Infections to Observed Infections\nfor Counties in Michigan",
        subtitle = TeX("Implementation with $P(S_1|untested)$ Centered at Survey Value")) +
   theme_c() +
-  theme(axis.text.x = element_text(size=15, angle=30),
+  theme(axis.text.x = element_text(size=15, angle=90),
         axis.text.y = element_text(size = 17),
         axis.title.x = element_text(size=19),
         axis.title.y = element_text(size=19),
@@ -1472,10 +1562,368 @@ heatmap_dat %>%
 
 ggsave(here('thesis/figure/mi_county_heatmap_ratio_est_observed.pdf'),
        height=18,
-       width =13,
+       width =14,
        dpi=400)
 
+
+# subset %>%
+#   group_by(biweek) %>%
+#   mutate(mindate=min(date),
+#          maxdate=max(date)) %>%
+#   filter(county==Washtenaw) %>%
+#   ggplot(aes(xmin=mindate,xmax=maxdate, y=exp_cases_median/population)) +
+#   geom_linerange()
+
+
 ```
+
+
+```{r}
+
+
+heatmap_dat <- corrected %>%
+  filter(vlabel=="$P(S_1|untested)$ Centered at Emp. Value") %>%
+  group_by(biweek, county_name, exp_cases_median, positive) %>%
+  summarize(date = min(date)) %>%
+  ungroup() 
+
+heatmap_dat %>%
+  mutate(ratio=exp_cases_median/positive) %>%
+  mutate(date_lab = format(as.POSIXct(date),format="%b %d %Y")) %>%
+  group_by(county_name) %>%
+  mutate(m = median(ratio, na.rm=TRUE)) %>%
+  ungroup() %>%
+    mutate(ratio=ifelse(ratio>40, 40, ratio)) %>%
+  ggplot(aes(x=fct_reorder(date_lab, date),
+             y = fct_reorder(county_name,m),
+             fill =ratio)) +
+  geom_tile() +
+ # scale_x_discrete(breaks=breaks_date, labels = breaks_date)  +
+  viridis::scale_fill_viridis(option="rocket", direction=-1, na.value="white",
+                              breaks = c(10,20,30,40), labels = c("10","20","30","40 or greater")) +
+  labs(x="",
+       y= "County",
+       fill = "Ratio of Estimated Cases\nto Observed",
+       title = "Ratio of Median Estimated Infections to Observed Infections\nfor Counties in Michigan",
+       subtitle = TeX("Implementation with $P(S_1|untested)$ Centered at Survey Value")) +
+  theme_c() +
+  theme(axis.text.x = element_text(size=15, angle=90),
+        axis.text.y = element_text(size = 17),
+        axis.title.x = element_text(size=19),
+        axis.title.y = element_text(size=19),
+        legend.title = element_text(face="bold", size=20, margin=margin(0,0,9,0)),
+        plot.title =element_text(size=22),
+        plot.subtitle = element_text(size=20))
+
+```
+
+
+### Compare Trends in Ratio to Trends in Infections
+
+```{r}
+
+
+subset <- corrected %>%
+  filter(vlabel=="$P(S_1|untested)$ Centered at Emp. Value")
+
+library(cowplot)
+
+plot_county <- function(county) {
+  
+  subset_county <- subset%>%
+  filter(county_name==county)
+  
+  subset_county %>%
+  group_by(biweek) %>%
+  mutate(mindate=min(date),
+         maxdate=max(date)) %>%
+  ggplot() +
+  geom_ribbon(aes(x=date,ymin=exp_cases_lb, ymax=exp_cases_ub),
+              alpha=.7) +
+  geom_linerange(aes(xmin=mindate,xmax=maxdate, 
+                     y=(exp_cases_median/positive)*median(subset_county$positive),
+                     color = 'Ratio of Estimated Infections to Observed'),
+                 linewidth =2) +
+  theme_c(legend.position='top') +
+  labs(x ='', y='Estimated Infections',
+       title=county,) +
+  scale_color_manual(values=c('Ratio of Estimated Infections to Observed'='#DA6932'), name='') +
+  scale_y_continuous(sec.axis=sec_axis(~./median(subset_county$positive), 
+                                       name='Ratio of Estimated Infections\nto Observed Infections')) +
+    theme(legend.position="none")
+
+}
+
+set.seed(123)
+
+include <- corrected %>%
+    select(county_name,population) %>%
+    distinct() %>% 
+    arrange(desc(population)) %>% 
+  slice_head(n=30) %>%
+  pull(county_name) %>%
+  unique() %>%
+  sample(5)
+
+
+#plot_county("Washtenaw")
+
+
+pltlist <- map(c("Washtenaw",include), plot_county)
+legend <- get_legend(pltlist[[1]] + theme(legend.position="top"))
+
+
+title_gg <- ggplot() + 
+  labs(title = "Comparing Trends in Ratio of Estimated Infections to Observed\nto Trends in Total Infections") + 
+  theme(plot.title=element_text(face="bold", hjust = .5, size = 30, margin =margin(5,0,2,0)))
+
+
+title_row <- plot_grid(title_gg,legend, nrow=2,rel_heights=c(.6,.4))
+grid <- plot_grid(plotlist = pltlist, nrow =2, rel_heights = c(.05,.95))
+
+plot_grid(title_row,grid, rel_heights = c(.05,.95),nrow=2)
+
+ggsave(here('thesis/figure/compare-ratio-to-total-mi.pdf'), height=12,width=12)
+
+
+
+
+
+
+```
+
+### Rank Plot
+
+```{r}
+
+subset <- corrected %>%
+  filter(vlabel=="$P(S_1|untested)$ Centered at Emp. Value")
+
+subset %>%
+  group_by(county_name) %>%
+  mutate(x= ifelse( positive == 0, "no_pos", "pos")) %>%
+  group_by(county_name, x) %>%
+  summarize(n=n()) %>%
+  group_by(county_name) %>%
+  mutate(tot = sum(n)) %>%
+  pivot_wider(names_from=x, values_from=n) %>%
+  mutate(across(c(pos,no_pos), ~ifelse(is.na(.x),0,.x))) %>%
+  mutate(prop = pos/tot) %>%
+  arrange(prop)
+
+ranks <- subset %>%
+  mutate(ratio = exp_cases_median/positive,
+         tested = total/population) %>%
+  # one observation per biweek per state
+  select(biweek, date, ratio, county_name,tested) %>%
+  group_by(biweek,ratio,county_name,tested) %>%
+  summarize(date=min(date)) %>%
+  # rank for each time interval
+  group_by(biweek) %>%
+  mutate(rank = rank(ratio, na.last = "keep"),
+         rank_tested=rank(-tested)) %>%
+  ungroup()
+
+# 
+# ranks %>%
+#   ungroup() %>%
+#   ggplot(aes(x=date, y = ratio, color = county_name,
+#              group=county_name)) +
+#   geom_point() +
+#   geom_line()
+#   
+# 
+# 
+# ranks %>%
+#   ungroup() %>%
+#   ggplot(aes(x=date, y = rank, color = county_name,
+#              group=county_name)) +
+#   geom_point() +
+#   geom_line()
+#   
+# 
+# 
+# 
+# ranks %>%
+#   ungroup() %>%
+#   ggplot(aes(x=rank_tested, y = rank, color = county_name,
+#              group=county_name)) +
+#   geom_point() 
+
+
+
+
+r <- ranks %>%
+  mutate(rank_group = case_when(
+    rank <= 15 ~  "Top 15",
+    rank >  68 ~ "Bottom 15",
+    TRUE ~ "Middle" )) %>%
+  group_by(county_name, rank_group) %>%
+  mutate(n=n()) %>%
+  group_by(county_name) %>%
+  mutate(max_group = rank_group[which.max(n)]) %>%
+  # 20 or more observations in some group 
+  filter( max(n) >=20) %>%
+  filter(max_group != "Middle")  %>%
+  ungroup()
+
+
+end_labs <- r %>%
+  ungroup() %>%
+  filter(date==max(date)) %>%
+  # shift to the right
+  mutate(date = date + days(10)) %>%
+  select(county_name, rank, date) %>%
+  ungroup()
+
+
+##############################
+# RANK PLOT OVER TIME
+##############################
+# 
+# set.seed(999)
+# 
+# pal1 <-viridis_pal(option="viridis", end = .9, begin=.3)(3)
+# pal2 <- viridis_pal(option="rocket", end = .9, begin=.3)(2)
+# pal3 <- viridis_pal(option="magma", end = .9, begin=.3)(2)
+# pal4 <- viridis_pal(option="mako", end = .8, begin=.3)(2)
+# pal5 <- viridis_pal(option="cividis", end = .9, begin=.1)(3)
+# 
+# 
+# rankpal <- c(pal1, pal2, pal3,pal4,pal5)
+# indexes <- sample.int(length(rankpal), replace=FALSE)
+# rankpal <- rankpal[indexes]
+
+
+set.seed(123)
+
+rankpal <- c("#b4ddd4", "#7b2c31", "#65d04b", "#da239b", "#b7d165", "#453fbc", "#658114", "#af3fe8", "#ffb947", "#0a60a8", "#f87945", "#16d0ae")
+
+rankpal <- c("#851657", "#be3acd", "#19a71f", "#824598", "#ed820a", "#BB8E37", "#974810", "#1f84ec", "#d02023", "#059dc5", "#f23387", "#16d0ae")
+
+indexes <- sample.int(length(rankpal), replace=FALSE)
+rankpal <- rankpal[indexes]
+
+
+# r[which(is.na(r$rank)),]$date <- NA
+
+
+r_na <- r[which(is.na(r$rank)),]
+
+r %>%
+  # filter(!is.na(type)) %>%
+  # mutate(type = is.na(rank)) %>%
+  # mutate(date = ifelse(is.na(rank), rank,as_date(date, format="%Y %m %d")),
+  #        rank_type = is.na(rank)) %>%
+ # filter(rank_group!="Middle") %>%
+  ggplot() +
+  geom_point(aes(x=date,y=rank, 
+             color= county_name),
+             size=.5) +
+  # geom_line(aes(x=date,y=rank, 
+  #            group=county_name,
+  #            color= county_name)) +
+  geom_line(aes(x=date,y=rank,color=county_name)) +
+  geom_line(linetype = 2, aes(x=date, y = rank,color=county_name), data = na.omit(r)) +
+ # facet_wrap(~max_group) +
+  ggrepel::geom_text_repel( aes(x= date-days(4),
+                y = rank,
+                color=county_name,
+                label = county_name),
+           end_labs,
+           min.segment.length=9,
+           nudge_y=0,
+           hjust=0,
+           size=4,
+           direction="y",
+           force_pull=9,
+           box.padding=.15) +
+  theme_c(legend.position="none",
+          axis.text.x = element_text(size=17,angle=60)) +
+  theme(plot.subtitle =element_text(size=19, margin=margin(4,0,4,0)),
+        axis.title.x=element_text(size=16),
+        axis.title.y=element_text(size=19)) +
+ # scale_color_brewer(palette="Dark2")  +
+  scale_color_manual(values=rankpal) +
+  scale_x_date(date_breaks="1 months", date_labels = "%b %Y",
+               limits = c(ymd("2021-03-01"),
+                          ymd("2022-03-15"))) +
+  labs(y = "Rank of Ratio",
+       title = "Rank of Estimated Infections to Observed Infections Over Time",
+       subtitle = "For Counties Ranked in the Top or Bottom 10\nfor More Than 80% of Time Intervals",
+       x="") +
+  scale_y_reverse(breaks=seq(1,831, by=4))
+
+
+ggsave(here('thesis/figure/rank-ratio-over-time-mi-county.pdf'), height=8,width=13)
+
+  
+corrected %>%
+    select(county_name,population) %>%
+    distinct() %>% 
+    arrange(desc(population))
+
+
+corrected %>%
+    select(county_name,population) %>%
+    distinct() %>% 
+    arrange((population))
+
+
+subset %>%
+  mutate(pop = ntile(population, 4),
+         ratio=exp_cases_median/positive) %>%
+  group_by(county_name) %>%
+  mutate(pop = min(pop)) %>%
+  mutate(pop = case_when(
+    pop==1 ~ "Lowest 25%",
+    pop ==2 ~ "Second 25%",
+    pop==3~ "Third 25%",
+    pop==4 ~"Highest 25%"
+  ),
+  pop=factor(pop, levels=c("Lowest 25%",
+                            "Second 25%",
+                           "Third 25%",
+                           "Highest 25%"))) %>%
+  ungroup() %>% 
+  group_by(biweek,county_name) %>%
+  mutate(date=min(date),
+         ratio = unique(ratio)) %>%
+  group_by(biweek, pop) %>%
+  mutate(m = median(ratio,na.rm=TRUE)) %>%
+  ggplot(aes(x=date,y=ratio)) +
+  geom_point(alpha =.05,size=.8) +
+  geom_point(aes(y=m, color='Median')) +
+  facet_wrap(~pop) +
+  theme_c() +
+  scale_color_manual(values=c('Median'='#e09728')) +
+  theme(plot.subtitle=element_text(size=16)) +
+  labs(title = "Ratio of Estimated Infections to Observed by Population Size",
+       y = "Ratio of Estimated Infections\nto Observed Infections",
+       subtitle = "Counties in Michigan",
+       x="")
+
+ggsave(here('thesis/figure/mi-ratio-pop.jpeg'), width=12,height=9,dpi=600)
+
+
+
+subset %>%
+  mutate(pop = ntile(population, 5),
+         ratio=exp_cases_median/positive) %>%
+  group_by(county_name) %>%
+  mutate(pop = min(pop)) %>%
+  ungroup() %>% 
+  group_by(biweek,county_name) %>%
+  mutate(date=min(date),
+         ratio = unique(ratio)) %>%
+  group_by(biweek, pop) %>%
+  mutate(m = median(ratio,na.rm=TRUE)) %>%
+  ggplot(aes(x=date,y=m, color=factor(pop))) +
+  geom_line()
+
+
+```
+
 
 
 
@@ -1522,12 +1970,16 @@ labels <- mi_concordance %>%
   as.character()
 
 mi_concordance %>%
+  mutate(in_interval = factor(in_interval,
+                                  levels= c("Above Interval",
+                                            "In Interval",
+                                             "Below Interval"))) %>%
   ggplot(aes(y =fct_reorder(vlabel,m),
              x = prop, 
              fill=in_interval)) +
   #facet_wrap(~fct_reorder((vlabel),m), ncol=1) +
   geom_bar(stat="identity",
-           position="dodge",
+           position="stack",
            color="darkgray", 
            linewidth=.2) +
 #  viridis::scale_fill_viridis(option="mako", begin=.2, discrete=TRUE) +
@@ -1539,16 +1991,23 @@ mi_concordance %>%
   scale_y_discrete(labels=unname(TeX(labels))) +
   labs(y ="",
        x="Proportion",
-       fill = "Covidestim Median:") +
+       fill = "Covidestim Median:",
+       title = "Where Covidestim Medians Fall\nRelative to Probabilistic Bias Intervals",
+       subtitle = "By Version, in Michigan") +
   scale_fill_manual(values=c("In Interval" = "#79D2AF", 
                              "Above Interval" = "#D2AF79",
-                      "Below Interval"="#7997D2")) +
+                      "Below Interval"="#7997D2"),
+                    breaks = c("Below Interval",
+                               "In Interval",
+                               "Above Interval")) +
   guides(fill=guide_legend(byrow=TRUE)) +
   scale_x_continuous(n.breaks = 7, 
                      expand=c(0,0),
                      limits=c(-.05,1))
 
 
+ggsave(here(
+  'thesis/figure/summarize-concordance-mich-counties.pdf'), width=16,height=7)
 
 
 

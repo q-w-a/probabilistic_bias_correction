@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.5.7)  11 MAY 2023 10:09
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.5.7)  11 MAY 2023 15:07
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -703,14 +703,7 @@ File: t1ppl.fd 2001/06/04 font definitions for T1/ppl.
 File: l3backend-pdftex.def 2023-04-19 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count330
 \l__pdf_internal_box=\box123
-) (./thesis.aux
-
-LaTeX Warning: Label `fig:pb_versions_mi' multiply defined.
-
-
-LaTeX Warning: Label `fig:pb_versions_mi' multiply defined.
-
-)
+) (./thesis.aux)
 \openout1 = `thesis.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 187.
@@ -915,12 +908,12 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 
 ]
 Chapter 6.
-<figure/ctis_beta_states.pdf, id=590, 1011.78pt x 1300.86pt>
+<figure/ctis_beta_states.pdf, id=595, 1011.78pt x 1300.86pt>
 File: figure/ctis_beta_states.pdf Graphic file (type pdf)
 <use figure/ctis_beta_states.pdf>
 Package pdftex.def Info: figure/ctis_beta_states.pdf  used on input line 422.
 (pdftex.def)             Requested size: 433.62pt x 557.51291pt.
-<figure/ctis_s_untested_states.pdf, id=591, 1011.78pt x 1300.86pt>
+<figure/ctis_s_untested_states.pdf, id=596, 1011.78pt x 1300.86pt>
 File: figure/ctis_s_untested_states.pdf Graphic file (type pdf)
 <use figure/ctis_s_untested_states.pdf>
 Package pdftex.def Info: figure/ctis_s_untested_states.pdf  used on input line 425.
@@ -936,12 +929,12 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 LaTeX Warning: Reference `fig:all-states-first-impl' on page 17 undefined on input line 427.
 
 [17 <./figure/ctis_s_untested_states.pdf>]
-<figure/state_comp_covidestim1.pdf, id=637, 1228.59pt x 1734.48pt>
+<figure/state_comp_covidestim1.pdf, id=642, 1228.59pt x 1734.48pt>
 File: figure/state_comp_covidestim1.pdf Graphic file (type pdf)
 <use figure/state_comp_covidestim1.pdf>
 Package pdftex.def Info: figure/state_comp_covidestim1.pdf  used on input line 431.
 (pdftex.def)             Requested size: 433.62pt x 612.15857pt.
-<figure/state_comp_covidestim2.pdf, id=640, 1228.59pt x 1734.48pt>
+<figure/state_comp_covidestim2.pdf, id=645, 1228.59pt x 1734.48pt>
 File: figure/state_comp_covidestim2.pdf Graphic file (type pdf)
 <use figure/state_comp_covidestim2.pdf>
 Package pdftex.def Info: figure/state_comp_covidestim2.pdf  used on input line 434.
@@ -953,7 +946,7 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 Overfull \vbox (57.22856pt too high) has occurred while \output is active []
 
 [19 <./figure/state_comp_covidestim1.pdf>]
-<figure/variant_prop.pdf, id=668, 650.43pt x 289.08pt>
+<figure/variant_prop.pdf, id=673, 650.43pt x 289.08pt>
 File: figure/variant_prop.pdf Graphic file (type pdf)
 <use figure/variant_prop.pdf>
 Package pdftex.def Info: figure/variant_prop.pdf  used on input line 437.
@@ -965,7 +958,7 @@ Overfull \vbox (0.22856pt too high) has occurred while \output is active []
 Underfull \vbox (badness 1215) has occurred while \output is active []
 
 [21 <./figure/variant_prop.pdf>]
-<figure/michigan_variant.pdf, id=704, 1084.05pt x 722.7pt>
+<figure/michigan_variant.pdf, id=709, 1084.05pt x 722.7pt>
 File: figure/michigan_variant.pdf Graphic file (type pdf)
 <use figure/michigan_variant.pdf>
 Package pdftex.def Info: figure/michigan_variant.pdf  used on input line 453.
@@ -974,12 +967,12 @@ Package pdftex.def Info: figure/michigan_variant.pdf  used on input line 453.
 
 LaTeX Warning: Reference `fig:test-capacity-all-states' on page 23 undefined on input line 459.
 
-<figure/test_capacity.pdf, id=721, 939.51pt x 433.62pt>
+<figure/test_capacity.pdf, id=726, 939.51pt x 433.62pt>
 File: figure/test_capacity.pdf Graphic file (type pdf)
 <use figure/test_capacity.pdf>
 Package pdftex.def Info: figure/test_capacity.pdf  used on input line 461.
 (pdftex.def)             Requested size: 433.62pt x 200.12927pt.
-<figure/texas-lag.pdf, id=725, 1084.05pt x 578.16pt>
+<figure/texas-lag.pdf, id=730, 1084.05pt x 578.16pt>
 File: figure/texas-lag.pdf Graphic file (type pdf)
 <use figure/texas-lag.pdf>
 Package pdftex.def Info: figure/texas-lag.pdf  used on input line 468.
@@ -988,7 +981,7 @@ Package pdftex.def Info: figure/texas-lag.pdf  used on input line 468.
 
 LaTeX Warning: Reference `fig:test-capacity-all-states' on page 24 undefined on input line 472.
 
-<figure/texas-data-sources.pdf, id=743, 722.7pt x 361.35pt>
+<figure/texas-data-sources.pdf, id=748, 722.7pt x 361.35pt>
 File: figure/texas-data-sources.pdf Graphic file (type pdf)
 <use figure/texas-data-sources.pdf>
 Package pdftex.def Info: figure/texas-data-sources.pdf  used on input line 478.
@@ -1003,7 +996,7 @@ LaTeX Warning: Reference `fig:test-capacity-all-states' on page 24 undefined on 
 
 LaTeX Warning: Reference `fig:jhu-cdc-all' on page 25 undefined on input line 480.
 
-<figure/covidestim_concordance_state.pdf, id=767, 1156.32pt x 505.89pt>
+<figure/covidestim_concordance_state.pdf, id=772, 1156.32pt x 505.89pt>
 File: figure/covidestim_concordance_state.pdf Graphic file (type pdf)
 <use figure/covidestim_concordance_state.pdf>
 Package pdftex.def Info: figure/covidestim_concordance_state.pdf  used on input line 487.
@@ -1012,12 +1005,12 @@ Package pdftex.def Info: figure/covidestim_concordance_state.pdf  used on input 
 Underfull \vbox (badness 5064) has occurred while \output is active []
 
 [25 <./figure/texas-data-sources.pdf>]
-<figure/heatmap_ratio_est_observed.pdf, id=784, 939.51pt x 722.7pt>
+<figure/heatmap_ratio_est_observed.pdf, id=789, 939.51pt x 722.7pt>
 File: figure/heatmap_ratio_est_observed.pdf Graphic file (type pdf)
 <use figure/heatmap_ratio_est_observed.pdf>
 Package pdftex.def Info: figure/heatmap_ratio_est_observed.pdf  used on input line 506.
 (pdftex.def)             Requested size: 433.62pt x 333.54878pt.
-<figure/testrate-low-summer.pdf, id=785, 867.24pt x 433.62pt>
+<figure/testrate-low-summer.pdf, id=790, 867.24pt x 433.62pt>
 File: figure/testrate-low-summer.pdf Graphic file (type pdf)
 <use figure/testrate-low-summer.pdf>
 Package pdftex.def Info: figure/testrate-low-summer.pdf  used on input line 509.
@@ -1026,13 +1019,13 @@ Package pdftex.def Info: figure/testrate-low-summer.pdf  used on input line 509.
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 [26 <./figure/covidestim_concordance_state.pdf>]
-<figure/ratio-peak-omicron.pdf, id=805, 867.24pt x 794.97pt>
+<figure/ratio-peak-omicron.pdf, id=810, 867.24pt x 794.97pt>
 File: figure/ratio-peak-omicron.pdf Graphic file (type pdf)
 <use figure/ratio-peak-omicron.pdf>
 Package pdftex.def Info: figure/ratio-peak-omicron.pdf  used on input line 513.
 (pdftex.def)             Requested size: 433.62pt x 397.48402pt.
 [27 <./figure/heatmap_ratio_est_observed.pdf> <./figure/testrate-low-summer.pdf>] [28 <./figure/ratio-peak-omicron.pdf>]
-<figure/rank-ratio-over-time.pdf, id=844, 867.24pt x 578.16pt>
+<figure/rank-ratio-over-time.pdf, id=849, 867.24pt x 578.16pt>
 File: figure/rank-ratio-over-time.pdf Graphic file (type pdf)
 <use figure/rank-ratio-over-time.pdf>
 Package pdftex.def Info: figure/rank-ratio-over-time.pdf  used on input line 525.
@@ -1045,7 +1038,7 @@ Package fancyhdr Warning: \headheight is too small (14.5pt):
 (fancyhdr)                \addtolength{\topmargin}{-13.03194pt}.
 
 [29 <./figure/rank-ratio-over-time.pdf>]
-<figure/testing_rate_ratio.pdf, id=861, 794.97pt x 505.89pt>
+<figure/testing_rate_ratio.pdf, id=866, 794.97pt x 505.89pt>
 File: figure/testing_rate_ratio.pdf Graphic file (type pdf)
 <use figure/testing_rate_ratio.pdf>
 Package pdftex.def Info: figure/testing_rate_ratio.pdf  used on input line 544.
@@ -1054,7 +1047,7 @@ Package pdftex.def Info: figure/testing_rate_ratio.pdf  used on input line 544.
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 [30]
-<figure/college_populations.pdf, id=869, 794.97pt x 794.97pt>
+<figure/college_populations.pdf, id=874, 794.97pt x 794.97pt>
 File: figure/college_populations.pdf Graphic file (type pdf)
 <use figure/college_populations.pdf>
 Package pdftex.def Info: figure/college_populations.pdf  used on input line 554.
@@ -1077,7 +1070,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 579--581
 
  []
 
-<figure/ma_pb_compared_to_observed.pdf, id=913, 1084.05pt x 1373.13pt>
+<figure/ma_pb_compared_to_observed.pdf, id=918, 1084.05pt x 1373.13pt>
 File: figure/ma_pb_compared_to_observed.pdf Graphic file (type pdf)
 <use figure/ma_pb_compared_to_observed.pdf>
 Package pdftex.def Info: figure/ma_pb_compared_to_observed.pdf  used on input line 586.
@@ -1086,7 +1079,7 @@ Package pdftex.def Info: figure/ma_pb_compared_to_observed.pdf  used on input li
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 [34{/Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}]
-<figure/ma_pb_compare_versions.pdf, id=920, 1300.86pt x 1373.13pt>
+<figure/ma_pb_compare_versions.pdf, id=926, 1300.86pt x 1373.13pt>
 File: figure/ma_pb_compare_versions.pdf Graphic file (type pdf)
 <use figure/ma_pb_compare_versions.pdf>
 Package pdftex.def Info: figure/ma_pb_compare_versions.pdf  used on input line 590.
@@ -1095,24 +1088,21 @@ Package pdftex.def Info: figure/ma_pb_compare_versions.pdf  used on input line 5
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 [35 <./figure/ma_pb_compared_to_observed.pdf>] [36 <./figure/ma_pb_compare_versions.pdf>]
-<figure/summarize-concordance-mass-counties.pdf, id=953, 1156.32pt x 505.89pt>
+<figure/summarize-concordance-mass-counties.pdf, id=960, 1156.32pt x 505.89pt>
 File: figure/summarize-concordance-mass-counties.pdf Graphic file (type pdf)
 <use figure/summarize-concordance-mass-counties.pdf>
 Package pdftex.def Info: figure/summarize-concordance-mass-counties.pdf  used on input line 596.
 (pdftex.def)             Requested size: 433.62pt x 189.70827pt.
 
-LaTeX Warning: Reference `summarize-concordance-mass-counties' on page 37 undefined on input line 598.
-
-
 LaTeX Warning: Reference `fig:ma-comp-covidestim' on page 37 undefined on input line 602.
 
-<figure/covidestim_above_below_by_county_ma.pdf, id=958, 867.24pt x 505.89pt>
+<figure/covidestim_above_below_by_county_ma.pdf, id=966, 867.24pt x 505.89pt>
 File: figure/covidestim_above_below_by_county_ma.pdf Graphic file (type pdf)
 <use figure/covidestim_above_below_by_county_ma.pdf>
 Package pdftex.def Info: figure/covidestim_above_below_by_county_ma.pdf  used on input line 607.
 (pdftex.def)             Requested size: 433.62pt x 252.94437pt.
 [37 <./figure/summarize-concordance-mass-counties.pdf>]
-<figure/hampshire.pdf, id=974, 1011.78pt x 578.16pt>
+<figure/hampshire.pdf, id=982, 1011.78pt x 578.16pt>
 File: figure/hampshire.pdf Graphic file (type pdf)
 <use figure/hampshire.pdf>
 Package pdftex.def Info: figure/hampshire.pdf  used on input line 610.
@@ -1121,7 +1111,7 @@ Package pdftex.def Info: figure/hampshire.pdf  used on input line 610.
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 [38 <./figure/covidestim_above_below_by_county_ma.pdf>]
-<figure/ma_county_heatmap_ratio_est_observed.pdf, id=990, 939.51pt x 722.7pt>
+<figure/ma_county_heatmap_ratio_est_observed.pdf, id=998, 939.51pt x 722.7pt>
 File: figure/ma_county_heatmap_ratio_est_observed.pdf Graphic file (type pdf)
 <use figure/ma_county_heatmap_ratio_est_observed.pdf>
 Package pdftex.def Info: figure/ma_county_heatmap_ratio_est_observed.pdf  used on input line 621.
@@ -1130,7 +1120,7 @@ Package pdftex.def Info: figure/ma_county_heatmap_ratio_est_observed.pdf  used o
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 [39 <./figure/hampshire.pdf>]
-<figure/rank-ratio-over-time-ma-county.pdf, id=1011, 939.51pt x 578.16pt>
+<figure/rank-ratio-over-time-ma-county.pdf, id=1019, 939.51pt x 578.16pt>
 File: figure/rank-ratio-over-time-ma-county.pdf Graphic file (type pdf)
 <use figure/rank-ratio-over-time-ma-county.pdf>
 Package pdftex.def Info: figure/rank-ratio-over-time-ma-county.pdf  used on input line 629.
@@ -1139,177 +1129,159 @@ Package pdftex.def Info: figure/rank-ratio-over-time-ma-county.pdf  used on inpu
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 [40 <./figure/ma_county_heatmap_ratio_est_observed.pdf>]
-<figure/mi1_pb_compared_to_observed.pdf, id=1025, 1084.05pt x 1589.94pt>
-File: figure/mi1_pb_compared_to_observed.pdf Graphic file (type pdf)
-<use figure/mi1_pb_compared_to_observed.pdf>
-Package pdftex.def Info: figure/mi1_pb_compared_to_observed.pdf  used on input line 634.
-(pdftex.def)             Requested size: 433.62pt x 635.96474pt.
-<figure/mi2_pb_compared_to_observed.pdf, id=1026, 1084.05pt x 1589.94pt>
-File: figure/mi2_pb_compared_to_observed.pdf Graphic file (type pdf)
-<use figure/mi2_pb_compared_to_observed.pdf>
-Package pdftex.def Info: figure/mi2_pb_compared_to_observed.pdf  used on input line 637.
-(pdftex.def)             Requested size: 433.62pt x 635.96474pt.
+
+LaTeX Warning: Reference `fig:pb_versions_mi-1' on page 41 undefined on input line 634.
+
+
+LaTeX Warning: Reference `fig:pb_versions_mi-2' on page 41 undefined on input line 634.
+
+
+LaTeX Warning: Reference `fig:pb_versions_mi-3' on page 41 undefined on input line 634.
+
+<figure/summarize-concordance-mich-counties.pdf, id=1036, 1156.32pt x 505.89pt>
+File: figure/summarize-concordance-mich-counties.pdf Graphic file (type pdf)
+<use figure/summarize-concordance-mich-counties.pdf>
+Package pdftex.def Info: figure/summarize-concordance-mich-counties.pdf  used on input line 641.
+(pdftex.def)             Requested size: 433.62pt x 189.70827pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 [41 <./figure/rank-ratio-over-time-ma-county.pdf>]
+<figure/mi_county_heatmap_ratio_est_observed.pdf, id=1053, 1011.78pt x 1300.86pt>
+File: figure/mi_county_heatmap_ratio_est_observed.pdf Graphic file (type pdf)
+<use figure/mi_county_heatmap_ratio_est_observed.pdf>
+Package pdftex.def Info: figure/mi_county_heatmap_ratio_est_observed.pdf  used on input line 645.
+(pdftex.def)             Requested size: 433.62pt x 557.51291pt.
+
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[42]
-Overfull \vbox (40.16292pt too high) has occurred while \output is active []
+[42 <./figure/summarize-concordance-mich-counties.pdf>]
 
-[43 <./figure/mi1_pb_compared_to_observed.pdf>]
-<figure/mi3_pb_compared_to_observed.pdf, id=1060, 1084.05pt x 1589.94pt>
-File: figure/mi3_pb_compared_to_observed.pdf Graphic file (type pdf)
-<use figure/mi3_pb_compared_to_observed.pdf>
-Package pdftex.def Info: figure/mi3_pb_compared_to_observed.pdf  used on input line 640.
-(pdftex.def)             Requested size: 433.62pt x 635.96474pt.
+LaTeX Warning: Reference `fig:mi-county-concordance' on page 43 undefined on input line 647.
 
-Overfull \vbox (5.03473pt too high) has occurred while \output is active []
-
-[44 <./figure/mi2_pb_compared_to_observed.pdf>]
-Overfull \vbox (5.03473pt too high) has occurred while \output is active []
-
-[45 <./figure/mi3_pb_compared_to_observed.pdf>]
-
-LaTeX Warning: Reference `fig:mi-county-concordance' on page 46 undefined on input line 642.
-
-<figure/mi_pb_compared_to_covidestim_proportions.pdf, id=1091, 2023.56pt x 1011.78pt>
-File: figure/mi_pb_compared_to_covidestim_proportions.pdf Graphic file (type pdf)
-<use figure/mi_pb_compared_to_covidestim_proportions.pdf>
-Package pdftex.def Info: figure/mi_pb_compared_to_covidestim_proportions.pdf  used on input line 644.
-(pdftex.def)             Requested size: 433.62pt x 216.80284pt.
-
-Overfull \hbox (17.62482pt too wide) in paragraph at lines 644--645
-[][] 
- []
-
-[46 <./figure/mi_pb_compared_to_covidestim_proportions.pdf>] [47]
-Underfull \hbox (badness 10000) in paragraph at lines 675--677
+[43 <./figure/mi_county_heatmap_ratio_est_observed.pdf>] [44] [45]
+Underfull \hbox (badness 10000) in paragraph at lines 678--680
 
  []
 
-LaTeX Font Info:    Trying to load font information for T1+pcr on input line 692.
+LaTeX Font Info:    Trying to load font information for T1+pcr on input line 695.
 (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/psnfss/t1pcr.fd
 File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
-) [48]
-<thesis_files/figure-latex/unnamed-chunk-27-1.pdf, id=1118, 469.755pt x 252.945pt>
+) [46]
+<thesis_files/figure-latex/unnamed-chunk-27-1.pdf, id=1099, 469.755pt x 252.945pt>
 File: thesis_files/figure-latex/unnamed-chunk-27-1.pdf Graphic file (type pdf)
 <use thesis_files/figure-latex/unnamed-chunk-27-1.pdf>
-Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-27-1.pdf  used on input line 698.
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-27-1.pdf  used on input line 701.
 (pdftex.def)             Requested size: 433.62pt x 233.488pt.
-<thesis_files/figure-latex/unnamed-chunk-28-1.pdf, id=1120, 469.755pt x 252.945pt>
+<thesis_files/figure-latex/unnamed-chunk-28-1.pdf, id=1101, 469.755pt x 252.945pt>
 File: thesis_files/figure-latex/unnamed-chunk-28-1.pdf Graphic file (type pdf)
 <use thesis_files/figure-latex/unnamed-chunk-28-1.pdf>
-Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-28-1.pdf  used on input line 703.
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-28-1.pdf  used on input line 706.
 (pdftex.def)             Requested size: 195.12767pt x 105.0667pt.
-<thesis_files/figure-latex/unnamed-chunk-28-2.pdf, id=1121, 469.755pt x 252.945pt>
+<thesis_files/figure-latex/unnamed-chunk-28-2.pdf, id=1102, 469.755pt x 252.945pt>
 File: thesis_files/figure-latex/unnamed-chunk-28-2.pdf Graphic file (type pdf)
 <use thesis_files/figure-latex/unnamed-chunk-28-2.pdf>
-Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-28-2.pdf  used on input line 703.
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-28-2.pdf  used on input line 706.
 (pdftex.def)             Requested size: 195.12767pt x 105.0667pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[49 <./thesis_files/figure-latex/unnamed-chunk-27-1.pdf>]
-<figure/wastewater_ma_by_county.pdf, id=1142, 1733.47626pt x 2311.63625pt>
+[47 <./thesis_files/figure-latex/unnamed-chunk-27-1.pdf>]
+<figure/wastewater_ma_by_county.pdf, id=1122, 1733.47626pt x 2311.63625pt>
 File: figure/wastewater_ma_by_county.pdf Graphic file (type pdf)
 <use figure/wastewater_ma_by_county.pdf>
-Package pdftex.def Info: figure/wastewater_ma_by_county.pdf  used on input line 714.
+Package pdftex.def Info: figure/wastewater_ma_by_county.pdf  used on input line 717.
 (pdftex.def)             Requested size: 433.62pt x 578.2251pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[50 <./thesis_files/figure-latex/unnamed-chunk-28-1.pdf> <./thesis_files/figure-latex/unnamed-chunk-28-2.pdf>]
+[48 <./thesis_files/figure-latex/unnamed-chunk-28-1.pdf> <./thesis_files/figure-latex/unnamed-chunk-28-2.pdf>]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[51 <./figure/wastewater_ma_by_county.pdf>]
-<figure/correlation_observed_pb.jpeg, id=1181, 3613.5pt x 2409.0pt>
+[49 <./figure/wastewater_ma_by_county.pdf>]
+<figure/correlation_observed_pb.jpeg, id=1161, 3613.5pt x 2409.0pt>
 File: figure/correlation_observed_pb.jpeg Graphic file (type jpg)
 <use figure/correlation_observed_pb.jpeg>
-Package pdftex.def Info: figure/correlation_observed_pb.jpeg  used on input line 725.
+Package pdftex.def Info: figure/correlation_observed_pb.jpeg  used on input line 728.
 (pdftex.def)             Requested size: 433.62pt x 289.06754pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[52]
-<figure/correlation_observed_pb_covidestim.jpeg, id=1190, 3612.49625pt x 2106.87125pt>
+[50]
+<figure/correlation_observed_pb_covidestim.jpeg, id=1170, 3612.49625pt x 2106.87125pt>
 File: figure/correlation_observed_pb_covidestim.jpeg Graphic file (type jpg)
 <use figure/correlation_observed_pb_covidestim.jpeg>
-Package pdftex.def Info: figure/correlation_observed_pb_covidestim.jpeg  used on input line 732.
+Package pdftex.def Info: figure/correlation_observed_pb_covidestim.jpeg  used on input line 735.
 (pdftex.def)             Requested size: 433.62pt x 252.87793pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[53 <./figure/correlation_observed_pb.jpeg>] [54 <./figure/correlation_observed_pb_covidestim.jpeg>]
+[51 <./figure/correlation_observed_pb.jpeg>] [52 <./figure/correlation_observed_pb_covidestim.jpeg>]
 Chapter 7.
-[55
+[53
 
-] [56
+] [54
 
 ]
 Chapter 8.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[57] [58]
-Underfull \hbox (badness 2158) in paragraph at lines 804--806
+[55] [56]
+Underfull \hbox (badness 2158) in paragraph at lines 810--812
 []\T1/ppl/m/n/12 (+20) Commercial Lab-o-ra-tory Sero-preva-lence Sur-veys | Coro-n-avirus | COVID-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 804--806
+Underfull \hbox (badness 10000) in paragraph at lines 810--812
 \T1/pcr/m/n/12 gov / coronavirus / 2019 -[] ncov / cases -[] updates / commercial -[] lab -[]
  []
 
 
-Overfull \hbox (52.775pt too wide) in paragraph at lines 807--809
+Overfull \hbox (52.775pt too wide) in paragraph at lines 813--815
 \T1/ppl/m/n/12 (-20) SARS-CoV-2, Sum-mer 2021. \T1/ppl/m/it/12 (-20) JAMA\T1/ppl/m/n/12 (-20) , \T1/ppl/m/it/12 (-20) 326\T1/ppl/m/n/12 (-20) (11), 1001. http://doi.org/[][]10.1001/jama.2021.14811[][] 
  []
 
 
-Underfull \hbox (badness 2772) in paragraph at lines 813--815
+Underfull \hbox (badness 2772) in paragraph at lines 819--821
 \T1/ppl/m/n/12 (+20) cor-re-lated with mul-ti-ple dis-ease surveil-lance in-di-ca-tors and out-comes
  []
 
 
-Underfull \hbox (badness 5475) in paragraph at lines 816--818
+Underfull \hbox (badness 5475) in paragraph at lines 822--824
 \T1/ppl/m/n/12 (+20) tal-ity rate of Omi-cron vari-ant com-pared with pre-vi-ous vari-ants in
  []
 
 
-Underfull \hbox (badness 2237) in paragraph at lines 816--818
+Underfull \hbox (badness 2237) in paragraph at lines 822--824
 \T1/ppl/m/n/12 (+20) South Africa. \T1/ppl/m/it/12 (+20) In-ter-na-tional Jour-nal of In-fec-tious Dis-eases\T1/ppl/m/n/12 (+20) , \T1/ppl/m/it/12 (+20) 120\T1/ppl/m/n/12 (+20) , 146--149.
  []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[59
+[57
 
-] [60] (./thesis.aux)
+] [58] (./thesis.aux)
 
 LaTeX Warning: There were undefined references.
 
-
-LaTeX Warning: There were multiply-defined labels.
-
 Package rerunfilecheck Info: File `thesis.out' has not changed.
-(rerunfilecheck)             Checksum: 4CB98F758EAAF4B72316F1955679DD31;20632.
+(rerunfilecheck)             Checksum: C74478D891355B97E079ED9DC973083C;20975.
  ) 
 Here is how much of TeX's memory you used:
- 25996 strings out of 477982
- 492474 string characters out of 5837258
+ 25988 strings out of 477982
+ 491938 string characters out of 5837258
  1867248 words of memory out of 5000000
- 44982 multiletter control sequences out of 15000+600000
- 589945 words of font info for 358 fonts, out of 8000000 for 9000
+ 44970 multiletter control sequences out of 15000+600000
+ 590263 words of font info for 362 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  83i,12n,89p,1517b,522s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmex10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi12.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi6.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr6.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr7.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy8.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on thesis.pdf (72 pages, 5028493 bytes).
+Output written on thesis.pdf (70 pages, 4038143 bytes).
 PDF statistics:
- 1431 PDF objects out of 1440 (max. 8388607)
- 1232 compressed objects within 13 object streams
+ 1415 PDF objects out of 1440 (max. 8388607)
+ 1220 compressed objects within 13 object streams
  301 named destinations out of 1000 (max. 500000)
- 64282 words of extra memory for PDF output out of 74296 (max. 10000000)
+ 64280 words of extra memory for PDF output out of 74296 (max. 10000000)
 
