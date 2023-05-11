@@ -522,7 +522,7 @@ Meanwhile, the states that had the highest ratios of estimated to observed infec
 
 Nebraska was one of the only states that did not have a mandatory stay-at-home order in 2020 or recommendations to stay at home; Mississippi and South Dakota never had a mandatory stay-at-home order but did have recommendations to stay at home (\textbf{moreland2020?}).
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/rank-ratio-over-time} \caption{\label{fig:rank-ratio-over-time}For each two-week interval, we rank each state's ratio of estimated to observed infections, where 1 corresponds to the state with the \emph{lowest} ratio (indicating less infections are going unobserved), and 51 corresponds to the state with the \emph{highest} ratio (indicating more infections are going unobserved). Then we can see how these rankings changed over time. Visualized here are the states that consistently ranked as among the lowest ratios or highest ratios over time: specifically, states were among the top 10 highest ratios or top 10 lowest ratios for at least 80\% of the time intervals are shown.}\label{fig:unnamed-chunk-15}
+\includegraphics[width=1\linewidth]{figure/rank-ratio-over-time} \caption{\label{fig:rank-ratio-over-time}For each two-week interval, we rank each state's ratio of estimated to observed infections, where 1 corresponds to the state with the \emph{lowest} ratio (indicating less infections are going unobserved), and 51 corresponds to the state with the \emph{highest} ratio (indicating more infections are going unobserved). Visualized here are the states that consistently ranked as among the lowest ratios or highest ratios over time: specifically, states were among the top 10 highest ratios or top 10 lowest ratios for at least 80\% of the time intervals are shown.}\label{fig:unnamed-chunk-15}
 \end{figure}
 \hypertarget{relationship-between-the-ratio-of-estimated-to-observed-infections-compared-to-testing-rate}{%
 \section{Relationship Between the Ratio of Estimated to Observed Infections Compared to Testing Rate}\label{relationship-between-the-ratio-of-estimated-to-observed-infections-compared-to-testing-rate}}
@@ -587,11 +587,11 @@ Since \(N_{S_1, \text{untested}}\) is so much larger than \(N_{S_1, \text{untest
 \end{figure}
 To better see the overlap between versions, in Figure \ref{fig:pb_versions_ma} we can look at the versions together. This allows us to see more clearly how the version with both \(P(S_1|\text{untested})\) and \(\beta\) centered at their empirical values is consistently the highest. Meanwhile, the version with only \(P(S_1|\text{untested})\) centered at its empirical value corresponds so closely to the version that does not vary by date or location that there is no part of the intervals for the version not varying by date or location that does not overlap with the version only centering \(P(S_1|\text{untested})\) at the survey value.
 \begin{figure}
-\includegraphics[width=1\linewidth]{figure/ma_pb_compare_versions} \caption{\label{fig:pb_versions_ma}}\label{fig:unnamed-chunk-19}
+\includegraphics[width=1\linewidth]{figure/ma_pb_compare_versions} \caption{\label{fig:pb_versions_ma} Presenting the same implementations from \ref{fig:pb_counts_ma}, but not where all implementations for a county are considered in the same plot to better see the overlap between the implementations. The implementation that centers both $P(S_1|\text{untested})$ and $\beta$ at their empirical values is consistently the highest among the implementations, and the version only centering $P(S_1|\text{untested})$ at the survey value is highly concordant with the version that does not use survey data to inform the priors.}\label{fig:unnamed-chunk-19}
 \end{figure}
 Beyond comparing the versions to each other, we can also compare the extent to which these intervals agree with the Covidestim estimates.
 
-To compare the probabilistic bias intervals to the Covidestim estimates, we can again look at the proportion of time intervals where the probabilistic bias intervals contained the Covidestim median infections. We can summarize concordance for each implementation of the bias analysis by calculating, across all counties and time intervals, the fraction of bias intervals for a particular version that contained the Covidestim median (Figure \textbackslash ref\{summarize-concordance-mass-counties). From Figure \textbackslash ref\{summarize-concordance-mass-counties, we see that for counties in Massachusetts, the implementation of probabilistic bias analysis that centers the prior for \(P(S_1|\text{untested})\) at the percentage experiencing COVID-19-like illness is most concordant with the Covidestim estimates.
+To compare the probabilistic bias intervals to the Covidestim estimates, we can again look at the proportion of time intervals where the probabilistic bias intervals contained the Covidestim median infections. We can summarize concordance for each implementation of the bias analysis by calculating, across all counties and time intervals, the fraction of bias intervals for a particular version that contained the Covidestim median (Figure \textbackslash ref\{fig:summarize-concordance-mass-counties). From Figure \textbackslash ref\{fig:summarize-concordance-mass-counties, we see that for counties in Massachusetts, the implementation of probabilistic bias analysis that centers the prior for \(P(S_1|\text{untested})\) at the percentage experiencing COVID-19-like illness is most concordant with the Covidestim estimates.
 \begin{figure}
 \includegraphics[width=1\linewidth]{figure/summarize-concordance-mass-counties} \caption{\label{fig:summarize-concordance-mass-counties} To summarize the concordance with Covidestim for each county in Massachusetts, we consider the proportion of all probabilistic bias intervals (each corresponding to a two-week interval) that contain the Covidestim median for that time interval, or where the Covidestim median falls above or below the interval.}\label{fig:unnamed-chunk-20}
 \end{figure}
@@ -639,6 +639,8 @@ Two counties that consistently had among the highest ratios of estimated infecti
 \begin{figure}
 \includegraphics[width=1\linewidth]{figure/mi3_pb_compared_to_observed} \caption{\label{fig:pb_versions_mi}}\label{fig:unnamed-chunk-25-3}
 \end{figure}
+This is true when summarizing across all counties, but it is also true for each county individually; the version centering \(P(S_1|\text{untested})\) at the survey value tends to be the most concordant for each county (Supplementary Figure \ref{fig:mi-county-concordance}).
+
 \includegraphics[width=1\linewidth]{figure/mi_pb_compared_to_covidestim_proportions}
 
 \newpage
@@ -775,6 +777,9 @@ Placeholder
 
 \hypertarget{county-level-comparison-to-covidestim-in-massachusetts}{%
 \section{County Level Comparison to Covidestim in Massachusetts}\label{county-level-comparison-to-covidestim-in-massachusetts}}
+
+\hypertarget{concordance-with-covidestim-by-version-and-county-in-michigan}{%
+\section{Concordance with Covidestim by Version and County in Michigan}\label{concordance-with-covidestim-by-version-and-county-in-michigan}}
 
 \hypertarget{summarizing-concordance-with-covidestim-1}{%
 \section{Summarizing Concordance with Covidestim}\label{summarizing-concordance-with-covidestim-1}}

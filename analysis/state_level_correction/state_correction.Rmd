@@ -304,7 +304,7 @@ symp_smooth %>%
     'LOESS Smoothed' = "darkred"),
     name='') +
   scale_y_continuous() +
-  guides(color = guide_legend(override.aes = list(size=3)))
+  guides(color = guide_legend(override.aes = list(linewidth=3)))
 
 
 ggsave(here('thesis/figure/ctis_beta_states.pdf'), height = 18, width = 14)
@@ -319,14 +319,15 @@ symp_smooth %>%
   geom_line(alpha=.7, linewidth=.5) +
   geom_line(aes(x=date,y=smoothed_p_s_untested, color='LOESS Smoothed')) +
   theme_c(axis.text.x = element_text(angle =30, size = 12),
-          plot.title = element_text(size = 24,margin=margin(0,0,4,0))) +
+          plot.title = element_text(size = 24,margin=margin(0,0,4,0)),
+          legend.position = "top") +
   facet_wrap(~toupper(state), ncol=5) +
   labs(title = TeX("Estimate of $P(S_1|untested)$ from COVID-19 Trends and Impact Survey Data"),
        y = "Percent with COVID-19-like Illness") +
   scale_color_manual(values=c(
     'LOESS Smoothed' = "darkred"),
     name='') +
-  guides(color = guide_legend(override.aes = list(size=3))) +
+  guides(color = guide_legend(override.aes = list(linewidth=3))) +
   scale_y_continuous(labels=scales::percent) 
 
 

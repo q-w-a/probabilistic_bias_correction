@@ -522,6 +522,17 @@ knitr::include_graphics("figure/ma_pb_compared_to_covidestim.pdf")
 
 ```
 
+## Concordance with Covidestim by Version and County in Michigan
+
+```{r, fig.cap="\\label{fig:mi-county-concordance} Considering the proportion of probabilistic bias intervals that contained the Covidestim median for each implementation, for each county in Michigan. For most counties, we see that the implementation centering $P(S_1|\\text{untested})$ at the survey value is most concordant with Covidestim."}
+
+
+knitr::include_graphics('figure/mi_pb_compared_to_covidestim_proportions.pdf')
+
+
+
+```
+
 
 
 ## Summarizing Concordance with Covidestim

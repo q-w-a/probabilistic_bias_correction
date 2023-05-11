@@ -378,7 +378,7 @@ To better see the overlap between versions, in Figure \ref{fig:pb_versions_ma} w
 
 
 
-```{r, out.width ="100%", fig.cap = "\\label{fig:pb_versions_ma}"}
+```{r, out.width ="100%", fig.cap = "\\label{fig:pb_versions_ma} Presenting the same implementations from \\ref{fig:pb_counts_ma}, but not where all implementations for a county are considered in the same plot to better see the overlap between the implementations. The implementation that centers both $P(S_1|\\text{untested})$ and $\\beta$ at their empirical values is consistently the highest among the implementations, and the version only centering $P(S_1|\\text{untested})$ at the survey value is highly concordant with the version that does not use survey data to inform the priors."}
 
 knitr::include_graphics('figure/ma_pb_compare_versions.pdf')
 
@@ -386,7 +386,7 @@ knitr::include_graphics('figure/ma_pb_compare_versions.pdf')
 
 Beyond comparing the versions to each other, we can also compare the extent to which these intervals agree with the Covidestim estimates. 
 
-To compare the probabilistic bias intervals to the Covidestim estimates, we can again look at the proportion of time intervals where the probabilistic bias intervals contained the Covidestim median infections. We can summarize concordance for each implementation of the bias analysis by calculating, across all counties and time intervals, the fraction of bias intervals for a particular version that contained the Covidestim median (Figure \ref{summarize-concordance-mass-counties). From Figure \ref{summarize-concordance-mass-counties, we see that for counties in Massachusetts, the implementation of probabilistic bias analysis that centers the prior for  $P(S_1|\text{untested})$ at the percentage experiencing COVID-19-like illness is most concordant with the Covidestim estimates.
+To compare the probabilistic bias intervals to the Covidestim estimates, we can again look at the proportion of time intervals where the probabilistic bias intervals contained the Covidestim median infections. We can summarize concordance for each implementation of the bias analysis by calculating, across all counties and time intervals, the fraction of bias intervals for a particular version that contained the Covidestim median (Figure \ref{fig:summarize-concordance-mass-counties}). From Figure \ref{fig:summarize-concordance-mass-counties}, we see that for counties in Massachusetts, the implementation of probabilistic bias analysis that centers the prior for  $P(S_1|\text{untested})$ at the percentage experiencing COVID-19-like illness is most concordant with the Covidestim estimates.
 
 
 
@@ -472,6 +472,10 @@ knitr::include_graphics(paste0('figure/', 'mi2', '_pb_compared_to_observed.pdf')
 knitr::include_graphics(paste0('figure/', 'mi3', '_pb_compared_to_observed.pdf'))
 
 ```
+
+
+This is true when summarizing across all counties, but it is also true for each county individually; the version centering $P(S_1|\text{untested})$ at the survey value tends to be the most concordant for each county (Supplementary Figure \ref{fig:mi-county-concordance}).
+
 
 ```{r}
 
