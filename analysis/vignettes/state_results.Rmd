@@ -1218,7 +1218,7 @@ corrected %>%
   theme_c() +
   theme(axis.text.x=element_text(size=12, angle=30),
         legend.position="top") +
-  facet_wrap(~state,scales="free_y", ncol=7)+
+  facet_wrap(~state,scales="free_y", ncol=5)+
   guides(color = guide_legend(override.aes = list(linewidth=3)))  +
   labs(y = "Percent Change in Tests",
        x = "Date",
@@ -1227,7 +1227,7 @@ corrected %>%
 
 
 ggsave(here::here(paste0('thesis/figure/test_capacity_all_states.pdf')), 
-       height=13, width = 13, dpi=400)
+       height=19, width = 16, dpi=400)
 
 
 

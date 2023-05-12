@@ -12,8 +12,7 @@ knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE,
                       cache = FALSE,
                       fig.align ='center',
-                      fig.width = 5,
-                      fig.height =3)
+                      out.width="100%")
 ```
 
 
@@ -36,7 +35,7 @@ In Figure \ref{fig:simmvn}, in each panel, we increase the correlation $\rho$ be
 
 We see in Figure \ref{fig:simmvn} that when we increase the correlation between $X$ and $Y$, the width of the interval $\Big((X+Y)_\alpha, (X+Y)_{1-\alpha}\Big)$ increases.
 
-```{r,fig.show = 'hold', out.width ="96%", fig.height = 2, fig.cap = "\\label{fig:simmvn}"}
+```{r,fig.show = 'hold', out.width ="96%", fig.height = 2, fig.cap = "\\label{fig:simmvn}", cache=TRUE}
 
 
 
@@ -321,13 +320,15 @@ $$F^{-1}_{(1+b) X } (\alpha) = x_\alpha \implies P((1+b) X \leq x_\alpha) = \alp
 Since $(1+b)$ is just a constant, we can divide to yield
 
 $$P\Big( X \leq x_\alpha/(1+b) \Big) = \alpha.$$
-To optain hte quantile for $bX$, we can multiply each side by $b$ to yield
+To obtain the quantile for $bX$, we can multiply each side by $b$ to yield
 $$P\Big( bX \leq bx_\alpha/(1+b) \Big) = \alpha.$$
 Putting these results together, we have 
 \begin{align*}
-F^{-1}_{bX} (\alpha) + F^{-1}_{X} (\alpha) = \frac{bx_\alpha } { 1+b} + \frac{x_\alpha}{1+b}
-&= x_\alpha 
-&= F^{-1}_{(1+b)X}(\alpha) \end{align*}
+F^{-1}_X+F^{-1}_Y = F^{-1}_{bX} (\alpha) + F^{-1}_{X} (\alpha) \\
+&= \frac{bx_\alpha } { 1+b} + \frac{x_\alpha}{1+b}
+&= x_\alpha \\
+&= F^{-1}_{(1+b)X}(\alpha)\\
+&=F^{-1}_{X+Y}(\alpha) \end{align*}
 
 
 
@@ -346,7 +347,7 @@ $$F_{2X}^{-1}(\alpha) = F^{-1}_X(\alpha) + F^{-1}_X(\alpha).$$
 ### Derivation of the Distribution of X+Y for Bivariate Normal
 
 
-We can see why we observe this relationship between intervals based on the the sum of the $\alpha^{th}$ quantiles of the individual distributions, $X_\alpha + Y_\alpha$, and the intervals based on the $\alpha^{th}$ quantile of the distribution of $X+Y$ by considering the definition of the quantile function of the normal distribution. 
+We can see why we observe this relationship between intervals in \ref{fig:comp-intervals}, where the 95% intervals $X_\alpha +Y_\alpha$ are wider than $(X+Y)_\alpha$ based on the the sum of the $\alpha^{th}$ quantiles of the individual distributions, $X_\alpha + Y_\alpha$, and the intervals based on the $\alpha^{th}$ quantile of the distribution of $X+Y$ by considering the definition of the quantile function of the normal distribution. 
 
 
 Defining $Z=g(X,Y) = X+Y$, we can obtain the density function by a change of variables. Notice if $g(X,Y) = X+Y$, $g^{-1}(X,Z) = Z-X$, so we have
@@ -436,7 +437,7 @@ $$(X_1+Y_1)_\alpha <(X_2+Y_2)_\alpha$$
 and 
 
 $$(X_1+Y_1)_{1-\alpha} > (X_2+Y_2)_{1-\alpha}.$$
-This is exactly what we observed in Figure \ref{fig:comp-intervals}.
+This is exactly what we observed in Figure \ref{fig:comp-intervals}: when we increased the correlation, we saw the bounds of the 95% interval increase.
 
 
 ```{r, fig.cap = "\\label{fig:erf}"}

@@ -450,7 +450,6 @@ To see how counties compare to each other with regard to the ratio of estimated 
 
 In Figure \ref{fig:rank-ratio-over-time-ma-county}, we see that Hampshire County, Suffolk County, and Middlesex County were consistently the three counties with the lowest ratios of estimated infections to observed infections. Hampshire County's rank declines during periods where school was not in session (June until the beginning of September) and in December; this may be related to the drops in asymptomatic testing during these periods. 
 
-Two counties that consistently had among the highest ratios of estimated infections to observed infections were 
 
 ```{r, fig.cap  = "\\label{fig:rank-ratio-over-time-ma-county}The rank of the ratio of estimated infections to observed infections over time. For each two-week interval, we rank the counties by the ratio of estimated infections to observed, where a rank of 13 would indicate the county had the *highest* ratio of estimated infections to observed, and a rank of 1   would indicate the county had the *lowest* ratio of estimated infections to observed. Only counties that were consistently at the extremes, that is, that were among the highest 3 or lowest 3 for at least 80\\% of the time intervals considered, are included."}
 
@@ -463,16 +462,20 @@ knitr::include_graphics('figure/rank-ratio-over-time-ma-county.jpeg')
 
 
 
+
+
 ### Michigan
 
 
-The figures including probabilistic bias analysis intervals for each county and implementation separately are included in Supplementary Figures \ref{fig:pb_versions_mi-1}, \ref{fig:pb_versions_mi-2}, and  \ref{fig:pb_versions_mi-3}.
+For reference, the figures including probabilistic bias analysis intervals for each of the 83 counties in Michigan, where each implementation is presented separately, are included in Supplementary Figures \ref{fig:pb_versions_mi-1}, \ref{fig:pb_versions_mi-2}, and  \ref{fig:pb_versions_mi-3}.
 
 We can compare to Covidestim again by considering the proportion of probabilistic bias intervals that contain the Covidestim median across all counties for each implementation (Figure \ref{fig:covidestim_above_below_by_county_mi}).
 
 
 As we saw at the state level across the United States (Figure \ref{fig:summarize-concordance-state}) and in
-Massachusetts at the county level (Figure \ref{fig:summarize-concordance-mass-counties})), we see the version with the highest concordance with Covidestim is that where the prior for $P(S_1|\text{untested})$ is centered at the percent of the population experiencing COVID-19-like illnes from the COVID-19 Trends and Impact Survey. 
+Massachusetts at the county level (Figure \ref{fig:summarize-concordance-mass-counties})), we see the version with the highest concordance with Covidestim is that where the prior for $P(S_1|\text{untested})$ is centered at the percent of the population experiencing COVID-19-like illness from the COVID-19 Trends and Impact Survey. This is true when summarizing across all counties, and it is also true for each county individually; the version centering $P(S_1|\text{untested})$ at the survey value tends to be the most concordant for each county (Supplementary Figure \ref{fig:mi-county-concordance}).
+
+
 
 ```{r, fig.cap="\\label{fig:covidestim_above_below_by_county_mi} For each implementation, we calculate the proportion of probabilistic bias intervals over all counties and where the Covidestim median falls within, above, or below the interval. We interpret a higher proportion *in interval*, where the Covidestim falls within the probabilistic analysis interval, to indicate higher concordance. As we saw in Massachusetts (Figure \\ref{fig:summarize-concordance-mass-counties}), the implementation with the highest concordance with Covidestim is the version that centers the prior for $P(S_1|\\text{untested})$ at the survey value." }
 
@@ -481,19 +484,36 @@ knitr::include_graphics('figure/summarize-concordance-mich-counties.pdf')
 
 ```
 
-When we look at the ratio of estimated infections to how counties compare across time, we can
 
 
-```{r, fig.cap="\\label{fig:mi-county-heatmap}Each row on the heatmap corresponds to a county, while each column is the two-week interval. The color of the tile for a two-week interval in a particular county is the ratio of total estimated infections to the observed infections for that two-week interval. The impelmentation of probabilistic bias analysis used for the total estimated infections is the implementation centering $P(S_1|\\text{untesteed})$ at the survey value. Darker colors indicate higher ratios, where more infections were going unobserved relative to those that were observed."}
+
+When we compare the ratio of estimated infections to observed infections over time, we see that the ratios are highest across counties in late May into the summer, through July (near the Delta wave) and in late January through mid February (following the peak of the Omicron wave). This is in contrast to what we saw in Massachusetts, where, although the number of infections increased dramatically during the Omicron wave, there was not a marked increase in the ratio of estimated total infections to observed in this time period. 
+
+
+```{r, fig.cap="\\label{fig:mi-county-heatmap}Each row on the heatmap corresponds to a county, while each column is the two-week interval. The color of the tile for a two-week interval in a particular county is the ratio of total estimated infections to the observed infections for that two-week interval. The impelmentation of probabilistic bias analysis used for the total estimated infections is the implementation centering $P(S_1|\\text{untesteed})$ at the survey value. Darker colors indicate higher ratios, where more infections were going unobserved relative to those that were observed. Intervals where the number of observed infections was zero (which is the case in some very small counties where the total number of tests, was, for instance, only 100) are shown in white, since the ratio of estimated to observed is undefined in these cases. Counties are ordered from highest to lowest by median ratio of estimated infections to observed infections. That is, counties at the top, for example, Schoolcraft and Alder, have the highest median ratios of estimated infections to observed, while counties at the bottom, for example, Washtenaw, have the lowest ratios. Across counties, we see notable increases in the summer of 2021 in June through July, and in late January through February."}
 
 knitr::include_graphics('figure/mi_county_heatmap_ratio_est_observed.pdf')
 
 
 ```
 
+When we compare counties' ratios of total estimated infections to observed infections over time, we see that 2 counties had among the lowest 15 ratios across all time intervals considered.  Washtenaw County has the lowest ratio across almost all time periods considered, while Kent County has among the lowest ratios until the Omicron wave. Both counties are among the top 10 largest counties in Michigan, and both include universities: University of Michigan is in Washtenaw County, and several liberal arts colleges, for instance, Aquinas College and Calvin University, are in Kent County.
+
+Among the counties that had the highest ratios, Schoolcraft is one of the smallest states in Michigan (population close to 8,000), and Leelanau is also small (population about 21,800); both Clinton and Cass have more than 50,000. All have low population densities. Of note, when considering the ratios of all counties, the ratio of estimated infections to observed infections was not markedly different between population sizes, but there were more outliers in the ratios for smaller counties (Supplementary Figure \ref{fig:mi-ratio-pop}).
 
 
-This is true when summarizing across all counties, but it is also true for each county individually; the version centering $P(S_1|\text{untested})$ at the survey value tends to be the most concordant for each county (Supplementary Figure \ref{fig:mi-county-concordance}).
+```{r, fig.cap="\\label{fig:rank-ratio-over-time-mi-county}For two-week interval, we rank counties by the ratio of estimated total infections to observed infections, where the highest ranking of 83 indicates the highest ratio, while the lowest possible ranking of 1 indicates the lowest ratio. Counties that fell in the top 15 or bottom 15 for at least 80\\% of time intervals are included here. Lines are dotted when there is a missing value due to reporting of zero observed cases, in which case the ratio of estimated to observed infections is undefined."}
+
+knitr::include_graphics('figure/rank-ratio-over-time-mi-county.pdf')
+
+```
+
+
+
+
+
+
+
 
 \newpage
 

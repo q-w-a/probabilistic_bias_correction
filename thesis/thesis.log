@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.5.7)  11 MAY 2023 15:07
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.5.7)  11 MAY 2023 20:31
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -695,48 +695,136 @@ LaTeX Info: Redefining \setlength on input line 80.
 LaTeX Info: Redefining \addtolength on input line 81.
 \calc@Ccount=\count329
 \calc@Cskip=\skip80
+) (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/tools/array.sty
+Package: array 2022/09/04 v2.5g Tabular extension package (FMi)
+\col@sep=\dimen289
+\ar@mcellbox=\box123
+\extrarowheight=\dimen290
+\NC@list=\toks48
+\extratabsurround=\skip81
+\backup@length=\skip82
+\ar@cellbox=\box124
+) (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/multirow/multirow.sty
+Package: multirow 2021/03/15 v2.8 Span multiple rows of a table
+\multirow@colwidth=\skip83
+\multirow@cntb=\count330
+\multirow@dima=\skip84
+\bigstrutjot=\dimen291
+) (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/wrapfig/wrapfig.sty
+\wrapoverhang=\dimen292
+\WF@size=\dimen293
+\c@WF@wrappedlines=\count331
+\WF@box=\box125
+\WF@everypar=\toks49
+Package: wrapfig 2003/01/31  v 3.6
+) (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/colortbl/colortbl.sty
+Package: colortbl 2022/06/20 v1.0f Color table columns (DPC)
+\everycr=\toks50
+\minrowclearance=\skip85
+\rownum=\count332
+) (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/pdflscape/pdflscape.sty
+Package: pdflscape 2022-10-27 v0.13 Display of landscape pages in PDF
+(/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/pdflscape/pdflscape-nometadata.sty
+Package: pdflscape-nometadata 2022-10-28 v0.13 Display of landscape pages in PDF (HO)
+(/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/graphics/lscape.sty
+Package: lscape 2020/05/28 v3.02 Landscape Pages (DPC)
 )
-LaTeX Font Info:    Trying to load font information for T1+ppl on input line 187.
+Package pdflscape Info: Auto-detected driver: pdftex on input line 81.
+)) (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/tabu/tabu.sty
+Package: tabu 2019/01/11 v2.9 - flexible LaTeX tabulars (FC+tabu-fixed)
+(/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/varwidth/varwidth.sty
+Package: varwidth 2009/03/30 ver 0.92;  Variable-width minipages
+\@vwid@box=\box126
+\sift@deathcycles=\count333
+\@vwid@loff=\dimen294
+\@vwid@roff=\dimen295
+)
+\c@taburow=\count334
+\tabu@nbcols=\count335
+\tabu@cnt=\count336
+\tabu@Xcol=\count337
+\tabu@alloc=\count338
+\tabu@nested=\count339
+\tabu@target=\dimen296
+\tabu@spreadtarget=\dimen297
+\tabu@naturalX=\dimen298
+\tabucolX=\dimen299
+\tabu@Xsum=\dimen300
+\extrarowdepth=\dimen301
+\abovetabulinesep=\dimen302
+\belowtabulinesep=\dimen303
+\tabustrutrule=\dimen304
+\tabu@thebody=\toks51
+\tabu@footnotes=\toks52
+\tabu@box=\box127
+\tabu@arstrutbox=\box128
+\tabu@hleads=\box129
+\tabu@vleads=\box130
+\tabu@cellskip=\skip86
+) (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/threeparttable/threeparttable.sty
+Package: threeparttable 2003/06/13  v 3.0
+\@tempboxb=\box131
+) (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/threeparttablex/threeparttablex.sty
+Package: threeparttablex 2013/07/23 v0.3 by daleif
+\TPTL@width=\skip87
+) (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/generic/ulem/ulem.sty
+\UL@box=\box132
+\UL@hyphenbox=\box133
+\UL@skip=\skip88
+\UL@hook=\toks53
+\UL@height=\dimen305
+\UL@pe=\count340
+\UL@pixel=\dimen306
+\ULC@box=\box134
+Package: ulem 2019/11/18
+\ULdepth=\dimen307
+) (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/makecell/makecell.sty
+Package: makecell 2009/08/03 V0.1e Managing of Tab Column Heads and Cells
+\rotheadsize=\dimen308
+\c@nlinenum=\count341
+\TeXr@lab=\toks54
+)
+LaTeX Font Info:    Trying to load font information for T1+ppl on input line 201.
 (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/psnfss/t1ppl.fd
 File: t1ppl.fd 2001/06/04 font definitions for T1/ppl.
 ) (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2023-04-19 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count330
-\l__pdf_internal_box=\box123
+\l__color_backend_stack_int=\count342
+\l__pdf_internal_box=\box135
 ) (./thesis.aux)
 \openout1 = `thesis.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 187.
-LaTeX Font Info:    ... okay on input line 187.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 187.
-LaTeX Font Info:    ... okay on input line 187.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 187.
-LaTeX Font Info:    ... okay on input line 187.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 187.
-LaTeX Font Info:    ... okay on input line 187.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 187.
-LaTeX Font Info:    ... okay on input line 187.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 187.
-LaTeX Font Info:    ... okay on input line 187.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 187.
-LaTeX Font Info:    ... okay on input line 187.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 187.
-LaTeX Font Info:    ... okay on input line 187.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 187.
-LaTeX Font Info:    ... okay on input line 187.
-LaTeX Info: Redefining \microtypecontext on input line 187.
-Package microtype Info: Applying patch `item' on input line 187.
-Package microtype Info: Applying patch `toc' on input line 187.
-Package microtype Info: Applying patch `eqnum' on input line 187.
-Package microtype Info: Applying patch `footnote' on input line 187.
-Package microtype Info: Applying patch `verbatim' on input line 187.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 201.
+LaTeX Font Info:    ... okay on input line 201.
+LaTeX Info: Redefining \microtypecontext on input line 201.
+Package microtype Info: Applying patch `item' on input line 201.
+Package microtype Info: Applying patch `toc' on input line 201.
+Package microtype Info: Applying patch `eqnum' on input line 201.
+Package microtype Info: Applying patch `footnote' on input line 201.
+Package microtype Info: Applying patch `verbatim' on input line 201.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using protrusion set `basicmath'.
 Package microtype Info: Automatic font expansion enabled (level 2),
 (microtype)             stretch: 20, shrink: 20, step: 1, non-selected.
 Package microtype Info: Using default expansion set `alltext-nott'.
-LaTeX Info: Redefining \showhyphens on input line 187.
+LaTeX Info: Redefining \showhyphens on input line 201.
 Package microtype Info: No adjustment of tracking.
 Package microtype Info: No adjustment of interword spacing.
 Package microtype Info: No adjustment of character kerning.
@@ -748,12 +836,14 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
 (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-Package hyperref Info: Link coloring ON on input line 187.
+Package hyperref Info: Link coloring ON on input line 201.
 (./thesis.out) (./thesis.out)
 \@outlinefile=\write5
 \openout5 = `thesis.out'.
 
 Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: threeparttable package is loaded.
+Package caption Info: wrapfig package is loaded.
 Package caption Info: End \AtBeginDocument code.
 [1
 Non-PDF special ignored!
@@ -810,17 +900,17 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/microtype/mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
-Underfull \hbox (badness 10000) in paragraph at lines 8--8
+Underfull \hbox (badness 10000) in paragraph at lines 13--13
  [][] [][][]\T1/ppl/m/n/12 (+20) Implementation through the Sampling-Importance- 
  []
 
 
-Overfull \hbox (26.2294pt too wide) in paragraph at lines 11--11
+Overfull \hbox (26.2294pt too wide) in paragraph at lines 16--16
  [][] [][][]\T1/ppl/m/n/12 (-20) Direct Prior and In-duced Prior Dis-tri-bu-tions for $\OML/lmm/m/it/12 P\OT1/lmr/m/n/12 (\OML/lmm/m/it/12 S[]\OMS/lmsy/m/n/12 j[][]\OML/lmm/m/it/12 ; []\OT1/lmr/m/n/12 )$[][] [][]  
  []
 
 
-Underfull \hbox (badness 7099) in paragraph at lines 20--20
+Underfull \hbox (badness 7099) in paragraph at lines 25--25
  [][] [][][]\T1/ppl/m/n/12 (+20) Obtaining Log-a-rith-mic Pooled Dis-tri-bu-tion with the 
  []
 
@@ -837,198 +927,574 @@ Underfull \hbox (badness 7099) in paragraph at lines 20--20
 
 
 ]
-Chapter 1.
-
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.221 \chapter{Background}\label{background}}
-                                              [1
+l.253 \chapter{Introduction}\label{introduction}}
+                                                  [1
 
 ]
 pdfTeX warning (ext4): destination with the same identifier (name{page.2}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.221 \chapter{Background}\label{background}}
-                                              [2
+l.253 \chapter{Introduction}\label{introduction}}
+                                                  [2
 
 ]
-Chapter 2.
-
-Underfull \hbox (badness 10000) in paragraph at lines 241--241
-[]\T1/ppl/b/n/14.4 (+20) Implementation through the Sampling-Importance-
- []
-
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <14.4> on input line 247.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 247.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 247.
-
-Overfull \hbox (51.14404pt too wide) in paragraph at lines 250--250
-[]\T1/ppl/b/n/14.4 (-20) Direct Prior and In-duced Prior Dis-tri-bu-tions for $\OML/lmm/m/it/14.4 P\OT1/lmr/m/n/14.4 (\OML/lmm/m/it/14.4 S[]\OMS/lmsy/m/n/14.4 j[][]\OML/lmm/m/it/14.4 ; []\OT1/lmr/m/n/14.4 )$ 
- []
-
-
-Underfull \hbox (badness 4608) in paragraph at lines 277--277
-[]\T1/ppl/b/n/14.4 (+20) Obtaining Log-a-rith-mic Pooled Dis-tri-bu-tion with the
- []
-
+Chapter 1.
+<./figure/testing_rate.png, id=509, 628.2672pt x 458.6736pt>
+File: ./figure/testing_rate.png Graphic file (type png)
+<use ./figure/testing_rate.png>
+Package pdftex.def Info: ./figure/testing_rate.png  used on input line 264.
+(pdftex.def)             Requested size: 390.25534pt x 284.91359pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 [3]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[4]
-Overfull \vbox (121.11623pt too high) has occurred while \output is active []
+[4 <./figure/testing_rate.png>]
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10> on input line 281.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <7> on input line 281.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <5> on input line 281.
 
-[5] [6
+Underfull \vbox (badness 2970) has occurred while \output is active []
+
+[5] [6]
+Chapter 2.
+<./figure/figure_original_case_ratio.png, id=532, 653.44125pt x 888.31876pt>
+File: ./figure/figure_original_case_ratio.png Graphic file (type png)
+<use ./figure/figure_original_case_ratio.png>
+Package pdftex.def Info: ./figure/figure_original_case_ratio.png  used on input line 293.
+(pdftex.def)             Requested size: 216.81pt x 294.73198pt.
+
+Underfull \vbox (badness 4060) has occurred while \output is active []
+
+[7
+
+ <./figure/figure_original_case_ratio.png>]
+Underfull \hbox (badness 1112) in paragraph at lines 324--325
+[]\T1/ppl/m/n/12 (+20) The un-cer-tainty in-her-ent in this es-ti-ma-tion pro-cess is in the quan-ti-ties
+ []
+
+
+Overfull \hbox (24.87192pt too wide) in paragraph at lines 326--327
+[]\T1/ppl/m/n/12 (-20) It is par-tic-u-larly dif-fi-cult to think about how we would es-ti-mate $[]\OT1/lmr/m/n/12 ([][]\OMS/lmsy/m/n/12 j\OML/lmm/m/it/12 S[]; []\OT1/lmr/m/n/12 )$
+ []
+
+[8]
+Overfull \hbox (39.7469pt too wide) in paragraph at lines 343--344
+[]\T1/ppl/m/n/12 (-20) This for-mu-la-tion en-ables us to es-ti-mate $[]\OT1/lmr/m/n/12 ([][]\OMS/lmsy/m/n/12 j\OML/lmm/m/it/12 S[]; []\OT1/lmr/m/n/12 )$ \T1/ppl/m/n/12 (-20) and $[]\OT1/lmr/m/n/12 ([][]\OMS/lmsy/m/n/12 j\OML/lmm/m/it/12 S[]; []\OT1/lmr/m/n/12 )$
+ []
+
+[9]
+<./figure/analysis_diagram.png, id=554, 830.10126pt x 650.43pt>
+File: ./figure/analysis_diagram.png Graphic file (type png)
+<use ./figure/analysis_diagram.png>
+Package pdftex.def Info: ./figure/analysis_diagram.png  used on input line 358.
+(pdftex.def)             Requested size: 433.62pt x 339.76389pt.
+
+Underfull \hbox (badness 1107) in paragraph at lines 369--370
+[]\T1/ppl/m/n/12 (+20) With the im-ple-men-ta-tion of the im-ple-men-ta-tion of Wu et al. (2020b),
+ []
+
+[10 <./figure/analysis_diagram.png>] [11] [12
 
 ]
 Chapter 3.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <17.28> on input line 333.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[7] [8]
-Chapter 4.
-[9
+[13] [14]
+LaTeX Font Info:    Font shape `U/lasy/b/n' in size <8> not available
+(Font)              Font shape `U/lasy/m/n' tried instead on input line 410.
+LaTeX Font Info:    Font shape `U/lasy/b/n' in size <6> not available
+(Font)              Font shape `U/lasy/m/n' tried instead on input line 410.
+<thesis_files/figure-latex/unnamed-chunk-12-1.pdf, id=588, 180.675pt x 108.405pt>
+File: thesis_files/figure-latex/unnamed-chunk-12-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-12-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-12-1.pdf  used on input line 424.
+(pdftex.def)             Requested size: 211.81pt x 127.0864pt.
 
-] [10
+Overfull \hbox (74.77pt too wide) in paragraph at lines 428--428
+[] [] 
+ []
 
-]
-Chapter 5.
-[11]
+
+Overfull \vbox (23.38905pt too high) has occurred while \output is active []
+
+[15 <./thesis_files/figure-latex/unnamed-chunk-12-1.pdf>]
+Overfull \hbox (24.62988pt too wide) detected at line 454
+[]
+ []
+
+<thesis_files/figure-latex/unnamed-chunk-15-1.pdf, id=605, 289.08pt x 144.54pt>
+File: thesis_files/figure-latex/unnamed-chunk-15-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-15-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-15-1.pdf  used on input line 484.
+(pdftex.def)             Requested size: 211.81pt x 105.90367pt.
+
+Overfull \hbox (74.77pt too wide) in paragraph at lines 488--488
+[] [] 
+ []
+
+[16 <./thesis_files/figure-latex/unnamed-chunk-15-1.pdf>]
+Underfull \hbox (badness 10000) in paragraph at lines 531--531
+[]\T1/ppl/b/n/14.4 (+20) Implementation through the Sampling-Importance-
+ []
+
+[17{/Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}] [18] [19]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 393.
-[12] [13] [14
+(Font)              <14.4> on input line 569.
+<thesis_files/figure-latex/create theta.png-1.pdf, id=645, 469.755pt x 252.945pt>
+File: thesis_files/figure-latex/create theta.png-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/create theta.png-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/create theta.png-1.pdf  used on input line 574.
+(pdftex.def)             Requested size: 433.62pt x 233.488pt.
+
+Overfull \hbox (51.14404pt too wide) in paragraph at lines 581--581
+[]\T1/ppl/b/n/14.4 (-20) Direct Prior and In-duced Prior Dis-tri-bu-tions for $\OML/lmm/m/it/14.4 P\OT1/lmr/m/n/14.4 (\OML/lmm/m/it/14.4 S[]\OMS/lmsy/m/n/14.4 j[][]\OML/lmm/m/it/14.4 ; []\OT1/lmr/m/n/14.4 )$ 
+ []
+
+<thesis_files/figure-latex/unnamed-chunk-19-1.pdf, id=647, 469.755pt x 216.81pt>
+File: thesis_files/figure-latex/unnamed-chunk-19-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-19-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-19-1.pdf  used on input line 586.
+(pdftex.def)             Requested size: 433.62pt x 200.13257pt.
+[20 <./thesis_files/figure-latex/create theta.png-1.pdf> <./thesis_files/figure-latex/unnamed-chunk-19-1.pdf>]
+<thesis_files/figure-latex/unnamed-chunk-20-1.pdf, id=679, 469.755pt x 433.62pt>
+File: thesis_files/figure-latex/unnamed-chunk-20-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-20-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-20-1.pdf  used on input line 606.
+(pdftex.def)             Requested size: 433.62pt x 400.26515pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[21]
+
+LaTeX Warning: Reference `fig:suffolkmelding' on page 22 undefined on input line 617.
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[22 <./thesis_files/figure-latex/unnamed-chunk-20-1.pdf>]
+<figure/suffolk_bayesian_melding.pdf, id=702, 867.24pt x 433.62pt>
+File: figure/suffolk_bayesian_melding.pdf Graphic file (type pdf)
+<use figure/suffolk_bayesian_melding.pdf>
+Package pdftex.def Info: figure/suffolk_bayesian_melding.pdf  used on input line 618.
+(pdftex.def)             Requested size: 433.62pt x 216.80946pt.
+LaTeX Font Info:    Trying to load font information for TS1+ppl on input line 627.
+(/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/psnfss/ts1ppl.fd
+File: ts1ppl.fd 2001/06/04 font definitions for TS1/ppl.
+)
+Underfull \hbox (badness 3623) in paragraph at lines 633--639
+[]\T1/ppl/m/n/12 (+20) We re-late this set of pa-ram-e-ters to the asymp-tomatic in-fec-tion rate
+ []
+
+
+Underfull \vbox (badness 5036) has occurred while \output is active []
+
+[23 <./figure/suffolk_bayesian_melding.pdf>]
+Overfull \hbox (14.0596pt too wide) detected at line 644
+[]
+ []
+
+
+Overfull \hbox (9.19019pt too wide) detected at line 647
+\OT1/lmr/m/n/12 = []\OML/lmm/m/it/12 :
+ []
+
+
+Overfull \hbox (71.53082pt too wide) in paragraph at lines 652--655
+\T1/ppl/m/n/12 (-20) Applying the def-i-ni-tion of con-di-tional prob-a-bil-ity to the term $\OML/lmm/m/it/12 P\OT1/lmr/m/n/12 ([][]\OMS/lmsy/m/n/12 j\OML/lmm/m/it/12 S[]; []\OT1/lmr/m/n/12 )\OML/lmm/m/it/12 P\OT1/lmr/m/n/12 (\OML/lmm/m/it/12 S[]\OMS/lmsy/m/n/12 j[]\OT1/lmr/m/n/12 )$
+ []
+
+[24] [25]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[26] [27] [28]
+<thesis_files/figure-latex/unnamed-chunk-23-1.pdf, id=743, 433.62pt x 180.675pt>
+File: thesis_files/figure-latex/unnamed-chunk-23-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-23-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-23-1.pdf  used on input line 768.
+(pdftex.def)             Requested size: 433.62pt x 180.68282pt.
+<thesis_files/figure-latex/unnamed-chunk-24-1.pdf, id=745, 433.62pt x 180.675pt>
+File: thesis_files/figure-latex/unnamed-chunk-24-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-24-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-24-1.pdf  used on input line 777.
+(pdftex.def)             Requested size: 433.62pt x 180.68282pt.
+[29 <./thesis_files/figure-latex/unnamed-chunk-23-1.pdf> <./thesis_files/figure-latex/unnamed-chunk-24-1.pdf>]
+<thesis_files/figure-latex/unnamed-chunk-25-1.pdf, id=773, 433.62pt x 180.675pt>
+File: thesis_files/figure-latex/unnamed-chunk-25-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-25-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-25-1.pdf  used on input line 799.
+(pdftex.def)             Requested size: 433.62pt x 180.68282pt.
+<thesis_files/figure-latex/unnamed-chunk-26-1.pdf, id=775, 433.62pt x 180.675pt>
+File: thesis_files/figure-latex/unnamed-chunk-26-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-26-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-26-1.pdf  used on input line 808.
+(pdftex.def)             Requested size: 433.62pt x 180.68282pt.
+[30 <./thesis_files/figure-latex/unnamed-chunk-25-1.pdf> <./thesis_files/figure-latex/unnamed-chunk-26-1.pdf>]
+Underfull \hbox (badness 4608) in paragraph at lines 817--817
+[]\T1/ppl/b/n/14.4 (+20) Obtaining Log-a-rith-mic Pooled Dis-tri-bu-tion with the
+ []
+
+<thesis_files/figure-latex/pre-post-sampling-code-1.pdf, id=804, 469.755pt x 578.16pt>
+File: thesis_files/figure-latex/pre-post-sampling-code-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/pre-post-sampling-code-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/pre-post-sampling-code-1.pdf  used on input line 842.
+(pdftex.def)             Requested size: 433.62pt x 533.68687pt.
+[31]
+<thesis_files/figure-latex/unnamed-chunk-29-1.pdf, id=813, 469.755pt x 650.43pt>
+File: thesis_files/figure-latex/unnamed-chunk-29-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-29-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-29-1.pdf  used on input line 851.
+(pdftex.def)             Requested size: 433.62pt x 600.39774pt.
+[32 <./thesis_files/figure-latex/pre-post-sampling-code-1.pdf>]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[33] [34 <./thesis_files/figure-latex/unnamed-chunk-29-1.pdf>]
+<thesis_files/figure-latex/unnamed-chunk-31-1.pdf, id=848, 469.755pt x 281.05pt>
+File: thesis_files/figure-latex/unnamed-chunk-31-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-31-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-31-1.pdf  used on input line 868.
+(pdftex.def)             Requested size: 433.62pt x 259.4311pt.
+<thesis_files/figure-latex/unnamed-chunk-32-1.pdf, id=850, 469.755pt x 314.17375pt>
+File: thesis_files/figure-latex/unnamed-chunk-32-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-32-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-32-1.pdf  used on input line 877.
+(pdftex.def)             Requested size: 433.62pt x 290.00693pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[35 <./thesis_files/figure-latex/unnamed-chunk-31-1.pdf>] [36 <./thesis_files/figure-latex/unnamed-chunk-32-1.pdf>]
+<thesis_files/figure-latex/unnamed-chunk-33-1.pdf, id=893, 433.62pt x 259.97125pt>
+File: thesis_files/figure-latex/unnamed-chunk-33-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-33-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-33-1.pdf  used on input line 910.
+(pdftex.def)             Requested size: 433.62pt x 259.9825pt.
+[37 <./thesis_files/figure-latex/unnamed-chunk-33-1.pdf>]
+<thesis_files/figure-latex/unnamed-chunk-34-1.pdf, id=911, 361.35pt x 187.70125pt>
+File: thesis_files/figure-latex/unnamed-chunk-34-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-34-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-34-1.pdf  used on input line 922.
+(pdftex.def)             Requested size: 433.62pt x 225.24323pt.
+<figure/loess.jpeg, id=913, 4818.0pt x 3011.25pt>
+File: figure/loess.jpeg Graphic file (type jpg)
+<use figure/loess.jpeg>
+Package pdftex.def Info: figure/loess.jpeg  used on input line 932.
+(pdftex.def)             Requested size: 433.62pt x 271.00081pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[38 <./thesis_files/figure-latex/unnamed-chunk-34-1.pdf>]
+Underfull \vbox (badness 1281) has occurred while \output is active []
+
+[39 <./figure/loess.jpeg>] [40]
+<thesis_files/figure-latex/unnamed-chunk-39-1.pdf, id=941, 469.755pt x 252.945pt>
+File: thesis_files/figure-latex/unnamed-chunk-39-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-39-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-39-1.pdf  used on input line 979.
+(pdftex.def)             Requested size: 433.62pt x 233.488pt.
+[41 <./thesis_files/figure-latex/unnamed-chunk-39-1.pdf>]
+<thesis_files/figure-latex/unnamed-chunk-41-1.pdf, id=959, 469.755pt x 252.945pt>
+File: thesis_files/figure-latex/unnamed-chunk-41-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-41-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-41-1.pdf  used on input line 1013.
+(pdftex.def)             Requested size: 433.62pt x 233.488pt.
+
+Underfull \vbox (badness 1292) has occurred while \output is active []
+
+[42]
+<thesis_files/figure-latex/create-fig-original-1.pdf, id=967, 469.755pt x 252.945pt>
+File: thesis_files/figure-latex/create-fig-original-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/create-fig-original-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/create-fig-original-1.pdf  used on input line 1022.
+(pdftex.def)             Requested size: 433.62pt x 233.488pt.
+<thesis_files/figure-latex/unnamed-chunk-43-1.pdf, id=970, 469.755pt x 722.7pt>
+File: thesis_files/figure-latex/unnamed-chunk-43-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-43-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-43-1.pdf  used on input line 1031.
+(pdftex.def)             Requested size: 433.62pt x 667.1086pt.
+[43 <./thesis_files/figure-latex/unnamed-chunk-41-1.pdf> <./thesis_files/figure-latex/create-fig-original-1.pdf>]
+Overfull \vbox (36.17859pt too high) has occurred while \output is active []
+
+[44 <./thesis_files/figure-latex/unnamed-chunk-43-1.pdf>]
+<thesis_files/figure-latex/unnamed-chunk-46-1.pdf, id=1017, 469.755pt x 252.945pt>
+File: thesis_files/figure-latex/unnamed-chunk-46-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-46-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-46-1.pdf  used on input line 1059.
+(pdftex.def)             Requested size: 433.62pt x 233.488pt.
+<thesis_files/figure-latex/unnamed-chunk-48-1.pdf, id=1020, 505.89pt x 722.7pt>
+File: thesis_files/figure-latex/unnamed-chunk-48-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-48-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-48-1.pdf  used on input line 1068.
+(pdftex.def)             Requested size: 433.62pt x 619.46979pt.
+[45 <./thesis_files/figure-latex/unnamed-chunk-46-1.pdf>]
+LaTeX Font Info:    Trying to load font information for T1+pcr on input line 1074.
+(/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/psnfss/t1pcr.fd
+File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
+)
+<thesis_files/figure-latex/unnamed-chunk-49-1.pdf, id=1034, 505.89pt x 650.43pt>
+File: thesis_files/figure-latex/unnamed-chunk-49-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-49-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-49-1.pdf  used on input line 1077.
+(pdftex.def)             Requested size: 433.62pt x 557.52281pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[46 <./thesis_files/figure-latex/unnamed-chunk-48-1.pdf>]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[47] [48 <./thesis_files/figure-latex/unnamed-chunk-49-1.pdf>]
+Chapter 4.
+<thesis_files/figure-latex/unnamed-chunk-51-1.pdf, id=1071, 469.755pt x 252.945pt>
+File: thesis_files/figure-latex/unnamed-chunk-51-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-51-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-51-1.pdf  used on input line 1092.
+(pdftex.def)             Requested size: 390.25534pt x 210.13727pt.
+[49
+
+ <./thesis_files/figure-latex/unnamed-chunk-51-1.pdf>]
+<thesis_files/figure-latex/unnamed-chunk-52-1.pdf, id=1086, 469.755pt x 252.945pt>
+File: thesis_files/figure-latex/unnamed-chunk-52-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-52-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-52-1.pdf  used on input line 1115.
+(pdftex.def)             Requested size: 390.25534pt x 210.13727pt.
+[50 <./thesis_files/figure-latex/unnamed-chunk-52-1.pdf>]
+<thesis_files/figure-latex/unnamed-chunk-55-1.pdf, id=1099, 505.89pt x 216.81pt>
+File: thesis_files/figure-latex/unnamed-chunk-55-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-55-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-55-1.pdf  used on input line 1140.
+(pdftex.def)             Requested size: 433.62pt x 185.84093pt.
+
+Underfull \vbox (badness 2285) has occurred while \output is active []
+
+[51]
+<figure/emp_p_s_untested.pdf, id=1106, 664.4825pt x 361.35pt>
+File: figure/emp_p_s_untested.pdf Graphic file (type pdf)
+<use figure/emp_p_s_untested.pdf>
+Package pdftex.def Info: figure/emp_p_s_untested.pdf  used on input line 1147.
+(pdftex.def)             Requested size: 346.89731pt x 188.64743pt.
+
+Underfull \vbox (badness 7704) has occurred while \output is active []
+
+[52 <./thesis_files/figure-latex/unnamed-chunk-55-1.pdf> <./figure/emp_p_s_untested.pdf>]
+<thesis_files/figure-latex/unnamed-chunk-58-1.pdf, id=1131, 469.755pt x 252.945pt>
+File: thesis_files/figure-latex/unnamed-chunk-58-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-58-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-58-1.pdf  used on input line 1156.
+(pdftex.def)             Requested size: 346.89731pt x 186.7904pt.
+<thesis_files/figure-latex/unnamed-chunk-59-1.pdf, id=1132, 469.755pt x 216.81pt>
+File: thesis_files/figure-latex/unnamed-chunk-59-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-59-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-59-1.pdf  used on input line 1162.
+(pdftex.def)             Requested size: 346.89731pt x 160.10605pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[53 <./thesis_files/figure-latex/unnamed-chunk-58-1.pdf>]
+<thesis_files/figure-latex/unnamed-chunk-60-1.pdf, id=1147, 469.755pt x 216.81pt>
+File: thesis_files/figure-latex/unnamed-chunk-60-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-60-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-60-1.pdf  used on input line 1172.
+(pdftex.def)             Requested size: 346.89731pt x 160.10605pt.
+
+Underfull \vbox (badness 5862) has occurred while \output is active []
+
+[54 <./thesis_files/figure-latex/unnamed-chunk-59-1.pdf> <./thesis_files/figure-latex/unnamed-chunk-60-1.pdf>]
+<thesis_files/figure-latex/unnamed-chunk-61-1.pdf, id=1172, 469.755pt x 252.945pt>
+File: thesis_files/figure-latex/unnamed-chunk-61-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-61-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-61-1.pdf  used on input line 1182.
+(pdftex.def)             Requested size: 346.89731pt x 186.7904pt.
+<./figure/variant_plot.jpg, id=1173, 4382.3725pt x 2600.71625pt>
+File: ./figure/variant_plot.jpg Graphic file (type jpg)
+<use ./figure/variant_plot.jpg>
+Package pdftex.def Info: ./figure/variant_plot.jpg  used on input line 1193.
+(pdftex.def)             Requested size: 346.89731pt x 205.83926pt.
+[55 <./thesis_files/figure-latex/unnamed-chunk-61-1.pdf>]
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <17.28> on input line 1202.
+
+Overfull \hbox (11.95317pt too wide) in paragraph at lines 1204--1205
+\T1/ppl/m/n/12 (-20) The test speci-ficity $\OML/lmm/m/it/12 P\OT1/lmr/m/n/12 ([]\OMS/lmsy/m/n/12 j[]\OT1/lmr/m/n/12 )$ \T1/ppl/m/n/12 (-20) is de-fined as $\OML/lmm/m/it/12 P\OT1/lmr/m/n/12 ([]\OMS/lmsy/m/n/12 j[]\OT1/lmr/m/n/12 ) \OMS/lmsy/m/n/12 ^^X
+ []
+
+<thesis_files/figure-latex/unnamed-chunk-64-1.pdf, id=1188, 469.755pt x 252.945pt>
+File: thesis_files/figure-latex/unnamed-chunk-64-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-64-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-64-1.pdf  used on input line 1205.
+(pdftex.def)             Requested size: 346.89731pt x 186.7904pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[56 <./figure/variant_plot.jpg>] [57 <./thesis_files/figure-latex/unnamed-chunk-64-1.pdf>] [58] [59] [60]
+Chapter 5.
+<thesis_files/figure-latex/unnamed-chunk-68-1.pdf, id=1232, 505.89pt x 281.05pt>
+File: thesis_files/figure-latex/unnamed-chunk-68-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-68-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-68-1.pdf  used on input line 1351.
+(pdftex.def)             Requested size: 433.62pt x 240.9049pt.
+
+Underfull \hbox (badness 2717) in paragraph at lines 1349--1352
+[]\T1/ppl/m/n/12 (+20) We be-gin by sam-pling $\OML/lmm/m/it/12 m$ \T1/ppl/m/n/12 (+20) times from the de-fined prior dis-tri-bu-tions
+ []
+
+[61
+
+ <./thesis_files/figure-latex/unnamed-chunk-68-1.pdf>]
+<thesis_files/figure-latex/unnamed-chunk-69-1.pdf, id=1249, 469.755pt x 505.89pt>
+File: thesis_files/figure-latex/unnamed-chunk-69-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-69-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-69-1.pdf  used on input line 1357.
+(pdftex.def)             Requested size: 433.62pt x 466.976pt.
+
+Overfull \hbox (17.62482pt too wide) in paragraph at lines 1357--1358
+[][] 
+ []
+
+
+Underfull \vbox (badness 1603) has occurred while \output is active []
+
+[62 <./thesis_files/figure-latex/unnamed-chunk-69-1.pdf>]
+<thesis_files/figure-latex/unnamed-chunk-70-1.pdf, id=1269, 469.755pt x 252.945pt>
+File: thesis_files/figure-latex/unnamed-chunk-70-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-70-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-70-1.pdf  used on input line 1393.
+(pdftex.def)             Requested size: 216.81pt x 116.74207pt.
+<thesis_files/figure-latex/unnamed-chunk-70-2.pdf, id=1270, 469.755pt x 252.945pt>
+File: thesis_files/figure-latex/unnamed-chunk-70-2.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-70-2.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-70-2.pdf  used on input line 1393.
+(pdftex.def)             Requested size: 216.81pt x 116.74207pt.
+
+Overfull \hbox (2.28003pt too wide) in paragraph at lines 1393--1393
+[][] [] 
+ []
+
+
+Underfull \vbox (badness 1661) has occurred while \output is active []
+
+[63] [64 <./thesis_files/figure-latex/unnamed-chunk-70-1.pdf> <./thesis_files/figure-latex/unnamed-chunk-70-2.pdf>]
+<figure/priors_implementations.png, id=1298, 1537.745pt x 543.02875pt>
+File: figure/priors_implementations.png Graphic file (type png)
+<use figure/priors_implementations.png>
+Package pdftex.def Info: figure/priors_implementations.png  used on input line 1412.
+(pdftex.def)             Requested size: 433.62pt x 153.12418pt.
+[65 <./figure/priors_implementations.png>] [66
 
 ]
 Chapter 6.
-<figure/ctis_beta_states.pdf, id=595, 1011.78pt x 1300.86pt>
+[67] [68] [69] [70
+
+]
+Chapter 7.
+<figure/ctis_beta_states.pdf, id=1341, 1011.78pt x 1300.86pt>
 File: figure/ctis_beta_states.pdf Graphic file (type pdf)
 <use figure/ctis_beta_states.pdf>
-Package pdftex.def Info: figure/ctis_beta_states.pdf  used on input line 422.
+Package pdftex.def Info: figure/ctis_beta_states.pdf  used on input line 1478.
 (pdftex.def)             Requested size: 433.62pt x 557.51291pt.
-<figure/ctis_s_untested_states.pdf, id=596, 1011.78pt x 1300.86pt>
+<figure/ctis_s_untested_states.pdf, id=1342, 1011.78pt x 1300.86pt>
 File: figure/ctis_s_untested_states.pdf Graphic file (type pdf)
 <use figure/ctis_s_untested_states.pdf>
-Package pdftex.def Info: figure/ctis_s_untested_states.pdf  used on input line 425.
+Package pdftex.def Info: figure/ctis_s_untested_states.pdf  used on input line 1481.
 (pdftex.def)             Requested size: 433.62pt x 557.51291pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[15]
+[71]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[16 <./figure/ctis_beta_states.pdf>]
-
-LaTeX Warning: Reference `fig:all-states-first-impl' on page 17 undefined on input line 427.
-
-[17 <./figure/ctis_s_untested_states.pdf>]
-<figure/state_comp_covidestim1.pdf, id=642, 1228.59pt x 1734.48pt>
+[72 <./figure/ctis_beta_states.pdf>] [73 <./figure/ctis_s_untested_states.pdf>]
+<figure/state_comp_covidestim1.pdf, id=1388, 1228.59pt x 1734.48pt>
 File: figure/state_comp_covidestim1.pdf Graphic file (type pdf)
 <use figure/state_comp_covidestim1.pdf>
-Package pdftex.def Info: figure/state_comp_covidestim1.pdf  used on input line 431.
+Package pdftex.def Info: figure/state_comp_covidestim1.pdf  used on input line 1487.
 (pdftex.def)             Requested size: 433.62pt x 612.15857pt.
-<figure/state_comp_covidestim2.pdf, id=645, 1228.59pt x 1734.48pt>
+<figure/state_comp_covidestim2.pdf, id=1391, 1228.59pt x 1734.48pt>
 File: figure/state_comp_covidestim2.pdf Graphic file (type pdf)
 <use figure/state_comp_covidestim2.pdf>
-Package pdftex.def Info: figure/state_comp_covidestim2.pdf  used on input line 434.
+Package pdftex.def Info: figure/state_comp_covidestim2.pdf  used on input line 1490.
 (pdftex.def)             Requested size: 433.62pt x 612.15857pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[18]
+[74]
 Overfull \vbox (57.22856pt too high) has occurred while \output is active []
 
-[19 <./figure/state_comp_covidestim1.pdf>]
-<figure/variant_prop.pdf, id=673, 650.43pt x 289.08pt>
+[75 <./figure/state_comp_covidestim1.pdf>]
+<figure/variant_prop.pdf, id=1419, 650.43pt x 289.08pt>
 File: figure/variant_prop.pdf Graphic file (type pdf)
 <use figure/variant_prop.pdf>
-Package pdftex.def Info: figure/variant_prop.pdf  used on input line 437.
+Package pdftex.def Info: figure/variant_prop.pdf  used on input line 1493.
 (pdftex.def)             Requested size: 433.62pt x 192.7254pt.
 
 Overfull \vbox (0.22856pt too high) has occurred while \output is active []
 
-[20 <./figure/state_comp_covidestim2.pdf>]
+[76 <./figure/state_comp_covidestim2.pdf>]
 Underfull \vbox (badness 1215) has occurred while \output is active []
 
-[21 <./figure/variant_prop.pdf>]
-<figure/michigan_variant.pdf, id=709, 1084.05pt x 722.7pt>
+[77 <./figure/variant_prop.pdf>]
+<figure/michigan_variant.pdf, id=1455, 1084.05pt x 722.7pt>
 File: figure/michigan_variant.pdf Graphic file (type pdf)
 <use figure/michigan_variant.pdf>
-Package pdftex.def Info: figure/michigan_variant.pdf  used on input line 453.
+Package pdftex.def Info: figure/michigan_variant.pdf  used on input line 1509.
 (pdftex.def)             Requested size: 433.62pt x 289.07487pt.
-[22 <./figure/michigan_variant.pdf>]
-
-LaTeX Warning: Reference `fig:test-capacity-all-states' on page 23 undefined on input line 459.
-
-<figure/test_capacity.pdf, id=726, 939.51pt x 433.62pt>
+[78 <./figure/michigan_variant.pdf>]
+<figure/test_capacity.pdf, id=1473, 939.51pt x 433.62pt>
 File: figure/test_capacity.pdf Graphic file (type pdf)
 <use figure/test_capacity.pdf>
-Package pdftex.def Info: figure/test_capacity.pdf  used on input line 461.
+Package pdftex.def Info: figure/test_capacity.pdf  used on input line 1517.
 (pdftex.def)             Requested size: 433.62pt x 200.12927pt.
-<figure/texas-lag.pdf, id=730, 1084.05pt x 578.16pt>
+<figure/texas-lag.pdf, id=1477, 1084.05pt x 578.16pt>
 File: figure/texas-lag.pdf Graphic file (type pdf)
 <use figure/texas-lag.pdf>
-Package pdftex.def Info: figure/texas-lag.pdf  used on input line 468.
+Package pdftex.def Info: figure/texas-lag.pdf  used on input line 1524.
 (pdftex.def)             Requested size: 433.62pt x 231.2599pt.
-[23 <./figure/test_capacity.pdf>]
-
-LaTeX Warning: Reference `fig:test-capacity-all-states' on page 24 undefined on input line 472.
-
-<figure/texas-data-sources.pdf, id=748, 722.7pt x 361.35pt>
+[79 <./figure/test_capacity.pdf>]
+<figure/texas-data-sources.pdf, id=1498, 722.7pt x 361.35pt>
 File: figure/texas-data-sources.pdf Graphic file (type pdf)
 <use figure/texas-data-sources.pdf>
-Package pdftex.def Info: figure/texas-data-sources.pdf  used on input line 478.
+Package pdftex.def Info: figure/texas-data-sources.pdf  used on input line 1534.
 (pdftex.def)             Requested size: 433.62pt x 216.81168pt.
-
-LaTeX Warning: Reference `fig:test-capacity-all-states' on page 24 undefined on input line 478.
-
-
-LaTeX Warning: Reference `fig:test-capacity-all-states' on page 24 undefined on input line 478.
-
-[24 <./figure/texas-lag.pdf>]
-
-LaTeX Warning: Reference `fig:jhu-cdc-all' on page 25 undefined on input line 480.
-
-<figure/covidestim_concordance_state.pdf, id=772, 1156.32pt x 505.89pt>
+[80 <./figure/texas-lag.pdf>]
+<figure/covidestim_concordance_state.pdf, id=1525, 1156.32pt x 505.89pt>
 File: figure/covidestim_concordance_state.pdf Graphic file (type pdf)
 <use figure/covidestim_concordance_state.pdf>
-Package pdftex.def Info: figure/covidestim_concordance_state.pdf  used on input line 487.
+Package pdftex.def Info: figure/covidestim_concordance_state.pdf  used on input line 1543.
 (pdftex.def)             Requested size: 433.62pt x 189.70827pt.
 
 Underfull \vbox (badness 5064) has occurred while \output is active []
 
-[25 <./figure/texas-data-sources.pdf>]
-<figure/heatmap_ratio_est_observed.pdf, id=789, 939.51pt x 722.7pt>
+[81 <./figure/texas-data-sources.pdf>]
+<figure/heatmap_ratio_est_observed.pdf, id=1542, 939.51pt x 722.7pt>
 File: figure/heatmap_ratio_est_observed.pdf Graphic file (type pdf)
 <use figure/heatmap_ratio_est_observed.pdf>
-Package pdftex.def Info: figure/heatmap_ratio_est_observed.pdf  used on input line 506.
+Package pdftex.def Info: figure/heatmap_ratio_est_observed.pdf  used on input line 1562.
 (pdftex.def)             Requested size: 433.62pt x 333.54878pt.
-<figure/testrate-low-summer.pdf, id=790, 867.24pt x 433.62pt>
+<figure/testrate-low-summer.pdf, id=1543, 867.24pt x 433.62pt>
 File: figure/testrate-low-summer.pdf Graphic file (type pdf)
 <use figure/testrate-low-summer.pdf>
-Package pdftex.def Info: figure/testrate-low-summer.pdf  used on input line 509.
+Package pdftex.def Info: figure/testrate-low-summer.pdf  used on input line 1565.
 (pdftex.def)             Requested size: 346.89731pt x 173.45154pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[26 <./figure/covidestim_concordance_state.pdf>]
-<figure/ratio-peak-omicron.pdf, id=810, 867.24pt x 794.97pt>
+[82 <./figure/covidestim_concordance_state.pdf>]
+<figure/ratio-peak-omicron.pdf, id=1562, 867.24pt x 794.97pt>
 File: figure/ratio-peak-omicron.pdf Graphic file (type pdf)
 <use figure/ratio-peak-omicron.pdf>
-Package pdftex.def Info: figure/ratio-peak-omicron.pdf  used on input line 513.
+Package pdftex.def Info: figure/ratio-peak-omicron.pdf  used on input line 1569.
 (pdftex.def)             Requested size: 433.62pt x 397.48402pt.
-[27 <./figure/heatmap_ratio_est_observed.pdf> <./figure/testrate-low-summer.pdf>] [28 <./figure/ratio-peak-omicron.pdf>]
-<figure/rank-ratio-over-time.pdf, id=849, 867.24pt x 578.16pt>
+[83 <./figure/heatmap_ratio_est_observed.pdf> <./figure/testrate-low-summer.pdf>] [84 <./figure/ratio-peak-omicron.pdf>]
+<figure/rank-ratio-over-time.pdf, id=1602, 867.24pt x 578.16pt>
 File: figure/rank-ratio-over-time.pdf Graphic file (type pdf)
 <use figure/rank-ratio-over-time.pdf>
-Package pdftex.def Info: figure/rank-ratio-over-time.pdf  used on input line 525.
+Package pdftex.def Info: figure/rank-ratio-over-time.pdf  used on input line 1581.
 (pdftex.def)             Requested size: 433.62pt x 289.07928pt.
 
 Package fancyhdr Warning: \headheight is too small (14.5pt): 
@@ -1037,20 +1503,20 @@ Package fancyhdr Warning: \headheight is too small (14.5pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-13.03194pt}.
 
-[29 <./figure/rank-ratio-over-time.pdf>]
-<figure/testing_rate_ratio.pdf, id=866, 794.97pt x 505.89pt>
+[85 <./figure/rank-ratio-over-time.pdf>]
+<figure/testing_rate_ratio.pdf, id=1620, 794.97pt x 505.89pt>
 File: figure/testing_rate_ratio.pdf Graphic file (type pdf)
 <use figure/testing_rate_ratio.pdf>
-Package pdftex.def Info: figure/testing_rate_ratio.pdf  used on input line 544.
+Package pdftex.def Info: figure/testing_rate_ratio.pdf  used on input line 1600.
 (pdftex.def)             Requested size: 433.62pt x 275.94772pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[30]
-<figure/college_populations.pdf, id=874, 794.97pt x 794.97pt>
+[86]
+<figure/college_populations.pdf, id=1628, 794.97pt x 794.97pt>
 File: figure/college_populations.pdf Graphic file (type pdf)
 <use figure/college_populations.pdf>
-Package pdftex.def Info: figure/college_populations.pdf  used on input line 554.
+Package pdftex.def Info: figure/college_populations.pdf  used on input line 1610.
 (pdftex.def)             Requested size: 433.62pt x 433.63217pt.
 
 Package fancyhdr Warning: \headheight is too small (14.5pt): 
@@ -1059,229 +1525,430 @@ Package fancyhdr Warning: \headheight is too small (14.5pt):
 (fancyhdr)                You might also make \topmargin smaller to compensate:
 (fancyhdr)                \addtolength{\topmargin}{-13.03194pt}.
 
-[31 <./figure/testing_rate_ratio.pdf>]
+[87 <./figure/testing_rate_ratio.pdf>]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[32 <./figure/college_populations.pdf>]
+[88 <./figure/college_populations.pdf>]
 Underfull \vbox (badness 3907) has occurred while \output is active []
 
-[33]
-Underfull \hbox (badness 10000) in paragraph at lines 579--581
+[89]
+Underfull \hbox (badness 10000) in paragraph at lines 1635--1637
 
  []
 
-<figure/ma_pb_compared_to_observed.pdf, id=918, 1084.05pt x 1373.13pt>
+<figure/ma_pb_compared_to_observed.pdf, id=1671, 1084.05pt x 1373.13pt>
 File: figure/ma_pb_compared_to_observed.pdf Graphic file (type pdf)
 <use figure/ma_pb_compared_to_observed.pdf>
-Package pdftex.def Info: figure/ma_pb_compared_to_observed.pdf  used on input line 586.
+Package pdftex.def Info: figure/ma_pb_compared_to_observed.pdf  used on input line 1642.
 (pdftex.def)             Requested size: 433.62pt x 549.24228pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[34{/Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}]
-<figure/ma_pb_compare_versions.pdf, id=926, 1300.86pt x 1373.13pt>
+[90]
+<figure/ma_pb_compare_versions.pdf, id=1677, 1300.86pt x 1373.13pt>
 File: figure/ma_pb_compare_versions.pdf Graphic file (type pdf)
 <use figure/ma_pb_compare_versions.pdf>
-Package pdftex.def Info: figure/ma_pb_compare_versions.pdf  used on input line 590.
+Package pdftex.def Info: figure/ma_pb_compare_versions.pdf  used on input line 1646.
 (pdftex.def)             Requested size: 433.62pt x 457.70189pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[35 <./figure/ma_pb_compared_to_observed.pdf>] [36 <./figure/ma_pb_compare_versions.pdf>]
-<figure/summarize-concordance-mass-counties.pdf, id=960, 1156.32pt x 505.89pt>
+[91 <./figure/ma_pb_compared_to_observed.pdf>] [92 <./figure/ma_pb_compare_versions.pdf>]
+<figure/summarize-concordance-mass-counties.pdf, id=1713, 1156.32pt x 505.89pt>
 File: figure/summarize-concordance-mass-counties.pdf Graphic file (type pdf)
 <use figure/summarize-concordance-mass-counties.pdf>
-Package pdftex.def Info: figure/summarize-concordance-mass-counties.pdf  used on input line 596.
+Package pdftex.def Info: figure/summarize-concordance-mass-counties.pdf  used on input line 1652.
 (pdftex.def)             Requested size: 433.62pt x 189.70827pt.
-
-LaTeX Warning: Reference `fig:ma-comp-covidestim' on page 37 undefined on input line 602.
-
-<figure/covidestim_above_below_by_county_ma.pdf, id=966, 867.24pt x 505.89pt>
+<figure/covidestim_above_below_by_county_ma.pdf, id=1720, 867.24pt x 505.89pt>
 File: figure/covidestim_above_below_by_county_ma.pdf Graphic file (type pdf)
 <use figure/covidestim_above_below_by_county_ma.pdf>
-Package pdftex.def Info: figure/covidestim_above_below_by_county_ma.pdf  used on input line 607.
+Package pdftex.def Info: figure/covidestim_above_below_by_county_ma.pdf  used on input line 1663.
 (pdftex.def)             Requested size: 433.62pt x 252.94437pt.
-[37 <./figure/summarize-concordance-mass-counties.pdf>]
-<figure/hampshire.pdf, id=982, 1011.78pt x 578.16pt>
+[93 <./figure/summarize-concordance-mass-counties.pdf>]
+<figure/hampshire.pdf, id=1736, 1011.78pt x 578.16pt>
 File: figure/hampshire.pdf Graphic file (type pdf)
 <use figure/hampshire.pdf>
-Package pdftex.def Info: figure/hampshire.pdf  used on input line 610.
+Package pdftex.def Info: figure/hampshire.pdf  used on input line 1666.
 (pdftex.def)             Requested size: 390.25534pt x 223.0025pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[38 <./figure/covidestim_above_below_by_county_ma.pdf>]
-<figure/ma_county_heatmap_ratio_est_observed.pdf, id=998, 939.51pt x 722.7pt>
+[94 <./figure/covidestim_above_below_by_county_ma.pdf>]
+<figure/ma_county_heatmap_ratio_est_observed.pdf, id=1752, 939.51pt x 722.7pt>
 File: figure/ma_county_heatmap_ratio_est_observed.pdf Graphic file (type pdf)
 <use figure/ma_county_heatmap_ratio_est_observed.pdf>
-Package pdftex.def Info: figure/ma_county_heatmap_ratio_est_observed.pdf  used on input line 621.
+Package pdftex.def Info: figure/ma_county_heatmap_ratio_est_observed.pdf  used on input line 1677.
 (pdftex.def)             Requested size: 433.62pt x 333.54878pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[39 <./figure/hampshire.pdf>]
-<figure/rank-ratio-over-time-ma-county.pdf, id=1019, 939.51pt x 578.16pt>
+[95 <./figure/hampshire.pdf>]
+<figure/rank-ratio-over-time-ma-county.pdf, id=1773, 939.51pt x 578.16pt>
 File: figure/rank-ratio-over-time-ma-county.pdf Graphic file (type pdf)
 <use figure/rank-ratio-over-time-ma-county.pdf>
-Package pdftex.def Info: figure/rank-ratio-over-time-ma-county.pdf  used on input line 629.
+Package pdftex.def Info: figure/rank-ratio-over-time-ma-county.pdf  used on input line 1683.
 (pdftex.def)             Requested size: 433.62pt x 266.83902pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[40 <./figure/ma_county_heatmap_ratio_est_observed.pdf>]
-
-LaTeX Warning: Reference `fig:pb_versions_mi-1' on page 41 undefined on input line 634.
-
-
-LaTeX Warning: Reference `fig:pb_versions_mi-2' on page 41 undefined on input line 634.
-
-
-LaTeX Warning: Reference `fig:pb_versions_mi-3' on page 41 undefined on input line 634.
-
-<figure/summarize-concordance-mich-counties.pdf, id=1036, 1156.32pt x 505.89pt>
+[96 <./figure/ma_county_heatmap_ratio_est_observed.pdf>]
+<figure/summarize-concordance-mich-counties.pdf, id=1794, 1156.32pt x 505.89pt>
 File: figure/summarize-concordance-mich-counties.pdf Graphic file (type pdf)
 <use figure/summarize-concordance-mich-counties.pdf>
-Package pdftex.def Info: figure/summarize-concordance-mich-counties.pdf  used on input line 641.
+Package pdftex.def Info: figure/summarize-concordance-mich-counties.pdf  used on input line 1695.
 (pdftex.def)             Requested size: 433.62pt x 189.70827pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[41 <./figure/rank-ratio-over-time-ma-county.pdf>]
-<figure/mi_county_heatmap_ratio_est_observed.pdf, id=1053, 1011.78pt x 1300.86pt>
+[97 <./figure/rank-ratio-over-time-ma-county.pdf>]
+<figure/mi_county_heatmap_ratio_est_observed.pdf, id=1815, 1011.78pt x 1300.86pt>
 File: figure/mi_county_heatmap_ratio_est_observed.pdf Graphic file (type pdf)
 <use figure/mi_county_heatmap_ratio_est_observed.pdf>
-Package pdftex.def Info: figure/mi_county_heatmap_ratio_est_observed.pdf  used on input line 645.
+Package pdftex.def Info: figure/mi_county_heatmap_ratio_est_observed.pdf  used on input line 1699.
 (pdftex.def)             Requested size: 433.62pt x 557.51291pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[42 <./figure/summarize-concordance-mich-counties.pdf>]
+[98 <./figure/summarize-concordance-mich-counties.pdf>]
+Overfull \vbox (40.5829pt too high) has occurred while \output is active []
 
-LaTeX Warning: Reference `fig:mi-county-concordance' on page 43 undefined on input line 647.
-
-[43 <./figure/mi_county_heatmap_ratio_est_observed.pdf>] [44] [45]
-Underfull \hbox (badness 10000) in paragraph at lines 678--680
+[99 <./figure/mi_county_heatmap_ratio_est_observed.pdf>]
+<figure/rank-ratio-over-time-mi-county.pdf, id=1843, 939.51pt x 578.16pt>
+File: figure/rank-ratio-over-time-mi-county.pdf Graphic file (type pdf)
+<use figure/rank-ratio-over-time-mi-county.pdf>
+Package pdftex.def Info: figure/rank-ratio-over-time-mi-county.pdf  used on input line 1705.
+(pdftex.def)             Requested size: 433.62pt x 266.83902pt.
+[100 <./figure/rank-ratio-over-time-mi-county.pdf>] [101]
+Underfull \hbox (badness 10000) in paragraph at lines 1736--1738
 
  []
 
-LaTeX Font Info:    Trying to load font information for T1+pcr on input line 695.
-(/Users/quinnwhite/Library/TinyTeX/texmf-dist/tex/latex/psnfss/t1pcr.fd
-File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
-) [46]
-<thesis_files/figure-latex/unnamed-chunk-27-1.pdf, id=1099, 469.755pt x 252.945pt>
-File: thesis_files/figure-latex/unnamed-chunk-27-1.pdf Graphic file (type pdf)
-<use thesis_files/figure-latex/unnamed-chunk-27-1.pdf>
-Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-27-1.pdf  used on input line 701.
+[102]
+<thesis_files/figure-latex/unnamed-chunk-99-1.pdf, id=1870, 469.755pt x 252.945pt>
+File: thesis_files/figure-latex/unnamed-chunk-99-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-99-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-99-1.pdf  used on input line 1759.
 (pdftex.def)             Requested size: 433.62pt x 233.488pt.
-<thesis_files/figure-latex/unnamed-chunk-28-1.pdf, id=1101, 469.755pt x 252.945pt>
-File: thesis_files/figure-latex/unnamed-chunk-28-1.pdf Graphic file (type pdf)
-<use thesis_files/figure-latex/unnamed-chunk-28-1.pdf>
-Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-28-1.pdf  used on input line 706.
+<thesis_files/figure-latex/unnamed-chunk-100-1.pdf, id=1872, 469.755pt x 252.945pt>
+File: thesis_files/figure-latex/unnamed-chunk-100-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-100-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-100-1.pdf  used on input line 1764.
 (pdftex.def)             Requested size: 195.12767pt x 105.0667pt.
-<thesis_files/figure-latex/unnamed-chunk-28-2.pdf, id=1102, 469.755pt x 252.945pt>
-File: thesis_files/figure-latex/unnamed-chunk-28-2.pdf Graphic file (type pdf)
-<use thesis_files/figure-latex/unnamed-chunk-28-2.pdf>
-Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-28-2.pdf  used on input line 706.
+<thesis_files/figure-latex/unnamed-chunk-100-2.pdf, id=1873, 469.755pt x 252.945pt>
+File: thesis_files/figure-latex/unnamed-chunk-100-2.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-100-2.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-100-2.pdf  used on input line 1764.
 (pdftex.def)             Requested size: 195.12767pt x 105.0667pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[47 <./thesis_files/figure-latex/unnamed-chunk-27-1.pdf>]
-<figure/wastewater_ma_by_county.pdf, id=1122, 1733.47626pt x 2311.63625pt>
+[103 <./thesis_files/figure-latex/unnamed-chunk-99-1.pdf>]
+<figure/wastewater_ma_by_county.pdf, id=1894, 1733.47626pt x 2311.63625pt>
 File: figure/wastewater_ma_by_county.pdf Graphic file (type pdf)
 <use figure/wastewater_ma_by_county.pdf>
-Package pdftex.def Info: figure/wastewater_ma_by_county.pdf  used on input line 717.
+Package pdftex.def Info: figure/wastewater_ma_by_county.pdf  used on input line 1775.
 (pdftex.def)             Requested size: 433.62pt x 578.2251pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[48 <./thesis_files/figure-latex/unnamed-chunk-28-1.pdf> <./thesis_files/figure-latex/unnamed-chunk-28-2.pdf>]
+[104 <./thesis_files/figure-latex/unnamed-chunk-100-1.pdf> <./thesis_files/figure-latex/unnamed-chunk-100-2.pdf>]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[49 <./figure/wastewater_ma_by_county.pdf>]
-<figure/correlation_observed_pb.jpeg, id=1161, 3613.5pt x 2409.0pt>
+[105 <./figure/wastewater_ma_by_county.pdf>]
+<figure/correlation_observed_pb.jpeg, id=1932, 3613.5pt x 2409.0pt>
 File: figure/correlation_observed_pb.jpeg Graphic file (type jpg)
 <use figure/correlation_observed_pb.jpeg>
-Package pdftex.def Info: figure/correlation_observed_pb.jpeg  used on input line 728.
+Package pdftex.def Info: figure/correlation_observed_pb.jpeg  used on input line 1786.
 (pdftex.def)             Requested size: 433.62pt x 289.06754pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[50]
-<figure/correlation_observed_pb_covidestim.jpeg, id=1170, 3612.49625pt x 2106.87125pt>
+[106]
+<figure/correlation_observed_pb_covidestim.jpeg, id=1941, 3612.49625pt x 2106.87125pt>
 File: figure/correlation_observed_pb_covidestim.jpeg Graphic file (type jpg)
 <use figure/correlation_observed_pb_covidestim.jpeg>
-Package pdftex.def Info: figure/correlation_observed_pb_covidestim.jpeg  used on input line 735.
+Package pdftex.def Info: figure/correlation_observed_pb_covidestim.jpeg  used on input line 1793.
 (pdftex.def)             Requested size: 433.62pt x 252.87793pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[51 <./figure/correlation_observed_pb.jpeg>] [52 <./figure/correlation_observed_pb_covidestim.jpeg>]
-Chapter 7.
-[53
+[107 <./figure/correlation_observed_pb.jpeg>] [108 <./figure/correlation_observed_pb_covidestim.jpeg>]
+Chapter 8.
+[109
 
-] [54
+] [110
 
 ]
-Chapter 8.
+Appendix A.
+<thesis_files/figure-latex/unnamed-chunk-105-1.pdf, id=1970, 469.755pt x 144.54pt>
+File: thesis_files/figure-latex/unnamed-chunk-105-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-105-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-105-1.pdf  used on input line 1836.
+(pdftex.def)             Requested size: 416.27809pt x 128.0866pt.
+<thesis_files/figure-latex/unnamed-chunk-105-2.pdf, id=1971, 469.755pt x 144.54pt>
+File: thesis_files/figure-latex/unnamed-chunk-105-2.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-105-2.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-105-2.pdf  used on input line 1836.
+(pdftex.def)             Requested size: 416.27809pt x 128.0866pt.
+<thesis_files/figure-latex/unnamed-chunk-105-3.pdf, id=1972, 469.755pt x 144.54pt>
+File: thesis_files/figure-latex/unnamed-chunk-105-3.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-105-3.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-105-3.pdf  used on input line 1836.
+(pdftex.def)             Requested size: 416.27809pt x 128.0866pt.
+<thesis_files/figure-latex/unnamed-chunk-105-4.pdf, id=1973, 469.755pt x 144.54pt>
+File: thesis_files/figure-latex/unnamed-chunk-105-4.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-105-4.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-105-4.pdf  used on input line 1836.
+(pdftex.def)             Requested size: 416.27809pt x 128.0866pt.
+<thesis_files/figure-latex/unnamed-chunk-105-5.pdf, id=1974, 469.755pt x 144.54pt>
+File: thesis_files/figure-latex/unnamed-chunk-105-5.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-105-5.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-105-5.pdf  used on input line 1836.
+(pdftex.def)             Requested size: 416.27809pt x 128.0866pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[55] [56]
-Underfull \hbox (badness 2158) in paragraph at lines 810--812
-[]\T1/ppl/m/n/12 (+20) Commercial Lab-o-ra-tory Sero-preva-lence Sur-veys | Coro-n-avirus | COVID-
+[111]
+Overfull \vbox (13.50296pt too high) has occurred while \output is active []
+
+[112 <./thesis_files/figure-latex/unnamed-chunk-105-1.pdf> <./thesis_files/figure-latex/unnamed-chunk-105-2.pdf> <./thesis_files/figure-latex/unnamed-chunk-105-3.pdf> <./thesis_files/figure-latex/unnamed-chunk-105-4.pdf> <./thesis_files/figure-latex/unnamed-chunk-105-5.pdf>]
+<thesis_files/figure-latex/unnamed-chunk-106-1.pdf, id=2046, 433.62pt x 252.945pt>
+File: thesis_files/figure-latex/unnamed-chunk-106-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-106-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-106-1.pdf  used on input line 1845.
+(pdftex.def)             Requested size: 433.62pt x 252.95595pt.
+[113 <./thesis_files/figure-latex/unnamed-chunk-106-1.pdf>] [114]
+<thesis_files/figure-latex/unnamed-chunk-109-1.pdf, id=2067, 469.755pt x 252.945pt>
+File: thesis_files/figure-latex/unnamed-chunk-109-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-109-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-109-1.pdf  used on input line 1902.
+(pdftex.def)             Requested size: 433.62pt x 233.488pt.
+[115 <./thesis_files/figure-latex/unnamed-chunk-109-1.pdf>]
+<thesis_files/figure-latex/unnamed-chunk-110-1.pdf, id=2086, 469.755pt x 252.945pt>
+File: thesis_files/figure-latex/unnamed-chunk-110-1.pdf Graphic file (type pdf)
+<use thesis_files/figure-latex/unnamed-chunk-110-1.pdf>
+Package pdftex.def Info: thesis_files/figure-latex/unnamed-chunk-110-1.pdf  used on input line 1927.
+(pdftex.def)             Requested size: 433.62pt x 233.488pt.
+<figure/test_capacity_all_states.pdf, id=2087, 1156.32pt x 1373.13pt>
+File: figure/test_capacity_all_states.pdf Graphic file (type pdf)
+<use figure/test_capacity_all_states.pdf>
+Package pdftex.def Info: figure/test_capacity_all_states.pdf  used on input line 1937.
+(pdftex.def)             Requested size: 433.62pt x 514.92249pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[116 <./thesis_files/figure-latex/unnamed-chunk-110-1.pdf>]
+<figure/jhu_cdc_all_states_1.pdf, id=2100, 1373.13pt x 1806.75pt>
+File: figure/jhu_cdc_all_states_1.pdf Graphic file (type pdf)
+<use figure/jhu_cdc_all_states_1.pdf>
+Package pdftex.def Info: figure/jhu_cdc_all_states_1.pdf  used on input line 1947.
+(pdftex.def)             Requested size: 433.62pt x 570.53528pt.
+<figure/jhu_cdc_all_states_2.pdf, id=2101, 1373.13pt x 1806.75pt>
+File: figure/jhu_cdc_all_states_2.pdf Graphic file (type pdf)
+<use figure/jhu_cdc_all_states_2.pdf>
+Package pdftex.def Info: figure/jhu_cdc_all_states_2.pdf  used on input line 1955.
+(pdftex.def)             Requested size: 433.62pt x 570.53528pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[117 <./figure/test_capacity_all_states.pdf>]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[118]
+Overfull \vbox (55.23286pt too high) has occurred while \output is active []
+
+[119 <./figure/jhu_cdc_all_states_1.pdf>]
+<figure/all-states-first-impl.pdf, id=2134, 1156.32pt x 1300.86pt>
+File: figure/all-states-first-impl.pdf Graphic file (type pdf)
+<use figure/all-states-first-impl.pdf>
+Package pdftex.def Info: figure/all-states-first-impl.pdf  used on input line 1967.
+(pdftex.def)             Requested size: 433.62pt x 487.8213pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[120 <./figure/jhu_cdc_all_states_2.pdf>]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[121]
+<figure/ma_pb_compared_to_covidestim.pdf, id=2152, 1084.05pt x 1084.05pt>
+File: figure/ma_pb_compared_to_covidestim.pdf Graphic file (type pdf)
+<use figure/ma_pb_compared_to_covidestim.pdf>
+Package pdftex.def Info: figure/ma_pb_compared_to_covidestim.pdf  used on input line 1977.
+(pdftex.def)             Requested size: 433.62pt x 433.61232pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[122 <./figure/all-states-first-impl.pdf>]
+<figure/mi1_pb_compared_to_observed.pdf, id=2167, 1084.05pt x 1589.94pt>
+File: figure/mi1_pb_compared_to_observed.pdf Graphic file (type pdf)
+<use figure/mi1_pb_compared_to_observed.pdf>
+Package pdftex.def Info: figure/mi1_pb_compared_to_observed.pdf  used on input line 1987.
+(pdftex.def)             Requested size: 433.62pt x 635.96474pt.
+<figure/mi2_pb_compared_to_observed.pdf, id=2168, 1084.05pt x 1589.94pt>
+File: figure/mi2_pb_compared_to_observed.pdf Graphic file (type pdf)
+<use figure/mi2_pb_compared_to_observed.pdf>
+Package pdftex.def Info: figure/mi2_pb_compared_to_observed.pdf  used on input line 1995.
+(pdftex.def)             Requested size: 433.62pt x 635.96474pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[123 <./figure/ma_pb_compared_to_covidestim.pdf>]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[124]
+Overfull \vbox (96.3873pt too high) has occurred while \output is active []
+
+[125 <./figure/mi1_pb_compared_to_observed.pdf>]
+<figure/mi3_pb_compared_to_observed.pdf, id=2205, 1084.05pt x 1589.94pt>
+File: figure/mi3_pb_compared_to_observed.pdf Graphic file (type pdf)
+<use figure/mi3_pb_compared_to_observed.pdf>
+Package pdftex.def Info: figure/mi3_pb_compared_to_observed.pdf  used on input line 2003.
+(pdftex.def)             Requested size: 433.62pt x 635.96474pt.
+
+Overfull \vbox (5.03473pt too high) has occurred while \output is active []
+
+[126 <./figure/mi2_pb_compared_to_observed.pdf>]
+Overfull \vbox (5.03473pt too high) has occurred while \output is active []
+
+[127 <./figure/mi3_pb_compared_to_observed.pdf>]
+<figure/mi_pb_compared_to_covidestim_proportions.pdf, id=2237, 1156.32pt x 1373.13pt>
+File: figure/mi_pb_compared_to_covidestim_proportions.pdf Graphic file (type pdf)
+<use figure/mi_pb_compared_to_covidestim_proportions.pdf>
+Package pdftex.def Info: figure/mi_pb_compared_to_covidestim_proportions.pdf  used on input line 2013.
+(pdftex.def)             Requested size: 433.62pt x 514.92249pt.
+<figure/mi-ratio-pop.pdf, id=2238, 722.7pt x 650.43pt>
+File: figure/mi-ratio-pop.pdf Graphic file (type pdf)
+<use figure/mi-ratio-pop.pdf>
+Package pdftex.def Info: figure/mi-ratio-pop.pdf  used on input line 2023.
+(pdftex.def)             Requested size: 433.62pt x 390.261pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[128 <./figure/mi_pb_compared_to_covidestim_proportions.pdf>]
+
+Package fancyhdr Warning: \headheight is too small (14.5pt): 
+(fancyhdr)                Make it at least 27.53194pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.53194pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+(fancyhdr)                \addtolength{\topmargin}{-13.03194pt}.
+
+[129 <./figure/mi-ratio-pop.pdf>] [130
+
+]
+Underfull \hbox (badness 2285) in paragraph at lines 2054--2056
+ []\T1/ppl/m/n/12 (+20) California De-part-ment of Pub-lic Health. (2021, June 15). Blueprint
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 810--812
-\T1/pcr/m/n/12 gov / coronavirus / 2019 -[] ncov / cases -[] updates / commercial -[] lab -[]
+Underfull \hbox (badness 1616) in paragraph at lines 2054--2056
+ \T1/ppl/m/n/12 (+20) for a Safer Econ-omy. Re-trieved De-cem-ber 16, 2022, from [][]$\T1/pcr/m/n/12 https :
  []
 
 
-Overfull \hbox (52.775pt too wide) in paragraph at lines 813--815
-\T1/ppl/m/n/12 (-20) SARS-CoV-2, Sum-mer 2021. \T1/ppl/m/it/12 (-20) JAMA\T1/ppl/m/n/12 (-20) , \T1/ppl/m/it/12 (-20) 326\T1/ppl/m/n/12 (-20) (11), 1001. http://doi.org/[][]10.1001/jama.2021.14811[][] 
+Underfull \hbox (badness 10000) in paragraph at lines 2054--2056
+ \T1/pcr/m/n/12 / / www . cdph . ca . gov / Programs / CID / DCDC / Pages / COVID -[] 19 /
  []
 
 
-Underfull \hbox (badness 2772) in paragraph at lines 819--821
-\T1/ppl/m/n/12 (+20) cor-re-lated with mul-ti-ple dis-ease surveil-lance in-di-ca-tors and out-comes
+Underfull \hbox (badness 1205) in paragraph at lines 2060--2062
+ []\T1/ppl/m/n/12 (+20) CDC. (2020, Febru-ary 11). Cases, data, and surveil-lance to track and
  []
 
 
-Underfull \hbox (badness 5475) in paragraph at lines 822--824
-\T1/ppl/m/n/12 (+20) tal-ity rate of Omi-cron vari-ant com-pared with pre-vi-ous vari-ants in
+Underfull \hbox (badness 1394) in paragraph at lines 2060--2062
+ \T1/ppl/m/n/12 (+20) an-a-lyze COVID-19. Re-trieved April 12, 2023, from [][]$\T1/pcr/m/n/12 https : / / www .
  []
 
 
-Underfull \hbox (badness 2237) in paragraph at lines 822--824
-\T1/ppl/m/n/12 (+20) South Africa. \T1/ppl/m/it/12 (+20) In-ter-na-tional Jour-nal of In-fec-tious Dis-eases\T1/ppl/m/n/12 (+20) , \T1/ppl/m/it/12 (+20) 120\T1/ppl/m/n/12 (+20) , 146--149.
+Underfull \hbox (badness 10000) in paragraph at lines 2060--2062
+ \T1/pcr/m/n/12 cdc . gov / coronavirus / 2019 -[] ncov / covid -[] data / serology -[]
  []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[57
+[131
 
-] [58] (./thesis.aux)
+]
+Underfull \hbox (badness 1092) in paragraph at lines 2081--2083
+ \T1/ppl/m/n/12 (+20) | CDC. (n.d.). Re-trieved April 12, 2023, from [][]$\T1/pcr/m/n/12 https : / / www . cdc .
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2081--2083
+ \T1/pcr/m/n/12 gov / coronavirus / 2019 -[] ncov / cases -[] updates / commercial -[] lab -[]
+ []
+
+
+Underfull \hbox (badness 2376) in paragraph at lines 2087--2089
+ []\T1/ppl/m/n/12 (+20) Del Rio, C., Malani, P. N., & Omer, S. B. (2021). Con-fronting the
+ []
+
+
+Underfull \hbox (badness 1748) in paragraph at lines 2087--2089
+ \T1/ppl/m/n/12 (+20) Delta Vari-ant of SARS-CoV-2, Sum-mer 2021. \T1/ppl/m/it/12 (+20) JAMA\T1/ppl/m/n/12 (+20) , \T1/ppl/m/it/12 (+20) 326\T1/ppl/m/n/12 (+20) (11), 1001.
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[132]
+Underfull \hbox (badness 1584) in paragraph at lines 2108--2110
+ \T1/ppl/m/n/12 (+20) 2 Molec-u-lar Tests. \T1/ppl/m/it/12 (+20) Jour-nal of Clin-i-cal Mi-cro-bi-ol-ogy\T1/ppl/m/n/12 (+20) , \T1/ppl/m/it/12 (+20) 58\T1/ppl/m/n/12 (+20) (8), e00995--20.
+ []
+
+
+Overfull \hbox (67.82228pt too wide) in paragraph at lines 2129--2131
+ \T1/ppl/m/it/12 (-20) JAMA Net-work Open\T1/ppl/m/n/12 (-20) , \T1/ppl/m/it/12 (-20) 4\T1/ppl/m/n/12 (-20) (1), e2036462. http://doi.org/[][]10.1001/jamanetworkopen.2020.36462[][] 
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[133]
+Underfull \hbox (badness 1383) in paragraph at lines 2141--2143
+ \T1/ppl/m/it/12 (+20) Anal-y-sis to Epi-demi-o-logic Data\T1/ppl/m/n/12 (+20) . New York, NY: Springer New York.
+ []
+
+
+Underfull \hbox (badness 1178) in paragraph at lines 2144--2146
+ \T1/ppl/m/n/12 (+20) fa-tal-ity rate of Omi-cron vari-ant com-pared with pre-vi-ous vari-ants in
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[134]
+Underfull \hbox (badness 1540) in paragraph at lines 2168--2170
+ \T1/ppl/m/n/12 (+20) and im-mu-nity pat-terns of SARS-CoV-2. \T1/ppl/m/it/12 (+20) Na-ture\T1/ppl/m/n/12 (+20) , \T1/ppl/m/it/12 (+20) 590\T1/ppl/m/n/12 (+20) (7844), 140--145.
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[135]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[136] [137] (./thesis.aux)
 
 LaTeX Warning: There were undefined references.
 
 Package rerunfilecheck Info: File `thesis.out' has not changed.
-(rerunfilecheck)             Checksum: C74478D891355B97E079ED9DC973083C;20975.
+(rerunfilecheck)             Checksum: 3098322F8BB1F3B8811AF704C8349D70;21915.
  ) 
 Here is how much of TeX's memory you used:
- 25988 strings out of 477982
- 491938 string characters out of 5837258
- 1867248 words of memory out of 5000000
- 44970 multiletter control sequences out of 15000+600000
- 590263 words of font info for 362 fonts, out of 8000000 for 9000
+ 28408 strings out of 477982
+ 548933 string characters out of 5837258
+ 1874248 words of memory out of 5000000
+ 46985 multiletter control sequences out of 15000+600000
+ 618749 words of font info for 429 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 83i,12n,89p,1517b,522s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmex10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi12.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi6.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr6.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr7.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy8.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on thesis.pdf (70 pages, 4038143 bytes).
+ 83i,15n,89p,1517b,582s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmex10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi12.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi6.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi7.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmib10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr6.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr7.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy6.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy8.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/quinnwhite/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
+Output written on thesis.pdf (149 pages, 21580953 bytes).
 PDF statistics:
- 1415 PDF objects out of 1440 (max. 8388607)
- 1220 compressed objects within 13 object streams
- 301 named destinations out of 1000 (max. 500000)
- 64280 words of extra memory for PDF output out of 74296 (max. 10000000)
+ 2666 PDF objects out of 2984 (max. 8388607)
+ 2247 compressed objects within 23 object streams
+ 502 named destinations out of 1000 (max. 500000)
+ 64625 words of extra memory for PDF output out of 74296 (max. 10000000)
 
