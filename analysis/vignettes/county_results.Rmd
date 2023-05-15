@@ -144,7 +144,7 @@ joined <- joined %>%
 ```
 
 
-## Heatmap for Ratio of Estimated to Observed
+### Heatmap for Ratio of Estimated to Observed
 
 
 ```{r}
@@ -438,7 +438,7 @@ joined %>%
 
 
 ggsave(here::here(paste0('thesis/figure/', state, '_pb_compared_to_observed.pdf')), 
-       height=19, width = 15, dpi=400)
+       height=21, width = 15, dpi=400)
 
 
 
@@ -1159,6 +1159,7 @@ joined %>%
   scale_alpha_manual(values = c('Hampshire' = 1, 'not'=.4)) +
   scale_color_manual(values=county_cols, labels = TeX(names(county_cols))) +
   theme_c(legend.position = "right",
+          legend.text=element_text(hjust=0),
           legend.title = element_text(size  =16, face="bold"),
           axis.text.x = element_text(size = 9)) +
   guides(linewidth="none",
@@ -1397,7 +1398,7 @@ joined %>%
   
   
     ggsave(here::here(paste0('thesis/figure/', state, .y, '_pb_compared_to_observed.pdf')),
-           height=22, width = 15, dpi=400) }
+           height=20, width = 15, dpi=400) }
 )
 
 
@@ -1903,7 +1904,7 @@ subset %>%
        subtitle = "Counties in Michigan",
        x="")
 
-ggsave(here('thesis/figure/mi-ratio-pop.jpeg'), width=12,height=9,dpi=600)
+ggsave(here('thesis/figure/mi-ratio-pop.jpeg'), width=14,height=9,dpi=600)
 
 
 

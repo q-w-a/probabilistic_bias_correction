@@ -307,7 +307,7 @@ cowplot::plot_grid(plt1,plt2, ncol=1, rel_widths = c(1,.9))
 Same denominator, but numerators have different relationship.
 
 
-```{r}
+```{r functions for dependence}
 
 
 #############################################
@@ -586,6 +586,8 @@ sim_start %>%
 
 
 Scenario 1: Suppose:
+* $P(\text{tested})$ is constant 
+* $P(S_1|\text{tested})$ is increasing 
 * $P(S_1)$ is decreasing
 * $P(\text{test}_+|\text{untested},S_0)$ is increasing
 * $P(\text{test}_+|\text{tested})$ is increasing
@@ -652,6 +654,68 @@ sim_start %>%
 
 
 ggsave(here('presentation/figure/alpha_beta_negative_corr.jpeg'),width=10,height=5.5)
+
+
+
+sim_start <- tibble(tested = rep(TESTED, reps),
+       untested = 1-tested, 
+       pos = seq(0.02,0.04, length=reps),
+       s= seq(.05,.02, length=reps),
+       s_given_tested =.7,
+       # pos_given_a_untested = seq(.003,.01, length=30),
+        pos_given_a_untested = seq(.003,.01, length=reps),
+       pos_given_tested =seq(0.05,0.08, length =reps))
+
+
+
+sim_start <- tibble(tested = rep(TESTED, reps),
+       untested = 1-tested, 
+       pos = seq(0.02,0.04, length=reps),
+       s= seq(.05,.02, length=reps),
+       s_given_tested =.7,
+       # pos_given_a_untested = seq(.003,.01, length=30),
+        pos_given_a_untested = seq(.01,.003, length=reps),
+       pos_given_tested =seq(0.05,0.08, length =reps))
+
+
+sim_start <- sim_start %>%
+  mutate(
+    s_given_untested =  get_s_given_untested(s, tested, s_given_tested),
+    pos_given_untested = get_pos_given_untested(pos = pos,
+                                                tested= tested, 
+                                                pos_given_tested=pos_given_tested),
+    pos_given_s_untested = get_pos_given_s_untested(pos_given_untested,
+                                                    pos_given_a_untested,
+                                                    s_given_untested))
+
+sim_start %>%
+  filter(if_any(everything(),~.x<0))
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  pivot_longer(c(alpha,beta)) %>%
+  ggplot(aes(x=s, y = value, color = name)) +
+  geom_point() 
+
+
+sim_start %>%
+  mutate(alpha =  pos_given_s_untested/pos_given_tested,
+         beta=  pos_given_a_untested/pos_given_tested) %>%
+  ggplot(aes(x=alpha, y = beta, color=pos_given_tested)) +
+  geom_point() +
+  theme_c(legend.position="right",
+          legend.text=element_text(size=8),
+          legend.title = element_text(size =15),
+          axis.title =element_text(size=16)) +
+  labs(x = TeX("$\\alpha$"), 
+       y= TeX("$\\beta$"),
+       color = TeX("$Pr(test_+|tested)$"),
+       title = TeX("$Pr(S_1)$, $Pr(test_+|tested)$ Increasing, $Pr(test_+|untested,S_0)$ Decreasing")) +
+  viridis::scale_color_viridis(option="mako", direction=-1, end=.95) 
+
+
+ggsave(here('thesis/figure/alpha_beta_negative_corr.jpeg'),width=10,height=5.5)
 
 ```
 

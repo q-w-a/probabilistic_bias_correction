@@ -1,90 +1,91 @@
-\contentsline {chapter}{Preliminary Content}{1}{chapter*.5}%
-\contentsline {section}{Acknowledgements}{1}{section*.6}%
-\contentsline {section}{Preface}{1}{section*.7}%
-\contentsline {section}{Dedication}{1}{section*.8}%
-\contentsline {chapter}{Chapter 1: Introduction}{3}{chapter.1}%
-\contentsline {chapter}{Chapter 2: Overview of Approach}{7}{chapter.2}%
-\contentsline {chapter}{Chapter 3: Background}{13}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Probabalistic Bias Analysis}{13}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Background for the Approach}{14}{section.3.2}%
-\contentsline {subsection}{\numberline {3.2.1}Simple Discrete Example}{15}{subsection.3.2.1}%
+\contentsline {chapter}{Chapter 1: Introduction}{1}{chapter.1}%
+\contentsline {chapter}{Chapter 2: Overview of Approach}{5}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Outline of Following Sections}{10}{section.2.1}%
+\contentsline {chapter}{Chapter 3: Background}{11}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Probabalistic Bias Analysis}{11}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Bayesian Melding}{12}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Simple Discrete Example}{14}{subsection.3.2.1}%
 \contentsline {subsection}{\numberline {3.2.2}General Solution for the Discrete Case}{17}{subsection.3.2.2}%
 \contentsline {subsection}{\numberline {3.2.3}General Solution for the Continuous Case}{17}{subsection.3.2.3}%
 \contentsline {subsection}{\numberline {3.2.4}Implementation through the Sampling-Importance-Resampling Algorithm}{17}{subsection.3.2.4}%
 \contentsline {section}{\numberline {3.3}Bayesian Melding Applied to COVID-19 Misclassification}{19}{section.3.3}%
-\contentsline {subsection}{\numberline {3.3.1}Distribution of \(\theta = \{\alpha , \beta , P(S_1|\text {untested}) \}\)}{20}{subsection.3.3.1}%
-\contentsline {subsection}{\numberline {3.3.2}Direct Prior and Induced Prior Distributions for \(P(S_0|\text {test}_+,\text {untested})\)}{20}{subsection.3.3.2}%
-\contentsline {subsection}{\numberline {3.3.3}Pooling}{21}{subsection.3.3.3}%
-\contentsline {subsection}{\numberline {3.3.4}Motivating Example}{23}{subsection.3.3.4}%
-\contentsline {subsection}{\numberline {3.3.5}Derivation of \(M\)}{23}{subsection.3.3.5}%
-\contentsline {section}{\numberline {3.4}Sampling-Importance-Resampling Algorithm}{26}{section.3.4}%
-\contentsline {subsection}{\numberline {3.4.1}Overview}{26}{subsection.3.4.1}%
-\contentsline {subsection}{\numberline {3.4.2}Proof that Algorithm Obtains Approximate Sample from Target Distribution}{26}{subsection.3.4.2}%
-\contentsline {subsubsection}{Example 1:}{29}{section*.19}%
-\contentsline {subsubsection}{Example 2:}{30}{section*.22}%
-\contentsline {subsection}{\numberline {3.4.3}Obtaining Logarithmic Pooled Distribution with the Sampling-Importance-Resampling Algorithm}{31}{subsection.3.4.3}%
-\contentsline {subsection}{\numberline {3.4.4}Implications of the Sample Size and Resample Size}{31}{subsection.3.4.4}%
-\contentsline {section}{\numberline {3.5}LOESS Smoothing}{35}{section.3.5}%
-\contentsline {subsection}{\numberline {3.5.1}Introduction}{35}{subsection.3.5.1}%
-\contentsline {subsection}{\numberline {3.5.2}Fitting the LOESS Curve}{36}{subsection.3.5.2}%
-\contentsline {section}{\numberline {3.6}Kernel Density Estimation}{41}{section.3.6}%
-\contentsline {subsection}{\numberline {3.6.1}Overview}{41}{subsection.3.6.1}%
-\contentsline {subsection}{\numberline {3.6.2}Bounded Density Estimation}{42}{subsection.3.6.2}%
-\contentsline {chapter}{Chapter 4: Definition of Prior Distributions for Bias Parameters}{49}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Background on the Beta Distribution}{49}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Background on the Gamma Distribution}{50}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Definition of Prior Distributions for Incomplete Testing Correction}{51}{section.4.3}%
-\contentsline {subsection}{\numberline {4.3.1}Defining \(P(S_1|\text {untested})\)}{51}{subsection.4.3.1}%
-\contentsline {subsection}{\numberline {4.3.2}Defining \(\alpha \)}{53}{subsection.4.3.2}%
-\contentsline {subsection}{\numberline {4.3.3}Defining \(\beta \)}{53}{subsection.4.3.3}%
-\contentsline {subsection}{\numberline {4.3.4}Defining \(P(S_0|\text {test}_+,\text {untested})\)}{54}{subsection.4.3.4}%
-\contentsline {section}{\numberline {4.4}Definition of Priors for Test Inaccuracy Correction}{55}{section.4.4}%
-\contentsline {subsection}{\numberline {4.4.1}Defining Test Sensitivity (\(S_e\))}{55}{subsection.4.4.1}%
-\contentsline {section}{\numberline {4.5}Defining Test Specificity (\(S_p\))}{56}{section.4.5}%
-\contentsline {section}{\numberline {4.6}Exploration of the Implications of Changes in the Bias Parameters}{57}{section.4.6}%
-\contentsline {section}{\numberline {4.7}Correction for Incomplete Testing}{57}{section.4.7}%
-\contentsline {section}{\numberline {4.8}Correction for Diagnostic Test Inaccuracy}{58}{section.4.8}%
-\contentsline {subsection}{\numberline {4.8.1}Derivation of Formula for Correction for Diagnostic Test Inaccuracy}{58}{subsection.4.8.1}%
-\contentsline {chapter}{Chapter 5: Details of Implementation}{61}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Version 1: Priors do Not Vary by State or Date}{61}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Version 2-4: Allowing Some Prior Parameters to Vary}{64}{section.5.2}%
-\contentsline {chapter}{Chapter 6: Comparison to the Covidestim Model}{67}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Overview}{67}{section.6.1}%
-\contentsline {section}{\numberline {6.2}The Covidestim Model}{67}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Assumptions}{68}{section.6.3}%
-\contentsline {section}{\numberline {6.4}Comparison to Serological Data}{69}{section.6.4}%
-\contentsline {subsection}{\numberline {6.4.1}Limitations of this Comparison}{69}{subsection.6.4.1}%
-\contentsline {chapter}{Chapter 7: Results}{71}{chapter.7}%
-\contentsline {section}{\numberline {7.1}State-level Results}{71}{section.7.1}%
-\contentsline {subsection}{\numberline {7.1.1}Example Where July Peak is Larger in Probablistic Bias Analysis Intervals: Michigan}{78}{subsection.7.1.1}%
-\contentsline {subsection}{\numberline {7.1.2}Example Where Covidestim Intervals Lag Probabilistic Bias Intervals: Texas}{79}{subsection.7.1.2}%
-\contentsline {subsection}{\numberline {7.1.3}Summarizing Concordance with Covidestim}{81}{subsection.7.1.3}%
-\contentsline {section}{\numberline {7.2}Ratio Between Estimated Infections and Observed Infections}{82}{section.7.2}%
-\contentsline {section}{\numberline {7.3}Relationship Between the Ratio of Estimated to Observed Infections Compared to Testing Rate}{85}{section.7.3}%
-\contentsline {section}{\numberline {7.4}County-level Results}{89}{section.7.4}%
-\contentsline {subsection}{\numberline {7.4.1}Massachusetts}{89}{subsection.7.4.1}%
-\contentsline {subsubsection}{Comparing Implementations of Probabilistic Bias Analysis}{89}{section*.60}%
-\contentsline {subsubsection}{Comparing Counties}{95}{section*.66}%
-\contentsline {subsection}{\numberline {7.4.2}Michigan}{97}{subsection.7.4.2}%
-\contentsline {section}{\numberline {7.5}Cross Correlation Comparison}{101}{section.7.5}%
-\contentsline {subsection}{\numberline {7.5.1}Background}{101}{subsection.7.5.1}%
-\contentsline {subsection}{\numberline {7.5.2}Cross Correlation Results Comparing Bias-Corrected Counts, Covidestim Estimates, and Wastewater Concentrations}{104}{subsection.7.5.2}%
-\contentsline {subsubsection}{Comparison Between Implementations of Probabilistic Bias Analysis}{106}{section*.75}%
-\contentsline {subsubsection}{Comparison Between Covidestim, Observed Cases, and Bias-Corrected Counts}{107}{section*.77}%
-\contentsline {subsubsection}{Takeaways}{108}{section*.79}%
-\contentsline {chapter}{Chapter 8: Conclusion}{109}{chapter.8}%
-\contentsline {chapter}{Appendix A: Appendix}{111}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Smoothing Span}{111}{section.A.1}%
-\contentsline {subsection}{\numberline {A.1.1}Changing SPAN for LOESS Smoothing of \(\beta \)}{111}{subsection.A.1.1}%
-\contentsline {section}{\numberline {A.2}Changing Mean and Variance for Prior Distribution Specifications}{111}{section.A.2}%
-\contentsline {section}{\numberline {A.3}Relationship Between \((X+Y)_\alpha \) and \(X_{\alpha }\) +\(Y_{\alpha }\) for Dependent Variables \(X,Y\)}{111}{section.A.3}%
-\contentsline {subsection}{\numberline {A.3.1}Simulation: Bivariate Normal}{111}{subsection.A.3.1}%
-\contentsline {subsection}{\numberline {A.3.2}Derivation of the Distribution of X+Y for Bivariate Normal}{114}{subsection.A.3.2}%
-\contentsline {section}{\numberline {A.4}Total Tests and Positive Tests Across All States}{117}{section.A.4}%
-\contentsline {section}{\numberline {A.5}Comparing Johns Hopkins CSSE Cases to CDC Positive Tests}{119}{section.A.5}%
-\contentsline {section}{\numberline {A.6}First Implementation of Probabilistic Bias Analysis (Including All States)}{121}{section.A.6}%
-\contentsline {section}{\numberline {A.7}County Level Comparison to Covidestim in Massachusetts}{123}{section.A.7}%
-\contentsline {section}{\numberline {A.8}Full Set of Results at the County Level for Michigan}{125}{section.A.8}%
-\contentsline {section}{\numberline {A.9}Concordance with Covidestim by Version and County in Michigan}{128}{section.A.9}%
-\contentsline {section}{\numberline {A.10}Ratio of Estimated Infections to Observed in Michigan Counties, by Population Size}{129}{section.A.10}%
-\contentsline {chapter}{References}{131}{appendix*.94}%
+\contentsline {subsection}{\numberline {3.3.1}Pooling}{21}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Impact of Applying Melding on Corrected Estimates}{23}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}Derivation of \(M\)}{24}{subsection.3.3.3}%
+\contentsline {section}{\numberline {3.4}Sampling-Importance-Resampling Algorithm}{27}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Overview}{27}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Proof that Algorithm Obtains Approximate Sample from Target Distribution}{27}{subsection.3.4.2}%
+\contentsline {subsubsection}{Example 1:}{30}{section*.20}%
+\contentsline {subsubsection}{Example 2:}{31}{section*.22}%
+\contentsline {subsection}{\numberline {3.4.3}Obtaining Logarithmic Pooled Distribution with the Sampling-Importance-Resampling Algorithm}{32}{subsection.3.4.3}%
+\contentsline {subsection}{\numberline {3.4.4}Implications of the Sample Size and Resample Size}{32}{subsection.3.4.4}%
+\contentsline {section}{\numberline {3.5}LOESS Smoothing}{36}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Introduction}{36}{subsection.3.5.1}%
+\contentsline {section}{\numberline {3.6}Kernel Density Estimation}{39}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Overview}{39}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}Bounded Density Estimation}{40}{subsection.3.6.2}%
+\contentsline {chapter}{Chapter 4: Definition of Prior Distributions for Bias Parameters}{43}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Background on the Beta Distribution}{43}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Background on the Gamma Distribution}{44}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Definition of Prior Distributions for Incomplete Testing Correction}{45}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Defining \(P(S_1|\text {untested})\)}{45}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Defining \(\alpha \)}{46}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}Defining \(\beta \)}{47}{subsection.4.3.3}%
+\contentsline {subsection}{\numberline {4.3.4}Defining \(P(S_0|\text {test}_+,\text {untested})\)}{48}{subsection.4.3.4}%
+\contentsline {section}{\numberline {4.4}Definition of Priors for Test Inaccuracy Correction}{48}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Defining Test Sensitivity (\(S_e\))}{49}{subsection.4.4.1}%
+\contentsline {section}{\numberline {4.5}Defining Test Specificity (\(S_p\))}{50}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Exploration of the Implications of Changes in the Bias Parameters}{51}{section.4.6}%
+\contentsline {section}{\numberline {4.7}Correction for Incomplete Testing}{51}{section.4.7}%
+\contentsline {section}{\numberline {4.8}Correction for Diagnostic Test Inaccuracy}{52}{section.4.8}%
+\contentsline {subsection}{\numberline {4.8.1}Derivation of Formula for Correction for Diagnostic Test Inaccuracy}{52}{subsection.4.8.1}%
+\contentsline {chapter}{Chapter 5: Details of Implementation}{55}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Version 1: Priors do Not Vary by State or Date}{56}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Version 2-4: Allowing Some Prior Parameters to Vary}{60}{section.5.2}%
+\contentsline {chapter}{Chapter 6: Comparison to the Covidestim Model}{63}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Overview}{63}{section.6.1}%
+\contentsline {section}{\numberline {6.2}The Covidestim Model}{63}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Assumptions}{64}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Comparison to Serological Data}{65}{section.6.4}%
+\contentsline {subsection}{\numberline {6.4.1}Limitations of this Comparison}{65}{subsection.6.4.1}%
+\contentsline {chapter}{Chapter 7: Results}{67}{chapter.7}%
+\contentsline {section}{\numberline {7.1}State-level Results}{67}{section.7.1}%
+\contentsline {subsection}{\numberline {7.1.1}Example Where July Peak is Larger in Probablistic Bias Analysis Intervals: Michigan}{74}{subsection.7.1.1}%
+\contentsline {subsection}{\numberline {7.1.2}Example Where Covidestim Intervals Lag Probabilistic Bias Intervals: Texas}{75}{subsection.7.1.2}%
+\contentsline {subsection}{\numberline {7.1.3}Summarizing Concordance with Covidestim}{77}{subsection.7.1.3}%
+\contentsline {section}{\numberline {7.2}Ratio Between Estimated Infections and Observed Infections}{78}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Relationship Between the Ratio of Estimated to Observed Infections Compared to Testing Rate}{82}{section.7.3}%
+\contentsline {section}{\numberline {7.4}County-level Results}{85}{section.7.4}%
+\contentsline {subsection}{\numberline {7.4.1}Massachusetts}{85}{subsection.7.4.1}%
+\contentsline {subsubsection}{Comparing Implementations of Probabilistic Bias Analysis}{85}{section*.56}%
+\contentsline {subsubsection}{Comparing Counties}{91}{section*.62}%
+\contentsline {subsection}{\numberline {7.4.2}Michigan}{93}{subsection.7.4.2}%
+\contentsline {section}{\numberline {7.5}Cross Correlation Comparison}{97}{section.7.5}%
+\contentsline {subsection}{\numberline {7.5.1}Background}{97}{subsection.7.5.1}%
+\contentsline {subsection}{\numberline {7.5.2}Cross Correlation Results Comparing Bias-Corrected Counts, Covidestim Estimates, and Wastewater Concentrations}{100}{subsection.7.5.2}%
+\contentsline {subsubsection}{Comparison Between Implementations of Probabilistic Bias Analysis}{102}{section*.71}%
+\contentsline {subsubsection}{Comparison Between Covidestim, Observed Cases, and Bias-Corrected Counts}{104}{section*.73}%
+\contentsline {subsubsection}{Takeaways}{104}{section*.75}%
+\contentsline {chapter}{Chapter 8: Conclusion}{105}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Limitations and Future Work}{105}{section.8.1}%
+\contentsline {subsection}{\numberline {8.1.1}Population Estimates}{105}{subsection.8.1.1}%
+\contentsline {subsection}{\numberline {8.1.2}Correlation Between \(\alpha \) and \(\beta \)}{105}{subsection.8.1.2}%
+\contentsline {subsection}{\numberline {8.1.3}Using Results for Other Sensitivity Analyses}{106}{subsection.8.1.3}%
+\contentsline {section}{\numberline {8.2}Discussion}{106}{section.8.2}%
+\contentsline {chapter}{Appendix A: Appendix}{109}{appendix.A}%
+\contentsline {section}{\numberline {A.1}LOESS Smoothing}{109}{section.A.1}%
+\contentsline {subsection}{\numberline {A.1.1}Fitting the LOESS Curve}{109}{subsection.A.1.1}%
+\contentsline {section}{\numberline {A.2}Transformation Approach to Bounded Density Estimation}{112}{section.A.2}%
+\contentsline {section}{\numberline {A.3}Beta Kernel Density Estimation}{116}{section.A.3}%
+\contentsline {section}{\numberline {A.4}Total Tests and Positive Tests Across All States}{119}{section.A.4}%
+\contentsline {section}{\numberline {A.5}Comparing Johns Hopkins CSSE Cases to CDC Positive Tests}{121}{section.A.5}%
+\contentsline {section}{\numberline {A.6}First Implementation of Probabilistic Bias Analysis (Including All States)}{123}{section.A.6}%
+\contentsline {section}{\numberline {A.7}County Level Comparison to Covidestim in Massachusetts}{125}{section.A.7}%
+\contentsline {section}{\numberline {A.8}Full Set of Results at the County Level for Michigan}{127}{section.A.8}%
+\contentsline {section}{\numberline {A.9}Concordance with Covidestim by Version and County in Michigan}{130}{section.A.9}%
+\contentsline {section}{\numberline {A.10}Ratio of Estimated Infections to Observed in Michigan Counties, by Population Size}{131}{section.A.10}%
+\contentsline {section}{\numberline {A.11}Lack of Change in \(\alpha \) with Melding}{132}{section.A.11}%
+\contentsline {section}{\numberline {A.12}Relationship Between \((X+Y)_\alpha \) and \(X_{\alpha }\) +\(Y_{\alpha }\) for Dependent Variables \(X,Y\)}{133}{section.A.12}%
+\contentsline {subsection}{\numberline {A.12.1}Simulation: Bivariate Normal}{133}{subsection.A.12.1}%
+\contentsline {subsection}{\numberline {A.12.2}Derivation of the Distribution of X+Y for Bivariate Normal}{137}{subsection.A.12.2}%
+\contentsline {chapter}{References}{141}{appendix*.100}%

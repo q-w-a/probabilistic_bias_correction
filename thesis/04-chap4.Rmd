@@ -36,8 +36,22 @@ theme_c <- function(...) {
 
 # Details of Implementation
 
-To make the implementation more concrete, we will illustrate the steps of the probabilistic bias analysis with the infections in Suffolk County, Massachusetts in from May 9, 2021 to May 23, 2021.   
 
+To see the impact of informing prior parameters with data from the COVID-19 Trends and Impact Survey, we include four implementations, summarized in  Table \ref{fig:priors-versions-table}.
+
+
+```{r, fig.cap="\\label{fig:priors-versions-table}Description of each implementation of probabilistic bias analysis. Version 1 does not inform priors based on the COVID-19 Trends and Impact Survey, while versions 2-4 do utilize the survey data."}
+
+knitr::include_graphics('figure/priors_implementations.png')
+
+```
+
+
+
+To make the implementation of each more concrete, we will illustrate the steps of the probabilistic bias analysis with the infections in Suffolk County, Massachusetts in from May 9, 2021 to May 23, 2021.   
+
+
+\newpage 
 
 ## Version 1: Priors do Not Vary by State or Date
 
@@ -102,9 +116,9 @@ source(here('analysis','base_functions','get_melded.R'))
 As we did in the [Background](#sampling) section, we denote the sample size as $m$ and the posterior (resample) size as $r$.
 
 
-We begin by sampling $m$ times from the defined prior distributions $\theta = \Big\{ \alpha, \beta, P(S_1| \text{untested})\Big\}$, as we see in Figure \ref{fig:sample-priors}.
+We begin by sampling $m=10^6$ times from the defined prior distributions $\theta = \Big\{ \alpha, \beta, \Pr(S_1| \text{untested})\Big\}$, as we see in Figure \ref{fig:sample-priors}.
 
-```{r, fig.width=7, fig.height=3.9, fig.cap = "\\label{fig:sample-priors}"}
+```{r, fig.width=7, fig.height=2, fig.cap = "\\label{fig:sample-priors}As the first step of the probabilistic bias analysis, we sample $m$ observations from the defined priors  $\\theta = \\{ \\alpha, \\beta, \\Pr(S_1| \\text{untested})\\}$."}
 
 ma <- readRDS(here("data/county_level/ma/ma_county_biweekly.RDS"))
 
@@ -132,32 +146,34 @@ theta %>%
   mutate(name = case_when(
     name == "alpha" ~"$\\alpha$",
     name =="beta" ~"$\\beta$",
-    name == "phi_induced" ~"$M(\\theta) = P(S_0|test_+,untested)$",
-    name=="P_S_untested" ~ "$P(S_1|untested)$"
+    name == "phi_induced" ~"$M(\\theta) = Pr(S_0|test_+,untested)$",
+    name=="P_S_untested" ~ "$Pr(S_1|untested)$"
   )) %>%
   mutate(name = factor(name, levels = c("$\\alpha$",
                                         "$\\beta$",
-                                        "$P(S_1|untested)$",
-                                        "$M(\\theta) = P(S_0|test_+,untested)$"))) %>%
+                                        "$Pr(S_1|untested)$",
+                                        "$M(\\theta) = Pr(S_0|test_+,untested)$"))) %>%
+  filter(name != "$M(\\theta) = Pr(S_0|test_+,untested)$") %>%
   ggplot(aes(x=value)) +
     geom_density(fill="black", alpha=.8) +
     facet_wrap(~name, labeller=as_labeller(TeX, default=label_parsed),
-               ncol=3) +
-  theme_c() +
-  xlim(0,1.1)
-  
+               ncol=3,
+               scales="free") +
+  geom_point(aes(x=0,y=0), color=NA) +
+  geom_point(aes(x=1,y=0), color=NA) +
+  theme_c() 
   
                                          
                                          
 ```
 
-At this point, we use Bayesian melding to obtain $r$ observations from the constrained priors for $\alpha, \; \beta, \;P(S_1|\text{untested})$, and $P(S_0|\text{test}_+,\text{untested})$.
+At this point, we use Bayesian melding to obtain $r=10^5$  observations from the constrained priors for $\alpha, \; \beta, \;\Pr(S_1|\text{untested})$, and $\Pr(S_0|\text{test}_+,\text{untested})$, which we see in the first two rows of Figure \ref{fig:melded-all-together}. The melded distributions of $\alpha, \; \beta, \;\Pr(S_1|\text{untested})$, and $\Pr(S_0|\text{test}_+,\text{untested})$ are the inputs to the probabilistic bias analysis.
 
-We also sample $r$ values from the priors for sensitivity and specificity, which we use to correct for imperfect testing accuracy. However, these parameters are not involved in the Bayesian melding. 
+For use in the test inaccuracy correction step, we also sample $r=10^5$ values from the priors for sensitivity and specificity. However, these parameters are not involved in the Bayesian melding step. 
 
 
 
-```{r, results = 'hide', fig.height=7}
+```{r, results = 'hide', fig.height=7, fig.cap="\\label{fig:melded-all-together}The full set of priors used in the probabilistic bias analysis. The first row is our sampled values of $\theta$, before and after melding. The post-melding distributions are what we use as inputs to the probabilistic bias analysis. The second row is $\\Pr(S_0|\\text{test}_+, \\text{untested})$, which is a part of the melding process that enables us to incorporate information on the asymptomatic rate to inform the definitions of $\\theta$; however, we do not use the parameter $\\Pr(S_0|\\text{test}_+, \\text{untested})$ directly in the bias correction; its only role is in the melding step."}
 
 library(patchwork)
 
@@ -194,7 +210,8 @@ dist_Sp <- truncdist::rtrunc(n = nsamp,spec = "beta",a = 0.9998,b = 1,
 
 
 title_gg <- ggplot() + 
-  labs(title =latex2exp::TeX("Set of Priors for Probabilistic Bias Analysis", bold = TRUE)) + 
+  labs(title =latex2exp::TeX("Set of Priors for Probabilistic Bias Analysis", 
+                             bold = TRUE)) + 
   theme(plot.title=element_text(face="bold", hjust = .5, size = 14, margin =margin(5,0,2,0)))
 
 
@@ -239,29 +256,29 @@ cowplot::plot_grid(title_gg,
 
 From here, we obtain the bias corrected estimates by sampling from the $r$ observations of the bias parameters and computing the unobserved infections. 
 
-For example, suppose we sample a value from each of $\beta,\alpha,P(S_1|\text{untested}), S_p$ and $S_e$.
+For example, suppose we sample a value from each of $\beta,\alpha,\Pr(S_1|\text{untested}), S_p$ and $S_e$.
 
-We  first compute the number of untested individuals as the population size $N$ minus the number of individuals tested:
+We  first compute the number of untested individuals as the population size $N$ minus the number tested:
 
 \[ N_{\text{untested}} =  N - N_{\text{tested}} .\]
 
 We then use $\alpha$ and $\beta$ to estimate the test positivity rates of the symptomatic and asymptomatic partitions of the population, giving us the positivity rates
-\[ P( \text{test}_+ | S_1, \text{untested})  = P( \text{test}_+ | \text{tested}) \cdot  \alpha  \]
+\[ \Pr( \text{test}_+ | S_1, \text{untested})  = \Pr( \text{test}_+ | \text{tested}) \cdot  \alpha  \]
 and
-\[ P( \text{test}_+ | S_0, \text{untested})  = P( \text{test}_+ | \text{tested}) \cdot  \beta. \]
+\[ \Pr( \text{test}_+ | S_0, \text{untested})  = \Pr( \text{test}_+ | \text{tested}) \cdot  \beta. \]
 
 
 We use these positivity rates to calculate the number of positive tests among the untested as 
 
 
 \begin{align*}
-N^*_{\text{untested},S_1} &= P( \text{test}_+ | S_1, \text{untested}) ( N_{S_1,\text{untested}}) \\
-&= P( \text{test}_+ | S_1, \text{untested}) (N_{\text{untested}} ) P(S_1|\text{untested})\\
-N^*_{\text{untested},S_0} &= P( \text{test}_+ | S_0, \text{untested}) ( N_{S_0,\text{untested}})\\
-&== P( \text{test}_+ | S_1, \text{untested}) (N_{\text{untested}} ) (1- P(S_1|\text{untested}))
+N^*_{\text{untested},S_1} &= \Pr( \text{test}_+ | S_1, \text{untested}) ( N_{S_1,\text{untested}}) \\
+&= \Pr( \text{test}_+ | S_1, \text{untested}) (N_{\text{untested}} ) \Pr(S_1|\text{untested})\\
+N^*_{\text{untested},S_0} &= \Pr( \text{test}_+ | S_0, \text{untested}) ( N_{S_0,\text{untested}})\\
+&= \Pr( \text{test}_+ | S_1, \text{untested}) (N_{\text{untested}} ) (1- \Pr(S_1|\text{untested}))
 \end{align*}
 
-We use $N^*$ to denote the number of people who would test positive, not the number who are infected. This distinction is important because we are not yet correcting for diagnostic test inaccuracy. With this notation, $N^*_{\text{untested}}$ is the number of people among the untested population we expect to test positive if they were all tested, while $N^*_{\text{tested}}$ is simply the number of positive tests reported for this 2-week interval. This means we can write the total number of individuals who we expect to test positive as
+We use $N^*$ to denote the number of people who would test positive, not the number who are infected. This distinction is important because we are not yet correcting for diagnostic test inaccuracy. With this notation, $N^*_{\text{untested}}$ is the number of people among the untested population we expect to test positive if everyone were tested, while $N^*_{\text{tested}}$ is simply the number of positive tests reported for this 2-week interval. This means we can write the total number of individuals who we expect to test positive as
 
 
 \begin{align*}
@@ -271,18 +288,18 @@ We use $N^*$ to denote the number of people who would test positive, not the num
 \end{align*}
 
 
- To estimate the infections $N^+$, rather than positive tests $N^*$, we must correct for diagnostic test inaccuracy, which we can do by applying the [formula](#correct-test-inaccuracy) for correcting for diagnostic test inaccuracy discussed previously.
+ To estimate the infections $N^+$, rather than positive tests $N^*$, we must correct for diagnostic test inaccuracy, which we can do by applying the formula for correcting for diagnostic test inaccuracy discussed [previously](#correct-test-inaccuracy).
  
 That is, we take the sampled value of sensitivity $S_e$ and specificty $S_p$ and compute
 
 $$N^+ = \dfrac{(N^* - (1 - S_p) N) } { (S_e + S_p - 1) }.$$
 
 
-Repeating this process with sampled values of the bias parameters gives us a distribution for the corrected counts, as we see in Figure \ref{fig:correctedsuffolk}. The 95% simulation intervals presented in the [Results](#res) section are the 2.5% and 97.5% percentiles for each geographic unit and 2-week time interval, as we see in the second panel of Figure \ref{fig:correctedsuffolk}. 
+Repeating this process with sampled values of the bias parameters gives us a distribution for the corrected counts, as we see in Figure \ref{fig:correctedsuffolk}. The 95% simulation intervals presented in the [Results](#res) section are the 2.5% and 97.5% percentiles for each geographic unit and 2-week time interval, as we see in Figure {fig:corrected-suffolk-over-time}.
 
 
 
-```{r, fig.cap='\\label{fig:correctedsuffolk}', fig.show='hold', out.width='50%'}
+```{r, fig.cap='\\label{fig:correctedsuffolk}Here, we consider Suffolk County in a specific two-week interval. By sampling from the bias parameters, melding, correcting for incomplete testing, and then correcting for test inaccuracy, we obtain a distribution of estimated infections for the two-week interval. We can summarize this distribution with a 95\\% simulation interval.'}
 
 # dist_Se <- truncdist::rtrunc(n = nsamp,spec = "beta",a = 0.65,b = 1,
 #                                shape1 = get_beta_params(mu = 0.8,
@@ -305,24 +322,24 @@ all_priors <- process_priors_per_county(
 corrected_sample <- all_priors %>%
       generate_corrected_sample(priors_by_county_df = ., num_reps = 1e4)
 
-
-corrected_sample %>%
-  select(exp_cases) %>%
-  ggplot(aes(x=exp_cases)) +
-  geom_histogram() +
-  geom_vline(xintercept = unique(corrected_sample$positive),
-             color = 'red',
-             linewidth = 1.2) +
-  annotate(geom="label",x= unique(corrected_sample$positive)+250,
-             y = 1000, color = "red",label= "Observed", size = 6) +
-  theme_c() +
-  theme(plot.title = element_text(face="bold", hjust = .5, size = 20),
-        axis.title = element_text(size = 16)) +
-  labs(title = "Distribution of Bias-Corrected Cases",
-       y = "Frequency",
-       x = "Infections")
-
-
+# 
+# corrected_sample %>%
+#   select(exp_cases) %>%
+#   ggplot(aes(x=exp_cases)) +
+#   geom_histogram() +
+#   geom_vline(xintercept = unique(corrected_sample$positive),
+#              color = 'red',
+#              linewidth = 1.2) +
+#   annotate(geom="label",x= unique(corrected_sample$positive)+250,
+#              y = 1000, color = "red",label= "Observed", size = 6) +
+#   theme_c() +
+#   theme(plot.title = element_text(face="bold", hjust = .5, size = 20),
+#         axis.title = element_text(size = 16)) +
+#   labs(title = "Distribution of Bias-Corrected Cases",
+#        y = "Frequency",
+#        x = "Infections")
+# 
+# 
 
 
 
@@ -347,6 +364,7 @@ corrected_sample %>%
 
 
 
+
 # 
 # 
 # process_priors_per_county(
@@ -368,6 +386,12 @@ corrected_sample %>%
 #     })
 
 
+
+```
+
+
+```{r, fig.cap="\\label{fig:corrected-suffolk-over-time}Here, we show how we visualize the 95\\% simulation intervals like the one shown in \\ref{fig:correctedsuffolk}, which is highlighted in red. Presenting these intervals over time for a given location is often how we present the results of the probabilistic bias analysis."}
+knitr::include_graphics('../presentation/figure/suffolk_biweek_10.jpeg')
 
 ```
 
@@ -376,26 +400,15 @@ corrected_sample %>%
 
 The implementation for versions 2-4 when considering a single time and geographic unit are almost identical to version 1; the difference is in the source of the priors.
 
-For one version, we allow $\beta$ to vary by date and state by using the COVID-19 Trends and Impact Survey [@salomon2021a]. Since $\beta$ represents the ratio of $\dfrac{P(\text{test}_+|\text{untested},S_0)}{P(\text{test}_+|\text{tested})}$, one way we can think about estimating this quantity empirically is as the screening test positivity over the overall test positivity. Since both these quantities are reported by the COVID-19 Trends and Impact Survey, we can center the distribution for $\beta$ for a given location and time interval at this ratio, after performing LOESS smoothing. That is, we use the same standard deviation assumed in the first version, where we do not allow priors to vary by state or date, but we set the mean to be the empirical estimate of beta.
+For one version, we allow $\beta$ to vary by date and state by using the COVID-19 Trends and Impact Survey [@salomon2021a]. Since $\beta$ represents the ratio of $\dfrac{\Pr(\text{test}_+|\text{untested},S_0)}{\Pr(\text{test}_+|\text{tested})}$, one way we can think about estimating this quantity empirically is as the screening test positivity over the overall test positivity. Since both these quantities are reported by the COVID-19 Trends and Impact Survey, we can center the distribution for $\beta$ for a given location and time interval at this ratio, after performing LOESS smoothing. That is, we use the same standard deviation assumed in the first version, where we do not allow priors to vary by state or date, but we set the mean to be the empirical estimate of beta.
 
-For another version, we allow $P(S_1|\text{untested})$ to vary by date and state by centering the distribution for  $P(S_1|\text{untested})$ at the percentage of COVID-19-like illness reported by the COVID-19 Trends and Impact Survey, since this variable reflects the presents of symptoms related to COVID-19 among the general population.
+For another version, we allow $\Pr(S_1|\text{untested})$ to vary by date and state by centering the distribution for  $\Pr(S_1|\text{untested})$ at the percentage of COVID-19-like illness reported by the COVID-19 Trends and Impact Survey, since this variable reflects the presents of symptoms related to COVID-19 among the general population.
 
-Lastly, in one version we center both the distribution for  $P(S_1|\text{untested})$ and $\beta$ at their empirical values.
+Lastly, in one version we center both the distribution for  $\Pr(S_1|\text{untested})$ and $\beta$ at their empirical values.
 
-While we recognize taking values of the survey may in itself introduce biases, in the United States, there is little alternative to inform the priors for $\beta$ or $P(S_1|untested)$, particularly at a fine geographic scale. Some countries, for example, the United Kingdom, conducted PCR tests and recorded symptoms for a random sample of the population to estimate community prevalence of COVID-19  [@riley2021]. A study like this would be able to estimate the test positivity rate among the untested population directly (and the asymptomatic or symptomatic positivity rates as well) rather than defining random variables $\alpha$ and $\beta$ to correct the observed test positivity rate.
+While we recognize taking values of the survey may in itself introduce biases, in the United States, there is little alternative to inform the priors for $\beta$ or $\Pr(S_1|\text{untested})$, particularly at a fine geographic scale. Some countries, for example, the United Kingdom, conducted PCR tests and recorded symptoms for a random sample of the population to estimate community prevalence of COVID-19  [@riley2021]. A study like this would be able to estimate the test positivity rate among the untested population directly (and the asymptomatic or symptomatic positivity rates as well) rather than defining random variables $\alpha$ and $\beta$ to correct the observed test positivity rate.
 
-In this sense, looking at the empirical estimates of $P(S_1|untested)$ and $\beta$ using the COVID-19 Trends and Impact Survey can provide a useful baseline for plausible values these parameters can take on, and allows us to see how the bias-corrected estimates differ depending on the data used to inform the priors. 
-
-
-
-We summarize these distinct implementations in Table \ref{fig:priors-versions-table}.
-
-
-```{r, fig.cap="\\label{fig:priors-versions-table}Description of each implementation of probabilistic bias analysis. Version 1 does not inform priors based on the COVID-19 Trends and Impact Survey, while versions 2-4 do utilize the survey data."}
-
-knitr::include_graphics('figure/priors_implementations.png')
-
-```
+In this sense, looking at the empirical estimates of $\Pr(S_1|\text{untested})$ and $\beta$ using the COVID-19 Trends and Impact Survey can provide a useful baseline for plausible values these parameters can take on, and allows us to see how the bias-corrected estimates differ depending on the data used to inform the priors. 
 
 
 

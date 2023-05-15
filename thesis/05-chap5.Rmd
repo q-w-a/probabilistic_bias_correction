@@ -39,7 +39,7 @@ theme_c <- function(...) {
 
 One challenge in correcting for biases in general is that although we may have some information about the influence of possible biases, we do not have a ground truth for comparison. However, one approach to handle the fact that the true cases are unobserved is comparing our estimates to those from other approaches seeking to estimate a similar quantity. In particular, if other approaches make different assumptions and come to a similar result, this can give us more confidence in our estimates. 
 
-One notable project seeking to estimate the true infection burden at the county-level over time is the COVIDestim project. In this work, Chitwood et al. proposed a mechanistic model that includes states for asymptomatic/pre-symptomatic infection, symptomatic but mild infection, severe COVID-19 presentations, and death. This approach also enables the estimation of $R_t$, the number of secondary infections a single infected individual causes at time $t$. This is a useful quantity to estimate, but is sensitive to reporting delays and changes in testing practices [@pitzer2021a].
+One notable project seeking to estimate the true infection burden at the county-level over time is the Covidestim project. In this work, Chitwood et al. proposed a mechanistic model that includes states for asymptomatic/pre-symptomatic infection, symptomatic but mild infection, severe COVID-19 presentations, and death. This approach also enables the estimation of $R_t$, the number of secondary infections a single infected individual causes at time $t$. This is a useful quantity to estimate, but is sensitive to reporting delays and changes in testing practices [@pitzer2021a].
 
 
 ## The Covidestim Model
@@ -65,7 +65,7 @@ The observed cases and death data for each state to the model were fitted using 
 
 This approach relies on infection fatality ratios and death counts to estimate the true case counts. Thus, it is sensitive to estimates of infection fatality rate, with higher infection fatality ratio estimates resulting in lower estimated infections. The infection fatality ratio is defined as the proportion of COVID-19 infections that lead to death, which means there is uncertainty in estimating both the numerator and the denominator of the ratio. The true cumulative incidence depends on the same uncertainties in estimating the true case burden at any point in time. Estimating the infection fatality ratio itself is a challenging task. 
 
-The COVIDestim model uses age-specific estimates of the infection fatality ratio (IFR)^[The infection fatality ratio of an infectious disease is the proportion of those infected who die.] produced by @odriscoll2021. They used national-level age-stratified, and when possible sex-stratified, COVID-19 death counts and cumulative infection estimates from seroprevalence studies. Of note, the estimates of infection fatality ratio are assumed to be constant over time, which may not be the case due to improving treatments (e.g., Paxlovid),  different variants leading to less severe presentations, or changes in the demographics of individuals being infected. However, reliable estimates of infection fatality ratio that vary with time difficult to acquire; COVIDestim assumed a higher case fatality in 2020 given the novelty of the virus and consequent lack of available treatments.
+The Covidestim model uses age-specific estimates of the infection fatality ratio (IFR)^[The infection fatality ratio of an infectious disease is the proportion of those infected who die.] produced by @odriscoll2021. They used national-level age-stratified, and when possible sex-stratified, COVID-19 death counts and cumulative infection estimates from seroprevalence studies. Of note, the estimates of infection fatality ratio are assumed to be constant over time, which may not be the case due to improving treatments (e.g., Paxlovid),  different variants leading to less severe presentations, or changes in the demographics of individuals being infected. However, reliable estimates of infection fatality ratio that vary with time difficult to acquire; Covidestim assumed a higher case fatality in 2020 given the novelty of the virus and consequent lack of available treatments.
 
 
 ## Comparison to Serological Data
@@ -94,7 +94,12 @@ As a result, we can apply probabilistic bias analysis across the United States a
 
 However, since versions 2-4 of the analysis utilize empirical estimates of $P(S_1|\text{untested})$ or $\beta$ from the COVID-19 Trends and Impact Survey, these versions are only possible when there is sufficient data for the state. As we see in Figure \ref{fig:statectis}, some states have very little data for the empirical estimate of beta. However in Figure \ref{fig:statectis-s-untested} we see that there is more consistent reporting of the prevalence of COVID-19-like symptoms, which we can use as an estimate of $P(S_1|\text{untested})$.
 
-For versions 2-4, we did not attempt the probabilistic bias analysis for states where more than 40% of observations for that state in the survey data were missing at the daily time step. For states retained, missing values for states with sufficient data were imputed before summarizing to the biweek level using a linear weighted moving average. 
+
+For implementations 2-4 of the probabilistic bias analysis (refer to Table \ref{fig:priors-versions-table} for details on each),  we excluded states where more than 40% of observations for that state in the survey data were missing at the daily time step. For states retained, missing values for states with sufficient data were imputed before summarizing to the two-week level using a linear weighted moving average. 
+
+
+\vspace{5 cm}
+
 
 ```{r, out.width = "100%", fig.cap = '\\label{fig:statectis}The screening test positivity over the overall test positivity from the COVID-19 Trends and Impact Survey, by state. For states where less than 40\\% of observations were missing at the daily time step, the LOESS smoothed line is shown in red.'}
 
@@ -171,7 +176,7 @@ As discussed in the Covidestim model change log, Chitwood *et al.* made substant
 
 In July, meanwhile, the difference we see between the Covidestim estimates and probabilistic bias intervals is likely a result of the way these approaches treat incomplete testing. The focus of the probabilistic bias analysis is to correct for incomplete testing, and as such the method is sensitive to changes in the total number tested and the positivity rate. By contrast, while Covidestim models probabilities of diagnosis by symptom state to allow for variation in case ascertainment, the total number of tests is not an input into the model, so model estimates are not affected by changes in testing rate. This is particularly relevant in the time interval where we observe a larger peak in the probabilistic bias intervals. While the trend in observed tests follows a more steady upward trend like that we see in the Covidestim estimates, the probabilistic bias intervals are influenced by the relationship between positive tests and total tests in this time period.
 
-In Figure \ref{fig:test-capacity}, we consider the number of positive and total tests reported in Michigan. In the period from July through September, the positive tests increase at a higher rate than the total tests. Because the number of infections among the untested population is calculated based on the observed test positivity rate, the higher test positivity rate (resulting from positive tests increasing more than total tests) results in the peak we see in this time interval in the probabilistic bias intervals. A similar trend appears across several states, wehre the positive tests increase more rapidly than the total tests during this time period  (Supplementary Figure \ref{fig:test-capacity-all-states}). 
+In Figure \ref{fig:test-capacity}, we consider the number of positive and total tests reported in Michigan. In the period from July through September, the positive tests increase at a higher rate than the total tests. Because the number of infections among the untested population is calculated based on the observed test positivity rate, the higher test positivity rate (resulting from positive tests increasing more than total tests) results in the peak we see in this time interval in the probabilistic bias intervals. A similar trend appears across several states, where the positive tests increase more rapidly than the total tests during this time period  (Supplementary Figure \ref{fig:test-capacity-all-states}). 
 
 
 ```{r, fig.cap = "\\label{fig:test-capacity} Percent change in positive tests and the percent change in total tests from March 2021 through the end of February 2022. We see in the period from July through September that the positive tests increase at a higher rate than the total tests, which relates to the increase we see beginning in July in the probabilistic bias intervals." }
@@ -286,6 +291,7 @@ knitr::include_graphics('figure/rank-ratio-over-time.pdf')
 
 ```
 
+\newpage
 
  
 ## Relationship Between the Ratio of Estimated to Observed Infections Compared to Testing Rate
@@ -411,7 +417,7 @@ These exceptions are likely driven by the high amount of testing, particularly s
 means that our correction factor $\beta$ in probabilistic analysis^[Recall $P(\text{test}_+ | S_0, \text{untested}) = \beta \; P(\text{test}_+|\text{tested})$. ], which we use to estimate the positivity rate among the untested asymptomatic population, would be too low. This is because the observed test positivity rate when so much asymptomatic testing is conducted would be closer to what expect the positivity rate among the asymptomatic test positivity rate to be among the untested population. Because the assumptions of the probabilistic bias analysis here did not assume such extensive asymptomatic testing was contributing to the test positivity rate, we are likely underestimating the true number of unobserved infections if there is a substantial amount of screening testing. It would be simple, however, to adjust $\beta$ to account for cases where there is increased asymptomatic testing. 
 
 
-```{r,fig.cap = "\\label{fig:above-below-by-county-ma} To summarize the concordance with Covidestim for each county in Massachusetts, we consider the proportion of all probabilistic bias intervals (each corresponding to a two-week interval) that contain the Covidestim median for that time interval, or where the Covidestim median falls above or below the interval. The Covidestim falls *above* the probabilistic bias intervals for Suffolk and Hampshire counties in more two-week intervals than in other counties."}
+```{r,fig.cap = "\\label{fig:above-below-by-county-ma} To summarize the concordance with Covidestim for each county in Massachusetts, we consider the proportion of all probabilistic bias intervals (each corresponding to a two-week interval) that contain the Covidestim median for that time interval, or where the Covidestim median falls above or below the interval. The Covidestim median falls above the probabilistic bias intervals for Suffolk and Hampshire counties in more two-week intervals than in other counties."}
 knitr::include_graphics("figure/covidestim_above_below_by_county_ma.jpeg")
 
 ```
@@ -487,7 +493,7 @@ knitr::include_graphics('figure/summarize-concordance-mich-counties.pdf')
 
 
 
-When we compare the ratio of estimated infections to observed infections over time, we see that the ratios are highest across counties in late May into the summer, through July (near the Delta wave) and in late January through mid February (following the peak of the Omicron wave). This is in contrast to what we saw in Massachusetts, where, although the number of infections increased dramatically during the Omicron wave, there was not a marked increase in the ratio of estimated total infections to observed in this time period. 
+When we compare the ratio of estimated infections to observed infections over time, we see that the ratios are highest across counties in late May into the summer, through July (near the Delta wave) and in late January through mid February (following the peak of the Omicron wave). This is similar to what we saw in Massachusetts, where, although the number of infections increased dramatically during the Omicron wave, there was only a small increase in the ratio of estimated total infections to observed in this time period. 
 
 
 ```{r, fig.cap="\\label{fig:mi-county-heatmap}Each row on the heatmap corresponds to a county, while each column is the two-week interval. The color of the tile for a two-week interval in a particular county is the ratio of total estimated infections to the observed infections for that two-week interval. The impelmentation of probabilistic bias analysis used for the total estimated infections is the implementation centering $P(S_1|\\text{untesteed})$ at the survey value. Darker colors indicate higher ratios, where more infections were going unobserved relative to those that were observed. Intervals where the number of observed infections was zero (which is the case in some very small counties where the total number of tests, was, for instance, only 100) are shown in white, since the ratio of estimated to observed is undefined in these cases. Counties are ordered from highest to lowest by median ratio of estimated infections to observed infections. That is, counties at the top, for example, Schoolcraft and Alder, have the highest median ratios of estimated infections to observed, while counties at the bottom, for example, Washtenaw, have the lowest ratios. Across counties, we see notable increases in the summer of 2021 in June through July, and in late January through February."}
@@ -526,19 +532,23 @@ knitr::include_graphics('figure/rank-ratio-over-time-mi-county.pdf')
 
 An ongoing challenge for assessing the quality of the probabilistic bias intervals is that there is no ground truth to compare to. To broaden our comparison beyond Covidestim, we can look at wastewater data.
 
-Wastewater data is a source of data that has been of rising interest throughout the pandemic, in part due to its cost effectiveness in assessing community-level burden, but also due to the fact it represents a much more unbiased sample than COVID-19 testing does.
+Wastewater data is a source of data that has been of rising interest throughout the pandemic, in part due to its cost effectiveness in assessing community-level burden, but also due to the fact it represents a much less sample than COVID-19 PCR testing does.
 
 That said, there are challenges in relating wastewater concentrations to the true number of infections, in part because of the same issue we face here of the lack of ground truth for the true number of infections in any location. The choice of normalization of the viral RNA concentrations of SARS-CoV-2 is important for understanding how these concentrations scale to the number of infections, since the concentration of virus (in genome copies per liter) in a sample will be influenced by various factor unrelated to the true prevalence COVID-19, such as processing differences between treatment plants or trends in water usage. One common choice is to normalize against the concentration of a virus that has a relatively stable population in wastewater, such as Pepper Mild Mottle Virus (PMMoV) [@zhan2022].
 
-Wastewater testing has become increasingly widespread throughout the pandemic as the technology and analysis approaches have evolved, as well as the demand for a source of data on the presence of COVID-19 that is less reliant on access to tests (or symptoms strong enough to warrant a test, which differ by the variants circulating). A comprehensive source of wastewater data across the United States is provided by Biobot Analytics, which is the institution partnering with the CDC for the National Wastewater Surveillance System (NWSS) [@duvallet2022]. Biobot Analytics provide wastewater concentrations aggregated at the county scale by using a weighted average of the concentrations at sampling locations within the county, weighted by the size of the corresponding sewershed populations. This data is publicly available on a public github repository.
+Wastewater testing has become increasingly widespread throughout the pandemic as the technology and analysis approaches have evolved, as well as the demand for a source of data on the presence of COVID-19 that is less reliant on access to tests (or symptoms strong enough to warrant a test, which differ by the variants circulating). A comprehensive source of wastewater data across the United States is provided by Biobot Analytics, which is the institution partnering with the CDC for the National Wastewater Surveillance System (NWSS) [@duvallet2022]. Biobot Analytics provide wastewater concentrations aggregated at the county scale by using a weighted average of the concentrations at sampling locations within the county, weighted by the size of the corresponding sewershed populations. This data is publicly available on a public github repository^[As of May 11, 2023, this data is available at the github repository [here](https://github.com/biobotanalytics/covid19-wastewater-data).].
 
-Most notable for this work, several counties in Massachusetts have reported wastewater data for a substantial period throughout 2021 to 2022. This allows us to compare the bias-corrected estimates -- as well as the Covidestim estimates -- to the wastewater concentrations. 
+Several counties in Massachusetts have reported wastewater data for a substantial period throughout 2021 to 2022. This allows us to compare the bias-corrected estimates -- as well as the Covidestim estimates -- to the wastewater concentrations. 
 
 Wastewater concentrations are typically a leading indicator of observed infections, though there may be some variability in the lead time during different waves of the pandemic [@hopkins2023]. In particular, the lead time was strongest in the earliest waves of the pandemic, and has since declined [@xiao2022]. Various factors can create the changes we see in lead time over the course of the pandemic; for example, the lead time can be impacted by differences in viral shedding, diagnostic testing turnaround times, and testing capacity and behavior [@olesen2021]. 
 
 Since the correlation between the time series as well as the lag at which the maximum correlation occurs are both of interest, we assessed the cross correlation between the series. 
 
-First, we define autocorrelation since the definition of cross correlation is very similar. The definition here uses the notation of @shumway2011.
+First, we define autocorrelation since the definition of cross correlation is very similar. The definition here uses the notation of @shumway2011. 
+
+
+The auto-correlation function $\rho_{XX}(\tau)$ measures the linear dependence between $X_{1+\tau}, \dots X_n$ and $X_1, \dots, X_{n-\tau}$, that is, the difference between the original time series and the time series shifted forward by $\tau$ time units.
+
 
 \begin{tcolorbox}[title=Definition: Autocorrelation]
 
@@ -548,13 +558,10 @@ $$\rho_{XX}(\tau) = \dfrac{E[(X_{t + \tau} - \mu_{X_{t+\tau}}) (X_t - \mu_{X_t})
 \end{tcolorbox}
 
 
-Assuming second order stationarity^[Second order stationarity is also referred to as weak stationarity, and implies that the mean, variance are constant over time and the autocovariance function depends only on the difference between time points.], we have $\mu_{X_{t+\tau}}=\mu_{X_{t}}$
-and similarly $\text{Var}({X_{t+\tau}})=\text{Var}({X_{t}})$, so we an simplify the expression for $\rho_{XX} (\tau)$ to yield  
+Assuming second order stationarity^[Second order stationarity is also referred to as weak stationarity, and implies that the mean and variance are constant over time and the autocovariance function depends only on the difference between time points.], we have $\mu_{X_{t+\tau}}=\mu_{X_{t}}$
+and similarly $\text{Var}({X_{t+\tau}})=\text{Var}({X_{t}})$, so we can simplify the expression for $\rho_{XX} (\tau)$ to yield  
 $$\rho_{XX} (\tau)=\dfrac{E[(X_{t + \tau} - \mu_{X}) (X_t - \mu_{X})]}{Var(X)}.$$ 
 
-
-
-The auto-correlation function $\rho_{XX}(\tau)$ measures the linear dependence between $X_{1+\tau}, \dots X_n$ and $X_1, \dots, X_{n-\tau}$, that is, the difference between the original time series and the time series shifted forward by $\tau$ time units.
 
 We can extend this definition to quantify the linear relationship between distinct lagged time series  $X_1, X_2, \dots, X_t$ and $Y_1, Y_2, \dots, Y_t$ by defining the cross correlation function. The function is only defined on two time series that are over the same time interval and sampled at the same frequency.
 
@@ -577,7 +584,7 @@ Looking at cross correlation can be useful in the sense that we can both conside
 In Figure \ref{fig:compdiff}, we consider simulated data where $(Z_t)$ is $(Y_t)$ lagged by 3 time units with noise added. We can see that  $Z_t$ and $Y_t$ are not second-order stationary since the mean clearly is not constant over time. However, to stabilize the mean, we can apply first order differencing, where we take the differences between consecutive observations.
 
 
-```{r, fig.show ='hold', out.width='100%', fig.height=3.5, fig.cap = "\\label{fig:compdiff}"}
+```{r, fig.show ='hold', out.width='100%', fig.height=3.5, fig.cap = "\\label{fig:compdiff}In the first panel, where the time series in not differenced, the violation of second order stationarity is clear in the fact the mean is not constant over time. When we apply differencing, that is, subtracting the lagged value from each value in the series, we obtain the time series in the second panel, where the mean is constant over time. This underscores why differencing is important when interpreting the cross correlation, which assumes, in the `stats::ccf` implementation, second order stationarity."}
 
 
 library(tidyverse)
@@ -639,7 +646,7 @@ sim %>%
 We can see the effect of applying differencing to the time series when we compute the cross correlations of $(Z_t)$ and $(Y_t)$, as shown in Figure \ref{fig:corzy}. The true lag of $-3$ time units was recovered when considering the differenced time series, but not when we considered the original time series.  In what follows, because the time series we are considering are not stationary, we consider the cross correlation between the differenced time series.
 \vspace{5 cm}
 
-```{r, fig.show='hold', out.width ='45%', fig.cap = "\\label{fig:corzy}", fig.height = 3.5}
+```{r, fig.show='hold', out.width ='50%', fig.cap = "\\label{fig:corzy}In the first panel, we consider the time series that has not been differenced, and see that the lag at which the maximum cross correlation occurs is not the true lag. When we apply differencing, we see in the second panel that the maximum correlation occurs at the true lag.", fig.height = 5}
 ##############################################
 # CROSS CORRELATION NO DIFFERNCING
 ##############################################
@@ -716,7 +723,7 @@ Comparing the maximum correlations obtained for the observed infections, only in
 
 
 
-```{r, fig.cap = "\\label{fig:correlation_observed_pb}", out.width="100%"}
+```{r, fig.cap = "\\label{fig:correlation_observed_pb}For each implementation of the priors, we consider the maximum cross correlation between the estimated infections for the two week interval and the mean effective concentration of SARS-CoV-2 in the wastewater for that two-week interval. We also include the cross correlation between the observed infections and effective wastewater concentration to see how the correlations between the bias-corrected estimates with wastewater concentrations compare to the correlations between the observed infections and wastewater concentrations. The shape of the point (circle, square, or triangle) indicates the lag at which the maximum correlation was obtained. For instance, a lag of -1 would indicate the maximum correlation between the time series and wastewater concentrations is when wastewater concentrations lead infections by one two-week interval. In most cases, the lag was zero.", out.width="100%"}
 
 # figure produced by cross_correlation_wastewater.Rmd
 knitr::include_graphics("figure/correlation_observed_pb.jpeg")
@@ -724,11 +731,12 @@ knitr::include_graphics("figure/correlation_observed_pb.jpeg")
 
 ```
 
+\vspace{8 cm}
 
 #### Comparison Between Covidestim, Observed Cases, and Bias-Corrected Counts
 
 
-In Figure \ref{fig:correlation_observed_pb_covidestim}, we also compare the Covidestim estimates to the wastewater concentrations. In general, both Covidestim and bias-corrected counts are more correlated with wastewater concentrations than observed infections. Of note, Nantucket County (25019) is not included here because Covidestim does not report estimates are not reported for Nantucket.^[In reporting of COVID-19 data, Nantucket values are grouped with Dukes County, which is likely why Covidestim does not try to estimate the grouped counts.] 
+In Figure \ref{fig:correlation_observed_pb_covidestim}, we also compare the Covidestim estimates to the wastewater concentrations. In general, both Covidestim and bias-corrected counts are more correlated with wastewater concentrations than observed infections. Of note, Nantucket County (25019) is not included here because Covidestim does not report estimates are not reported for Nantucket.^[In reporting of COVID-19 data, Nantucket values are grouped with Dukes County (Martha's Vineyard), which may be why Covidestim does not try to estimate the grouped counts.] 
 
 ```{r,fig.cap = "\\label{fig:correlation_observed_pb_covidestim}", out.width="100%"}
 # figure produced by cross_correlation_wastewater.Rmd

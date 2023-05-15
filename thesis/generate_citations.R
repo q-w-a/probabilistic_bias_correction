@@ -12,3 +12,4 @@ rbbt::bbt_write_bib('./thesis/bibliography.bib',
                                  pattern ='*.Rmd',
                                  full.names=TRUE)),
                     overwrite = TRUE)
+

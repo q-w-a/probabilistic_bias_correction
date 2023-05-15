@@ -697,7 +697,7 @@ cluster_order <- tibble(order = hclust_avg$order,
 heatmap_dat %>%
   mutate(ratio=exp_cases_median/positive) %>%
   mutate(state=factor(state, levels= hclust_avg$labels[hclust_avg$order])) %>%
-  mutate(date_lab = format(as.POSIXct(date),format="%b %Y")) %>%
+  mutate(date_lab = format(as.POSIXct(date),format="%b %d %Y")) %>%
   group_by(state) %>%
   mutate(m = median(ratio)) %>%
   ungroup() %>%
@@ -712,7 +712,7 @@ heatmap_dat %>%
        fill = "Ratio of Estimated Cases\nto Observed",
        title = "Ratio of Median Estimated Infections to Observed Infections") +
   theme_c() +
-  theme(axis.text.x = element_text(size=11, angle=30),
+  theme(axis.text.x = element_text(size=11, angle=90),
         axis.text.y = element_text(size = 13),
         axis.title = element_text(size=16),
         legend.title = element_text(face="bold", size=18))

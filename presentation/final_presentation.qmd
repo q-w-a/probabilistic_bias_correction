@@ -261,23 +261,91 @@ testing <- testing %>%
 testing <- testing %>%
   mutate(week = week(date), year = year(date), month = month(date)) %>%
   mutate(week = ifelse(week ==53, 52, week)) %>%
-  # mutate(across(c(week,year,month), as.character)) %>%
-  #   mutate(across(c(week,year,month),
-  #                 ~ifelse(nchar(.x) == 1, paste0("0", .x), .x))) %>%      
-  # mutate(weekyear = paste0(week, "-", month, "-" ,year),
-  #        weekyear = as_date(weekyear,  format="%U-m-%Y")) %>%
   group_by(week, year, state, population) %>%
   summarize(date = min(date), 
             total = sum(total)) %>%
   ungroup()
 
+# 
+# pal1 <-viridis_pal(option="viridis", end = .9, begin=.5)(12)
+# pal2 <- viridis_pal(option="rocket", end = .9, begin=.3)(15)
+# pal3 <- viridis_pal(option="magma", end = .9, begin=.3)(15)
+# pal4 <- viridis_pal(option="mako", end = .8, begin=.3)(15)
+# 
+# 
+# rankpal <- c(pal1, pal2, pal3,pal4)
+# indexes <- sample.int(length(rankpal), replace=FALSE)
+# rankpal <- rankpal[indexes]
+# 
+# testing  %>%
+#    mutate(`Number of Tests / Population Size` = total/population) %>%
+#   filter(date >= ymd("2021-01-01")) %>%
+#   ggplot(aes(x = date, 
+#              y = `Number of Tests / Population Size`,
+#              color = state)) +
+#   geom_line(size = .7, show.legend=FALSE, alpha = .7) +
+#   theme_bw() +
+#   theme(axis.title = element_text(size = 22),
+#           legend.position = "none",
+#         plot.title = element_text(hjust = .5, face = "bold", size = 25),
+#         text = element_text(family = "Arial"),
+#         axis.text.x = element_text(size = 14),
+#         axis.text.y = element_text(size = 8)) +
+#   labs(title = "Weekly PCR Testing Rate by State",
+#        x="")+ 
+#   scale_x_date(date_labels= "%b %Y") +
+#   #viridis::scale_color_viridis(option="rocket", discrete=TRUE) +
+#   scale_color_manual(values=rankpal)
+# 
+#  ggsave(width=8, height = 6,"./thesis/figure/testing_all.jpeg", dpi=600)
+# 
+
+codes <- read_csv(here('data/demographic/statecodes.csv'))
+
 
 testing  %>%
    mutate(`Number of Tests / Population Size` = total/population) %>%
+  group_by(state) %>%
+  mutate(m = median(`Number of Tests / Population Size`)) %>%
+  ungroup() %>%
+  mutate(max=max(m,na.rm=TRUE),
+         min = min(m,na.rm=TRUE)) %>%
+  rename(code=state) %>%
+  left_join(codes) %>%
+  mutate(state_name = ifelse(m == max | m==min, state, NA)) %>%
+  ggplot(aes(x=date,  y=`Number of Tests / Population Size`,
+             group=state)) +
+  geom_line(alpha = .2) +
+  geom_line(aes(color=state_name),
+            linewidth=1.3) +
+  scale_color_manual(na.value=NA, values=c("#900C3F", "#5098C2"),
+                     breaks = c("Mississippi", "Rhode Island"),
+                     labels= c("Mississippi", "Rhode Island"),
+                     name='')+
+  theme_bw() +
+  theme(axis.title = element_text(size = 22),
+          legend.position = "top",
+        legend.text=element_text(size=17),
+        plot.title = element_text(hjust = .5, face = "bold", size = 25),
+        text = element_text(family = "Arial"),
+        axis.text.x = element_text(size = 14),
+        axis.text.y = element_text(size = 8)) +
+  labs(title = "Weekly PCR Testing Rate by State",
+       x="")+ 
+  scale_x_date(date_labels= "%b %Y") 
+
+ggsave(width=10, height = 6,"./thesis/figure/testing_all.jpeg", dpi=600)
+
+
+
+
+testing  %>%
+   mutate(`Number of Tests / Population Size` = total/population) %>%
+  filter(date >= ymd("2021-01-01")) %>%
   ggplot(aes(x = date, 
              y = `Number of Tests / Population Size`,
              color = state)) +
-  geom_line(size = .7, show.legend=FALSE) +
+  geom_line(size = .7, show.legend=FALSE, alpha = .7) +
   theme_bw() +
   theme(axis.title = element_text(size = 22),
           legend.position = "none",
@@ -288,10 +356,15 @@ testing  %>%
   labs(title = "Weekly PCR Testing Rate by State",
        x="")+ 
   scale_x_date(date_labels= "%b %Y") +
-  viridis::scale_color_viridis(option="rocket", discrete=TRUE)
+  #viridis::scale_color_viridis(option="rocket", discrete=TRUE) +
+  scale_color_manual(values=rankpal)
+
 
 
 ggsave(width=8, height = 6,"./presentation/figure/testing_all.jpeg", dpi=300)
+
+
+
 
 
 testing  %>%
@@ -318,6 +391,8 @@ testing  %>%
   scale_color_manual(values = c(ID='#900C3F'))
 
 ggsave(width=8, height = 6,"./presentation/figure/idaho_testing.jpeg", dpi=300)
+
+
 
 
 testing  %>%
