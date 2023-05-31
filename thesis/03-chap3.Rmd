@@ -55,7 +55,7 @@ theme_c <- function(...){
 
 ## Background on the Beta Distribution
 
-The priors of the bias parameters we are specifying are probabilities, with the exception of $\alpha$ and $\beta$, which represent ratios of probabilities. To define a prior for a parameter that takes on values in $[0,1]$, a particularly useful distribution is the beta distribution, which is only defined on the interval $[0,1]$. It is parameterized by two positive values $a, b$^[In R, $a$ = shape1 and $b$ = shape2.].
+|    The priors of the bias parameters we are specifying are probabilities, with the exception of $\alpha$ and $\beta$, which represent ratios of probabilities. To define a prior for a parameter that takes on values in $[0,1]$, a particularly useful distribution is the beta distribution, which is only defined on the interval $[0,1]$. It is parameterized by two positive values $a, b$^[In R, $a$ = shape1 and $b$ = shape2.].
 
 The beta  distribution is a flexible distribution^[The beta distribution is also useful in Bayesian statistics, because it is the conjugate prior distribution for the binomial distribution and negative binomial distributions. That is, if we have a binomial likelihood with parameter $p$ and $p$ is distributed according to the beta distribution, the resulting posterior follows a beta distribution.]; by altering the parameters $a,b$, we can get an extensive array of shapes, as seen in Figure \ref{fig:beta-flexible}. 
 
@@ -137,7 +137,7 @@ get_beta_params <- function(mu, sd) {
 
 ## Background on the Gamma Distribution
 
-The gamma distribution is another very flexible distribution. However, the support of the gamma distribution is $(0,\infty)$ rather than $[0,1]$. Because some of the bias parameters are not probabilities ($\alpha$ and $\beta$ are ratios of probabilities), we can instead use the gamma distribution to allow the random variable to take on values over 1. 
+|    The gamma distribution is another very flexible distribution. However, the support of the gamma distribution is $(0,\infty)$ rather than $[0,1]$. Because some of the bias parameters are not probabilities ($\alpha$ and $\beta$ are ratios of probabilities), we can instead use the gamma distribution to allow the random variable to take on values that exceed 1. 
 
 As with the beta distribution, we see in Figure \ref{fig:gamma-shapes} a variety of shapes are possible with the gamma distribution.
 
@@ -236,6 +236,8 @@ sd(samp)
 
 ```
 
+\newpage 
+
 
 ## Definition of Prior Distributions for Incomplete Testing Correction
 
@@ -246,7 +248,7 @@ sd(samp)
 We recall that $S_1$ denotes the event that an individual has moderate to severe symptoms, so
  $P(S_1|\text{untested})$ is the probability of having moderate to severe symptoms among those who were not tested. We note that this would include people that have moderate to severe COVID-like symptoms that do indeed have COVID-19 as well as people that do not have COVID-19 and have some other respiratory illness.
  
-@wu2020 defined this distribution with a truncated beta distribution such that $\Pr(S_1|\text{untested}) \sim \text{TBeta}(\alpha = 1.18, \beta = 45.97)$, bounded between 0 and 15%. When we define the distribution of $P(S_1|\text{untested})$, we release the truncation (Figure \ref{fig:prior-s-untested}) . Furthermore, we actually remove the truncation on all prior distributions considered. This choice was based on the fact that we have a lack of data to support particular bounds for a truncated distribution, and such assumptions can lead to difficulties in the Bayesian melding component of the probabilistic bias analysis. 
+@wu2020 defined this distribution with a truncated beta distribution such that $\Pr(S_1|\text{untested}) \sim \text{TBeta}(a = 1.18, b = 45.97)$, bounded between 0 and 15%. When we define the distribution of $P(S_1|\text{untested})$, we release the truncation (Figure \ref{fig:prior-s-untested}) . Furthermore, we actually remove the truncation on all prior distributions considered. This choice was based on the fact that we have a lack of data to support particular bounds for a truncated distribution, and such assumptions can lead to difficulties in the Bayesian melding component of the probabilistic bias analysis. 
 
 
 ```{r, out.width="80%", fig.height = 3, echo=FALSE, fig.cap="\\label{fig:prior-s-untested}The specified prior for $Pr(S_1|\\text{untested})$, where  $Pr(S_1|\\text{untested}) \\sim Beta(1.7,55)$, with a mean at 0.03 and standard deviation 0.0225."}
@@ -482,10 +484,10 @@ knitr::include_graphics("figure/emp_p_s_untested.pdf")
 We define $\alpha$ as the ratio  $\dfrac{\Pr(\text{test}_+|S_1, \text{untested})}{\Pr(test+|\text{tested})}$, applied to allow
 $P(\text{test}_+|S_1, \text{untested})$ to vary by state. $\Pr(\text{test}_+|\text{tested})$ is the state-level empirical estimate, but we do not calculate $\alpha$ itself using the state-level empirical estimate. Instead, we calculate $\Pr(\text{test}_+|S_1, \text{untested})$ as $P(\text{test}_+|S_1, \text{untested}) =\alpha P(\text{test}_+|\text{tested})$. We can think about $\alpha$ as the adjustment to the test positivity rate as we estimate the probability of testing positive among symptomatic *untested* individuals. We assume this ratio is close to 1, that is, that the probability of testing positive among symptomatic untested individuals would be near 90% of the probability of testing positive among tested individuals (not all of whom would be symptomatic).
 
-With the the expansion of testing resources in 2021, it is plausible that $P(\text{test}_+|\text{untested},S_1)$ could exceed $P(\text{test}_+|\text{tested})$, so we use a gamma distribution to allow $\alpha$ to take on values greater than 1.
+With the the expansion of testing resources in 2021, it is plausible that $P(\text{test}_+|\text{untested},S_1)$ could exceed $P(\text{test}_+|\text{tested})$, so we use a gamma distribution to allow $\alpha$ to take on values greater than 1 (Figure \ref{fig:alpha-dist}).
 
 
-```{r, out.width = '80%',echo=FALSE,fig.height=3}
+```{r, out.width = '80%',echo=FALSE,fig.height=3,  fig.cap="\\label{fig:alpha-dist}The specified prior for $\\alpha$, where $\\alpha$ is the ratio $\\dfrac{\\Pr(\\text{test}_+|S_1, \\text{untested})}{\\Pr(\\text{test}_+|\\text{tested})}$. The distribution is defined such that mean is at 0.95 and standard deviation 0.08."}
 
 tibble(x = seq(0, 1.3, length =1000), 
        y =  with(prior_params, {
@@ -504,13 +506,13 @@ tibble(x = seq(0, 1.3, length =1000),
 ### Defining $\beta$
 
 
- Similar to the way we defined $\alpha$, we define $\beta$ as the ratio of $\dfrac{P(\text{test}_+ |S_0, \text{untested})}{P(\text{test}_+|\text{tested})}$, applied to allow $P(\text{test}_+ |S_0, \text{untested})$ to vary by state. We use $\beta$ to calculate $P(test+|S_1, \text{untested})$ by the expression $P(\text{test}_+|S_0, \text{untested}) =\beta P(\text{test}_+|\text{tested})$. We can think about $\beta$ as the adjustment to the test positivity rate as we estimate the probability of testing positive among aymptomatic untested individuals (in contrast to $\alpha$, which is symptomatic untested individuals). We assume the values of $\beta$ are substantially lower than $\alpha$, reflecting that we expect a much smaller proportion of asymptomatic untested individuals to test positive than symptomatic individuals.
+ Similar to the way we defined $\alpha$, we define $\beta$ as the ratio of $\dfrac{P(\text{test}_+ |S_0, \text{untested})}{P(\text{test}_+|\text{tested})}$, applied to allow $P(\text{test}_+ |S_0, \text{untested})$ to vary by state. We use $\beta$ to calculate $P(\text{test}_+|S_0, \text{untested})$ by the expression $P(\text{test}_+|S_0, \text{untested}) =\beta \cdot P(\text{test}_+|\text{tested})$. We can think about $\beta$ as the adjustment to the test positivity rate as we estimate the probability of testing positive among asymptomatic untested individuals (in contrast to $\alpha$, which is symptomatic untested individuals). We assume the values of $\beta$ are substantially lower than $\alpha$, reflecting that we expect a much smaller proportion of asymptomatic untested individuals to test positive than symptomatic individuals (Figure \ref{fig:beta-dist}).
  
  
  
 
 
-```{r, out.width = '80%', fig.height = 3, echo=FALSE}
+```{r, out.width = '80%', fig.height = 3, echo=FALSE, fig.cap="\\label{fig:beta-dist}The specified prior for $\\beta$, where $\\beta$ is the ratio $\\dfrac{\\Pr(\\text{test}_+|S_0, \\text{untested})}{\\Pr(\\text{test}_+|\\text{tested})}$. The distribution is defined such that mean is at 0.15 and standard deviation 0.09."}
 
 
 
@@ -530,21 +532,21 @@ tibble(x = seq(0, 1.3, length =1000),
 
 From the COVID-19 Trends and Impact Survey, we have the screening test positivity, defined as the estimated test positivity rate of people tested for COVID-19 who were being screened with no symptoms, as well as the overall test positivity.
 
-Because we define $\beta$ as the ratio of $\frac{\Pr(\text{test}_+ |S_0, \text{untested})}{\Pr(\text{test}_+|\text{tested})}$, we can estimate $\beta$ empirically by taking the screening test positivity rate as an estimate of $\Pr(test + |S_0, untested)$ and then dividing by the overall test positivity rate $\Pr(\text{test}_+|\text{tested})$. The screening test positivity and overall test positivity are available at the state level, but there are not estimates of screening test positivity for all states.
+Because we define $\beta$ as the ratio of $\frac{\Pr(\text{test}_+ |S_0, \text{untested})}{\Pr(\text{test}_+|\text{tested})}$, we can estimate $\beta$ empirically by taking the screening test positivity rate as an estimate of $\Pr(\text{test}_+ |S_0, \text{untested})$ and then dividing by the overall test positivity rate $\Pr(\text{test}_+|\text{tested})$. The screening test positivity and overall test positivity are available at the state level, but there are not estimates of screening test positivity for all states.
 
 When the survey data is available, informing the prior for $\beta$ by centering the distribution at the ratio of the screening test positivity to the overall test positivity   allows us to obtain a time and state-specific estimate of $\beta$.
 
 ### Defining $P(S_0|\text{test}_+,\text{untested})$
- $P(S_0|\text{test}_+,\text{tested})$ is the probability of not having symptoms among those who test positive, that is, the asymptomatic rate of COVID-19. Although we can never obtain a true estimate of $P(S_0|\text{test}_+,\text{untested})$ given it is by nature unobserved, we can look to studies that estimate $P(S_0|\text{test}_+,\text{tested})$.
+ $\Pr(S_0|\text{test}_+,\text{tested})$ is the probability of not having symptoms among those who test positive, that is, the asymptomatic rate of COVID-19 among the untested population. Although we can never obtain a true estimate of $\Pr(S_0|\text{test}_+,\text{untested})$ given it is by nature unobserved, we can look to studies that estimate $\Pr(S_0|\text{test}_+,\text{tested})$.
 
-One large meta-analysis found $P(S_0|\text{test}_+,\text{tested})$ to be 40.50% (95% CI: 33.50%-47.50%), although it did not restrict to screening studies [@ma2021a]. Another meta-analysis, when restricting to screening studies,  found $P(S_0|\text{test}_+,\text{tested})$ to be 47.3% (95% CI: 34.0% -61.0%) [@sah2021a].
+One large meta-analysis found $\Pr(S_0|\text{test}_+,\text{tested})$ to be 40.50% (95% CI: 33.50%-47.50%), although it did not restrict to screening studies [@ma2021a]. Another meta-analysis, when restricting to screening studies,  found $\Pr(S_0|\text{test}_+,\text{tested})$ to be 47.3% (95% CI: 34.0% -61.0%) [@sah2021a].
 
 
-Of note, we use the prior $P(S_0|\text{test}_+,\text{untested})$ in the Bayesian melding step of the analysis, but this prior is not one that we use to directly calculate the corrected counts.
+Of note, we use the prior $\Pr(S_0|\text{test}_+,\text{untested})$ in the Bayesian melding step of the analysis, but this prior is not one that we use to directly calculate the corrected counts.
 
-Given we are considering an extended time interval with changing viral dynamics due to the emergence of new variants that change the severity of the disease, we leave the standard deviation on this prior distribution fairly wide.  
+Given we are considering an extended time interval with changing viral dynamics due to the emergence of new variants that change the severity of the disease, we leave the standard deviation on this prior distribution fairly wide (Figure \ref{fig:asymp-dist}).  
 
-```{r, out.width = '80%', fig.height = 3}
+```{r, out.width = '80%', fig.height = 3, fig.cap="\\label{fig:asymp-dist}The specified prior for $\\Pr(S_0|\\text{test}_+,\\text{tested})$, which represents the asymptomatic rate of infection among the untested population. The distribution is defined such that mean is at 0.4 and the standard deviation is 0.1225."}
 
 
 tibble(x = seq(0, 1.3, length =1000), 
@@ -554,7 +556,7 @@ tibble(x = seq(0, 1.3, length =1000),
   ggplot(aes(x= x,ymin =0, ymax=y)) +
   geom_ribbon(alpha = .8) +
   labs(x = "Value", y = "Probability Density", 
-       title = latex2exp::TeX("Distribution of $P(S_0|test+, untested)$")) +
+       title = latex2exp::TeX("Distribution of $Pr(S_0|test+, untested)$")) +
   theme_c()
 
 
@@ -562,6 +564,7 @@ tibble(x = seq(0, 1.3, length =1000),
 
 ```
 
+\newpage
 
 ## Definition of Priors for Test Inaccuracy Correction
 
@@ -570,17 +573,16 @@ Test accuracy is broken up into two components, specificity and sensitivity. We 
 
 ### Defining Test Sensitivity ($S_e$)
 
-We define the prior distributions of the test sensitivity and test specificity to follow the definitions in @wu2020.
+|    We define the prior distributions of the test sensitivity and test specificity to follow the definitions in @wu2020.
 
 The test sensitivity is the probability  an individual tests positive given that they are truly positive. Denoting the event of truly being positive as $+$, we can write $S_e = \Pr(\text{test}_+|+)$.
 
 
-The test sensitivity $S_e$ is defined by a truncated beta distribution such that $S_e \sim \text{TBeta}(a= 4.20, b= 	1.05)$, bounded between 0.65 and 1 and with mean $\dfrac{a}{a+b} = 0.80$.
+The test sensitivity $S_e$ is defined by a truncated beta distribution such that $S_e \sim \text{TBeta}(a= 4.20, b= 	1.05)$, bounded between 0.65 and 1 and with mean $\dfrac{a}{a+b} = 0.80$, as we see in Figure \ref{fig:dist-sens}.
 
 
 
-
-```{r, echo = FALSE, out.width = "80%",fig.height=2.5}
+```{r, echo = FALSE, out.width = "80%",fig.height=2.5, fig.cap="\\label{fig:dist-sens} The distribution for PCR test sensitivity, defined such that  $S_e \\sim \\text{TBeta}(a= 4.20, b= 	1.05)$."}
 
 p_se <- function(x){
   truncdist::dtrunc(x = x,spec = "beta",a = 0.65,b = 1,
@@ -682,7 +684,7 @@ ggsave("./figure/variant_plot.jpg", dpi = 600)
 
 ```
 
-```{r, out.width = "80%", fig.height=3, fig.cap = "Variant proportions in the United States from genomic surveillance data collected by the CDC. Data is not available for time periods earlier than May 8, 2021.", echo = FALSE}
+```{r, out.width = "80%", fig.cap = "Variant proportions in the United States from genomic surveillance data collected by the CDC. Data is not available for time periods earlier than May 8, 2021.", echo = FALSE}
 
 knitr::include_graphics("./figure/variant_plot.jpg")
 
@@ -693,14 +695,14 @@ Ultimately, although it is plausible that test sensitivity may vary by time due 
 
 ## Defining Test Specificity ($S_p$)
 
-The test specificity is the probability an individual tests negative given that they are truly negative. Denoting the event of testing negative as $\text{test} - $  and being truly negative as $=$, we test specificity is $S_p = P(\text{test} - | -)$. 
+|    The test specificity is the probability an individual tests negative given that they are truly negative. Denoting the event of testing negative as $\text{test} -$  and being truly negative as $-$, we test specificity is $S_p = \Pr(\text{test} - | -)$. 
 
 We define the distribution with a truncated beta distribution such that 
-$P(\text{test}-| -) \sim \text{TBeta}(a = 4998.50, \beta = 	0.25)$, where this distribution is bounded between 0.9998 and 1 and with mean $\dfrac{a}{a + b} = 0.99995$. The high certainty for this parameter is based on the CDC 2019-nCoV Real-Time RT-PCR Diagnostic Panel [@lu2020].
+$\Pr(\text{test}-| -) \sim \text{TBeta}(a = 4998.50,b= 	0.25)$, where this distribution is bounded between 0.9998 and 1 and with mean $\dfrac{a}{a + b} = 0.99995$, as we see in Figure \ref{fig:dist-spec}. The high certainty for this parameter is based on the CDC 2019-nCoV Real-Time RT-PCR Diagnostic Panel [@lu2020].
 
 
 
-```{r,echo=FALSE, out.width = "80%"}
+```{r,echo=FALSE, out.width = "80%", fig.cap="\\label{fig:dist-spec} The distribution defined for PCR test specificity, defined such that  $S_p = \\sim \\text{TBeta}(a = 4998.50, b = 	0.25)$. This prior is informed by the CDC 2019-nCoV Real-Time RT-PCR Diagnostic Panel."}
 
 p_sp <- function(x){
   truncdist::rtrunc(n = x,spec = "beta",a = 0.9998	,b = 1,
@@ -729,9 +731,7 @@ To explore the implications of changes in the bias parameter distributions both 
 
 ## Correction for Incomplete Testing 
 
-We denote $N^*$ to be positive tests (not infections).
-
-As discussed previously, once we have sampled values from the constrained distributions of $P(S_1|\text{untested})$, $\alpha$, $\beta$, we estimate the test positivity among the symptomatic untested population as $P(\text{test}_+|S_1,\text{untested}) = \alpha \; P(\text{test}_+|\text{tested})$, and we estimate the test positivity among the asymptomatic untested population as $P(\text{test}_+|S_0,\text{untested}) = \beta \; P(\text{test}_+|\text{tested})$. Then, we compute the positives among the symptomatic and mild/asymptomatic parts of the population respectively as 
+|    We denote $N^*$ to be positive tests (not infections). As discussed previously, once we have sampled values from the constrained distributions of $P(S_1|\text{untested})$, $\alpha$, $\beta$, we estimate the test positivity among the symptomatic untested population as $P(\text{test}_+|S_1,\text{untested}) = \alpha \; P(\text{test}_+|\text{tested})$, and we estimate the test positivity among the asymptomatic untested population as $P(\text{test}_+|S_0,\text{untested}) = \beta \; P(\text{test}_+|\text{tested})$. Then, we compute the positives among the symptomatic and mild/asymptomatic parts of the population respectively as 
 
 $$N^*_{\text{untested},S_1} = N_{\text{untested}} \; P(S_1|\text{untested}) \cdot P(\text{test}_+ | S_1,\text{untested}) \;\;\;\text{ and }$$
 $$N^*_{\text{untested},S_0} = N_{\text{untested}}(1-P(S_1|\text{untested}))P(test + | S_0,\text{untested}).$$
@@ -743,47 +743,6 @@ and finally we add the number of observed positives, $N^*_{tested}$ to obtain th
 $$N^* = N^*_{\text{tested}} +N^*_{\text{untested}}.$$
 
 
-
-```{r,echo=FALSE,include=FALSE,eval=FALSE}
-### Acquiring $N^+_{{untested}, S_1}$
-
-$N^+_{{untested}, S_1}$ = the number of **symptomatic untested people** who have COVID-19.
-
-We know
-\[ N^+_{untested} = (N_{\text{untested}})  \cdot P(+,S_1 | \text{untested}).\]
-
-Now, we need to show \[ P(+,S_1 | {untested}) = P(S_1|untested) \cdot P(test \; + | S_1, untested).\]
-
-
-We can see this by writing 
-
-\[ P(+,S_1 | {untested})  =  \dfrac{P(+,S_1 , {untested}) }{P(untested)}\]
-
-and since $P(+|S_1, untested ) = \dfrac{P(untested, +, S_1)}{P(S_1, untested)}$ we have
-
-\[ P(+,S_1 | {untested})  =  \dfrac{P(+|S_1, untested )P(S_1, untested) }{P(untested)}.\]
-
-Because $\dfrac{P(S_1, untested) }{P(untested)} = P(S_1| untested)$
-we can substitute into this expression to give us 
-\[ P(+,S_1 | {untested})  =  P(+|S_1, untested )P(S_1|untested) .\]
-Thus, $N^+_{{untested}, S_1}$ can be acquired by taking
-
-\[
-N^+_{{untested}, S_1}= P(+|S_1, untested )\cdot P(S_1|untested) \cdot N_{untested}.
-\]
-
-### Acquiring $N^+_{{untested}, S_0}$
-
-$N^+_{{untested}, S_0}$ = the number of **asymptomatic untested people** who have COVID-19.
-
-Using similar logic, we can find $N^+_{{untested}, S_0}$. That is, we can take
-\[
-N^+_{{untested}, S_0}= P(+|S_0, untested )\cdot P(S_0|untested) \cdot N_{untested}
-\]
-where $P(S_0|untested)  = (1- P(S_1|untested))$.
-
-  
-```
 
 
 
@@ -800,7 +759,8 @@ It is possible that this formula will yield a negative value when $N^* < (1-S_p)
 
 ### Derivation of Formula for Correction for Diagnostic Test Inaccuracy
 
-We define test sensitivity and specificity as follows:
+Recall that we define test sensitivity and specificity as follows:
+
 * $S_e$ = test sensitivity = the probability an individual tests positive if they have COVID-19 (probability of a true positive), that is, $P(\text{test}_+ | +)$. 
 * $S_p$ = test specificity = probability an individual tests negative if they do not have COVID-19 (probability of a true negative), that is, $P(\text{test}- |-)$.
 
@@ -809,6 +769,7 @@ As defined previously, both are defined as by truncated beta distributions.
 To correct case counts for diagnostic test inaccuracy, we use the formula 
 $$\text{Number Truly Positive} = \dfrac{N^*- (1-S_p) \times N}{S_e+S_p-1}. \tag{1}$$
 
+from @rothman2008.
 
 \vspace{5 mm}
 
@@ -854,7 +815,7 @@ We also recall that
 
 \noindent Now, we can substitute this result into our expression for 
 
-$N^+ =S_e T^+ + (1-S_p) T^-$ and solve for the desired value, the number of truly positive individuals, $T^+$. This gives us
+\noindent $N^+ =S_e T^+ + (1-S_p) T^-$ and solve for the desired value, the number of truly positive individuals, $T^+$. This gives us
 
 \begin{align*}
  N^* &=S_e T^+ + (1-S_p)  \left( \dfrac{( N^- - (1-S_e) T^+) }{S_p} \right)
@@ -872,7 +833,8 @@ $N^+ =S_e T^+ + (1-S_p) T^-$ and solve for the desired value, the number of trul
  T^+ &= \dfrac{ S_p \; N^* -   (1-S_p)  ( N^-)}{(S_p + S_e - 1)} .
 \end{align*}
 At this point, we can simplify the numerator as follows by using the fact
-$N =N^* + N^-$. This gives us 
+
+\noindent $N =N^* + N^-$. This gives us 
 
 \begin{align*} &=S_p \;N^* -   (1-S_p)  N^-\\
 &=  S_p   N^* + S_p  N^- - N^-\\

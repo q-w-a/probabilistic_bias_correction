@@ -6,6 +6,7 @@
 # Appendix
 
 ```{r, include=FALSE}
+
 knitr::opts_chunk$set(echo = FALSE, 
                       eval = TRUE,
                       message = FALSE,
@@ -14,6 +15,7 @@ knitr::opts_chunk$set(echo = FALSE,
                       fig.align ='center',
                       out.width="100%")
 library(knitr)
+
 ```
 
 
@@ -108,11 +110,8 @@ knitr::include_graphics('figure/weights.jpeg')
 ```
 
 
-\newpage 
-
 We fit a linear regression with polynomial terms, typically with degree up to 2, with these weights. For example, fitting the model for this same $x^*=500$, we obtain the polynomial in Figure \ref{fig:ex-poly}.
 
-\begin{flushleft}
 
 ```{r, fig.cap = "\\label{fig:ex-poly}", fig.asp = .52, fig.width = 5}
 
@@ -139,11 +138,10 @@ data %>%
 
 ```
 
-\end{flushleft}
 
 By fitting the model for every point in $\mathbf x$, we obtain the smoothed line shown in red in Figure \ref{fig:loess-all}.
 
-```{r, fig.cap = "\\label{smooth-functions}"}
+```{r, fig.cap = "\\label{smooth-functions}Plotting the set of all local models used to obtain the LOESS curve shown in red."}
 
 get_predicted <- function(x_i, all = FALSE) {
 
@@ -865,7 +863,7 @@ As we did in Figure \ref{fig:compare-beta-params}, we can compare the performanc
 
 
 
-```{r, fig.cap = "\\label{fig:comp-beta}", fig.height =10, fig.width= 7}
+```{r, fig.cap = "\\label{fig:comp-beta}", fig.height =9, fig.width= 7}
 library(cowplot)
 
 beta_kernel_est_plot <- function(shape1,
@@ -999,6 +997,8 @@ knitr::include_graphics('figure/jhu_cdc_all_states_2.jpeg')
 
 Some states have insufficient data from the COVID-19 Trends and Impact Survey to run the implementations that center the distributions of $\beta$ and/or $P(S_1|\text{untested})$ at the survey values (versions 2 through 4). However, because testing data is available for all states, the implementation that does not inform priors based on survey data is possible for all states in the U.S. (Figure \ref{fig:all-states-first-impl}). 
 
+\newpage
+
 ```{r, fig.cap = "\\label{fig:all-states-first-impl}  Probabilistic bias analysis 95\\% simulation intervals for each two-week interval and state for the implementation where priors do not vary by location or time-interval."}
 
 knitr::include_graphics('figure/all-states-first-impl.jpeg')
@@ -1053,6 +1053,7 @@ knitr::include_graphics('figure/mi_pb_compared_to_covidestim_proportions.pdf')
 knitr::include_graphics('figure/mi-ratio-pop.jpeg')
 
 
+
 ```
 
 
@@ -1061,9 +1062,7 @@ knitr::include_graphics('figure/mi-ratio-pop.jpeg')
 
 ## Lack of Change in $\alpha$ with Melding {#alpha-melding}
 
-We see in any figure that shows the pre and post melding distributions that $\alpha$ undergoes little change.
-
-Recalling the function $M$ we use to relate $\alpha,\beta,\Pr(S_1|\text{untested})$ to the asymptomatic rate, 
+|    We see in any figure that shows the pre and post melding distributions that $\alpha$ undergoes little change. Recalling the function $M$ we use to relate $\alpha,\beta,\Pr(S_1|\text{untested})$ to the asymptomatic rate, 
 
 $$\Pr(S_0|\text{test}_+, \text{untested}) = M(\theta)  = \dfrac{\beta (1- \Pr(S_1|\text{untested}))}{\beta(1- \Pr(S_1|\text{untested})) + \alpha(\Pr(S_1|\text{untested})},$$
 
@@ -1073,13 +1072,17 @@ The other reason is simply the form of the function itself, where $\beta$ is in 
 
 Below, we see that within the range of values of $\alpha$ and $\beta$ that will be sampled with the specification of the priors (considering $\beta$ in the range $(0.01,0.4)$ and $\alpha$ in the range $(0.7,1.3)$, $M(\theta)$ is much more sensitive to changes in $\beta$ across this range than changes in $\alpha$. We hold $\Pr(S_1|\text{untested})$ constant for the purposes of this figure. 
 
-```{r,fig.cap="\\label{fig:alpha-little-change}Holding $\\Pr(S_1|\\text{untested})$ constant and considering $\\alpha \\in (0.7,1.3)$ and $\\beta \\in (0.01,0.4)$, where these ranges contain all values where the prior distribution has nontrivial density, we see that $M(\\theta)$ is much more sensitive to changes in $\\beta$ than to changes in $\\alpha$. A consequence of this is the lack of change we see in $\\alpha$ in the post-melding distributions.", fig.height=3}
+
+&nbsp; &nbsp; &nbsp; &nbsp;
+
+
+```{r,fig.cap="\\label{fig:alpha-little-change}Holding $\\Pr(S_1|\\text{untested})$ constant and considering $\\alpha \\in (0.7,1.3)$ and $\\beta \\in (0.01,0.4)$, where these ranges contain all values where the prior distribution has nontrivial density, we see that $M(\\theta)$ is much more sensitive to changes in $\\beta$ than to changes in $\\alpha$. A consequence of this is the lack of change we see in $\\alpha$ in the post-melding distributions.", fig.height=3,out.width="70%"}
 
 include_graphics('../presentation/figure/alpha_little_change.jpeg')
 
 ```
 
-## Relationship Between $(X+Y)_\alpha$ and $X_{\alpha}$ +$Y_{\alpha}$ for Dependent Variables $X,Y$  {#conservativeintervals}
+## Relationship Between $(X+Y)_\alpha$ and $X_{\alpha}$ +$Y_{\alpha}$ for Dependent Variables {#conservativeintervals}
 
 
 ### Simulation: Bivariate Normal 
@@ -1091,6 +1094,59 @@ We let the subscript $\alpha$ denote the $\alpha^{th}$ and the subscript $1-\alp
 In Figure \ref{fig:simmvn}, in each panel, we increase the correlation $\rho$ between $X$ and $Y$ by 0.25 units and plot the sum $X +Y$ against $X$. The vertical lines represent quantiles $X_{0.025}$ and $X_{0.975}$, and the horizontal lines represent the quantiles  $(X+Y)_{0.025}$ and $(X+Y)_{0.975}$.
 
 We see in Figure \ref{fig:simmvn} that when we increase the correlation between $X$ and $Y$, the width of the interval $\Big((X+Y)_\alpha, (X+Y)_{1-\alpha}\Big)$ increases.
+
+
+&nbsp;
+
+&nbsp; 
+
+&nbsp; 
+
+&nbsp;
+
+&nbsp;
+
+
+
+&nbsp;
+
+&nbsp; 
+
+&nbsp; 
+
+&nbsp;
+
+&nbsp;
+
+
+
+&nbsp;
+
+&nbsp; 
+
+&nbsp; 
+
+
+&nbsp;
+
+&nbsp; 
+
+&nbsp; 
+
+
+&nbsp;
+
+&nbsp; 
+
+&nbsp; 
+
+&nbsp;
+
+&nbsp;
+
+
+
+
 
 ```{r,fig.show = 'hold', out.width ="96%", fig.height = 2, fig.cap = "\\label{fig:simmvn}", cache=TRUE}
 
@@ -1379,10 +1435,12 @@ Since $(1+b)$ is just a constant, we can divide to yield
 $$P\Big( X \leq x_\alpha/(1+b) \Big) = \alpha.$$
 To obtain the quantile for $bX$, we can multiply each side by $b$ to yield
 $$P\Big( bX \leq bx_\alpha/(1+b) \Big) = \alpha.$$
+
 Putting these results together, we have 
+
 \begin{align*}
-F^{-1}_X+F^{-1}_Y = F^{-1}_{bX} (\alpha) + F^{-1}_{X} (\alpha) \\
-&= \frac{bx_\alpha } { 1+b} + \frac{x_\alpha}{1+b}
+F^{-1}_X+F^{-1}_Y &= F^{-1}_{bX} (\alpha) + F^{-1}_{X} (\alpha) \\
+&= \frac{bx_\alpha } { 1+b} + \frac{x_\alpha}{1+b}\\
 &= x_\alpha \\
 &= F^{-1}_{(1+b)X}(\alpha)\\
 &=F^{-1}_{X+Y}(\alpha) \end{align*}
@@ -1433,7 +1491,7 @@ It follows that $Z$ is a normal random variable with mean $\bar x + \bar y$ and 
 In Figure \ref{fig:ex-sim-normal}, we plot the density estimate of the distribution of $X+Y$ for $(X,Y) \sim MVN\left( \begin{pmatrix} 0\\0 \end{pmatrix}, \begin{pmatrix} 1 & 0.2 \\0.2 & 1 \end{pmatrix}\right)$ and plot the density of the random variable $X+Y = Z \sim N\left(\bar x + \bar y,\sqrt{\sigma_x^2 +\sigma_y^2 + 2 \rho \sigma_x \sigma_y }\right)$ and see they are in close alignment, as expected.
 
 
-```{r, fig.cap="\\label{fig:ex-sim-normal} The theoretical density of $N\\left(\\bar x + \\bar y,\\sqrt{\\sigma_x^2 +\\sigma_y^2 + 2 \\rho \\sigma_x \\sigma_y }\\right)$ is plotted in red over the kernel density estimate of the observed distribution of $X+Y$."}
+```{r, fig.cap="\\label{fig:ex-sim-normal} The theoretical density of $N\\left(\\bar x + \\bar y,\\sqrt{\\sigma_x^2 +\\sigma_y^2 + 2 \\rho \\sigma_x \\sigma_y }\\right)$ is plotted in red over the kernel density estimate of the observed distribution of $X+Y$.", fig.height=3}
 
 nsamp <- 1e5
 corr <- .25
@@ -1497,7 +1555,7 @@ $$(X_1+Y_1)_{1-\alpha} > (X_2+Y_2)_{1-\alpha}.$$
 This is exactly what we observed in Figure \ref{fig:comp-intervals}: when we increased the correlation, we saw the bounds of the 95% interval increase.
 
 
-```{r, fig.cap = "\\label{fig:erf}"}
+```{r, fig.cap = "\\label{fig:erf}", fig.height=3}
 
 
 tibble(x = seq(-1,1, by = .01),

@@ -6,7 +6,6 @@ knitr::opts_chunk$set(echo = FALSE,
                       eval = TRUE,
                       message = FALSE,
                       warning = FALSE,
-                      cache = FALSE,
                       fig.align='c',
                       out.width="100%")
 
@@ -53,7 +52,7 @@ To make the implementation of each more concrete, we will illustrate the steps o
 
 \newpage 
 
-## Version 1: Priors do Not Vary by State or Date
+## Version 1: Priors Do Not Vary by State or Date
 
 
 
@@ -118,7 +117,7 @@ As we did in the [Background](#sampling) section, we denote the sample size as $
 
 We begin by sampling $m=10^6$ times from the defined prior distributions $\theta = \Big\{ \alpha, \beta, \Pr(S_1| \text{untested})\Big\}$, as we see in Figure \ref{fig:sample-priors}.
 
-```{r, fig.width=7, fig.height=2, fig.cap = "\\label{fig:sample-priors}As the first step of the probabilistic bias analysis, we sample $m$ observations from the defined priors  $\\theta = \\{ \\alpha, \\beta, \\Pr(S_1| \\text{untested})\\}$."}
+```{r, fig.width=7, fig.height=3, fig.cap = "\\label{fig:sample-priors}As the first step of the probabilistic bias analysis, we sample $m$ observations from the defined priors  $\\theta = \\{ \\alpha, \\beta, \\Pr(S_1| \\text{untested})\\}$."}
 
 ma <- readRDS(here("data/county_level/ma/ma_county_biweekly.RDS"))
 
@@ -172,15 +171,60 @@ At this point, we use Bayesian melding to obtain $r=10^5$  observations from the
 For use in the test inaccuracy correction step, we also sample $r=10^5$ values from the priors for sensitivity and specificity. However, these parameters are not involved in the Bayesian melding step. 
 
 
+&nbsp;
 
-```{r, results = 'hide', fig.height=7, fig.cap="\\label{fig:melded-all-together}The full set of priors used in the probabilistic bias analysis. The first row is our sampled values of $\theta$, before and after melding. The post-melding distributions are what we use as inputs to the probabilistic bias analysis. The second row is $\\Pr(S_0|\\text{test}_+, \\text{untested})$, which is a part of the melding process that enables us to incorporate information on the asymptomatic rate to inform the definitions of $\\theta$; however, we do not use the parameter $\\Pr(S_0|\\text{test}_+, \\text{untested})$ directly in the bias correction; its only role is in the melding step."}
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+```{r, fig.height=3, out.width="100%",results='hide',include=FALSE}
+
+knitr::include_graphics('figure/blank.png')
 
 library(patchwork)
 
 
 melded <- do.call(get_melded, prior_params)
 
-title <- paste0("Mean of ${\\alpha}$: ")
+```
+
+
+```{r, results = 'hide', eval=FALSE}
+
 
 melded_long <- reformat_melded(melded_df =  melded$post_melding,
                                       theta_df =  melded$pre_melding,
@@ -197,12 +241,12 @@ plt_melded <- plot_melded(melded_long,
 
 
 nsamp <- prior_params$post_nsamp
-dist_Se <- truncdist::rtrunc(n = nsamp,spec = "beta",a = 0.65,b = 1,
+dist_Se <- truncdist::rtrunc(n = 1e6,spec = "beta",a = 0.65,b = 1,
                                shape1 = get_beta_params(mu = 0.8,
                                                         sd = (0.4)^2)$a,
                                shape2 = get_beta_params(mu = 0.8,
                                                         sd = (0.4)^2)$b)
-dist_Sp <- truncdist::rtrunc(n = nsamp,spec = "beta",a = 0.9998,b = 1,
+dist_Sp <- truncdist::rtrunc(n = 1e6,spec = "beta",a = 0.9998,b = 1,
                                shape1 = get_beta_params(mu = 0.99995,
                                                         sd = (0.01)^2)$a,
                                shape2 = get_beta_params(mu = 0.99995,
@@ -212,7 +256,7 @@ dist_Sp <- truncdist::rtrunc(n = nsamp,spec = "beta",a = 0.9998,b = 1,
 title_gg <- ggplot() + 
   labs(title =latex2exp::TeX("Set of Priors for Probabilistic Bias Analysis", 
                              bold = TRUE)) + 
-  theme(plot.title=element_text(face="bold", hjust = .5, size = 14, margin =margin(5,0,2,0)))
+  theme(plot.title=element_text(face="bold", hjust = .5, size = 19, margin =margin(5,0,2,0)))
 
 
 
@@ -230,7 +274,10 @@ plt <- tibble(Sensitivity = dist_Se,
 
 cowplot::plot_grid(title_gg,
                    plt_melded, plt, ncol = 1,
-                   rel_heights = c(.05, .7, .25))
+                   rel_heights = c(.04, .8, .25))
+
+
+ggsave('thesis/figure/full-set-priors.pdf', height=11.1, width=10)
 
 # 
 # 
@@ -249,6 +296,13 @@ cowplot::plot_grid(title_gg,
 
 
 
+
+```
+
+
+```{r, fig.height=7, fig.cap="\\label{fig:melded-all-together}The full set of priors used in the probabilistic bias analysis. The first row is our sampled values of $\\theta$, before and after melding. The post-melding distributions are what we use as inputs to the probabilistic bias analysis. The second row is $\\Pr(S_0|\\text{test}_+, \\text{untested})$, which is a part of the melding process that enables us to incorporate information on the asymptomatic rate to inform the definitions of $\\theta$; however, we do not use the parameter $\\Pr(S_0|\\text{test}_+, \\text{untested})$ directly in the bias correction; its only role is in the melding step."}
+
+knitr::include_graphics('figure/full-set-priors.pdf')
 
 ```
 
@@ -295,11 +349,11 @@ That is, we take the sampled value of sensitivity $S_e$ and specificty $S_p$ and
 $$N^+ = \dfrac{(N^* - (1 - S_p) N) } { (S_e + S_p - 1) }.$$
 
 
-Repeating this process with sampled values of the bias parameters gives us a distribution for the corrected counts, as we see in Figure \ref{fig:correctedsuffolk}. The 95% simulation intervals presented in the [Results](#res) section are the 2.5% and 97.5% percentiles for each geographic unit and 2-week time interval, as we see in Figure {fig:corrected-suffolk-over-time}.
+Repeating this process with sampled values of the bias parameters gives us a distribution for the corrected counts, as we see in Figure \ref{fig:correctedsuffolk}. The 95% simulation intervals presented in the [Results](#res) section are the 2.5% and 97.5% percentiles for each geographic unit and 2-week time interval, as we see in Figure \ref{fig:corrected-suffolk-over-time}.
 
 
 
-```{r, fig.cap='\\label{fig:correctedsuffolk}Here, we consider Suffolk County in a specific two-week interval. By sampling from the bias parameters, melding, correcting for incomplete testing, and then correcting for test inaccuracy, we obtain a distribution of estimated infections for the two-week interval. We can summarize this distribution with a 95\\% simulation interval.'}
+```{r, fig.cap='\\label{fig:correctedsuffolk}Here, we consider Suffolk County in a specific two-week interval. By sampling from the bias parameters, melding, correcting for incomplete testing, and then correcting for test inaccuracy, we obtain a distribution of estimated infections for the two-week interval. We can summarize this distribution with a 95\\% simulation interval.', fig.height=3.5}
 
 # dist_Se <- truncdist::rtrunc(n = nsamp,spec = "beta",a = 0.65,b = 1,
 #                                shape1 = get_beta_params(mu = 0.8,
@@ -364,7 +418,7 @@ corrected_sample %>%
 
 
 
-
+ggsave('thesis/figure/suffolk-ex-dist.pdf', width=6, height=4)
 # 
 # 
 # process_priors_per_county(

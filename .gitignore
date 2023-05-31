@@ -10,3 +10,5 @@ app/melding_experiment_files/*
 docs/app/melding_experiment.html
 docs/app/melding_experiment.Rmd
 data/lineage_data_full.json
+analysis/vignettes/melding_vignette_files
+analysis/vignettes/melding_vignette_cache

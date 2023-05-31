@@ -1680,11 +1680,11 @@ title_gg <- ggplot() +
 
 
 title_row <- plot_grid(title_gg,legend, nrow=2,rel_heights=c(.6,.4))
-grid <- plot_grid(plotlist = pltlist, nrow =2, rel_heights = c(.05,.95))
+grid <- plot_grid(plotlist = pltlist, nrow =5, rel_heights = c(.05,.95))
 
 plot_grid(title_row,grid, rel_heights = c(.05,.95),nrow=2)
 
-ggsave(here('thesis/figure/compare-ratio-to-total-mi.pdf'), height=12,width=12)
+ggsave(here('thesis/figure/compare-ratio-to-total-mi.pdf'), height=9,width=11)
 
 
 
@@ -1894,17 +1894,21 @@ subset %>%
   mutate(m = median(ratio,na.rm=TRUE)) %>%
   ggplot(aes(x=date,y=ratio)) +
   geom_point(alpha =.05,size=.8) +
-  geom_point(aes(y=m, color='Median')) +
+  geom_point(aes(y=m, color='Median'),size=2) +
   facet_wrap(~pop) +
   theme_c() +
-  scale_color_manual(values=c('Median'='#e09728')) +
-  theme(plot.subtitle=element_text(size=16)) +
+  scale_color_manual(values=c('Median'='#e09728'),
+                     name='') +
+  theme(plot.subtitle=element_text(size=16),
+        legend.position="top") +
   labs(title = "Ratio of Estimated Infections to Observed by Population Size",
        y = "Ratio of Estimated Infections\nto Observed Infections",
        subtitle = "Counties in Michigan",
-       x="")
+       color="",
+       x="") +
+  guides(color=guide_legend(override.aes=list(size=3)))
 
-ggsave(here('thesis/figure/mi-ratio-pop.jpeg'), width=14,height=9,dpi=600)
+ggsave(here('thesis/figure/mi-ratio-pop.jpeg'), width=11,height=10,dpi=600)
 
 
 

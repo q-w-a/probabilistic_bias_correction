@@ -18,7 +18,7 @@ rbbt::bbt_insert()
 
 # Introduction  
 
-|   Throughout the COVID-19 pandemic, observed infections have guided decisions at both the individual and government levels. At the state-level, policies on phased reopening, for example, often include criteria on COVID-19 cases [@californiadepartmentofpublichealth2021; @tomwolf2020; @charlesd.baker2021]. 
+|    Throughout the COVID-19 pandemic, observed infections have guided decisions at both the individual and government levels. At the state-level, policies on phased reopening, for example, often include criteria on COVID-19 cases [@californiadepartmentofpublichealth2021; @tomwolf2020; @charlesd.baker2021]. 
 
  To make this data accessible to the public, several organizations, including the CDC [@centersfordiseasecontrolandprevention2020], Johns Hopkins University [@dong2020], and the New York Times [@thenewyorktimes2022], compiled comprehensive dashboards presenting key metrics such as positive tests and test positivity rates across states.
 
@@ -123,7 +123,7 @@ Ultimately, COVID-19 infections are a key metric that informs our understanding 
 
  
  
- Our work extends the analyses presented in the publication *Substantial underestimation of SARS-CoV-2 infection in the United States* [@wu2020]. Wu *et al.* considered a single time interval early in the pandemic, estimating the true number of infections as of April 18, 2020 at the state level. When we consider the estimates, we can look at both the estimates for total infections by state, but also the ratio of the estimated total cases to the observed cases.  This enables us to think about the way case ascertainment varies by state, as we see in Figure 
+ Our work extends the analyses presented in the publication *Substantial underestimation of SARS-CoV-2 infection in the United States* [@wu2020]. Wu *et al.* consider a single time interval early in the pandemic, estimating the true number of infections as of April 18, 2020 at the state level. When we consider the estimates, we can look at both the estimates for total infections by state, but also the ratio of the estimated total cases to the observed cases.  This enables us to think about the way case ascertainment varies by state, as we see in Figure 
  \ref{fig:originalfigwu}.
  
  
@@ -139,7 +139,7 @@ The core idea of the approach is to break up the unobserved infections into unob
 
 We let $N^*$ denote the number of positive tests we would obtain if we tested the entire population. That is,  $N^*$ is the sum of the observed positive tests and the number of positive tests there would be among the untested population if they were tested. We use this notation to distinguish the number of positive tests, which is affected by testing inaccuracy, from the number of active SARS-CoV-2 infections, $N^+$. 
 
-Our first goal is to estimate the number of untested individuals who would test positive if they were tested, $N^*_{\text{untested}}$. Let $N_{\text{untested}}$ denote the number of 
+Our first goal is to estimate the number of untested individuals who would test positive if they were tested, $N^*_{\text{untested}}$.  
 
 
 To estimate the number of untested individuals with moderate to severe COVID-19-like symptoms who would test positive untested population, we can take
@@ -196,7 +196,7 @@ This formulation enables us to estimate $\Pr(\text{test}_+ |S_0, \text{untested}
 
 We expect $\alpha$ to be higher than $\beta$ to reflect that the test positivity rate among the symptomatic untested population is higher than that of the asymptomatic untested population. The specification of these distributions is discussed in greater detail in the [Definition of Prior Distributions for the Bias Parameters](#defpriors) section.
 
-Because of the uncertainty around $\alpha$ and $\beta$, it is useful to relate these parameters to the asymptomatic rate of the virus, $\Pr(S_0|\text{test}_+, \text{untested})$. This is possible because once we specify $\alpha$, $\beta$, and $P(S_1|\text{untested})$, we can use the laws of probability to obtain $P(S_0|\text{untested},\text{test}_+)$. Due to the importance of asymptomatic transmission to controlling the pandemic, the asymptomatic rate has been an area of substantial interest. This has led to extensive studies on the topic, including multiple meta-analyses summarizing these results [@ma2021a;@sah2021a].  
+Because of the uncertainty around $\alpha$ and $\beta$, it is useful to relate these parameters to the asymptomatic rate of the virus, $\Pr(S_0|\text{test}_+, \text{untested})$. This is possible because once we specify $\alpha$, $\beta$, and $P(S_1|\text{untested})$, we can use the laws of probability to obtain $P(S_0|\,\text{test}_+,\text{untested})$. Due to the importance of asymptomatic transmission to controlling the pandemic, the asymptomatic rate has been an area of substantial interest. This has led to extensive studies on the topic, including multiple meta-analyses summarizing these results [@ma2021a;@sah2021a].  
 
 We can represent the relationship between $\theta = \{ \alpha, \beta, \Pr(S_1|\text{untested})\}$ and $\phi = \{\; \Pr(S_0|\text{test}_+, \text{untested})\;\}$ by the deterministic function
  $M: \theta \to \phi$ defined as:
