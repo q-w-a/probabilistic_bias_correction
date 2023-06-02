@@ -21,3 +21,5 @@ docs/analysis/vignettes/melding_vignette_cache
 docs/analysis/vignettes/county_results_cache
 docs/analysis/vignettes/county_results_files
 docs/data/lineage_data_full.json
+docs/analysis/vignettes/state_results_files
+docs/analysis/vignettes/state_results_cache

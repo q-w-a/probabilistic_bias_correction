@@ -6,7 +6,7 @@ navbar:
     href: index.html
   - text: "Presentation Slides"
     href: presentation/final_presentation.html
-  - text: "Melding Vignete"
+  - text: "Melding Vignette"
     href: analysis/vignettes/melding_vignette.html
   - text: "Melding App"
     href: app/melding_link_to_page.html
@@ -14,9 +14,8 @@ navbar:
     href: analysis/vignettes/county_results.html
   - text: "State Level Results"
     href: analysis/vignettes/state_results.html
-  - text: "Data Cleaning"
-    href: analysis/data_cleaning/data_cleaning.html
   - text: "Comparison to Wastewater Data"
     href: analysis/vignettes/cross_correlation_wastewater.html
- 
+  - text: "Data Cleaning"
+    href: analysis/data_cleaning/data_cleaning.html
 output_dir: "docs"
