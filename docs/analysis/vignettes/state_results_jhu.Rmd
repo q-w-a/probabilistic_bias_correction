@@ -34,7 +34,7 @@ theme_c <- function(...){
                    vjust = 3),               
       
       plot.subtitle = element_text(          #subtitle
-                   size = 14,
+                   size = 18,
                    hjust = .5,
                    face = 'italic',
                    vjust = 3),               #font size
@@ -68,15 +68,16 @@ priors_versions <- c("v1", "v2", "v3", "v4")
 versions <- tibble(
   version = c("v1", "v2", "v3", "v4"),
   vlabel = factor(
-    c( "$Priors\\,Do\\,Not\\,Vary\\,by\\,County\\,and\\,Date$", 
+    c( "$Priors\\,Do\\,Not\\,Vary\\,by\\,State\\,and\\,Date$", 
     "$\\beta$ Centered at Emp. Value",
     "$P(S_1|untested)$ and $\\beta$ Centered at Emp. Values",
     "$P(S_1|untested)$ Centered at Emp. Value"),
     levels = c(
-        "$Priors\\,Do\\,Not\\,Vary\\,by\\,County\\,and\\,Date$", 
+        "$Priors\\,Do\\,Not\\,Vary\\,by\\,State\\,and\\,Date$", 
         "$\\beta$ Centered at Emp. Value",
-        "$P(S_1|untested)$ and $\\beta$ Centered at Emp. Values",
-        "$P(S_1|untested)$ Centered at Emp. Value"
+        "$P(S_1|untested)$ Centered at Emp. Value",
+        "$P(S_1|untested)$ and $\\beta$ Centered at Emp. Values"
+        
     ) )
 )
 
@@ -105,7 +106,8 @@ corrected <- map_df(priors_versions, ~readRDS(
   rename(state=fips) %>%
   left_join(versions) %>%
   mutate(state=toupper(state)) %>%
-  left_join(covidestim, relationship= "many-to-many")
+  left_join(covidestim, relationship= "many-to-many") %>%
+  filter(biweek <=28)
   
 
 
@@ -121,7 +123,7 @@ pal <- c("red", "#10BAC5", "#1B10C5", "#EFB719", "#900C3F")
 names(pal) <- c("Covidestim",
                 '$P(S_1|untested)$ Centered at Emp. Value',
                 '$P(S_1|untested)$ and $\\beta$ Centered at Emp. Values',
-               "$Priors\\,Do\\,Not\\,Vary\\,by\\,County\\,and\\,Date$",
+               "$Priors\\,Do\\,Not\\,Vary\\,by\\,State\\,and\\,Date$",
                "$\\beta$ Centered at Emp. Value"
                )
 
@@ -133,13 +135,277 @@ states_all_versions <- corrected %>%
   summarize(n_versions = n_distinct(version)) %>% 
   filter(n_versions ==4) 
 
+
+
+
+```
+
+# Testing Rate over Time 
+
+```{r}
+
+subset <- corrected %>%
+  filter(vlabel == "$Priors\\,Do\\,Not\\,Vary\\,by\\,State\\,and\\,Date$")
+
+
+subset %>%
+  ggplot(aes(x=date, y =total/population))+
+  geom_line() +
+  facet_wrap(~state) +
+  theme_c() +
+  labs(title ="Biweekly Testing Rate",
+       y = "Total Number of Tests / Population Size")
+
+
+subset %>%
+  ggplot(aes(x=date, y =total/population))+
+  geom_line() +
+  facet_wrap(~state) +
+  theme_c() +
+  labs(title ="Biweekly Testing Rate",
+       y = "Total Number of Tests / Population Size")
+
+###########################################################################
+# plot relationship between ratio of estimated cases to observed 
+# against testing rate 
+###########################################################################
+corrected %>%
+  ggplot(aes(x=total/population, y = exp_cases_median/positive)) +
+  geom_point(alpha=.008, size=.8) +
+  facet_wrap(~vlabel,
+               labeller= labeller(vlabel =as_labeller(TeX, default=label_parsed))) +
+  theme_c(axis.text.x = element_text(size =9),
+          axis.title = element_text(size=16) ) +
+  theme(strip.text.x = element_text(size=11, color="white")) +
+  scale_y_continuous(n.breaks=10) +
+  geom_hline(yintercept=1, linetype=2,color="darkred", alpha=.8, linewidth=.5) +
+  labs(y = "Ratio of Estimated Infections to Observed",
+       x = "Testing Rate",
+       subtitle = "All Time Intervals and All States",
+       title = "Relationship Between Testing Rate and\nRatio of Estimated Infections to Observed")+
+  scale_x_continuous(limits=c(0,.25), n.breaks=4)
+
+
+# ggsave(here('thesis/figure/testing_rate_ratio.jpeg'), width=11,height=7)
+
+corrected %>%
+  ggplot(aes(x=total, y = exp_cases_median)) +
+  geom_point(alpha=.008, size=.8) +
+  facet_wrap(~vlabel,
+               labeller= labeller(vlabel =as_labeller(TeX, default=label_parsed))) +
+  theme_c(axis.text.x = element_text(size =9),
+          axis.title = element_text(size=16) ) +
+  theme(strip.text.x = element_text(size=11, color="white")) +
+  scale_y_continuous(n.breaks=10) +
+  labs(x = "Total Tests",
+       y = "Estimated Infections",
+       subtitle = "All Time Intervals and All States",
+       title = "Relationship Between Testing Rate and\nEstimated Infections")
+
+```
+
+
+```{r}
+# thinking about student populations
+
+# https://nces.ed.gov/ipeds/TrendGenerator/app/trend-table/2/2?trending=column&rid=6
+# Source: U.S. Department of Education, National Center for Education Statistics, Integrated Postsecondary Education Data System (IPEDS), 12-month Enrollment component final data (2001-02 - 2019-20) and provisional data (2020-21).
+
+students <- read_csv(here('data/demographic/student_population.csv'), skip=2, n_max=4)
+codes <- read_csv(here('data/demographic/statecodes.csv'))
+
+students <- students %>%
+  filter(Year =="2020-21") %>% 
+  select(-Total) %>%
+  pivot_longer(-c(Year),
+               names_to="state",
+               values_to="student_population") %>%
+  left_join(codes, by= c('state'='state')) %>%
+  select(state=code, student_population, state_name = state)
+
+corrected %>%
+  select(state,population,positive,total) %>%
+  distinct() %>%
+  left_join(students) %>%
+  ggplot(aes(x=student_population/population, y = total/population)) +
+  geom_point()
+
+
+corrected %>%
+ # filter(state!="CA") %>%
+  select(state,population,positive,total) %>%
+  distinct()%>%
+  left_join(students) %>%
+  ggplot(aes(x=fct_reorder(state_name, total/population),
+             y=total/population,
+             fill =student_population/population)) +
+  geom_boxplot() +
+  scale_fill_binned(type="viridis",
+                    n.breaks=8,
+                    direction=-1,
+                    option="magma") +
+  theme_c()+
+  theme(legend.text=element_text(size=8),
+        legend.title = element_text(size=19),
+        axis.text.x=element_text(size=8)) +
+  coord_flip() +
+  labs(x="",
+       fill = "Ratio of Student Population\nto Census Population",
+       y= "Total Number of Tests Over Population Size",
+       subtitle =
+         "Color by Ratio of Student Population to Population\n Reported in the Census",
+       title = "Testing Rate by State Across All 2-Week Intervals") +
+  scale_y_continuous(n.breaks =6)
+
+
+# 
+# ggsave(here::here(paste0('thesis/figure/college_populations.jpeg')),
+#        height=11, width = 11, dpi=400)
+
+
+corrected %>%
+  mutate(testrate=total/population) %>%
+  filter(testrate>.25) %>% 
+ # filter( abs(testrate - max(testrate)) <=.05) %>%
+  select(date,testrate, state) %>%
+  distinct() 
+  
+  
+```
+
+
+
+
+```{r}
+
+
+
+by_version <- corrected %>%
+  mutate(in_interval = case_when(
+    exp_cases_lb <= infections & infections <= exp_cases_ub ~ "In Interval",
+    exp_cases_lb  > infections  ~ "Below Interval",
+    exp_cases_ub < infections ~ "Above Interval"
+  )) %>%
+  filter(!is.na(in_interval)) %>%
+  group_by(in_interval, vlabel) %>%
+  summarize(n=n()) %>%
+  group_by(vlabel) %>%
+  mutate(total = sum(n)) %>%
+  mutate(prop=n/total) 
+
+labels <- by_version %>%
+  arrange(prop) %>%
+  pull(vlabel) %>%
+  as.character() %>%
+  unique()
+
+
+by_version %>%
+   ggplot(aes(x= fct_reorder(vlabel,prop,max), 
+             fill = in_interval, y =prop)) + 
+  geom_bar(stat="identity",position="dodge") +
+  theme_c() +
+  coord_flip()+ scale_fill_manual(values=c("In Interval" = "#79D2AF",
+                             "Above Interval" = "#D2AF79",
+                      "Below Interval"="#7997D2")) +
+  labs(x="", 
+       y= "Proportion",
+       fill = "Covidestim Median:",
+       title = "Proportion Where Covidestim Median\nWas Within, Above, or Below the Median",
+       subtitle = "State Level") +
+  theme_c() +
+  theme(legend.position="right",
+          legend.title = element_text(face="bold", size = 15),
+          legend.text= element_text( size = 15),
+          legend.spacing.y = unit(3, 'pt'),
+          axis.text.y = element_text(size = 17, hjust=1)) +
+  scale_x_discrete(labels = (TeX(labels)))
+
+
+ggsave(here('presentation/figure/covidestim_concordance_state_jhu.jpeg'), height=8, width=12)
+
+
+
+
+
+```
+
+
+
+```{r}
+
 # 
 # end <- length(unique(states_all_versions$state))
 # n <- floor(end/2)
 
 # first group
 corrected %>%
-  #filter(state %in% states_all_versions$state[1:n]) %>%
+  filter(state %in% states_all_versions$state) %>%
+ # filter(state %in% sample(corrected$state,5)) %>%
+  filter(biweek >=6) %>%
+  group_by(biweek) %>%
+  mutate(xmin = min(date),
+         xmax = max(date)) %>%
+  ungroup() %>%
+   ggplot() +
+  geom_ribbon(aes(x = date, 
+             ymin = exp_cases_lb,
+             ymax = exp_cases_ub,
+             fill = vlabel),
+             alpha = .7,
+             show.legend=FALSE) +
+  geom_ribbon(aes(x = date,
+                  fill = 'Covidestim',
+                  ymin = infections.lo,
+                  ymax = infections.hi),
+              alpha = .7) +
+   # geom_linerange(aes(xmin = xmin,
+   #                    xmax=xmax,
+   #                    y = positive,
+   #                    color = 'obs')) +
+  facet_grid(state~vlabel, scales = "free_y",
+              labeller= labeller(vlabel =as_labeller(TeX, default=label_parsed))) +
+  scale_y_continuous(labels = comma) +
+  scale_x_date(date_breaks = "2 months", 
+               date_labels = "%b %Y") +
+  theme_c(axis.text.x = element_text(angle = 60, size = 16),
+          plot.title=element_text(face = "bold",
+                                  hjust = .5, 
+                                  size = 20,
+                                  margin=margin(5,5,15,5,'pt')),
+          strip.background = element_rect(fill = "#393939"),
+          strip.text = element_text(color =  "white", size = 16),
+          strip.text.y = element_text(margin = margin(5,5,5,5,'pt'),
+                                      size = 14,
+                                      face="bold"),
+          strip.text.x =  element_text(margin = margin(5,3,5,3,'pt'),
+                                       face = "bold",
+                                       size = 10),
+          plot.subtitle = ggtext::element_markdown(size = 25,margin = margin(3,5,10,5,'pt'),
+                                       face = "italic"),
+          legend.position = "top",
+          legend.text =element_text(size = 14)) +
+  scale_fill_manual(values =pal,
+                    labels = TeX(names(pal)),
+                    name='')   +
+  scale_fill_manual(values =pal,
+                    breaks='Covidestim',
+                    labels = TeX(names(pal)),
+                    name='') +
+  labs(y = "Estimated Cases",
+       title = paste0("Estimated Cases by Version Across the United States")) +
+  scale_color_manual(values = c('obs' = 'red'), labels = 'Positive Tests',
+                     name = '') +
+  guides(fill = guide_legend(
+                              nrow=2,
+                              byrow=TRUE))
+
+
+
+# include all, even if not all 4 versions
+
+corrected %>%
+#  filter(state %in% states_all_versions$state) %>%
  # filter(state %in% sample(corrected$state,5)) %>%
   filter(biweek >=6) %>%
   group_by(biweek) %>%
@@ -191,7 +457,7 @@ corrected %>%
        title = paste0("Estimated Cases by Version Across the United States")) +
   scale_color_manual(values = c('obs' = 'red'), labels = 'Positive Tests',
                      name = '') +
-  guides(color = guide_legend(override.aes = list(linewidth =2),
+  guides(fill = guide_legend(
                               nrow=2,
                               byrow=TRUE))
 

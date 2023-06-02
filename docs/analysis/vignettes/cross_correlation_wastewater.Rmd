@@ -1,5 +1,5 @@
 ---
-title: "Cross Correlation with CovidEstim and Wastewater Data"
+title: "Cross Correlation with Covidestim and Wastewater Data"
 author: "Quinn White"
 date: '`r Sys.Date()`'
 output:
@@ -156,10 +156,9 @@ waste %>% filter(fips %in% corrected$fips) %>%
 ```
 
 
+```{r, include=FALSE}
+
 # Wastewater
-
-
-```{r}
 
 wjoined %>%
   group_by(fips) %>%
@@ -946,12 +945,13 @@ lags_all_observed <- differenced_all %>%
 
 cols <- c("red", "#10BAC5", "#1B10C5", "#EFB719", "#900C3F")
 cols <- c("red",pal)
-names(cols ) <- c("observed", unique(lags_all_pb$vlabel))
+names(cols ) <- c("$observed$", unique(as.character(lags_all_pb$vlabel)))
 
 
 # compare pb max correlations to those for observed counts 
 lags_all_pb %>%
   bind_rows(lags_all_observed) %>%
+  mutate(vlabel=as.character(vlabel)) %>%
    mutate(source = ifelse(!is.na(vlabel), vlabel, comparison)) %>%
   group_by(fips) %>%
   mutate(m = median(max_corr)) %>%
@@ -968,13 +968,12 @@ lags_all_pb %>%
   scale_shape_manual(values=c(21,22,24)) +
   scale_fill_manual(values=cols,
                     name = 'Time Series Compared with\nWastewater:',
-                      labels = TeX(c('$observed$',
-                                   lags_all_pb$vlabel))) +
+                    labels=TeX(names(cols))) +
   theme_bw() +
   theme_c() +
-  theme(plot.title = element_text(size=16,hjust=.5, face="plain"),
+  theme(plot.title = element_text(size=19,hjust=.5, face="plain"),
     # axis.text.x = element_text(angle  = 60, vjust = .4),
-    axis.text.x = element_text(angle  = 50, vjust = .95, hjust=1),
+    axis.text.x = element_text(angle  = 50, vjust = .95, hjust=1, size =14),
     axis.title.x = element_text(margin = margin(3,3,3,3)),
         legend.text = element_text(size = 14, hjust=0),
         axis.text.y = element_text(size = 11),
@@ -986,7 +985,7 @@ lags_all_pb %>%
   labs(x = "County",
        y = "Maximum Correlation",
        title = "Comparing Maximum Correlation of Bias Corrected Counts with Wastewater\nto that Between Observed Cases and Wastewater",
-       shape = "Maximum Lag:",
+       shape = "Lag Where Maximum\nCorrelation Obtained:",
        color = "Time Series Compared with Wastewater:") +
   guides(shape = guide_legend(override.aes = list(size = 4)),
          fill= guide_legend(override.aes = list(size = 2, shape=24))) 
@@ -997,7 +996,7 @@ lags_all_pb %>%
 ggsave(here("presentation/figure/correlation_observed_pb.jpeg"), height = 8, width=12.4)
 
 
-ggsave(here("thesis/figure/correlation_observed_pb.jpeg"), height = 8, width=12)
+ggsave(here("thesis/figure/correlation_observed_pb.jpeg"), height = 8, width=13.2)
 
 
 
@@ -1010,6 +1009,11 @@ max_series_by_rank <- lags_all_pb %>%
   summarize(n=n()) %>%
   filter(n==max(n)) %>%
   pull(series)
+
+
+```
+
+```{r}
 
 lags_all_pb %>%
   group_by(fips,county_name) %>%
@@ -1088,6 +1092,14 @@ lags_all_pb %>%
 
 
 
+```
+
+
+```{r, fig.width = 12, fig.height =7}
+
+
+
+
 fips_order <- lags_all_pb %>%
   bind_rows(lags_all_observed) %>%
    mutate(source = ifelse(!is.na(vlabel), vlabel, comparison)) %>%
@@ -1100,12 +1112,16 @@ fips_order <- lags_all_pb %>%
   pull(fips)
 
 
-
-```
-
-
-```{r, fig.width = 12, fig.height =7}
-
+name_order <- lags_all_pb %>%
+  bind_rows(lags_all_observed) %>%
+   mutate(source = ifelse(!is.na(vlabel), vlabel, comparison)) %>%
+  group_by(county_name) %>%
+  mutate(m = median(max_corr)) %>%
+  ungroup() %>%
+  select(m,county_name) %>%
+  arrange(desc(m)) %>%
+  distinct() %>%
+  pull(county_name)
 
 
 # max lags for covidestim
@@ -1131,7 +1147,49 @@ pal <- c("red", "#EFB719", "#0C6B90")
 names(pal) <- c("observed", "bias corrected", "Covidestim")
 
 
+name_order <- gsub("County, MA", "", name_order)
 # plot in same order as the previous 
+lags_all %>% 
+  mutate(fips = factor(fips, levels = fips_order),
+         max_lag = factor(max_lag)) %>%
+    mutate(county_name = gsub("County, MA", "", county_name),
+           county_name = factor(county_name, levels=name_order)) %>%
+  ggplot(aes(x=county_name,
+             y = max_corr,
+             fill = comparison, 
+             shape = max_lag)) +
+  geom_jitter(height=0,width =.1, size =2, color = "black") +
+  scale_fill_manual('Time Series Compared with\nWastewater:',
+                    values=pal,
+                      labels = TeX(c('$observed$',
+                                     '$Covidestim$',
+                                   max_series_by_rank))) +
+   scale_shape_manual(values=c(21,22,24)) +
+  theme_bw() +
+  theme_c() +
+  theme(plot.title = element_text(size=19,hjust=.5, face="plain"),
+    # axis.text.x = element_text(angle  = 60, vjust = .4),
+    axis.text.x = element_text(angle  = 20, vjust = .4, size=16),
+    axis.title.x = element_text(margin = margin(8,3,3,3), size=18),
+    axis.title.y = element_text(size=18),
+        legend.text = element_text(size = 14, hjust=0),
+        axis.text.y = element_text(size = 11),
+        legend.title = element_text(face="bold", size = 16)) +
+  labs(y = "Maximum Correlation") +
+  labs(
+       y = "Maximum Correlation",
+       title = paste0(
+         "Comparing Maximum Correlation of Bias Corrected, Covidestim, and Observed Counts\nwith Wasterwater Concentrations"),
+       shape = "Maximum Lag:",
+       x = "County",
+       color = "Time Series Compared with Wastewater:") +
+  guides(shape = guide_legend(override.aes = list(size = 4)),
+         fill= guide_legend(override.aes = list(size = 2, shape=24)))
+
+
+ggsave(here("thesis/figure/correlation_observed_pb_covidestim.jpeg"), width=13, height=8)
+
+
 lags_all %>% 
   mutate(fips = factor(fips, levels = fips_order),
          max_lag = factor(max_lag)) %>%
@@ -1167,14 +1225,16 @@ lags_all %>%
 
 
 
-ggsave(here("thesis/figure/correlation_observed_pb_covidestim.jpeg"))
+
+#ggsave(here("thesis/figure/correlation_observed_pb_covidestim.jpeg"))
 
 
 ```
 
 Maximum at lag = -1 $\implies$ wastewater leads cases by 1 biweek.
 
-```{r, fig.height = 10}
+```{r, fig.height = 10, include=FALSE}
+
 
 county_names <- wjoined %>%
   select(name, fips) %>% 

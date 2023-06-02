@@ -1,7 +1,7 @@
 ---
 title: "Bayesian Melding"
 author: "Quinn White"
-date: "`r Sys.Date()`"
+date: "2023-05-12"
 output:
   rmdformats::readthedown:
     use_bookdown: TRUE
@@ -13,7 +13,7 @@ bibliography: "`r rbbt::bbt_write_bib(paste0(here::here(), '/analysis/vignettes/
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,message=FALSE,warning=FALSE, fig.width =9,cache=TRUE)
+knitr::opts_chunk$set(echo = TRUE,message=FALSE,warning=FALSE, fig.width =9, cache=TRUE)
 
 library(tidyverse)
 library(kableExtra)
@@ -1997,7 +1997,8 @@ plot_melded <- function(melded, custom_title="", pre_nsamp, post_nsamp) {
           axis.text.x = element_text(size = 10),
           plot.title =element_text(size = 18,
                                    margin =margin(0,0, .5,0, 'cm')),
-          strip.text = element_text(size = 16),
+          strip.text = element_text(size = 16, color="white"),
+          strip.background=element_rect(fill ="#363636"),
           legend.text = element_text(size = 18)) +
     labs(
       #title = paste0("Number of Samples: ", nsamp),
@@ -2015,7 +2016,8 @@ plot_melded <- function(melded, custom_title="", pre_nsamp, post_nsamp) {
 ```
 
 
-```{r plot melded results, results='hide'}
+```{r plot-melded-results, results='hide'}
+
 
 
 params <- prior_params
@@ -2031,10 +2033,13 @@ melded_long <- reformat_melded(melded_df =  melded$post_melding,
                                pre_nsamp = params$pre_nsamp)
 
 plot_melded(melded_long, pre_nsamp = params$pre_nsamp, post_nsamp = params$post_nsamp)
+
+
        
 ```
 
 ```{r, results='hide'}
+
 
 
 # set prior parameters
@@ -2075,9 +2080,11 @@ walk(c(1e4, 1e5, 1e6), ~{
 })
 
 
+
 ```
 
 ```{r, fig.height = 6, fig.width = 6,eval=FALSE, include=FALSE}
+
 
 phi_induced_col <- "#7475A0"
 
@@ -2105,6 +2112,7 @@ theta %>%
   labs(
     title = TeX("$Induced \\; Prior \\; f_\\phi^{induced}(\\phi) \\; on \\; \\phi = P(S_0|test+,untested)$"),
                 x = TeX("$P(S_0|test+,untested)$"))
+
 
 
 ```

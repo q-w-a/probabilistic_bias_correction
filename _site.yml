@@ -4,20 +4,19 @@ navbar:
   left:
   - text: "Home"
     href: index.html
-  - text: "Data Cleaning"
-    href: analysis/data_cleaning/data_cleaning.html
-  - text: "County Level Correction (MA)"
-    href: analysis/county_level_correction/county_level_correction_ma.html
-  - text: "County Level Correction (MI)"
-    href: analysis/county_level_correction/county_level_correction_mi.html    
-  - text: "Melding App"
-    href: app/melding_link_to_page.html
-  - text: "Selecting States"
-    href: analysis/subsetting_states/subsetting_states.html
-  - text: "Melding Vignete"
-    href: analysis/vignettes/melding_vignette.html
-  - text: "Smoothing Bandwidth"
-    href: analysis/sensitivity/smoothing_experiment.html
   - text: "Presentation Slides"
     href: presentation/final_presentation.html
+  - text: "Melding Vignete"
+    href: analysis/vignettes/melding_vignette.html
+  - text: "Melding App"
+    href: app/melding_link_to_page.html
+  - text: "County Level Results"
+    href: analysis/vignettes/county_results.html
+  - text: "State Level Results"
+    href: analysis/vignettes/state_results.html
+  - text: "Data Cleaning"
+    href: analysis/data_cleaning/data_cleaning.html
+  - text: "Comparison to Wastewater Data"
+    href: analysis/vignettes/cross_correlation_wastewater.html
+ 
 output_dir: "docs"

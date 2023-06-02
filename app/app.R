@@ -29,10 +29,10 @@ dates <- readRDS( "./example_county_data/date_to_biweek.RDS")
 
 
 background <- "<b></i><span style='font-size:120%;' >Background:</b></i> </span> In the implementation of Bayesian melding,
-we sample values of $\\theta = \\{ \\alpha, \\beta, P(S_1|untested)\\}$, where the sample size here is selected via the 
+we sample values of $\\theta = \\{ \\alpha, \\beta, P(S_1|\\text{untested})\\}$, where the sample size here is selected via the 
 <i>Sample Size</i> option.
 Then, we use the function $M: \\theta \\to \\phi$ defined by
-$M(\\theta) = \\dfrac{\\beta(1- P(S_1|\\text{untested}))}{\\beta(1-P(S_1|untested)) + \\alpha P(S_1|untested)}$,
+$M(\\theta) = \\dfrac{\\beta(1- P(S_1|\\text{untested}))}{\\beta(1-P(S_1|\\text{untested})) + \\alpha P(S_1|\\text{untested})}$,
 yielding the induced distribution $f_\\phi^{induced}$. Because we do not have an analytical form for $f_\\phi^{induced}$,
 we estimate it using kernel density estimation.
 

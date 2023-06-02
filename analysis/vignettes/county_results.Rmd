@@ -1,18 +1,19 @@
 ---
-title: "Compare County-Level to Covidestim"
+title: "County-Level Results"
 author: "Quinn White"
-date: "`r Sys.Date()`"
+date: "2023-05-12"
 output:
   rmdformats::readthedown:
     df_print: paged
     code_folding: hide
     css: ../../css/template.css
+    toc_depth: 3 
   html_document:
     df_print: paged
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.width = 18, fig.height= 12)
+knitr::opts_chunk$set(echo = TRUE, fig.height=10, fig.width =14, message=FALSE, warning=FALSE, cache=TRUE)
 
 # test 
 
@@ -64,7 +65,7 @@ theme_c <- function(...){
 
 # Massachusetts
 
-```{r}
+```{r load-ma-data}
 
 state <-  "ma"
 
@@ -147,7 +148,7 @@ joined <- joined %>%
 ### Heatmap for Ratio of Estimated to Observed
 
 
-```{r}
+```{r heatmap-ma}
 
 ######################################################
 # HEATMAP OF RATIO OF ESTIMATED TO OBSERVED
@@ -208,10 +209,14 @@ ggsave(here('thesis/figure/ma_county_heatmap_ratio_est_observed.pdf'),
 
 ```
 
-### Ranking Ratio of Estimated to Observed
+### Ratio of Estimated to Observed Over Time
 
 
 ```{r}
+
+pal <- c( mako(6, begin=.1,end=.9), magma(7, begin=.1, end=.9))
+pal <- pal[sample(1:length(pal))]
+
 
 subset <- corrected %>%
   filter(vlabel=="$P(S_1|untested)$ Centered at Emp. Value")
@@ -234,26 +239,12 @@ ranks %>%
   ggplot(aes(x=date, y = ratio, color = county_name,
              group=county_name)) +
   geom_point() +
-  geom_line()
+  geom_line() +
+  theme_c(legend.title = element_text(size=16, face="bold")) +
+  labs(y = "Ratio of Estimated Infections to Observed",
+       color="County") +
+  scale_color_manual(values=pal)
   
-
-
-ranks %>%
-  ungroup() %>%
-  ggplot(aes(x=date, y = rank, color = county_name,
-             group=county_name)) +
-  geom_point() +
-  geom_line()
-  
-
-
-
-ranks %>%
-  ungroup() %>%
-  ggplot(aes(x=rank_tested, y = rank, color = county_name,
-             group=county_name)) +
-  geom_point() 
-
 
 
 
@@ -356,26 +347,16 @@ ggsave(here('thesis/figure/rank-ratio-over-time-ma-county.pdf'), height=8,width=
 
   
 
-subset %>%
-  filter(county_name == "Alger") %>%
-  ggplot(aes(x= date,y=exp_cases_median)) +
-  geom_line()
-  
-
-subset %>%
-  filter(county_name == "Alger") %>%
-  ggplot(aes(x= date,y=exp_cases_median/positive)) +
-  geom_line()
-
 ```
 
 
 
+## Simulation Intervals Over Time
 
-## Faceted by version
+### Faceted by version
 
 
-```{r}
+```{r, fig.width = 15}
 
 
 pal <- c("#10BAC5", "#1B10C5", "#EFB719", "#900C3F")
@@ -450,7 +431,7 @@ ggsave(here::here(paste0('thesis/figure/', state, '_pb_compared_to_observed.pdf'
 
 ```
 
-## All versions together 
+### All versions together 
 
 ```{r}
 
@@ -510,10 +491,10 @@ ggsave(here::here(paste0('thesis/figure/', state, '_pb_compare_versions.pdf')),
 ```
 
 
-### Compare Trends in Ratio to Trends in Infections
+## Compare Trends in the Ratio of Estimated to Observed Infections to Trends in Infections
 
 
-```{r}
+```{r, fig.height= 23, fig.width = 14}
 
 
 subset <- corrected %>%
@@ -537,13 +518,14 @@ plot_county <- function(county) {
                      y=(exp_cases_median/positive)*median(subset_county$positive),
                      color = 'Ratio of Estimated Infections to Observed'),
                  linewidth =2) +
-  theme_c(legend.position='top') +
+  theme_c(
+          axis.title = element_text(size=12),
+          legend.position="none") +
   labs(x ='', y='Estimated Infections',
        title=county,) +
   scale_color_manual(values=c('Ratio of Estimated Infections to Observed'='#DA6932'), name='') +
   scale_y_continuous(sec.axis=sec_axis(~./median(subset_county$positive), 
-                                       name='Ratio of Estimated Infections\nto Observed Infections')) +
-    theme(legend.position="none")
+                                       name='Ratio of Estimated Infections\nto Observed Infections')) 
 
 }
 
@@ -568,11 +550,11 @@ legend <- get_legend(pltlist[[1]] + theme(legend.position="top"))
 
 title_gg <- ggplot() + 
   labs(title = "Comparing Trends in Ratio of Estimated Infections to Observed\nto Trends in Total Infections") + 
-  theme(plot.title=element_text(face="bold", hjust = .5, size = 30, margin =margin(5,0,2,0)))
+  theme(plot.title=element_text(face="bold", hjust = .5, size = 25, margin =margin(5,0,2,0)))
 
 
 title_row <- plot_grid(title_gg,legend, nrow=2,rel_heights=c(.6,.4))
-grid <- plot_grid(plotlist = pltlist, nrow =2, rel_heights = c(.05,.95))
+grid <- plot_grid(plotlist = pltlist, ncol=2)
 
 plot_grid(title_row,grid, rel_heights = c(.05,.95), nrow=2)
 
@@ -581,11 +563,11 @@ ggsave(here('thesis/figure/compare-ratio-to-total-ma.pdf'), height=12,width=12)
 
 ```
 
-### Compare to Covidestim
+## Compare to Covidestim
 
+### All Counties
 
-
-```{r}
+```{r, fig.width=17, fig.height=16}
 
 
 joined %>%
@@ -637,7 +619,9 @@ joined %>%
        title = paste0("Estimated Cases by Version in ", toupper(state))) +
   scale_color_manual(values = c('covidestim' = 'darkblue'), labels = 'Covidestim Estimates',
                      name = '') +
-  guides(color = guide_legend(override.aes = list(linewidth =2)))
+  guides(color = guide_legend(override.aes = list(linewidth =2),
+                              byrow = TRUE,
+                              nrow=4))
 
 ggsave(here::here(paste0('thesis/figure/', state, '_pb_compared_to_covidestim.pdf')), 
        height=15, width = 15, dpi=400)
@@ -649,7 +633,12 @@ ggsave(here::here(paste0('presentation/figure/', state, '_pb_compared_to_covides
 
 
 
+```
 
+#### Example Figures for Presentation
+
+
+```{r, fig.width=17}
 
 
 
@@ -716,7 +705,9 @@ joined %>%
 ggsave(here('presentation/figure/ma_pb_compared_to_observed_3_counties.jpeg'), 
        height=10, width = 16.5, dpi=600)
 
+```
 
+```{r,fig.height=6, fig.width=8}
 
 ###########################
 # JUST SUFFOLK IN WEEK 10
@@ -1075,7 +1066,7 @@ ggsave(here('thesis/figure/summarize-concordance-mass-counties.pdf'), width=16,h
 ```
 
 
-```{r}
+```{r pb-intervals-ma, fig.width=17, include=FALSE}
 
 
 joined %>%
@@ -1115,7 +1106,7 @@ joined %>%
                                       face="bold"),
           strip.text.x =  element_text(margin = margin(5,3,5,3,'pt'),
                                        face = "bold",
-                                       size = 18),
+                                       size = 14),
           plot.subtitle = ggtext::element_markdown(size = 25,
                                                    margin = margin(3,5,10,5,'pt'),
                                        face = "italic"),
@@ -1242,7 +1233,7 @@ ggsave(here::here(paste0('thesis/figure/',
 
 
 
-## Michigan
+# Michigan
 
 
 ```{r load michigan data}
@@ -1310,7 +1301,7 @@ joined <- corrected %>%
 
 
 
-```{r}
+```{r, fig.height=22}
 
 library(scales)
 
@@ -1405,7 +1396,7 @@ joined %>%
 ```
 
 
-```{r}
+```{r, fig.height=26}
 
 joined %>% 
   group_by(biweek) %>%
@@ -1451,7 +1442,8 @@ joined %>%
    scale_fill_manual(values = pal, labels =TeX(names(pal)),
                      name ='') +
   labs(y = "Estimated Infections",x="",
-       title = paste0("Estimated Infections by Version in Michigan")) 
+       title = paste0("Estimated Infections by Version in Michigan"))  + 
+  guides(fill = guide_legend(byrow=TRUE, nrow=2))
 
 
 ggsave(here::here(paste0('thesis/figure/', state, '_pb_compare_versions.pdf')), 
@@ -1460,8 +1452,50 @@ ggsave(here::here(paste0('thesis/figure/', state, '_pb_compare_versions.pdf')),
 ```
 
 
-```{r}
+```{r, fig.height=16}
 
+joined %>%
+  mutate(county_name = gsub("$","", county_name,fixed=TRUE),
+         county_name = gsub('"', '', county_name, fixed=TRUE)) %>%
+  select(-date) %>% 
+  distinct() %>%
+  mutate(in_interval = infections <= exp_cases_ub & infections >= exp_cases_lb) %>%
+  filter(!is.na(in_interval)) %>%
+  group_by(vlabel, in_interval, county_name) %>%
+  summarize(n=n()) %>%
+  group_by(county_name, vlabel) %>%
+  mutate(tot=sum(n),
+         prop_contained = n/tot) %>%
+ filter(in_interval) %>%
+  group_by(county_name) %>%
+  mutate(m = max(prop_contained)) %>%
+  ggplot(aes(x=fct_reorder(county_name, m),
+             y = prop_contained, color = vlabel)) +
+  geom_point(size = 3.5) +
+  labs(y = "Proportion of Two-week Intervals\nContaining Covidestim Estimate",
+       x = "County",
+       title = "Comparing the Proportion of Two-week Intervals\nWhere Probabilistic Bias Interval Contains Covidestim Estimate")+
+    scale_color_manual(values = pal, labels =TeX(names(pal)), name ='')  +
+  theme_c(axis.text.x = element_text( size =16, angle =0),
+          axis.text.y = element_text(size = 12,hjust=1),
+          legend.text = element_text(size = 18, hjust=0),
+          axis.title= element_text(size = 20),
+          legend.position ="top",
+          plot.title = element_text(size = 22, face="bold", margin = margin(2,0,3,0))) +
+  scale_y_continuous(n.breaks = 10) +
+  guides(color = guide_legend(override.aes = list(size = 8), nrow=4,
+                              byrow=TRUE)) +
+  coord_flip() 
+
+
+
+
+```
+
+
+
+
+```{r, include=FALSE}
 joined %>%
   mutate(county_name = gsub("$","", county_name,fixed=TRUE),
          county_name = gsub('"', '', county_name, fixed=TRUE)) %>%
@@ -1504,9 +1538,10 @@ ggsave(here::here(paste0('thesis/figure/',
 
 ```
 
-### Heatmap
+### Heatmap for Ratio of Estimated Infections to Observed
 
-```{r}
+```{r, fig.height=14}
+ 
 
 ######################################################
 # HEATMAP OF RATIO OF ESTIMATED TO OBSERVED
@@ -1546,7 +1581,7 @@ heatmap_dat %>%
        subtitle = TeX("Implementation with $P(S_1|untested)$ Centered at Survey Value")) +
   theme_c() +
   theme(axis.text.x = element_text(size=15, angle=90),
-        axis.text.y = element_text(size = 17),
+        axis.text.y = element_text(size = 13),
         axis.title.x = element_text(size=19),
         axis.title.y = element_text(size=19),
         legend.title = element_text(face="bold", size=20, margin=margin(0,0,9,0)),
@@ -1579,7 +1614,7 @@ ggsave(here('thesis/figure/mi_county_heatmap_ratio_est_observed.pdf'),
 ```
 
 
-```{r}
+```{r, fig.height=12, include=FALSE}
 
 
 heatmap_dat <- corrected %>%
@@ -1619,9 +1654,10 @@ heatmap_dat %>%
 ```
 
 
-### Compare Trends in Ratio to Trends in Infections
+### Compare Trends in Ratio of Estimated Infections to Observed to Trends in Infections
 
 ```{r}
+
 
 
 subset <- corrected %>%
@@ -1645,7 +1681,8 @@ plot_county <- function(county) {
                      y=(exp_cases_median/positive)*median(subset_county$positive),
                      color = 'Ratio of Estimated Infections to Observed'),
                  linewidth =2) +
-  theme_c(legend.position='top') +
+  theme_c(legend.position='top',
+          axis.title = element_text(size=12)) +
   labs(x ='', y='Estimated Infections',
        title=county,) +
   scale_color_manual(values=c('Ratio of Estimated Infections to Observed'='#DA6932'), name='') +
@@ -1664,11 +1701,14 @@ include <- corrected %>%
   slice_head(n=30) %>%
   pull(county_name) %>%
   unique() %>%
-  sample(5)
+  sample(8)
 
 
 #plot_county("Washtenaw")
 
+```
+
+```{r, fig.height =15}
 
 pltlist <- map(c("Washtenaw",include), plot_county)
 legend <- get_legend(pltlist[[1]] + theme(legend.position="top"))
@@ -1676,13 +1716,13 @@ legend <- get_legend(pltlist[[1]] + theme(legend.position="top"))
 
 title_gg <- ggplot() + 
   labs(title = "Comparing Trends in Ratio of Estimated Infections to Observed\nto Trends in Total Infections") + 
-  theme(plot.title=element_text(face="bold", hjust = .5, size = 30, margin =margin(5,0,2,0)))
+  theme(plot.title=element_text(face="bold", hjust = .5, size = 25, margin =margin(5,0,2,0)))
 
 
 title_row <- plot_grid(title_gg,legend, nrow=2,rel_heights=c(.6,.4))
-grid <- plot_grid(plotlist = pltlist, nrow =5, rel_heights = c(.05,.95))
+grid <- plot_grid(plotlist = pltlist, ncol =2)
 
-plot_grid(title_row,grid, rel_heights = c(.05,.95),nrow=2)
+plot_grid(title_row,grid, rel_heights = c(.08,.91),nrow=2)
 
 ggsave(here('thesis/figure/compare-ratio-to-total-mi.pdf'), height=9,width=11)
 
@@ -1911,7 +1951,10 @@ subset %>%
 ggsave(here('thesis/figure/mi-ratio-pop.jpeg'), width=11,height=10,dpi=600)
 
 
+```
 
+
+```{r, include=FALSE}
 subset %>%
   mutate(pop = ntile(population, 5),
          ratio=exp_cases_median/positive) %>%
@@ -1936,7 +1979,7 @@ subset %>%
 ### Summarizing Concordance with Covidestim 
 
 
-#### By Version
+### By Version
 
 
 ```{r}
@@ -2020,9 +2063,9 @@ ggsave(here(
 ```
 
 
-## By County
+### By County
 
-```{r, height=8, width=11}
+```{r, fig.height=15}
 
 
 #######################################################################
@@ -2200,7 +2243,7 @@ ggsave(here('presentation/figure/covidestim_above_below_by_county_mi.pdf'), heig
 
 ```
 
-```{r}
+```{r, fig.height=15}
 
 
 #########################################################
@@ -2221,9 +2264,11 @@ mi_concordance_by_county  %>%
           legend.text=element_text(hjust=0, size = 15),
           axis.title=element_text(size=16),
           axis.text.x=element_text(size=11),
-          axis.text.y = element_text(size=14)) +
+          axis.text.y = element_text(size=14, hjust=1)) +
   labs(y = "", x="Proportion Containing Covidestim Median",
-       fill="") 
+       fill="",
+       title = "Proportion Containing Covidestim Median for the Most Concordant Version",
+       subtitle="By County") 
 
 ggsave(here('presentation/figure/best_version_by_county_mi.pdf'), height=8,width=11)
 
@@ -2234,7 +2279,7 @@ ggsave(here('presentation/figure/best_version_by_county_mi.pdf'), height=8,width
 
 
 
-```{r, width=14, height=8}
+```{r, fig.height=15}
 
 
 concordance_both <- mi_concordance %>%
@@ -2279,13 +2324,6 @@ concordance_both %>%
 
 ggsave(here('presentation/figure/prop_contained.pdf'), width=14, height=8, dpi=400)
 
-
-```
-
-
-## By County
-
-```{r}
 
 ```
 

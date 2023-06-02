@@ -12,3 +12,13 @@ docs/app/melding_experiment.Rmd
 data/lineage_data_full.json
 analysis/vignettes/melding_vignette_files
 analysis/vignettes/melding_vignette_cache
+analysis/vignettes/county_results_cache
+analysis/vignettes/state_results_cache
+analysis/vignettes/state_results_files
+analysis/vignettes/county_results_files
+docs/thesis/_bookdown_files/thesis_cache
+docs/analysis/vignettes/melding_vignette_cache
+docs/analysis/vignettes/county_results_cache
+docs/analysis/vignettes/county_results_files
+docs/data/lineage_data_full.json
+docs/app/melding_experiment_files

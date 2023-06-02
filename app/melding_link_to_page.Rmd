@@ -20,6 +20,6 @@ max-width:1920px;
 ``` 
 
 
-Shiny app exploring the implications of changing the parameters for $\alpha, \beta,$ and $P(S_1|untested)$ is deployed [here](https://q-w-a.shinyapps.io/bayesian_melding_priors/).
+Shiny app exploring the implications of changing the parameters for $\alpha, \beta,$ and $P(S_1|\text{untested})$ is deployed [here](https://q-w-a.shinyapps.io/bayesian_melding_priors/).
 
 <br><br><br><br><br><br><br><br><br>
