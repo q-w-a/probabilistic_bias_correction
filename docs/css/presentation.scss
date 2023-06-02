@@ -52,7 +52,10 @@ $presentation-font-size-root: 1.8vw;
 }
 
   
-
+.asymp .MathJax, .MathJax_Display  {
+    font-size: 97%  !important;
+    font-family: Asana-Math;
+}
 
 .math.inline {
   font-size: 97%  !important;
@@ -65,7 +68,7 @@ $presentation-font-size-root: 1.8vw;
 }
 
 .mybox2, .MathJax, .MathJax_Display, .math.inline  {
-  font-size:100% !important;
+  font-size:95% !important;
 }
 
 .m {
