@@ -1,5 +1,5 @@
 ---
-title: "Cross Correlation with Covidestim and Wastewater Data"
+title: "Cross Correlation with CovidEstim and Wastewater Data"
 author: "Quinn White"
 date: '`r Sys.Date()`'
 output:
@@ -156,9 +156,10 @@ waste %>% filter(fips %in% corrected$fips) %>%
 ```
 
 
-```{r, include=FALSE}
-
 # Wastewater
+
+
+```{r}
 
 wjoined %>%
   group_by(fips) %>%
@@ -1233,8 +1234,7 @@ lags_all %>%
 
 Maximum at lag = -1 $\implies$ wastewater leads cases by 1 biweek.
 
-```{r, fig.height = 10, include=FALSE}
-
+```{r, fig.height = 10}
 
 county_names <- wjoined %>%
   select(name, fips) %>% 

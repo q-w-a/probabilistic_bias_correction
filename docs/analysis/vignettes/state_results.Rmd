@@ -12,7 +12,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.width = 18, fig.height= 12)
+knitr::opts_chunk$set(echo = TRUE, fig.width = 18, fig.height= 12, message=FALSE, warning=FALSE, cache=TRUE)
 
 library(tidyverse)
 library(latex2exp)
@@ -227,7 +227,7 @@ concordance_by_state <- corrected %>%
 
 # Testing Rate over Time 
 
-```{r}
+```{r, fig.height=18}
 
 subset <- corrected %>%
   filter(vlabel == "$Priors\\,Do\\,Not\\,Vary\\,by\\,State\\,and\\,Date$")
@@ -236,19 +236,15 @@ subset <- corrected %>%
 subset %>%
   ggplot(aes(x=date, y =total/population))+
   geom_line() +
-  facet_wrap(~state) +
+  facet_wrap(~state, ncol=5) +
   theme_c() +
   labs(title ="Biweekly Testing Rate",
        y = "Total Number of Tests / Population Size")
 
+```
 
-subset %>%
-  ggplot(aes(x=date, y =total/population))+
-  geom_line() +
-  facet_wrap(~state) +
-  theme_c() +
-  labs(title ="Biweekly Testing Rate",
-       y = "Total Number of Tests / Population Size")
+```{r}
+
 
 ###########################################################################
 # plot relationship between ratio of estimated cases to observed 
@@ -308,12 +304,12 @@ students <- students %>%
   left_join(codes, by= c('state'='state')) %>%
   select(state=code, student_population, state_name = state)
 
-corrected %>%
-  select(state,population,positive,total) %>%
-  distinct() %>%
-  left_join(students) %>%
-  ggplot(aes(x=student_population/population, y = total/population)) +
-  geom_point()
+# corrected %>%
+#   select(state,population,positive,total) %>%
+#   distinct() %>%
+#   left_join(students) %>%
+#   ggplot(aes(x=student_population/population, y = total/population)) +
+#   geom_point()
 
 
 corrected %>%
@@ -349,12 +345,11 @@ ggsave(here::here(paste0('thesis/figure/college_populations.pdf')),
        height=11, width = 11, dpi=400)
 
 
-corrected %>%
-  mutate(testrate=total/population) %>%
-  filter(testrate>.25) %>% 
- # filter( abs(testrate - max(testrate)) <=.05) %>%
-  select(date,testrate, state) %>%
-  distinct() 
+# corrected %>%
+#   mutate(testrate=total/population) %>%
+#   filter(testrate>.25) %>% 
+#   select(date,testrate, state) %>%
+#   distinct() 
   
   
 ```
@@ -459,7 +454,8 @@ variant <- variant %>%
 
 ```
 
-```{r plot variant data}
+```{r plot variant data, fig.height=9,fig.width=12}
+
 
 
 varpal <- c("#7BD8DA","#709f0f", "#e71761", "#9245c8", 
@@ -527,19 +523,21 @@ ggsave(here('thesis/figure/ratio-peak-omicron.pdf'), height=11, width=12, dpi=40
 ```
 
 
-```{r}
+```{r, fig.height=18}
 
 subset %>% 
   ggplot(aes(x=date, ymin = exp_cases_lb/positive,
              ymax = exp_cases_ub/positive)) +
   geom_ribbon() +
   theme_c()+ 
-  facet_wrap(~state)
+  facet_wrap(~state,ncol=6)+
+  labs(x="", y="Ratio of Estimated Infections to Observed",
+       title ="Ratio of Estimated Infections to Observed Infections Across All Time Intervals")
 
 
 ```
 
-```{r}
+```{r, include=FALSE}
 
 # max average ratio across all states
 subset %>% 
@@ -549,9 +547,6 @@ subset %>%
   filter(m==max(m)) %>%
   left_join(dates)
 
-```
-
-```{r}
 
 subset %>% 
   mutate(ratio =exp_cases_median/positive) %>%
@@ -751,7 +746,9 @@ ranks <- subset %>%
   mutate(rank = rank(ratio),
          rank_tested=rank(-tested))
 
+```
 
+```{r,include=FALSE}
 ranks %>%
   ungroup() %>%
   ggplot(aes(x=date, y = ratio, color = state_name,
@@ -1072,7 +1069,7 @@ ggsave(here::here(paste0('thesis/figure/texas-lag.pdf')),
 
 ## Testing in Michigan
 
-```{r}
+```{r, fig.width=13,fig.height=9}
 
 corrected %>%
   filter(state=="MI") %>%
@@ -1110,7 +1107,9 @@ ggsave(here::here(paste0('thesis/figure/test_capacity.pdf')),
 
 
 
+```
 
+```{r,fig.width=15,fig.height=8}
 
 
 corrected %>%
@@ -1142,10 +1141,13 @@ corrected %>%
   guides(color = guide_legend(override.aes = list(linewidth=2))) +
   labs(y = "Percent Change in Tests",
        x = "Date",
-       title = "Percent Change in Positive Tests and Total Tests\nin Michigan") +
+       title = "Percent Change in Positive Tests and Total Tests\nin Michigan and Texas") +
   scale_x_date(date_breaks="1.5 months", date_labels = "%b %Y") +
   facet_wrap(~state)
+```
 
+
+```{r,include=FALSE}
 corrected %>%
   filter(state=="TX") %>%
   filter(version =="v4") %>%
@@ -1195,7 +1197,7 @@ corrected %>%
 
 ## Testing, All States
 
-```{r}
+```{r, fig.height=19}
 corrected %>%
   select(date, total, positive,biweek,state) %>%
   distinct() %>%
@@ -1246,7 +1248,8 @@ saveRDS(source, here('data/covidestim/state_source.RDS'))
 ```
 
 
-```{r}
+```{r, fig.height=8, fig.width=12}
+
 
 source <- readRDS(here('data/covidestim/state_source.RDS'))
 
@@ -1277,11 +1280,7 @@ covidestim <- covidestim %>%
 
 
 
-covidestim %>%
-  filter(state=="Texas") %>%
-  bind_rows(tests_weekly) %>%
-  ggplot(aes(x=date,y=cases, color=source))+
-  geom_line() 
+
 
 dates <- readRDS(here('data/date_to_biweek.RDS'))
 
@@ -1327,7 +1326,7 @@ ggsave(here('thesis/figure/texas-data-sources.pdf'),height=5, width=10, dpi=600)
 
 ## All States 
 
-```{r}
+```{r, fig.height=23, fig.width=20}
 
 library(cowplot)
 
@@ -1422,11 +1421,11 @@ ggsave(here('thesis/figure/jhu_cdc_all_states_2.pdf'), height=25, width=19)
 
 
 
-# PB Intervals for All States
+# Simulation Intervals for All States
 
-Break up into 2 groups
+States broken up into 2 groups (to split the figure across multiple pages). 
 
-```{r}
+```{r, fig.height=18}
 
 
 
@@ -1577,7 +1576,7 @@ ggsave(here::here('thesis/figure/state_comp_covidestim2.pdf'),
 ```
 
 
-```{r}
+```{r, fig.height=9, fig.width=14}
 
 #######################
 # for presentation
