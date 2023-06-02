@@ -3,8 +3,30 @@
 # Conclusion
 
 
-The aim of this work is to consider possible scenarios for the extent of unobserved infections over an extended time during the COVID-19 pandemic, and to explore how we can present the uncertainty in the number of incident infections. Throughout the pandemic we often see line charts of observed cases or the test positivity rate. Advice has changed as has testing behavior, with warnings to not consider case counts in isolation, but rather to also look at trends in the test positivity rate (among other indicators). However, presentation of infections as intervals, their widths defined as a direct consequence of assumptions we make about the bias parameters, reflects genuine uncertainty about the number of true infections that may exist in a given area over time.
-Various models exist to try to get at this quantity of the number of true infections, incorporating a range of sources of data, including COVID-19 deaths, hospitalizations, seroprevalence data, and viral concentrations in wastewater, as well as estimates such as the infection fatality ratio. 
+## Limitations and Future Work
+
+### Population Estimates 
+
+|    One limitation of our approach is that we treat the total number of tests as $N_{\text{tested}}$, that is, the total number of people tested. If there is a substantial amount of repeat testing in a location, then the number of tests will be larger than $N_{\text{tested}}$, and then $N_{\text{untested}}$ will be too small, since  $N_{\text{tested}} = N- N_{\text{tested}}$. This may lead to underestimation of the true number of infections. At the state-level, one way to mitigate this issue is to use the "people viral positive" and "people viral total" values from the Johns Hopkins govex repository^[As of May 2023, this repository is accessible [here](https://github.com/govex/COVID-19).] on Github, which some states report. However, there are many more data quality issues with this data.
+
+Another limitation is our use of Census population estimates as the total population for a location.
+In particular, college students, one of the most frequently tested populations -- are supposed to be counted "where they live and sleep most of the time" [@zotero-1057]. However, there have been concerns on institutional counts (e.g., for dorms) for recent Census estimates [@henderson2022]. Additionally, students may leave the state for extended periods in the summer or during winter break, resulting in a change in the total population during those times.
+
+### Correlation Between $\alpha$ and $\beta$
+
+|    When we sample $\alpha$, $\beta$, and $P(S_1|\text{untested})$, we sample them independently (before melding, which does introduce dependence). However, $\alpha=\frac{P(\text{test}_+|S_1, \text{untested})}{P(\text{test}_+| \text{tested})}$ and $\beta=\frac{P(\text{test}_+|S_0, \text{untested})}{P(\text{test}_+| \text{tested})}$ are not truly independent; they depend on the same set of conditional probabilities. That said, their dependence depends on probabilities we do not know, and we would need additional assumptions to specify the correlation between them. Simulations exploring implications of different correlations between $\alpha$ and $\beta$ would be useful to explore the extent to which correlation between these parameters changes the corrected estimates. 
+
+### Using Results for Other Sensitivity Analyses
+
+|    Applying probabilistic analysis gives us a distribution for the estimated infections for each two-week interval in a given location. These distributions are interesting in themselves, but another way we could use these results is to see how estimates of various models differ under various scenarios of incomplete testing. For example, a model assessing the relationship between various socioeconomic variables and cumulative infections may be impacted by incomplete testing in that the same disadvantages that may contribute to higher COVID-19 burden (inadequate health care resources, for instance) may contribute to a lack of accessible testing. Fitting a model like that @chen2021b or @karmakar2021b, both of which study the relationship between COVID-19 infections and socioeconomic variables, and seeing how parameter estimates change when using sampled bias-corrected estimates of infection burden, rather than solely positive tests, would be informative for thinking how sensitive these parameter estimates are to the extent of incomplete testing. This process of fitting a model by sampling from the bias-corrected values is a common application of probabilistic bias analysis [@lash2009b].
+
+
+## Discussion
+
+
+|    The aim of this work is to consider possible scenarios for the extent of unobserved infections over an extended time during the COVID-19 pandemic, and to explore how we can present the uncertainty in the number of incident infections. Throughout the pandemic, we have often seen line charts of observed cases or the test positivity rate. Advice on interpretation of case counts has changed, as has testing behavior, with warnings to not consider case counts in isolation, but rather to also look at trends in the test positivity rate (among other indicators). However, presentation of infections as intervals, their widths defined as a direct consequence of assumptions we make about the bias parameters, reflects genuine uncertainty about the number of true infections that may exist in a given area over time.
+
+
+Various models exist to try to get at this quantity of the number of true infections, incorporating a range of sources of data, including COVID-19 deaths, hospitalizations, seroprevalence data, and viral concentrations in wastewater, as well as estimates such as the infection fatality ratio [@irons2021; @chitwood2022]. 
+
 The strength of applying probabilistic bias analysis to consider possible values of true COVID-19 infections lays in its relative simplicity and transparency of assumptions, in addition to the ease of exploration of possible testing scenarios of the extent to which infections are going undetected. Although there is no ground truth to rigorously assess the accuracy of an estimate of the true number of COVID-19 infections, comparing approaches and understanding where and when they are non concordant provides useful insight into quantifying the range of true infections.
-
-

@@ -374,7 +374,7 @@
 <li>Interested in the distinction between:
 <ul>
 <li>Positive tests we observe</li>
-<li>True number infections that exist</li>
+<li>True number of infections that exist</li>
 </ul></li>
 </ul>
 </div><div class="cell">
@@ -562,7 +562,7 @@ Figure from Wu <em>et al..</em> (2020) showing the ratio of total estimated infe
 <ul>
 <li>Recall:
 <ul>
-<li>Wu <em>et. al.</em> estimated infections as of mid-April 2020</li>
+<li>Wu <em>et al.</em> estimated infections as of mid-April 2020</li>
 <li>State-level</li>
 </ul></li>
 <li>Here:
@@ -631,9 +631,9 @@ Figure from Wu <em>et al..</em> (2020) showing the ratio of total estimated infe
 <li>Event <span class="math inline">\(\text{test}_{+}\)</span> denotes they <em>would</em> test positive if they were tested </li>
 </ul></li>
 </ul>
-</div><div class="column" style="width:50%;">
-<div style="width:45%">
-<p><img src="./figure/symptom_diagram.png" style="position:absolute;text-align:right;float:right;width:60%;margin-left:10%;"></p>
+</div><div class="column" style="width:60%;">
+<div style="width:90%;float:right;">
+<p><img src="./figure/symptom_diagram.png" style="position:absolute;text-align:right;float:right;width:50%;margin-left:10%;"></p>
 </div>
 </div>
 </div>
@@ -816,7 +816,7 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 <ul>
 <li><p>Informing <span class="math inline">\(\Pr(S_1|\text{untested})\)</span></p>
 <ul>
-<li>Percentage of population experiencing COVID-19-like symptoms</li>
+<li>Percentage of the population experiencing COVID-19-like symptoms</li>
 </ul>
 <p><br></p></li>
 <li><p>Informing <span class="math inline">\(\beta\)</span></p>
@@ -833,6 +833,12 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 </section>
 <section id="example-informing-beta-with-ctis-data" class="slide level2">
 <h2>Example: Informing <span class="math inline">\(\beta\)</span> with CTIS Data</h2>
+<div class="defbox" style="position:absolute;margin-left:75%;float:right;width=100%;">
+<p><strong>Definitions:</strong></p>
+<ul>
+<li><span class="math inline">\(\beta = \dfrac{\Pr(\text{test}_+ | \; S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
+</ul>
+</div>
 <ul>
 <li>Allows <span class="math inline">\(\beta\)</span> to vary over time</li>
 <li>Center distribution at smoothed survey estimate for that 2-week interval</li>
@@ -872,13 +878,13 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
           display:block!important;
       }</style></aside>
 </section>
-<section id="incorporating-information-on-the-asymptomatic-rate" class="slide level2">
+<section id="incorporating-information-on-the-asymptomatic-rate" class="slide level2 asymp">
 <h2>Incorporating Information on the Asymptomatic Rate</h2>
 <div class="defbox" style="position:absolute;margin-left:75%;float:right;width=100%;">
 <p><strong>Definitions:</strong></p>
 <ul>
-<li><span class="math inline">\(\alpha = \dfrac{\Pr(\text{test}_+|\; S_1,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
-<li><span class="math inline">\(\beta = \dfrac{\Pr(\text{test}_+ | \; S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
+<li><span class="math inline">\(\alpha = \frac{\Pr(\text{test}_+|\; S_1,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
+<li><span class="math inline">\(\beta = \frac{\Pr(\text{test}_+ | \; S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}\)</span></li>
 <li><span class="math inline">\(S_1\)</span> is symptomatic</li>
 </ul>
 </div>
@@ -888,7 +894,10 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 <li>Relate <span class="math inline">\(\theta = \{ \alpha, \beta, \Pr(S_1|\text{untested})\}\)</span> to the asymptomatic rate <span class="math inline">\(\Pr(S_0|\text{untested, test}_+)\)</span> by function <span class="math inline">\(M\)</span>:</li>
 </ul>
 <div class="mybox2" style="margin-top:4%;margin-bottom:4%;">
-<p><span class="math display">\[\Pr(S_0|\text{test}_+, \text{untested}) =M(\theta) = \frac{\beta(1 - \Pr(S_1|\text{untested}))}{\beta(1-\Pr(S_1|\text{untested})) + \alpha \Pr(S_1|\text{untested})}.\]</span></p>
+<p><span class="math display">\[\begin{align*}
+\Pr(S_0|\text{test}_+, \text{untested}) &amp;=M(\theta) \\
+&amp;= \frac{\beta(1 - \Pr(S_1|\text{untested}))}{\beta(1-\Pr(S_1|\text{untested})) + \alpha \Pr(S_1|\text{untested})}.
+\end{align*}\]</span></p>
 </div>
 <ul>
 <li>2 distinct priors for <span class="math inline">\(P(S_0|\text{test}_+, \text{untested})\)</span>:
@@ -1019,12 +1028,20 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 <h2>County Level in Massachusetts</h2>
 <p><img src="figure/ma_pb_compared_to_observed_3_counties.jpeg"></p>
 </section>
-<section id="summarizing-concordance-with-covidestim" class="slide level2">
-<h2>Summarizing Concordance with Covidestim</h2>
+<section id="summarizing-concordance-with-covidestim-county-level" class="slide level2">
+<h2>Summarizing Concordance with Covidestim (County Level)</h2>
 <ul>
 <li>Proportion where Covidestim median was contained in the probabilistic bias interval – Massachusetts and Michigan</li>
 </ul>
 <p><img src="figure/prop_contained.jpeg" width="90%"></p>
+</section>
+<section id="state-level-results-michigan-and-massachusetts" class="slide level2">
+<h2>State-level Results: Michigan and Massachusetts</h2>
+<p><img src="figure/state_level_mi_ma.jpeg"></p>
+</section>
+<section id="summarizing-concordance-with-covidestim-state-level" class="slide level2">
+<h2>Summarizing Concordance with Covidestim (State Level)</h2>
+<p><img src="figure/covidestim_concordance_state.jpeg"></p>
 </section>
 <section id="summary" class="slide level2">
 <h2>Summary</h2>
@@ -1062,12 +1079,12 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 <h1>Supplementary Slides</h1>
 
 </section>
-<section id="why-alpha-changes-little-with-melding" class="slide level2">
-<h2>Why <span class="math inline">\(\alpha\)</span> Changes Little with Melding</h2>
+<section id="why-effect-of-melding-on-alpha-is-small" class="slide level2">
+<h2>Why Effect of Melding on <span class="math inline">\(\alpha\)</span> is Small</h2>
 <div class="cell">
 
 </div>
-<div class="mybox2" style="margin-top:4%;margin-bottom:4%;">
+<div class="mybox2" style="margin-top:1%;margin-bottom:1%;">
 <p><span class="math display">\[\Pr(S_0|\text{test}_+, \text{untested}) =M(\theta) = \frac{\beta(1 - \Pr(S_1|\text{untested}))}{\beta(1-\Pr(S_1|\text{untested})) + \alpha \Pr(S_1|\text{untested})}.\]</span></p>
 </div>
 <p><img src="figure/alpha_little_change.jpeg"></p>
@@ -1088,9 +1105,9 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 <h2>County Level for All Counties in Massachusetts</h2>
 <p><img src="figure/ma_pb_compared_to_covidestim.jpeg"></p>
 </section>
-<section id="state-level-results" class="slide level2">
-<h2>State-level Results</h2>
-<p><img src="figure/state_level_mi_ma.jpeg"></p>
+<section id="state-level-results-different-data-source" class="slide level2">
+<h2>State-level Results: Different Data Source</h2>
+<p><img src="figure/covidestim_concordance_state_jhu.jpeg"></p>
 </section>
 <section id="positivity-rate-for-hampshire-county" class="slide level2">
 <h2>Positivity Rate for Hampshire County</h2>
@@ -1173,6 +1190,14 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 
 </div>
 <aside><ol class="aside-footnotes"><li id="fn1"><p>Chitwood, M. H., Russi, M., Gunasekera, K., Havumaki, J., Klaassen, F., Pitzer, V. E., Salomon, J. A., Swartwood, N. A., Warren, J. L., Weinberger, D. M., Cohen, T., &amp; Menzies, N. A. (2022). Reconstructing the course of the COVID-19 epidemic over 2020 for US states and counties: Results of a Bayesian evidence synthesis model. PLOS Computational Biology, 18(8), e1010465. https://doi.org/10.1371/journal.pcbi.1010465</p></li></ol></aside></section>
+<section id="adjustment-for-sensitivity-and-specificity" class="slide level2">
+<h2>Adjustment for Sensitivity and Specificity</h2>
+<ul>
+<li><span class="math inline">\(S_e\)</span> = test sensitivity = the probability an individual tests positive if they have COVID-19 (probability of a true positive), that is, <span class="math inline">\(P(\text{test}_+ | +)\)</span>.</li>
+<li><span class="math inline">\(S_p\)</span> = test specificity = probability an individual tests negative if they do not have COVID-19 (probability of a true negative), that is, <span class="math inline">\(P(\text{test}_- |-)\)</span>.</li>
+</ul>
+<p>Then, given that we have the number <span class="math inline">\(N^*\)</span> who (would) tested positive, <span class="math inline">\(S_p\)</span>, the sensitivity <span class="math inline">\(S_e\)</span>, and the total population size <span class="math inline">\(N\)</span>, we can calculate the true positives with the formula<sup>1</sup>: <span class="math display">\[\text{Number Truly Positive} = \dfrac{N^* - (1-S_p) \times N}{S_e+S_p-1}\]</span></p>
+<aside><ol class="aside-footnotes"><li id="fn2"><p><span class="citation" data-cites="rothman2008"><sup><a href="#/references" role="doc-biblioref" onclick="">20</a></sup></span></p></li></ol></aside></section>
 <section id="references" class="slide level2 smaller scrollable">
 <h2>References</h2>
 <div id="refs" class="references csl-bib-body" role="doc-bibliography">
@@ -1232,6 +1257,9 @@ N^*_{\text{untested}} &amp;= N^*_{S_1, \text{untested}}  + N^*_{S_0, \text{untes
 </div>
 <div id="ref-sah2021b" class="csl-entry" role="doc-biblioentry">
 <div class="csl-left-margin">19. </div><div class="csl-right-inline">Sah P, Fitzpatrick MC, Zimmer CF, et al. Asymptomatic <span>SARS-CoV-2</span> infection: <span>A</span> systematic review and meta-analysis. <em>Proc Natl Acad Sci USA</em>. 2021;118(34):e2109229118. doi:<a href="https://doi.org/10.1073/pnas.2109229118">10.1073/pnas.2109229118</a></div>
+</div>
+<div id="ref-rothman2008" class="csl-entry" role="doc-biblioentry">
+<div class="csl-left-margin">20. </div><div class="csl-right-inline">Rothman KJ, Greenland S, Lash TL. <em>Modern Epidemiology</em>. Third edition. <span>Wolters Kluwer Health, Lippincott Williams &amp; Wilkins</span>; 2008.</div>
 </div>
 </div>
 <div class="footer footer-default">

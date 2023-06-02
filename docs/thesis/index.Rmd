@@ -1,5 +1,5 @@
 ---
-title: 'Estimating Unobserved COVID-19 Infections in the United States'
+title: 'Using Sensitivity Analyses to Approximate Total COVID-19 Infections: State and County level in the United States, March 2021 - March 2022'
 author: 'Quinn White'
 date: 'May 2023'
 institution: 'Smith College'
@@ -17,9 +17,13 @@ output:
   pioneerdown::thesis_gitbook: default 
 abstract: '`r if(knitr:::is_latex_output()) paste(readLines(here::here("thesis/prelims", "00-abstract.Rmd")), collapse = "\n  ")`'
 acknowledgements: |
-  Will add
-dedication: |
-  You can have a dedication here if you wish. 
+  This project would not have been possible without the the incredible mentorship I received from Professor Ben Baumer at Smith College and Professor Nick Reich at University of Massachusetts Amherst. To begin, Ben, you were essential for getting this project off the ground. In fact, your involvement begins well before that. Sitting in your class my first year of college was the first time I became really excited about coding and data science, which has certainly shaped the path I am on today. The skills I learned in your classes translated directly into research contexts: in particular, the organization to structure a long-term coding project like this, the ability to address questions via coding, and the importance of thinking through how to put together effective data visualizations. This background enabled me to have research experiences as an undergraduate that have motivated me to pursue graduate school.  
+  
+  Nick, I would like to thank you for making this thesis experience better than I ever could have imagined. From the first meeting we had, it was clear to me that I was incredibly lucky to get the chance to work with you this year, and the experience has meant more to me than I can fully express here. I have learned so much from our conversations along the way on how to think deeply about the questions that arose, and I would always leave our meetings excited to look further into the ideas we discussed. This experience has made me truly appreciate how much mentorship shapes a research experience, and has made me excited to engage in further research in graduate school. 
+  
+  Beyond advising me on this project, I also really appreciate that you welcomed me to join lab meetings for your research group. On that note, I would like to thank all members of the Reich lab. Everyone was so welcoming and kind from the very start -- I was taken aback when one member, Martha, offered to give me rides over to University of Massachusetts to join the lab meetings, which was a wonderful way to start the day. I always enjoyed the presentations in these meetings; even if a topic was entirely new to me, I could learn so much by hearing the kinds of questions people asked and concerns they raised. You all helped me grow as a scientist, and I am so grateful for your support.
+  
+    Lastly, I would like to thank my friends and family, particularly my sister. Sienna, you have been involved from the very first phone call I when shared my idea for this project, and even joined my defense on Zoom. You been so encouraging and have made me laugh throughout the entire process.                                                              
 bibliography: "bibliography.bib"
 csl: csl/apa.csl
 lot: false
@@ -103,9 +107,9 @@ Alternatively, you can put that content in files like 00--prelim.Rmd and
 00-abstract.Rmd like done below.
 -->
 
-```{r eval==!knitr::is_latex_output(), child=here::here("thesis/prelims", "00--prelim.Rmd")}
+<!-- ```{r eval==!knitr::is_latex_output(), child=here::here("thesis/prelims", "00--prelim.Rmd")}
 #eval =!knitr::is_latex_output(), changed because throwing an error upon knitting gitbook
-```
+```--> 
 
 ```{r eval=!knitr::is_latex_output(), child=here::here("thesis/prelims", "00-abstract.Rmd")}
 

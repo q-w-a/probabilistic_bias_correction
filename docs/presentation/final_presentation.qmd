@@ -88,7 +88,7 @@ theme_c <- function(...){
 * Testing rate varies widely across states
 * Interested in the distinction between:
   * Positive tests we observe
-  * True number infections that exist
+  * True number of infections that exist
 ::: 
 
 
@@ -261,23 +261,91 @@ testing <- testing %>%
 testing <- testing %>%
   mutate(week = week(date), year = year(date), month = month(date)) %>%
   mutate(week = ifelse(week ==53, 52, week)) %>%
-  # mutate(across(c(week,year,month), as.character)) %>%
-  #   mutate(across(c(week,year,month),
-  #                 ~ifelse(nchar(.x) == 1, paste0("0", .x), .x))) %>%      
-  # mutate(weekyear = paste0(week, "-", month, "-" ,year),
-  #        weekyear = as_date(weekyear,  format="%U-m-%Y")) %>%
   group_by(week, year, state, population) %>%
   summarize(date = min(date), 
             total = sum(total)) %>%
   ungroup()
 
+# 
+# pal1 <-viridis_pal(option="viridis", end = .9, begin=.5)(12)
+# pal2 <- viridis_pal(option="rocket", end = .9, begin=.3)(15)
+# pal3 <- viridis_pal(option="magma", end = .9, begin=.3)(15)
+# pal4 <- viridis_pal(option="mako", end = .8, begin=.3)(15)
+# 
+# 
+# rankpal <- c(pal1, pal2, pal3,pal4)
+# indexes <- sample.int(length(rankpal), replace=FALSE)
+# rankpal <- rankpal[indexes]
+# 
+# testing  %>%
+#    mutate(`Number of Tests / Population Size` = total/population) %>%
+#   filter(date >= ymd("2021-01-01")) %>%
+#   ggplot(aes(x = date, 
+#              y = `Number of Tests / Population Size`,
+#              color = state)) +
+#   geom_line(size = .7, show.legend=FALSE, alpha = .7) +
+#   theme_bw() +
+#   theme(axis.title = element_text(size = 22),
+#           legend.position = "none",
+#         plot.title = element_text(hjust = .5, face = "bold", size = 25),
+#         text = element_text(family = "Arial"),
+#         axis.text.x = element_text(size = 14),
+#         axis.text.y = element_text(size = 8)) +
+#   labs(title = "Weekly PCR Testing Rate by State",
+#        x="")+ 
+#   scale_x_date(date_labels= "%b %Y") +
+#   #viridis::scale_color_viridis(option="rocket", discrete=TRUE) +
+#   scale_color_manual(values=rankpal)
+# 
+#  ggsave(width=8, height = 6,"./thesis/figure/testing_all.jpeg", dpi=600)
+# 
+
+codes <- read_csv(here('data/demographic/statecodes.csv'))
+
 
 testing  %>%
    mutate(`Number of Tests / Population Size` = total/population) %>%
+  group_by(state) %>%
+  mutate(m = median(`Number of Tests / Population Size`)) %>%
+  ungroup() %>%
+  mutate(max=max(m,na.rm=TRUE),
+         min = min(m,na.rm=TRUE)) %>%
+  rename(code=state) %>%
+  left_join(codes) %>%
+  mutate(state_name = ifelse(m == max | m==min, state, NA)) %>%
+  ggplot(aes(x=date,  y=`Number of Tests / Population Size`,
+             group=state)) +
+  geom_line(alpha = .2) +
+  geom_line(aes(color=state_name),
+            linewidth=1.3) +
+  scale_color_manual(na.value=NA, values=c("#900C3F", "#5098C2"),
+                     breaks = c("Mississippi", "Rhode Island"),
+                     labels= c("Mississippi", "Rhode Island"),
+                     name='')+
+  theme_bw() +
+  theme(axis.title = element_text(size = 22),
+          legend.position = "top",
+        legend.text=element_text(size=17),
+        plot.title = element_text(hjust = .5, face = "bold", size = 25),
+        text = element_text(family = "Arial"),
+        axis.text.x = element_text(size = 14),
+        axis.text.y = element_text(size = 8)) +
+  labs(title = "Weekly PCR Testing Rate by State",
+       x="")+ 
+  scale_x_date(date_labels= "%b %Y") 
+
+ggsave(width=10, height = 6,"./thesis/figure/testing_all.jpeg", dpi=600)
+
+
+
+
+testing  %>%
+   mutate(`Number of Tests / Population Size` = total/population) %>%
+  filter(date >= ymd("2021-01-01")) %>%
   ggplot(aes(x = date, 
              y = `Number of Tests / Population Size`,
              color = state)) +
-  geom_line(size = .7, show.legend=FALSE) +
+  geom_line(size = .7, show.legend=FALSE, alpha = .7) +
   theme_bw() +
   theme(axis.title = element_text(size = 22),
           legend.position = "none",
@@ -288,10 +356,15 @@ testing  %>%
   labs(title = "Weekly PCR Testing Rate by State",
        x="")+ 
   scale_x_date(date_labels= "%b %Y") +
-  viridis::scale_color_viridis(option="rocket", discrete=TRUE)
+  #viridis::scale_color_viridis(option="rocket", discrete=TRUE) +
+  scale_color_manual(values=rankpal)
+
 
 
 ggsave(width=8, height = 6,"./presentation/figure/testing_all.jpeg", dpi=300)
+
+
+
 
 
 testing  %>%
@@ -318,6 +391,8 @@ testing  %>%
   scale_color_manual(values = c(ID='#900C3F'))
 
 ggsave(width=8, height = 6,"./presentation/figure/idaho_testing.jpeg", dpi=300)
+
+
 
 
 testing  %>%
@@ -496,7 +571,7 @@ The paper this work was based on is *Substantial Underestimation of COVID-19 in 
 <div style="font-size:130% !important">
 
 * Recall: 
-  *  Wu *et. al.* estimated infections as of mid-April 2020
+  *  Wu *et al.* estimated infections as of mid-April 2020
   * State-level
 * Here:
   * Time period March 2021 to March 2022 
@@ -558,10 +633,10 @@ The paper this work was based on is *Substantial Underestimation of COVID-19 in 
 
 ::: 
 
-::: {.column width="50%"}
+::: {.column width="60%"}
 
-::: {style="width:45%"}
-<img src="./figure/symptom_diagram.png"  style="position:absolute;text-align:right;float:right;width:60%;margin-left:10%;">
+::: {style="width:90%;float:right;"}
+<img src="./figure/symptom_diagram.png"  style="position:absolute;text-align:right;float:right;width:50%;margin-left:10%;">
 ::: 
 
 ::: 
@@ -863,7 +938,7 @@ ggsave(width=5, height = 3, "./presentation/figure/s_untested.jpeg", dpi=300)
 
 
 * Informing $\Pr(S_1|\text{untested})$
-  * Percentage of population experiencing COVID-19-like symptoms
+  * Percentage of the population experiencing COVID-19-like symptoms
   
   <br>
   
@@ -1146,6 +1221,14 @@ smoothed_screening %>%
 
 ## Example: Informing $\beta$ with CTIS Data
 
+
+::: {.defbox style="position:absolute;margin-left:75%;float:right;width=100%;"}
+
+**Definitions:**
+
+* $\beta =  \dfrac{\Pr(\text{test}_+ | \; S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}$
+:::
+
 * Allows $\beta$ to vary over time
 * Center distribution at smoothed survey estimate for that 2-week interval
 
@@ -1169,7 +1252,7 @@ smoothed_screening %>%
 Describe how we estimate beta by taking screening test positivity / overall test positivity  
 ::: 
 
-## Incorporating Information on the Asymptomatic Rate 
+## Incorporating Information on the Asymptomatic Rate {class="asymp"}
 
 
 
@@ -1177,8 +1260,8 @@ Describe how we estimate beta by taking screening test positivity / overall test
 
 **Definitions:**
 
-* $\alpha =  \dfrac{\Pr(\text{test}_+|\; S_1,\text{untested})}{\Pr(\text{test}_+|\text{tested})}$
-* $\beta =  \dfrac{\Pr(\text{test}_+ | \; S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}$
+* $\alpha =  \frac{\Pr(\text{test}_+|\; S_1,\text{untested})}{\Pr(\text{test}_+|\text{tested})}$
+* $\beta =  \frac{\Pr(\text{test}_+ | \; S_0,\text{untested})}{\Pr(\text{test}_+|\text{tested})}$
 * $S_1$ is symptomatic
  
 :::
@@ -1192,7 +1275,10 @@ Describe how we estimate beta by taking screening test positivity / overall test
 
 ::: {.mybox2 style="margin-top:4%;margin-bottom:4%;"}
 
- $$\Pr(S_0|\text{test}_+, \text{untested}) =M(\theta) = \frac{\beta(1 - \Pr(S_1|\text{untested}))}{\beta(1-\Pr(S_1|\text{untested})) + \alpha \Pr(S_1|\text{untested})}.$$ 
+ \begin{align*}
+ \Pr(S_0|\text{test}_+, \text{untested}) &=M(\theta) \\
+ &= \frac{\beta(1 - \Pr(S_1|\text{untested}))}{\beta(1-\Pr(S_1|\text{untested})) + \alpha \Pr(S_1|\text{untested})}.
+ \end{align*}
 ::: 
 
 
@@ -1905,11 +1991,26 @@ ggsave(here('presentation/figure/correction_step.jpeg'), width = 3, height = 2)
 <img src="figure/ma_pb_compared_to_observed_3_counties.jpeg">
 
 
-## Summarizing Concordance with Covidestim
+
+## Summarizing Concordance with Covidestim (County Level)
 
 * Proportion where Covidestim median was contained in the probabilistic bias interval -- Massachusetts and Michigan 
 
 <img src= 'figure/prop_contained.jpeg' width="90%">
+
+
+
+
+## State-level Results: Michigan and Massachusetts
+
+
+<img src='figure/state_level_mi_ma.jpeg'>
+
+
+
+## Summarizing Concordance with Covidestim (State Level)
+
+<img src='figure/covidestim_concordance_state.jpeg'>
 
 
 
@@ -1930,6 +2031,7 @@ ggsave(here('presentation/figure/correction_step.jpeg'), width = 3, height = 2)
 
 
 
+
 ## Acknowledgements
 
 
@@ -1947,7 +2049,7 @@ ggsave(here('presentation/figure/correction_step.jpeg'), width = 3, height = 2)
 # Supplementary Slides 
 
 
-## Why $\alpha$ Changes Little with Melding
+## Why Effect of Melding on $\alpha$ is Small
 
 ```{r,eval=FALSE}
 
@@ -1976,7 +2078,7 @@ dev.off()
 ```
 
 
-::: {.mybox2 style="margin-top:4%;margin-bottom:4%;"}
+::: {.mybox2 style="margin-top:1%;margin-bottom:1%;"}
 
  $$\Pr(S_0|\text{test}_+, \text{untested}) =M(\theta) = \frac{\beta(1 - \Pr(S_1|\text{untested}))}{\beta(1-\Pr(S_1|\text{untested})) + \alpha \Pr(S_1|\text{untested})}.$$ 
  
@@ -2005,12 +2107,10 @@ dev.off()
 
 
 
-## State-level Results
 
+## State-level Results: Different Data Source
 
-<img src='figure/state_level_mi_ma.jpeg'>
-
-
+<img src='figure/covidestim_concordance_state_jhu.jpeg'>
 
 ## Positivity Rate for Hampshire County
 
@@ -2104,6 +2204,13 @@ $$w_i = \left( \frac{f_\phi^{direct}(M(\theta_i))}{f_\phi^{induced}(M(\theta_i))
 :::
 
 
+## Adjustment for Sensitivity and Specificity
+
+* $S_e$ = test sensitivity = the probability an individual tests positive if they have COVID-19 (probability of a true positive), that is, $P(\text{test}_+ | +)$. 
+* $S_p$ = test specificity = probability an individual tests negative if they do not have COVID-19 (probability of a true negative), that is, $P(\text{test}_- |-)$.
+
+Then, given that we have the number $N^*$ who (would) tested positive, $S_p$, the sensitivity $S_e$, and the total population size $N$, we can calculate the true positives with the formula^[@rothman2008]:
+$$\text{Number Truly Positive} = \dfrac{N^* - (1-S_p) \times N}{S_e+S_p-1}$$
 
 ## References
 
