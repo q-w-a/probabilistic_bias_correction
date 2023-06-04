@@ -159,7 +159,7 @@ waste %>% filter(fips %in% corrected$fips) %>%
 # Wastewater
 
 
-```{r, eval=FALSE}
+```{r}
 
 wjoined %>%
   group_by(fips) %>%
